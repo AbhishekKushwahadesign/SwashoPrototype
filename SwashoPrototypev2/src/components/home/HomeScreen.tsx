@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useState } from 'react';
-import { Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { SubtractIcon } from './figma-icons';
@@ -110,9 +110,9 @@ const HOME_INDICATOR_HEIGHT = 24;
 
 const SCROLL_CONTENT_HEIGHT = SHEET_REGION_TOP + SHEET_CONTENT_HEIGHT;
 
-const stickyPosition = Platform.select({
+const stickyPosition = Platform.select<ViewStyle>({
   web: {
-    position: 'sticky' as const,
+    position: 'sticky' as ViewStyle['position'],
     top: 0,
   },
   default: {},
