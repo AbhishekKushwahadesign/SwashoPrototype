@@ -111,7 +111,12 @@ const PROMISE_SEARCH_MIN_GAP = 32;
 const SEARCH_ABSOLUTE_TOP = HEADER_REGION_TOP + HEADER_GRADIENT_OFFSET + SEARCH_BAR_TOP;
 const PROMISE_ABSOLUTE_TOP = HEADER_REGION_TOP + HEADER_GRADIENT_OFFSET + PROMISE_SECTION_TOP;
 const SEARCH_STICKY_TOP = STATUS_BAR_HEIGHT + SEARCH_BAR_BOTTOM_GAP;
-const SHEET_STICKY_TOP = SEARCH_STICKY_TOP + SEARCH_FIELD_HEIGHT + SEARCH_BAR_BOTTOM_GAP;
+/** Concave Subtract notch depth (path y=48). Sticky search bottom (89) + 12px = 101 at the notch. */
+const SUBTRACT_NOTCH_DEPTH = 48;
+const SHEET_NOTCH_STICKY_BOTTOM =
+  SEARCH_STICKY_TOP + SEARCH_FIELD_HEIGHT + SEARCH_BAR_BOTTOM_GAP;
+/** Sheet container top when collapsed so the curve wraps the stuck search. */
+const SHEET_STICKY_TOP = SHEET_NOTCH_STICKY_BOTTOM - SUBTRACT_NOTCH_DEPTH;
 const SHEET_REGION_TOP = 206.5835;
 const SEARCH_COLLAPSE_DISTANCE = SEARCH_ABSOLUTE_TOP - SEARCH_STICKY_TOP;
 const SHEET_COLLAPSE_DISTANCE = SHEET_REGION_TOP - SHEET_STICKY_TOP;
@@ -174,8 +179,8 @@ export function HomeScreen() {
   }, [maxCollapseScroll]);
 
   const collapsedProgress = Math.min(collapseScrollY / scale, HEADER_COLLAPSE_SCROLL);
-  // Search pins at SEARCH_STICKY_TOP (44); sheet pins at fixed SHEET_STICKY_TOP (101)
-  // = stuck search bottom (89) + 12 — never drive the stop from mid-scroll searchBottom.
+  // Search pins at SEARCH_STICKY_TOP (44). Sheet pins at SHEET_STICKY_TOP (~53) so
+  // the Subtract notch (~48px) lands at 101 — 12px below stuck search bottom (89).
   const searchTopUnscaled = Math.max(SEARCH_STICKY_TOP, SEARCH_ABSOLUTE_TOP - collapsedProgress);
   const searchTop = searchTopUnscaled * scale;
   const searchBottomUnscaled = searchTopUnscaled + SEARCH_FIELD_HEIGHT;
@@ -190,8 +195,8 @@ export function HomeScreen() {
   );
   const addressTranslateY = -collapsedProgress * scale;
   const promiseTranslateY = -Math.min(collapsedProgress, maxPromiseCollapse) * scale;
-  // Curve sits at Figma Subtract y=57.5 at rest; slides to sheet top (under stuck
-  // search, 12px gap) when collapsed — keep concave top visible when fully scrolled.
+  // Curve sits at Figma Subtract y=57.5 at rest; subtractTop → 0 when collapsed so
+  // the concave wrap sits at the sheet top and embraces the stuck search.
   const sheetTravelDone = Math.min(
     Math.max(SHEET_REGION_TOP - sheetTopUnscaled, 0) / SHEET_COLLAPSE_DISTANCE,
     1,
@@ -348,7 +353,7 @@ export function HomeScreen() {
           <SearchField scale={scale} />
         </View>
 
-        {/* White sheet — slides to fixed SHEET_STICKY_TOP (12px below stuck search) */}
+        {/* White sheet — pins so the concave notch wraps the stuck search */}
         <View
           pointerEvents="box-none"
           style={[
@@ -360,7 +365,7 @@ export function HomeScreen() {
             },
           ]}
         >
-          {/* Subtract curve — pins at sheet top under stuck search; stays visible when collapsed */}
+          {/* Subtract curve — at rest y=57.5; collapsed at sheet top wrapping search */}
           <View
             pointerEvents="none"
             style={[
