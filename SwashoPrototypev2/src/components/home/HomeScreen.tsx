@@ -143,14 +143,12 @@ export function HomeScreen() {
 
   const collapsedProgress = Math.min(collapseScrollY / scale, HEADER_COLLAPSE_SCROLL);
   const isFullyCollapsed = collapsedProgress >= HEADER_COLLAPSE_SCROLL - 0.5;
-  // Always pin sheet at least 12px below the current/sticky search bottom; travel from Figma rest.
+  // Search pins at SEARCH_STICKY_TOP (44); sheet pins at fixed SHEET_STICKY_TOP (101)
+  // = stuck search bottom (89) + 12 — never drive the stop from mid-scroll searchBottom.
   const searchTopUnscaled = Math.max(SEARCH_STICKY_TOP, SEARCH_ABSOLUTE_TOP - collapsedProgress);
   const searchTop = searchTopUnscaled * scale;
   const searchBottomUnscaled = searchTopUnscaled + SEARCH_FIELD_HEIGHT;
-  const sheetTopUnscaled = Math.max(
-    searchBottomUnscaled + SEARCH_BAR_BOTTOM_GAP,
-    SHEET_REGION_TOP - collapsedProgress,
-  );
+  const sheetTopUnscaled = Math.max(SHEET_STICKY_TOP, SHEET_REGION_TOP - collapsedProgress);
   const sheetTop = sheetTopUnscaled * scale;
   const sheetHeight = frameHeight - sheetTop - bottomChromeHeight;
   // Address always tracks full collapse so it fully exits; promise stops once it
@@ -161,7 +159,8 @@ export function HomeScreen() {
   );
   const addressTranslateY = -collapsedProgress * scale;
   const promiseTranslateY = -Math.min(collapsedProgress, maxPromiseCollapse) * scale;
-  // Curve sits at Figma Subtract y=57.5 at rest; slides to sheet top (under search) when collapsed.
+  // Curve sits at Figma Subtract y=57.5 at rest; slides to sheet top (under stuck
+  // search, 12px gap) when collapsed — keep concave top visible when fully scrolled.
   const sheetTravelDone = Math.min(
     Math.max(SHEET_REGION_TOP - sheetTopUnscaled, 0) / SHEET_COLLAPSE_DISTANCE,
     1,
@@ -374,7 +373,7 @@ export function HomeScreen() {
           <SearchField scale={scale} />
         </View>
 
-        {/* White sheet — slides up to 12px below sticky search, covering promise on collapse */}
+        {/* White sheet — slides to fixed SHEET_STICKY_TOP (12px below stuck search) */}
         <View
           pointerEvents="box-none"
           style={[
@@ -386,7 +385,7 @@ export function HomeScreen() {
             },
           ]}
           {...(Platform.OS === 'web' ? { onWheel: handleSheetWheel } : {})}>
-          {/* Fixed Subtract curve — pins under search when collapsed; does not scroll away */}
+          {/* Subtract curve — pins at sheet top under stuck search; stays visible when collapsed */}
           <View
             pointerEvents="none"
             style={[
