@@ -147,15 +147,15 @@ export function HomeScreen() {
   const sheetHeight = frameHeight - sheetTop - bottomChromeHeight;
   const searchTopUnscaled = Math.max(SEARCH_STICKY_TOP, SEARCH_ABSOLUTE_TOP - collapsedProgress);
   const searchTop = searchTopUnscaled * scale;
-  // Address + promise share this translate, but stop once promise would get
-  // closer than PROMISE_SEARCH_MIN_GAP below the current/sticky search bar.
+  // Address always tracks full collapse so it fully exits; promise stops once it
+  // would get closer than PROMISE_SEARCH_MIN_GAP below the current/sticky search.
   const searchBottomUnscaled = searchTopUnscaled + SEARCH_FIELD_HEIGHT;
   const maxPromiseCollapse = Math.max(
     0,
     PROMISE_ABSOLUTE_TOP - (searchBottomUnscaled + PROMISE_SEARCH_MIN_GAP),
   );
-  const headerCollapse = Math.min(collapsedProgress, maxPromiseCollapse);
-  const headerTranslateY = -headerCollapse * scale;
+  const addressTranslateY = -collapsedProgress * scale;
+  const promiseTranslateY = -Math.min(collapsedProgress, maxPromiseCollapse) * scale;
 
   const setCollapsedOffset = (nextY: number) => {
     const clamped = Math.max(0, Math.min(nextY, maxCollapseScroll));
@@ -328,13 +328,26 @@ export function HomeScreen() {
                 styles.headerContent,
                 {
                   height: HEADER_GRADIENT_HEIGHT * scale,
-                  transform: [{ translateY: headerTranslateY }],
                 },
               ]}>
-              <View style={[styles.headerAddress, { top: 5.5 * scale }]}>
+              <View
+                style={[
+                  styles.headerAddress,
+                  {
+                    top: 5.5 * scale,
+                    transform: [{ translateY: addressTranslateY }],
+                  },
+                ]}>
                 <AddressHeader scale={scale} />
               </View>
-              <View style={[styles.headerPromise, { top: PROMISE_SECTION_TOP * scale }]}>
+              <View
+                style={[
+                  styles.headerPromise,
+                  {
+                    top: PROMISE_SECTION_TOP * scale,
+                    transform: [{ translateY: promiseTranslateY }],
+                  },
+                ]}>
                 <PromiseSection scale={scale} onLearnMorePress={() => undefined} />
               </View>
             </View>
