@@ -97,13 +97,12 @@ const HEADER_STICKY_HEIGHT = 246;
 const HEADER_GRADIENT_OFFSET = -25;
 const HEADER_GRADIENT_HEIGHT = 312;
 
-// Collapsed sticky search row: 12px pad + 45px field + 12px pad = 69px
-const COLLAPSED_SEARCH_PADDING = SwashoSpacing.lg;
+// Search bar stays at Figma y=70.5 inside gradient; sheet sticks 12px below it when collapsed
+const SEARCH_BAR_TOP = 70.5;
 const SEARCH_FIELD_HEIGHT = 45;
-const COLLAPSED_HEADER_HEIGHT = COLLAPSED_SEARCH_PADDING + SEARCH_FIELD_HEIGHT + COLLAPSED_SEARCH_PADDING;
-const HEADER_EXPANDED_SCROLL_HEIGHT = HEADER_STICKY_HEIGHT - COLLAPSED_HEADER_HEIGHT;
-const SEARCH_ROW_TOP = 70.5 - COLLAPSED_SEARCH_PADDING;
-const HEADER_SCROLL_FLOW_SPACER = HEADER_STICKY_HEIGHT - SEARCH_ROW_TOP - COLLAPSED_HEADER_HEIGHT;
+const SEARCH_BAR_BOTTOM_GAP = SwashoSpacing.lg;
+const SHEET_STICKY_TOP =
+  SEARCH_BAR_TOP + HEADER_GRADIENT_OFFSET + SEARCH_FIELD_HEIGHT + SEARCH_BAR_BOTTOM_GAP;
 
 // Figma frame 3344:8748 — sheet scroll region
 const SHEET_REGION_TOP = 155.58;
@@ -118,7 +117,7 @@ const HOME_INDICATOR_HEIGHT = 24;
 
 const SCROLL_CONTENT_HEIGHT = SHEET_REGION_TOP + SHEET_CONTENT_HEIGHT;
 
-const stickySearchPosition = Platform.select<ViewStyle>({
+const stickyPosition = Platform.select<ViewStyle>({
   web: {
     position: 'sticky' as ViewStyle['position'],
     top: 0,
@@ -144,7 +143,7 @@ export function HomeScreen() {
   const frameHeight = contentHeight + safeTop;
   const bottomChromeHeight = (NAV_HEIGHT + HOME_INDICATOR_HEIGHT) * scale;
 
-  const expandedHeaderGradient = (
+  const headerGradient = (
     <LinearGradient
       colors={[SwashoColors.primary500, SwashoColors.primary100]}
       locations={[0.003, 1]}
@@ -161,25 +160,13 @@ export function HomeScreen() {
         <View style={[styles.headerAddress, { top: 5.5 * scale }]}>
           <AddressHeader scale={scale} />
         </View>
+        <View style={[styles.headerSearch, { top: SEARCH_BAR_TOP * scale }]}>
+          <SearchField scale={scale} />
+        </View>
         <View style={[styles.headerPromise, { top: 131.5 * scale }]}>
           <PromiseSection scale={scale} onLearnMorePress={() => undefined} />
         </View>
       </View>
-    </LinearGradient>
-  );
-
-  const collapsedSearchRow = (
-    <LinearGradient
-      colors={[SwashoColors.primary500, SwashoColors.primary100]}
-      locations={[0.003, 1]}
-      style={[
-        styles.collapsedSearchGradient,
-        {
-          paddingTop: COLLAPSED_SEARCH_PADDING * scale,
-          paddingBottom: COLLAPSED_SEARCH_PADDING * scale,
-        },
-      ]}>
-      <SearchField scale={scale} />
     </LinearGradient>
   );
 
@@ -260,25 +247,12 @@ export function HomeScreen() {
               pointerEvents="auto"
               style={[
                 styles.stickyHeader,
+                stickyPosition,
                 {
-                  minHeight: HEADER_STICKY_HEIGHT * scale,
+                  height: HEADER_STICKY_HEIGHT * scale,
                 },
               ]}>
-              <View style={{ height: HEADER_EXPANDED_SCROLL_HEIGHT * scale }}>
-                {expandedHeaderGradient}
-              </View>
-              <View
-                style={[
-                  styles.stickySearchRow,
-                  stickySearchPosition,
-                  {
-                    height: COLLAPSED_HEADER_HEIGHT * scale,
-                    marginTop: (SEARCH_ROW_TOP - HEADER_EXPANDED_SCROLL_HEIGHT) * scale,
-                  },
-                ]}>
-                {collapsedSearchRow}
-              </View>
-              <View style={{ height: HEADER_SCROLL_FLOW_SPACER * scale }} />
+              {headerGradient}
             </View>
           </View>
 
@@ -296,7 +270,7 @@ export function HomeScreen() {
               pointerEvents="auto"
               style={[
                 styles.stickySheet,
-                stickySheetPosition(COLLAPSED_HEADER_HEIGHT * scale),
+                stickySheetPosition(SHEET_STICKY_TOP * scale),
                 {
                   minHeight: SHEET_CONTENT_HEIGHT * scale,
                   paddingTop: SHEET_STICKY_PADDING * scale,
@@ -377,14 +351,11 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
   },
-  stickySearchRow: {
-    overflow: 'hidden',
-    width: '100%',
-    zIndex: 2,
-  },
-  collapsedSearchGradient: {
-    flex: 1,
-    justifyContent: 'center',
+  headerSearch: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
   },
   headerPromise: {
     position: 'absolute',
