@@ -110,7 +110,9 @@ const SEARCH_ABSOLUTE_TOP = HEADER_REGION_TOP + HEADER_GRADIENT_OFFSET + SEARCH_
 const SEARCH_STICKY_TOP = STATUS_BAR_HEIGHT + SEARCH_BAR_BOTTOM_GAP;
 const SHEET_STICKY_TOP = SEARCH_STICKY_TOP + SEARCH_FIELD_HEIGHT + SEARCH_BAR_BOTTOM_GAP;
 const SHEET_REGION_TOP = 155.58;
-const HEADER_COLLAPSE_SCROLL = SHEET_REGION_TOP - SHEET_STICKY_TOP;
+const SEARCH_COLLAPSE_DISTANCE = SEARCH_ABSOLUTE_TOP - SEARCH_STICKY_TOP;
+const SHEET_COLLAPSE_DISTANCE = SHEET_REGION_TOP - SHEET_STICKY_TOP;
+const HEADER_COLLAPSE_SCROLL = Math.max(SEARCH_COLLAPSE_DISTANCE, SHEET_COLLAPSE_DISTANCE);
 
 const SHEET_STICKY_PADDING = SwashoSpacing.sheetTop;
 const SUBTRACT_TOP = 98.42;
@@ -125,24 +127,84 @@ export function HomeScreen() {
   const safeTop = useSafeTopInset(insets.top);
   const [navVariant, setNavVariant] = useState<NavBarVariant>('Home');
   const [collapseScrollY, setCollapseScrollY] = useState(0);
+  const collapseScrollYRef = useRef(0);
+  const sheetScrollRef = useRef<ScrollView>(null);
+  const sheetScrollOffsetRef = useRef(0);
   const collapseScrollRef = useRef<ScrollView>(null);
 
   const frameHeight = contentHeight + safeTop;
   const bottomChromeHeight = (NAV_HEIGHT + HOME_INDICATOR_HEIGHT) * scale;
+  const collapseViewportHeight = frameHeight - bottomChromeHeight;
   const maxCollapseScroll = HEADER_COLLAPSE_SCROLL * scale;
+  const collapseScrollContentHeight = collapseViewportHeight + maxCollapseScroll;
 
   const collapsedProgress = Math.min(collapseScrollY / scale, HEADER_COLLAPSE_SCROLL);
-  const sheetTop = (SHEET_REGION_TOP - collapsedProgress) * scale;
+  const isFullyCollapsed = collapsedProgress >= HEADER_COLLAPSE_SCROLL;
+  const sheetTop = Math.max(SHEET_STICKY_TOP, SHEET_REGION_TOP - collapsedProgress) * scale;
   const sheetHeight = frameHeight - sheetTop - bottomChromeHeight;
   const headerTranslateY = -collapsedProgress * scale;
   const searchTop = Math.max(SEARCH_STICKY_TOP, SEARCH_ABSOLUTE_TOP - collapsedProgress) * scale;
 
+  const setCollapsedOffset = (nextY: number) => {
+    const clamped = Math.max(0, Math.min(nextY, maxCollapseScroll));
+    collapseScrollYRef.current = clamped;
+    setCollapseScrollY(clamped);
+    collapseScrollRef.current?.scrollTo({ y: clamped, animated: false });
+    return clamped;
+  };
+
+  const absorbCollapseDelta = (deltaY: number) => {
+    if (deltaY === 0) {
+      return 0;
+    }
+
+    const current = collapseScrollYRef.current;
+    const clamped = Math.max(0, Math.min(current + deltaY, maxCollapseScroll));
+    const consumed = clamped - current;
+    if (consumed !== 0) {
+      collapseScrollYRef.current = clamped;
+      setCollapseScrollY(clamped);
+      collapseScrollRef.current?.scrollTo({ y: clamped, animated: false });
+    }
+    return consumed;
+  };
+
   const handleCollapseScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const y = event.nativeEvent.contentOffset.y;
-    const clamped = Math.min(y, maxCollapseScroll);
-    setCollapseScrollY(clamped);
-    if (y > maxCollapseScroll) {
-      collapseScrollRef.current?.scrollTo({ y: maxCollapseScroll, animated: false });
+    setCollapsedOffset(y);
+  };
+
+  const handleSheetScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const y = event.nativeEvent.contentOffset.y;
+    const deltaY = y - sheetScrollOffsetRef.current;
+    sheetScrollOffsetRef.current = y;
+
+    if (deltaY > 0 && !isFullyCollapsed) {
+      const consumed = absorbCollapseDelta(deltaY);
+      if (consumed > 0) {
+        const nextSheetOffset = Math.max(0, y - consumed);
+        sheetScrollOffsetRef.current = nextSheetOffset;
+        sheetScrollRef.current?.scrollTo({ y: nextSheetOffset, animated: false });
+      }
+      return;
+    }
+
+    if (deltaY < 0 && y <= 0 && collapseScrollYRef.current > 0) {
+      absorbCollapseDelta(deltaY);
+      sheetScrollOffsetRef.current = 0;
+      sheetScrollRef.current?.scrollTo({ y: 0, animated: false });
+    }
+  };
+
+  const handleSheetWheel = (event: { deltaY: number }) => {
+    if (Platform.OS !== 'web' || sheetScrollOffsetRef.current > 0) {
+      return;
+    }
+
+    if (event.deltaY < 0 && collapseScrollYRef.current > 0) {
+      absorbCollapseDelta(event.deltaY);
+    } else if (event.deltaY > 0 && collapseScrollYRef.current < maxCollapseScroll) {
+      absorbCollapseDelta(event.deltaY);
     }
   };
 
@@ -197,16 +259,17 @@ export function HomeScreen() {
           <StatusBar scale={scale} />
         </View>
 
-        {/* Collapse scroll — drives address/promise away and sheet slide */}
+        {/* Collapse scroll — captures header/sheet-top gestures until fully collapsed */}
         <ScrollView
           ref={collapseScrollRef}
-          style={[styles.collapseScroll, { height: sheetTop }]}
-          contentContainerStyle={{ height: maxCollapseScroll + sheetHeight }}
+          pointerEvents={isFullyCollapsed ? 'none' : 'auto'}
+          style={[styles.collapseScroll, { bottom: bottomChromeHeight }]}
+          contentContainerStyle={{ minHeight: collapseScrollContentHeight }}
           showsVerticalScrollIndicator={false}
           onScroll={handleCollapseScroll}
           scrollEventThrottle={16}
-          bounces={false}
-          overScrollMode="never"
+          bounces={collapseScrollY > 0}
+          overScrollMode="always"
           nestedScrollEnabled />
 
         {/* Header gradient — address + promise scroll up with collapse */}
@@ -266,8 +329,10 @@ export function HomeScreen() {
               height: sheetHeight,
               zIndex: 4,
             },
-          ]}>
+          ]}
+          {...(Platform.OS === 'web' ? { onWheel: handleSheetWheel } : {})}>
           <ScrollView
+            ref={sheetScrollRef}
             style={styles.sheetScroll}
             contentContainerStyle={[
               styles.sheetScrollContent,
@@ -279,6 +344,8 @@ export function HomeScreen() {
               },
             ]}
             showsVerticalScrollIndicator={false}
+            onScroll={handleSheetScroll}
+            scrollEventThrottle={16}
             nestedScrollEnabled
             bounces
             overScrollMode="always">
@@ -328,7 +395,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 5,
-    opacity: 0.01,
+    backgroundColor: 'transparent',
   },
   headerLayer: {
     position: 'absolute',
