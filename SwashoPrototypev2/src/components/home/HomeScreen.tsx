@@ -179,9 +179,6 @@ export function HomeScreen() {
         <View style={[styles.headerAddress, { top: 5.5 * scale }]}>
           <AddressHeader scale={scale} />
         </View>
-        <View style={[styles.headerSearch, { top: SEARCH_BAR_TOP * scale }]}>
-          <SearchField scale={scale} />
-        </View>
         <View style={[styles.headerPromise, { top: 131.5 * scale }]}>
           <PromiseSection scale={scale} onLearnMorePress={() => undefined} />
         </View>
@@ -263,7 +260,7 @@ export function HomeScreen() {
               {
                 top: HEADER_REGION_TOP * scale,
                 height: HEADER_REGION_HEIGHT * scale,
-                zIndex: 5,
+                zIndex: 2,
               },
             ]}>
             <View
@@ -284,9 +281,32 @@ export function HomeScreen() {
             style={[
               styles.scrollRegion,
               {
+                top: (HEADER_REGION_TOP + HEADER_GRADIENT_OFFSET + SEARCH_BAR_TOP) * scale,
+                height: (SEARCH_FIELD_HEIGHT + SEARCH_BAR_BOTTOM_GAP * 2) * scale,
+                zIndex: 6,
+              },
+            ]}>
+            <View
+              pointerEvents="auto"
+              style={[
+                styles.stickySearch,
+                stickySheetPosition((HEADER_GRADIENT_OFFSET + SEARCH_BAR_TOP) * scale),
+                {
+                  paddingVertical: SEARCH_BAR_BOTTOM_GAP * scale,
+                },
+              ]}>
+              <SearchField scale={scale} />
+            </View>
+          </View>
+
+          <View
+            pointerEvents="box-none"
+            style={[
+              styles.scrollRegion,
+              {
                 top: SHEET_REGION_TOP * scale,
                 height: sheetRegionHeight * scale,
-                zIndex: 3,
+                zIndex: 4,
               },
             ]}>
             <View
@@ -296,6 +316,7 @@ export function HomeScreen() {
                 stickySheetPosition(SHEET_STICKY_TOP * scale),
                 {
                   height: sheetMaxHeight,
+                  backgroundColor: SwashoColors.surface,
                 },
               ]}>
               <ScrollView
@@ -397,16 +418,15 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
   },
-  headerSearch: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
+  stickySearch: {
+    width: '100%',
     alignItems: 'center',
   },
   headerPromise: {
     position: 'absolute',
     left: 0,
     right: 0,
+    zIndex: 1,
   },
   sheetBackground: {
     position: 'absolute',
@@ -429,6 +449,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    zIndex: 4,
+    zIndex: 8,
   },
 });
