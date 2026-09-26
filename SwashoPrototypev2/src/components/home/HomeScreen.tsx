@@ -105,8 +105,11 @@ const PROMISE_SECTION_TOP = 131.5;
 const SEARCH_FIELD_HEIGHT = 45;
 const SEARCH_BAR_BOTTOM_GAP = SwashoSpacing.lg;
 const STATUS_BAR_HEIGHT = 32;
+/** Minimum gap between search field bottom and promise section top while collapsing. */
+const PROMISE_SEARCH_MIN_GAP = 32;
 
 const SEARCH_ABSOLUTE_TOP = HEADER_REGION_TOP + HEADER_GRADIENT_OFFSET + SEARCH_BAR_TOP;
+const PROMISE_ABSOLUTE_TOP = HEADER_REGION_TOP + HEADER_GRADIENT_OFFSET + PROMISE_SECTION_TOP;
 const SEARCH_STICKY_TOP = STATUS_BAR_HEIGHT + SEARCH_BAR_BOTTOM_GAP;
 const SHEET_STICKY_TOP = SEARCH_STICKY_TOP + SEARCH_FIELD_HEIGHT + SEARCH_BAR_BOTTOM_GAP;
 const SHEET_REGION_TOP = 206.5835;
@@ -142,8 +145,17 @@ export function HomeScreen() {
   const isFullyCollapsed = collapsedProgress >= HEADER_COLLAPSE_SCROLL;
   const sheetTop = Math.max(SHEET_STICKY_TOP, SHEET_REGION_TOP - collapsedProgress) * scale;
   const sheetHeight = frameHeight - sheetTop - bottomChromeHeight;
-  const headerTranslateY = -collapsedProgress * scale;
-  const searchTop = Math.max(SEARCH_STICKY_TOP, SEARCH_ABSOLUTE_TOP - collapsedProgress) * scale;
+  const searchTopUnscaled = Math.max(SEARCH_STICKY_TOP, SEARCH_ABSOLUTE_TOP - collapsedProgress);
+  const searchTop = searchTopUnscaled * scale;
+  // Address + promise share this translate, but stop once promise would get
+  // closer than PROMISE_SEARCH_MIN_GAP below the current/sticky search bar.
+  const searchBottomUnscaled = searchTopUnscaled + SEARCH_FIELD_HEIGHT;
+  const maxPromiseCollapse = Math.max(
+    0,
+    PROMISE_ABSOLUTE_TOP - (searchBottomUnscaled + PROMISE_SEARCH_MIN_GAP),
+  );
+  const headerCollapse = Math.min(collapsedProgress, maxPromiseCollapse);
+  const headerTranslateY = -headerCollapse * scale;
 
   const setCollapsedOffset = (nextY: number) => {
     const clamped = Math.max(0, Math.min(nextY, maxCollapseScroll));
