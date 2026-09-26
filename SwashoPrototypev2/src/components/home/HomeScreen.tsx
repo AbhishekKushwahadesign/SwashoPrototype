@@ -156,6 +156,10 @@ export function HomeScreen() {
   );
   const addressTranslateY = -collapsedProgress * scale;
   const promiseTranslateY = -Math.min(collapsedProgress, maxPromiseCollapse) * scale;
+  // Curve sits at Figma Subtract y=57.5 at rest; slides to sheet top (under search) when collapsed.
+  const sheetCollapseT = Math.min(collapsedProgress / SHEET_COLLAPSE_DISTANCE, 1);
+  const subtractTop = SUBTRACT_TOP * (1 - sheetCollapseT);
+  const sheetContentPaddingTop = SHEET_STICKY_PADDING - SUBTRACT_TOP * sheetCollapseT;
 
   const setCollapsedOffset = (nextY: number) => {
     const clamped = Math.max(0, Math.min(nextY, maxCollapseScroll));
@@ -238,17 +242,6 @@ export function HomeScreen() {
 
   const sheetSections = (
     <>
-      <View
-        style={[
-          styles.sheetBackground,
-          {
-            top: SUBTRACT_TOP * scale,
-            height: SUBTRACT_HEIGHT * scale,
-          },
-        ]}>
-        <SubtractIcon width={contentWidth} height={SUBTRACT_HEIGHT * scale} />
-      </View>
-
       <View style={[styles.section, { width: 373 * scale, gap: 12 * scale }]}>
         <SectionTitle title="Personalized Recommendation" scale={scale} />
         <RecommendationCard scale={scale} onViewPlanPress={() => undefined} />
@@ -379,13 +372,25 @@ export function HomeScreen() {
             },
           ]}
           {...(Platform.OS === 'web' ? { onWheel: handleSheetWheel } : {})}>
+          {/* Fixed Subtract curve — pins under search when collapsed; does not scroll away */}
+          <View
+            pointerEvents="none"
+            style={[
+              styles.sheetBackground,
+              {
+                top: subtractTop * scale,
+                height: SUBTRACT_HEIGHT * scale,
+              },
+            ]}>
+            <SubtractIcon width={contentWidth} height={SUBTRACT_HEIGHT * scale} />
+          </View>
           <ScrollView
             ref={sheetScrollRef}
             style={styles.sheetScroll}
             contentContainerStyle={[
               styles.sheetScrollContent,
               {
-                paddingTop: SHEET_STICKY_PADDING * scale,
+                paddingTop: sheetContentPaddingTop * scale,
                 paddingHorizontal: SwashoSpacing.xxl * scale,
                 paddingBottom: 16 * scale,
                 gap: SwashoSpacing.section * scale,
@@ -482,20 +487,21 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: 'transparent',
   },
-  sheetScroll: {
-    flex: 1,
-    width: '100%',
-    backgroundColor: 'transparent',
-  },
-  sheetScrollContent: {
-    width: '100%',
-    backgroundColor: 'transparent',
-  },
   sheetBackground: {
     position: 'absolute',
     left: 0,
     right: 0,
     zIndex: 0,
+  },
+  sheetScroll: {
+    flex: 1,
+    width: '100%',
+    backgroundColor: 'transparent',
+    zIndex: 1,
+  },
+  sheetScrollContent: {
+    width: '100%',
+    backgroundColor: 'transparent',
   },
   section: {
     alignSelf: 'center',
