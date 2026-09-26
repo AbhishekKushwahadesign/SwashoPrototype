@@ -67,7 +67,7 @@ export function ServiceTile({
         <Image
           source={image}
           style={{ width: imageWidth * scale, height: imageHeight * scale }}
-          contentFit="contain"
+          contentFit="cover"
           contentPosition="bottom"
         />
         <Text
