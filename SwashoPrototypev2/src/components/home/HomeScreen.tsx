@@ -144,6 +144,8 @@ export function HomeScreen() {
   const sheetHeight = frameHeight - sheetTop - bottomChromeHeight;
   const headerTranslateY = -collapsedProgress * scale;
   const searchTop = Math.max(SEARCH_STICKY_TOP, SEARCH_ABSOLUTE_TOP - collapsedProgress) * scale;
+  const sheetCoverHeight =
+    Math.min(collapsedProgress / SHEET_COLLAPSE_DISTANCE, 1) * SUBTRACT_TOP * scale;
 
   const setCollapsedOffset = (nextY: number) => {
     const clamped = Math.max(0, Math.min(nextY, maxCollapseScroll));
@@ -336,7 +338,7 @@ export function HomeScreen() {
           <SearchField scale={scale} />
         </View>
 
-        {/* White sheet — slides up to 12px below sticky search, covering promise */}
+        {/* White sheet — slides up to 12px below sticky search, covering promise on collapse */}
         <View
           pointerEvents="box-none"
           style={[
@@ -345,21 +347,15 @@ export function HomeScreen() {
               top: sheetTop,
               height: sheetHeight,
               zIndex: 4,
-              borderTopLeftRadius: SwashoRadii.header * scale,
-              borderTopRightRadius: SwashoRadii.header * scale,
             },
           ]}
           {...(Platform.OS === 'web' ? { onWheel: handleSheetWheel } : {})}>
-          <View
-            pointerEvents="none"
-            style={[
-              styles.sheetCover,
-              {
-                borderTopLeftRadius: SwashoRadii.header * scale,
-                borderTopRightRadius: SwashoRadii.header * scale,
-              },
-            ]}
-          />
+          {sheetCoverHeight > 0 ? (
+            <View
+              pointerEvents="none"
+              style={[styles.sheetCollapseFill, { height: sheetCoverHeight }]}
+            />
+          ) : null}
           <ScrollView
             ref={sheetScrollRef}
             style={styles.sheetScroll}
@@ -460,10 +456,12 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     overflow: 'hidden',
-    backgroundColor: SwashoColors.surface,
   },
-  sheetCover: {
-    ...StyleSheet.absoluteFill,
+  sheetCollapseFill: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
     backgroundColor: SwashoColors.surface,
     zIndex: 0,
   },
