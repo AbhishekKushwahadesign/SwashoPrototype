@@ -5,16 +5,43 @@ import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
 import { FigmaShadows, figmaShadow } from './figma-shadows';
 
-type ServiceTileProps = {
+const CONTENT_WIDTH = 87.514;
+const LABEL_LINE_HEIGHT = 10;
+
+export type ServiceTileLayout = {
   label: string;
   image: number;
   imageWidth: number;
   imageHeight: number;
+  contentGap: number;
+  labelWidth: number;
+  contentTop?: number;
+  contentCenterOffsetY?: number;
+};
+
+type ServiceTileProps = ServiceTileLayout & {
   scale: number;
 };
 
-export function ServiceTile({ label, image, imageWidth, imageHeight, scale }: ServiceTileProps) {
+export function ServiceTile({
+  label,
+  image,
+  imageWidth,
+  imageHeight,
+  contentGap,
+  labelWidth,
+  contentTop,
+  contentCenterOffsetY,
+  scale,
+}: ServiceTileProps) {
   const tileSize = 83.79 * scale;
+  const contentWidth = CONTENT_WIDTH * scale;
+  const contentHeight = (imageHeight + contentGap + LABEL_LINE_HEIGHT) * scale;
+
+  const resolvedTop =
+    contentCenterOffsetY != null
+      ? (tileSize / 2 - contentCenterOffsetY * scale - contentHeight / 2)
+      : (contentTop ?? 0) * scale;
 
   return (
     <View
@@ -27,14 +54,33 @@ export function ServiceTile({ label, image, imageWidth, imageHeight, scale }: Se
           ...figmaShadow(FigmaShadows.serviceTile, scale),
         },
       ]}>
-      <View style={[styles.content, { gap: 9 * scale }]}>
+      <View
+        style={[
+          styles.content,
+          {
+            width: contentWidth,
+            top: resolvedTop,
+            left: (tileSize - contentWidth) / 2,
+            gap: contentGap * scale,
+          },
+        ]}>
         <Image
           source={image}
           style={{ width: imageWidth * scale, height: imageHeight * scale }}
           contentFit="contain"
           contentPosition="bottom"
         />
-        <Text style={[styles.label, { fontSize: 10 * scale, lineHeight: 10 * scale }]}>{label}</Text>
+        <Text
+          style={[
+            styles.label,
+            {
+              fontSize: 10 * scale,
+              lineHeight: LABEL_LINE_HEIGHT * scale,
+              width: labelWidth * scale,
+            },
+          ]}>
+          {label}
+        </Text>
       </View>
     </View>
   );
@@ -43,12 +89,11 @@ export function ServiceTile({ label, image, imageWidth, imageHeight, scale }: Se
 const styles = StyleSheet.create({
   tile: {
     backgroundColor: SwashoColors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
+    overflow: 'visible',
   },
   content: {
+    position: 'absolute',
     alignItems: 'center',
-    justifyContent: 'center',
   },
   label: {
     fontFamily: 'Poppins_600SemiBold',

@@ -16,18 +16,66 @@ import { PromiseSection } from './PromiseSection';
 import { RecommendationCard } from './RecommendationCard';
 import { SearchField } from './SearchField';
 import { SectionTitle } from './SectionTitle';
-import { ServiceTile } from './ServiceTile';
+import { ServiceTile, ServiceTileLayout } from './ServiceTile';
 import { StatusBar } from './StatusBar';
 import { FigmaShadows, figmaShadow } from './figma-shadows';
 import { useSafeTopInset, useScreenScale } from './scale';
 
-const SERVICES = [
-  { label: 'Ironing Only', image: require('@/assets/images/home/ironing.png'), w: 70.62, h: 50.44 },
-  { label: ' Wash & Fold', image: require('@/assets/images/home/wash-fold.png'), w: 70.88, h: 55.32 },
-  { label: 'Wash & Iron', image: require('@/assets/images/home/wash-iron.png'), w: 67.03, h: 55.86 },
-  { label: 'Dry Cleaning', image: require('@/assets/images/home/dry-cleaning.png'), w: 71.44, h: 62.12 },
-  { label: ' Stain Removal', image: require('@/assets/images/home/stain-removal.png'), w: 66.99, h: 63.38 },
-  { label: ' Specialty Cleaning', image: require('@/assets/images/home/specialty-cleaning.png'), w: 52.04, h: 64.34 },
+const SERVICES: ServiceTileLayout[] = [
+  {
+    label: 'Ironing Only',
+    image: require('@/assets/images/home/ironing.png'),
+    imageWidth: 70.618,
+    imageHeight: 50.442,
+    contentGap: 9,
+    labelWidth: 52.136,
+    contentCenterOffsetY: 8.88,
+  },
+  {
+    label: ' Wash & Fold',
+    image: require('@/assets/images/home/wash-fold.png'),
+    imageWidth: 70.878,
+    imageHeight: 55.319,
+    contentGap: 13,
+    labelWidth: 59.584,
+    contentTop: -14.95,
+  },
+  {
+    label: 'Wash & Iron',
+    image: require('@/assets/images/home/wash-iron.png'),
+    imageWidth: 67.032,
+    imageHeight: 55.86,
+    contentGap: 10,
+    labelWidth: 57.722,
+    contentTop: -12.83,
+  },
+  {
+    label: 'Dry Cleaning',
+    image: require('@/assets/images/home/dry-cleaning.png'),
+    imageWidth: 71.442,
+    imageHeight: 62.123,
+    contentGap: 6,
+    labelWidth: 51.94,
+    contentTop: -14.99,
+  },
+  {
+    label: ' Stain Removal',
+    image: require('@/assets/images/home/stain-removal.png'),
+    imageWidth: 66.988,
+    imageHeight: 63.378,
+    contentGap: 8,
+    labelWidth: 57.722,
+    contentTop: -17.69,
+  },
+  {
+    label: ' Specialty Cleaning',
+    image: require('@/assets/images/home/specialty-cleaning.png'),
+    imageWidth: 52.038,
+    imageHeight: 64.338,
+    contentGap: 7,
+    labelWidth: 63.308,
+    contentTop: -17.62,
+  },
 ];
 
 const HEADER_TOP = 30;
@@ -116,14 +164,7 @@ export function HomeScreen() {
             <SectionTitle title="Search by Service" scale={scale} />
             <View style={[styles.serviceGrid, { width: 373 * scale, gap: 12 * scale, rowGap: 28 * scale }]}>
               {SERVICES.map((service) => (
-                <ServiceTile
-                  key={service.label}
-                  label={service.label}
-                  image={service.image}
-                  imageWidth={service.w}
-                  imageHeight={service.h}
-                  scale={scale}
-                />
+                <ServiceTile key={service.label} {...service} scale={scale} />
               ))}
               <BulkLaundryCard scale={scale} />
             </View>
