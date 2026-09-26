@@ -99,7 +99,7 @@ const SERVICES: ServiceTileLayout[] = [
 
 const HEADER_REGION_TOP = 55;
 const HEADER_GRADIENT_OFFSET = -25;
-const HEADER_GRADIENT_HEIGHT = 312;
+const HEADER_GRADIENT_HEIGHT = 271;
 const SEARCH_BAR_TOP = 70.5;
 const PROMISE_SECTION_TOP = 131.5;
 const SEARCH_FIELD_HEIGHT = 45;
@@ -291,14 +291,13 @@ export function HomeScreen() {
           nestedScrollEnabled
           {...(Platform.OS === 'web' ? { onWheel: handleCollapseWheel } : {})} />
 
-        {/* Header gradient — address + promise scroll up with collapse */}
+        {/* Header gradient — fixed background shared by address, search, and promise */}
         <View
           pointerEvents="none"
           style={[
             styles.headerLayer,
             {
               top: HEADER_REGION_TOP * scale,
-              transform: [{ translateY: headerTranslateY }],
               zIndex: 2,
             },
           ]}>
@@ -314,7 +313,14 @@ export function HomeScreen() {
                 borderBottomRightRadius: SwashoRadii.header * scale,
               },
             ]}>
-            <View style={[styles.headerContent, { height: HEADER_GRADIENT_HEIGHT * scale }]}>
+            <View
+              style={[
+                styles.headerContent,
+                {
+                  height: HEADER_GRADIENT_HEIGHT * scale,
+                  transform: [{ translateY: headerTranslateY }],
+                },
+              ]}>
               <View style={[styles.headerAddress, { top: 5.5 * scale }]}>
                 <AddressHeader scale={scale} />
               </View>
@@ -419,7 +425,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    zIndex: 5,
+    zIndex: 1,
     backgroundColor: 'transparent',
   },
   headerLayer: {
@@ -450,6 +456,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: 'center',
+    backgroundColor: 'transparent',
   },
   sheetContainer: {
     position: 'absolute',
