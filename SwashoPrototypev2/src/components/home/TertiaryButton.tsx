@@ -32,6 +32,7 @@ export function TertiaryButton({
         styles.base,
         isFilled ? styles.filled : styles.text,
         {
+          width: isFilled ? 83 * scale : undefined,
           paddingHorizontal: isFilled ? 8 * scale : (showTrailingIcon ? 4 * scale : 0),
           height: isFilled ? 24 * scale : 18 * scale,
           borderRadius: isFilled ? SwashoRadii.sm * scale : 0,
@@ -73,7 +74,6 @@ const styles = StyleSheet.create({
     color: SwashoColors.neutral50,
     textAlign: 'center',
     letterSpacing: 1,
-    flex: 1,
   },
   textLabel: {
     fontFamily: 'Poppins_500Medium',

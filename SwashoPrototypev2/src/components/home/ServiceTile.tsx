@@ -28,14 +28,12 @@ export function ServiceTile({ label, image, imageWidth, imageHeight, scale }: Se
         },
       ]}>
       <View style={[styles.content, { gap: 9 * scale }]}>
-        <View style={[{ width: imageWidth * scale, height: imageHeight * scale }, figmaShadow(FigmaShadows.serviceImage, scale)]}>
-          <Image
-            source={image}
-            style={{ width: imageWidth * scale, height: imageHeight * scale }}
-            contentFit="contain"
-            contentPosition="bottom"
-          />
-        </View>
+        <Image
+          source={image}
+          style={{ width: imageWidth * scale, height: imageHeight * scale }}
+          contentFit="contain"
+          contentPosition="bottom"
+        />
         <Text style={[styles.label, { fontSize: 10 * scale, lineHeight: 10 * scale }]}>{label}</Text>
       </View>
     </View>
