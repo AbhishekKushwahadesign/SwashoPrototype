@@ -42,6 +42,7 @@ export function PromiseStep({ number, label, scale, width }: PromiseStepProps) {
         style={[
           styles.chip,
           {
+            width: width * scale,
             paddingHorizontal: 6 * scale,
             paddingVertical: 4 * scale,
             borderRadius: SwashoRadii.sm * scale,
@@ -49,7 +50,11 @@ export function PromiseStep({ number, label, scale, width }: PromiseStepProps) {
             ...figmaShadow(FigmaShadows.promiseChip, scale),
           },
         ]}>
-        <Text style={[styles.chipText, { fontSize: 13 * scale, lineHeight: 10 * scale }]}>{label}</Text>
+        <Text
+          numberOfLines={1}
+          style={[styles.chipText, { fontSize: 13 * scale, lineHeight: 10 * scale }]}>
+          {label}
+        </Text>
       </View>
     </View>
   );

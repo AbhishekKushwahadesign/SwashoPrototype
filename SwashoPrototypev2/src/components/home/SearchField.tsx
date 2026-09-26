@@ -27,8 +27,16 @@ export function SearchField({ scale }: SearchFieldProps) {
       ]}>
       <MagnifierIcon width={20 * scale} height={20 * scale} />
       <Text style={[styles.placeholder, { fontSize: 16 * scale, lineHeight: 14 * scale, flex: 1 }]}>Search</Text>
-      <View style={{ height: 28 * scale, justifyContent: 'center' }}>
-        <LineDividerIcon width={28 * scale} height={1} />
+      <View
+        style={{
+          width: 0,
+          height: 28 * scale,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}>
+        <View style={{ transform: [{ rotate: '90deg' }] }}>
+          <LineDividerIcon width={28 * scale} height={1} />
+        </View>
       </View>
       <MicrophoneIcon width={20 * scale} height={20 * scale} />
     </View>
