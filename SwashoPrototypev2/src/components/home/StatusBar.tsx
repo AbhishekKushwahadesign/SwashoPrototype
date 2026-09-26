@@ -59,7 +59,7 @@ export function StatusBar({ scale }: StatusBarProps) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'transparent',
+    backgroundColor: SwashoColors.primary500,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
