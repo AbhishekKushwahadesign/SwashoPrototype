@@ -1,0 +1,15 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20.8844" height="20.8844" viewBox="0 0 20.8844 20.8844" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Bold / Essentional, UI / Home Smile" clip-path="url(#clip0_0_391)">
+<g id="Vector" filter="url(#filter0_d_0_391)">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M2.19217 6.80722C1.74037 7.63262 1.74037 8.6283 1.74037 10.6197V11.9432C1.74037 15.3377 1.74037 17.035 2.75985 18.0895C3.77934 19.144 5.42017 19.144 8.70184 19.144H12.1826C15.4642 19.144 17.1051 19.144 18.1246 18.0895C19.144 17.035 19.144 15.3377 19.144 11.9432V10.6197C19.144 8.6283 19.144 7.63262 18.6922 6.80722C18.2404 5.98182 17.415 5.46955 15.7642 4.44501L14.0239 3.36489C12.2788 2.28187 11.4063 1.74037 10.4422 1.74037C9.4781 1.74037 8.60558 2.28187 6.86056 3.36489L5.12019 4.44501C3.46937 5.46955 2.64397 5.98182 2.19217 6.80722ZM8.22029 13.3986C7.93072 13.184 7.52198 13.2447 7.30735 13.5343C7.09271 13.8239 7.15345 14.2326 7.44302 14.4472C8.2892 15.0745 9.32404 15.4458 10.4422 15.4458C11.5604 15.4458 12.5952 15.0745 13.4414 14.4472C13.731 14.2326 13.7917 13.8239 13.5771 13.5343C13.3624 13.2447 12.9537 13.184 12.6641 13.3986C12.0303 13.8684 11.2653 14.1405 10.4422 14.1405C9.6191 14.1405 8.85408 13.8684 8.22029 13.3986Z" fill="white"/>
+</g>
+</g>
+<defs>
+<filter id="filter0_d_0_391" x="-0.459632" y="1.74037" width="19.6037" height="19.6037" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dx="-2" dy="2"/>
+<feGaussianBlur stdDeviation="0.1"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_391"/>
