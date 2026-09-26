@@ -53,16 +53,22 @@ export function RecommendationCard({ scale, onViewPlanPress }: RecommendationCar
         contentFit="cover"
         contentPosition="bottom"
       />
-      <View style={[styles.copy, { left: 83.5 * scale, top: 10 * scale, width: 269 * scale, gap: 6 * scale }]}>
-        <View style={{ gap: 4 * scale }}>
-          <Text style={[styles.title, { fontSize: 14 * scale, lineHeight: 18 * scale }]}>
-            Save on your regular laundry
-          </Text>
+      <View
+        style={[
+          styles.copy,
+          { left: 83.5 * scale, top: 10 * scale, width: 269 * scale, gap: 6 * scale },
+        ]}>
+        <Text style={[styles.title, { fontSize: 14 * scale, lineHeight: 18 * scale }]}>
+          Save on your regular laundry
+        </Text>
+        <View style={[styles.bodyRow, { gap: 4 * scale, rowGap: 4 * scale }]}>
           <Text style={[styles.body, { fontSize: 12 * scale, lineHeight: 20 * scale }]}>
             You frequently book Wash & Fold. Save ₹85/week with a Weekly Plan.
           </Text>
+          <View style={styles.viewPlanWrap}>
+            <TertiaryButton label="View Plan" variant="filled" onPress={onViewPlanPress} scale={scale} />
+          </View>
         </View>
-        <TertiaryButton label="View Plan" variant="filled" onPress={onViewPlanPress} scale={scale} />
       </View>
     </View>
   );
@@ -95,6 +101,16 @@ const styles = StyleSheet.create({
   },
   copy: {
     position: 'absolute',
+    alignItems: 'flex-start',
+  },
+  bodyRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    width: '100%',
+  },
+  viewPlanWrap: {
+    flexShrink: 0,
   },
   title: {
     fontFamily: 'Poppins_600SemiBold',

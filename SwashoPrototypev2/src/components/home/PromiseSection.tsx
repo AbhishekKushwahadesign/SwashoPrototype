@@ -26,9 +26,9 @@ type PromiseSectionProps = {
 };
 
 const STEPS = [
-  { number: '1', label: 'Expert Care', width: 92 },
-  { number: '2', label: 'Gentle Process', width: 115 },
-  { number: '3', label: 'Safe Delivery', width: 101 },
+  { number: '1', label: 'Expert Care' },
+  { number: '2', label: 'Gentle Process' },
+  { number: '3', label: 'Safe Delivery' },
 ];
 
 function OurText({ scale }: { scale: number }) {
@@ -116,7 +116,7 @@ export function PromiseSection({ scale, onLearnMorePress }: PromiseSectionProps)
 
       <View style={[styles.steps, { left: 32 * scale, top: 52.49 * scale, gap: 20 * scale }]}>
         {STEPS.map((step) => (
-          <PromiseStep key={step.number} number={step.number} label={step.label} width={step.width} scale={scale} />
+          <PromiseStep key={step.number} number={step.number} label={step.label} scale={scale} />
         ))}
       </View>
     </View>
@@ -150,5 +150,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     flexDirection: 'row',
     alignItems: 'center',
+    flexShrink: 0,
   },
 });

@@ -9,14 +9,13 @@ type PromiseStepProps = {
   number: string;
   label: string;
   scale: number;
-  width: number;
 };
 
-export function PromiseStep({ number, label, scale, width }: PromiseStepProps) {
+export function PromiseStep({ number, label, scale }: PromiseStepProps) {
   const size = 31.14 * scale;
 
   return (
-    <View style={[styles.column, { gap: 12 * scale, width: width * scale }]}>
+    <View style={[styles.column, { gap: 12 * scale }]}>
       <View
         style={[
           styles.numberOuter,
@@ -42,7 +41,6 @@ export function PromiseStep({ number, label, scale, width }: PromiseStepProps) {
         style={[
           styles.chip,
           {
-            width: width * scale,
             paddingHorizontal: 6 * scale,
             paddingVertical: 4 * scale,
             borderRadius: SwashoRadii.sm * scale,
@@ -50,11 +48,7 @@ export function PromiseStep({ number, label, scale, width }: PromiseStepProps) {
             ...figmaShadow(FigmaShadows.promiseChip, scale),
           },
         ]}>
-        <Text
-          numberOfLines={1}
-          style={[styles.chipText, { fontSize: 13 * scale, lineHeight: 10 * scale }]}>
-          {label}
-        </Text>
+        <Text style={[styles.chipText, { fontSize: 13 * scale, lineHeight: 10 * scale }]}>{label}</Text>
       </View>
     </View>
   );
@@ -63,6 +57,7 @@ export function PromiseStep({ number, label, scale, width }: PromiseStepProps) {
 const styles = StyleSheet.create({
   column: {
     alignItems: 'center',
+    flexShrink: 0,
   },
   numberOuter: {
     borderColor: SwashoColors.primary400,
@@ -78,6 +73,7 @@ const styles = StyleSheet.create({
   chip: {
     backgroundColor: SwashoColors.promiseChip,
     borderBottomColor: SwashoColors.promiseChipBorder,
+    flexShrink: 0,
   },
   chipText: {
     fontFamily: 'Poppins_400Regular',
