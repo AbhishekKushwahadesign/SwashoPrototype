@@ -97,7 +97,7 @@ const SERVICES: ServiceTileLayout[] = [
   },
 ];
 
-const HEADER_REGION_TOP = 55;
+const HEADER_REGION_TOP = 54.5835;
 const HEADER_GRADIENT_OFFSET = -25;
 const HEADER_GRADIENT_HEIGHT = 271;
 const SEARCH_BAR_TOP = 70.5;
@@ -109,21 +109,14 @@ const STATUS_BAR_HEIGHT = 32;
 const SEARCH_ABSOLUTE_TOP = HEADER_REGION_TOP + HEADER_GRADIENT_OFFSET + SEARCH_BAR_TOP;
 const SEARCH_STICKY_TOP = STATUS_BAR_HEIGHT + SEARCH_BAR_BOTTOM_GAP;
 const SHEET_STICKY_TOP = SEARCH_STICKY_TOP + SEARCH_FIELD_HEIGHT + SEARCH_BAR_BOTTOM_GAP;
-const SHEET_REGION_TOP = 155.58;
+const SHEET_REGION_TOP = 206.5835;
 const SEARCH_COLLAPSE_DISTANCE = SEARCH_ABSOLUTE_TOP - SEARCH_STICKY_TOP;
 const SHEET_COLLAPSE_DISTANCE = SHEET_REGION_TOP - SHEET_STICKY_TOP;
 const HEADER_COLLAPSE_SCROLL = Math.max(SEARCH_COLLAPSE_DISTANCE, SHEET_COLLAPSE_DISTANCE);
 
-const SHEET_STICKY_PADDING = SwashoSpacing.sheetTop;
-const PROMISE_SECTION_HEIGHT = 140;
-const PROMISE_BOTTOM_IN_HEADER =
-  PROMISE_SECTION_TOP + PROMISE_SECTION_HEIGHT;
-const SUBTRACT_TOP =
-  HEADER_REGION_TOP +
-  HEADER_GRADIENT_OFFSET +
-  PROMISE_BOTTOM_IN_HEADER -
-  SHEET_REGION_TOP;
-const SUBTRACT_HEIGHT = 905.187;
+const SHEET_STICKY_PADDING = 120;
+const SUBTRACT_TOP = 57.5;
+const SUBTRACT_HEIGHT = 908.1035;
 
 const NAV_HEIGHT = 101;
 const HOME_INDICATOR_HEIGHT = 24;
@@ -151,8 +144,6 @@ export function HomeScreen() {
   const sheetHeight = frameHeight - sheetTop - bottomChromeHeight;
   const headerTranslateY = -collapsedProgress * scale;
   const searchTop = Math.max(SEARCH_STICKY_TOP, SEARCH_ABSOLUTE_TOP - collapsedProgress) * scale;
-  const sheetCoverHeight =
-    Math.min(collapsedProgress / SHEET_COLLAPSE_DISTANCE, 1) * SUBTRACT_TOP * scale;
 
   const setCollapsedOffset = (nextY: number) => {
     const clamped = Math.max(0, Math.min(nextY, maxCollapseScroll));
@@ -363,12 +354,6 @@ export function HomeScreen() {
             },
           ]}
           {...(Platform.OS === 'web' ? { onWheel: handleSheetWheel } : {})}>
-          {sheetCoverHeight > 0 ? (
-            <View
-              pointerEvents="none"
-              style={[styles.sheetCollapseFill, { height: sheetCoverHeight }]}
-            />
-          ) : null}
           <ScrollView
             ref={sheetScrollRef}
             style={styles.sheetScroll}
@@ -470,14 +455,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     overflow: 'hidden',
-  },
-  sheetCollapseFill: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: SwashoColors.surface,
-    zIndex: 0,
+    backgroundColor: 'transparent',
   },
   sheetScroll: {
     flex: 1,
