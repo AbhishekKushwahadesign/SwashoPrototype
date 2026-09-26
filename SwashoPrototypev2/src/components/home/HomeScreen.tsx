@@ -90,9 +90,7 @@ const SERVICES: ServiceTileLayout[] = [
   },
 ];
 
-// Figma frame 3344:8670 — header scroll region
-const HEADER_REGION_TOP = 55;
-const HEADER_REGION_HEIGHT = 1104;
+// Figma frame 3344:8670 — sticky header
 const HEADER_STICKY_HEIGHT = 246;
 const HEADER_GRADIENT_OFFSET = -25;
 const HEADER_GRADIENT_HEIGHT = 312;
@@ -104,18 +102,16 @@ const SEARCH_BAR_BOTTOM_GAP = SwashoSpacing.lg;
 const SHEET_STICKY_TOP =
   SEARCH_BAR_TOP + HEADER_GRADIENT_OFFSET + SEARCH_FIELD_HEIGHT + SEARCH_BAR_BOTTOM_GAP;
 
-// Figma frame 3344:8748 — sheet scroll region
+// Figma frame 3344:8748 — sheet rest position overlaps header promise section
 const SHEET_REGION_TOP = 155.58;
-const SHEET_REGION_HEIGHT = 1003.42;
+const SHEET_OVERLAP_MARGIN = SHEET_REGION_TOP - HEADER_STICKY_HEIGHT;
 const SHEET_STICKY_PADDING = SwashoSpacing.sheetTop;
-const SHEET_CONTENT_HEIGHT = 1064;
 const SUBTRACT_TOP = 98.42;
 const SUBTRACT_HEIGHT = 905.187;
 
 const NAV_HEIGHT = 101;
 const HOME_INDICATOR_HEIGHT = 24;
-
-const SCROLL_CONTENT_HEIGHT = SHEET_REGION_TOP + SHEET_CONTENT_HEIGHT;
+const STATUS_BAR_HEIGHT = 32;
 
 const stickyPosition = Platform.select<ViewStyle>({
   web: {
@@ -142,6 +138,8 @@ export function HomeScreen() {
 
   const frameHeight = contentHeight + safeTop;
   const bottomChromeHeight = (NAV_HEIGHT + HOME_INDICATOR_HEIGHT) * scale;
+  const sheetMaxHeight =
+    contentHeight - STATUS_BAR_HEIGHT * scale - SHEET_STICKY_TOP * scale - bottomChromeHeight;
 
   const headerGradient = (
     <LinearGradient
@@ -226,60 +224,53 @@ export function HomeScreen() {
           contentContainerStyle={[
             styles.scrollContent,
             {
-              minHeight: SCROLL_CONTENT_HEIGHT * scale + bottomChromeHeight,
-              paddingBottom: bottomChromeHeight + 16 * scale,
+              paddingBottom: bottomChromeHeight,
             },
           ]}
           showsVerticalScrollIndicator={false}
+          nestedScrollEnabled
           bounces
           overScrollMode="always">
           <View
             pointerEvents="box-none"
             style={[
-              styles.scrollRegion,
+              styles.stickyHeader,
+              stickyPosition,
               {
-                top: HEADER_REGION_TOP * scale,
-                height: HEADER_REGION_HEIGHT * scale,
-                zIndex: 2,
+                height: HEADER_STICKY_HEIGHT * scale,
+                zIndex: 5,
               },
             ]}>
-            <View
-              pointerEvents="auto"
-              style={[
-                styles.stickyHeader,
-                stickyPosition,
-                {
-                  height: HEADER_STICKY_HEIGHT * scale,
-                },
-              ]}>
-              {headerGradient}
-            </View>
+            {headerGradient}
           </View>
 
           <View
             pointerEvents="box-none"
             style={[
-              styles.scrollRegion,
+              styles.sheetStickyWrapper,
+              stickySheetPosition(SHEET_STICKY_TOP * scale),
               {
-                top: SHEET_REGION_TOP * scale,
-                height: SHEET_REGION_HEIGHT * scale,
+                marginTop: SHEET_OVERLAP_MARGIN * scale,
                 zIndex: 3,
               },
             ]}>
-            <View
-              pointerEvents="auto"
-              style={[
-                styles.stickySheet,
-                stickySheetPosition(SHEET_STICKY_TOP * scale),
+            <ScrollView
+              style={[styles.sheetScroll, { maxHeight: sheetMaxHeight }]}
+              contentContainerStyle={[
+                styles.sheetScrollContent,
                 {
-                  minHeight: SHEET_CONTENT_HEIGHT * scale,
                   paddingTop: SHEET_STICKY_PADDING * scale,
                   paddingHorizontal: SwashoSpacing.xxl * scale,
+                  paddingBottom: 16 * scale,
                   gap: SwashoSpacing.section * scale,
                 },
-              ]}>
+              ]}
+              showsVerticalScrollIndicator={false}
+              nestedScrollEnabled
+              bounces
+              overScrollMode="always">
               {sheetSections}
-            </View>
+            </ScrollView>
           </View>
         </ScrollView>
 
@@ -304,10 +295,13 @@ const styles = StyleSheet.create({
   },
   frame: {
     backgroundColor: SwashoColors.surface,
-    overflow: 'hidden',
     ...Platform.select({
       web: {
         maxHeight: ScreenHeight,
+        overflow: 'visible',
+      },
+      default: {
+        overflow: 'hidden',
       },
     }),
   },
@@ -322,21 +316,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    position: 'relative',
-    width: '100%',
-  },
-  scrollRegion: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
     width: '100%',
   },
   stickyHeader: {
     overflow: 'visible',
     width: '100%',
   },
-  stickySheet: {
-    position: 'relative',
+  sheetStickyWrapper: {
+    width: '100%',
+  },
+  sheetScroll: {
+    width: '100%',
+  },
+  sheetScrollContent: {
     width: '100%',
   },
   headerGradient: {
