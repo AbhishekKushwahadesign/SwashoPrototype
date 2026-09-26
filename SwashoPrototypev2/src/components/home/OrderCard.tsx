@@ -18,6 +18,15 @@ const HEADER_WIDTH = 346;
 const TIMELINE_WIDTH = 344.584;
 const TIMELINE_HEIGHT = 59;
 
+// Absolute square positions inside Frame 98 (parent offset + inner frame offset).
+const PICKUP_SQUARE = { left: 15.792, top: 2, size: 36 };
+const LAUNDRY_SQUARE = { left: 21.376, top: 1, size: 38 };
+const RIDER_SQUARE = { left: 28.668, top: 0, size: 40 };
+const DELIVERED_SQUARE = { left: 284.792, top: 0.033, size: 40 };
+const LINE = { left: 69, top: 33, width: 227 };
+const MINS_AWAY = { left: 127.584, top: 11, width: 90 };
+const OUT_FOR_DELIVERY_LABEL = { left: 4.168, top: 48, width: 89 };
+
 export function OrderCard({ scale, onTrackPress }: OrderCardProps) {
   return (
     <View
@@ -56,21 +65,22 @@ export function OrderCard({ scale, onTrackPress }: OrderCardProps) {
               <View
                 style={{
                   position: 'absolute',
-                  left: 69 * scale,
-                  top: 33 * scale,
-                  width: 227 * scale,
+                  left: LINE.left * scale,
+                  top: LINE.top * scale,
+                  width: LINE.width * scale,
                   height: 2 * scale,
                 }}>
-                <Line13Icon width={227 * scale} height={2 * scale} />
+                <Line13Icon width={LINE.width * scale} height={2 * scale} />
               </View>
+
               <Text
                 style={[
                   styles.minsAway,
                   {
                     position: 'absolute',
-                    left: 0,
-                    right: 0,
-                    top: 11 * scale,
+                    left: MINS_AWAY.left * scale,
+                    top: MINS_AWAY.top * scale,
+                    width: MINS_AWAY.width * scale,
                     fontSize: 13 * scale,
                     lineHeight: 16 * scale,
                   },
@@ -80,13 +90,13 @@ export function OrderCard({ scale, onTrackPress }: OrderCardProps) {
 
               <View
                 style={[
-                  styles.stepCircle,
+                  styles.stepSquare,
                   {
                     position: 'absolute',
-                    left: 4 * scale,
-                    top: 2 * scale,
-                    width: 36 * scale,
-                    height: 36 * scale,
+                    left: PICKUP_SQUARE.left * scale,
+                    top: PICKUP_SQUARE.top * scale,
+                    width: PICKUP_SQUARE.size * scale,
+                    height: PICKUP_SQUARE.size * scale,
                     borderRadius: SwashoRadii.lg * scale,
                     backgroundColor: SwashoColors.neutral200,
                     ...figmaShadow(FigmaShadows.pickupMark, scale),
@@ -101,13 +111,13 @@ export function OrderCard({ scale, onTrackPress }: OrderCardProps) {
 
               <View
                 style={[
-                  styles.stepCircle,
+                  styles.stepSquare,
                   {
                     position: 'absolute',
-                    left: 10.58 * scale,
-                    top: 1 * scale,
-                    width: 38 * scale,
-                    height: 38 * scale,
+                    left: LAUNDRY_SQUARE.left * scale,
+                    top: LAUNDRY_SQUARE.top * scale,
+                    width: LAUNDRY_SQUARE.size * scale,
+                    height: LAUNDRY_SQUARE.size * scale,
                     borderRadius: SwashoRadii.lg * scale,
                     backgroundColor: SwashoColors.neutral200,
                     ...figmaShadow(FigmaShadows.underLaundryMark, scale),
@@ -121,55 +131,56 @@ export function OrderCard({ scale, onTrackPress }: OrderCardProps) {
               </View>
 
               <View
-                style={{
-                  position: 'absolute',
-                  left: 4.17 * scale,
-                  top: 0,
-                  alignItems: 'center',
-                  gap: 8 * scale,
-                }}>
-                <View
-                  style={[
-                    styles.stepCircleActive,
-                    {
-                      width: 40 * scale,
-                      height: 40 * scale,
-                      borderRadius: SwashoRadii.lg * scale,
-                      ...figmaShadow(FigmaShadows.outForDelivery, scale),
-                    },
-                  ]}>
-                  <Image
-                    source={require('@/assets/images/home/rider.png')}
-                    style={{
-                      width: 28.181 * scale,
-                      height: 33.79 * scale,
-                      transform: [{ rotate: '-7.24deg' }],
-                    }}
-                    contentFit="contain"
-                  />
-                </View>
-                <Text
-                  style={[
-                    styles.outForDelivery,
-                    {
-                      fontSize: 13 * scale,
-                      lineHeight: 16 * scale,
-                      width: 89 * scale,
-                    },
-                  ]}>
-                  Out for delivery
-                </Text>
+                style={[
+                  styles.stepSquareActive,
+                  {
+                    position: 'absolute',
+                    left: RIDER_SQUARE.left * scale,
+                    top: RIDER_SQUARE.top * scale,
+                    width: RIDER_SQUARE.size * scale,
+                    height: RIDER_SQUARE.size * scale,
+                    borderRadius: SwashoRadii.lg * scale,
+                    ...figmaShadow(FigmaShadows.outForDelivery, scale),
+                  },
+                ]}>
+                <Image
+                  source={require('@/assets/images/home/rider.png')}
+                  style={{
+                    position: 'absolute',
+                    left: 3.208 * scale,
+                    top: 5.518 * scale,
+                    width: 32.214 * scale,
+                    height: 37.072 * scale,
+                    transform: [{ rotate: '-7.24deg' }],
+                  }}
+                  contentFit="contain"
+                />
               </View>
+
+              <Text
+                style={[
+                  styles.outForDelivery,
+                  {
+                    position: 'absolute',
+                    left: OUT_FOR_DELIVERY_LABEL.left * scale,
+                    top: OUT_FOR_DELIVERY_LABEL.top * scale,
+                    width: OUT_FOR_DELIVERY_LABEL.width * scale,
+                    fontSize: 13 * scale,
+                    lineHeight: 16 * scale,
+                  },
+                ]}>
+                Out for delivery
+              </Text>
 
               <View
                 style={[
-                  styles.stepCircle,
+                  styles.stepSquare,
                   {
                     position: 'absolute',
-                    left: 275 * scale,
-                    top: 0.03 * scale,
-                    width: 40 * scale,
-                    height: 40 * scale,
+                    left: DELIVERED_SQUARE.left * scale,
+                    top: DELIVERED_SQUARE.top * scale,
+                    width: DELIVERED_SQUARE.size * scale,
+                    height: DELIVERED_SQUARE.size * scale,
                     borderRadius: SwashoRadii.lg * scale,
                     backgroundColor: SwashoColors.surface,
                     ...figmaShadow(FigmaShadows.deliveredMark, scale),
@@ -179,8 +190,8 @@ export function OrderCard({ scale, onTrackPress }: OrderCardProps) {
                   source={require('@/assets/images/home/swasho-package.png')}
                   style={{
                     position: 'absolute',
-                    left: 7.79 * scale,
-                    top: 7.97 * scale,
+                    left: 7.792 * scale,
+                    top: 7.967 * scale,
                     width: 24 * scale,
                     height: 25 * scale,
                   }}
@@ -222,13 +233,11 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     textAlign: 'center',
   },
-  stepCircle: {
+  stepSquare: {
     overflow: 'hidden',
   },
-  stepCircleActive: {
+  stepSquareActive: {
     backgroundColor: SwashoColors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
     overflow: 'hidden',
   },
   minsAway: {
