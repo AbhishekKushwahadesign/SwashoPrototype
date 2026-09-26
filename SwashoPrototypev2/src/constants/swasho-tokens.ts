@@ -47,7 +47,7 @@ export const SwashoSpacing = {
   xl: 16,
   xxl: 19.5,
   section: 28,
-  sheetTop: 131,
+  sheetTop: 165,
 } as const;
 
 export const ScreenWidth = 412;

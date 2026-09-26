@@ -90,8 +90,15 @@ const SERVICES: ServiceTileLayout[] = [
   },
 ];
 
-const HEADER_TOP = 30;
-const SHEET_TOP = 187;
+const HEADER_SCROLL_TOP = 55;
+const HEADER_STICKY_HEIGHT = 246;
+const HEADER_GRADIENT_OFFSET = -25;
+const HEADER_GRADIENT_HEIGHT = 312;
+const SHEET_TOP = 155.58;
+const SUBTRACT_TOP = 98.42;
+const SUBTRACT_HEIGHT = 905.187;
+const SHEET_OVERLAP =
+  SHEET_TOP - HEADER_SCROLL_TOP - HEADER_STICKY_HEIGHT;
 const NAV_HEIGHT = 101;
 const HOME_INDICATOR_HEIGHT = 24;
 
@@ -116,79 +123,94 @@ export function HomeScreen() {
             ...figmaShadow(FigmaShadows.screen, scale),
           },
         ]}>
-        <LinearGradient
-          colors={[SwashoColors.primary500, SwashoColors.primary100]}
-          locations={[0.003, 1]}
-          style={[
-            styles.headerGradient,
-            {
-              top: HEADER_TOP * scale,
-              height: 282 * scale,
-              borderBottomLeftRadius: SwashoRadii.header * scale,
-              borderBottomRightRadius: SwashoRadii.header * scale,
-            },
-          ]}>
-          <View style={[styles.headerContent, { height: 312 * scale }]}>
-            <View style={[styles.headerAddress, { top: 5.5 * scale }]}>
-              <AddressHeader scale={scale} />
-            </View>
-            <View style={[styles.headerSearch, { top: 70.5 * scale }]}>
-              <SearchField scale={scale} />
-            </View>
-            <View style={[styles.headerPromise, { top: 131.5 * scale }]}>
-              <PromiseSection scale={scale} onLearnMorePress={() => undefined} />
-            </View>
-          </View>
-        </LinearGradient>
-
         <View style={[styles.statusBar, { height: 32 * scale }]}>
           <StatusBar scale={scale} />
         </View>
 
         <ScrollView
-          style={[
-            styles.scroll,
-            {
-              top: SHEET_TOP * scale,
-              bottom: bottomChromeHeight,
-            },
-          ]}
+          style={styles.scroll}
           contentContainerStyle={{
-            paddingTop: SwashoSpacing.sheetTop * scale,
-            paddingHorizontal: SwashoSpacing.xxl * scale,
-            paddingBottom: 16 * scale,
-            gap: SwashoSpacing.section * scale,
+            paddingTop: HEADER_SCROLL_TOP * scale,
+            paddingBottom: bottomChromeHeight + 16 * scale,
           }}
-          showsVerticalScrollIndicator={false}>
+          showsVerticalScrollIndicator={false}
+          bounces
+          overScrollMode="always">
           <View
             style={[
-              styles.sheetBackground,
+              styles.stickyHeader,
               {
-                top: 67.42 * scale,
-                height: 936.19 * scale,
+                height: HEADER_STICKY_HEIGHT * scale,
+                zIndex: 2,
               },
             ]}>
-            <SubtractIcon width={contentWidth} height={936.19 * scale} />
+            <LinearGradient
+              colors={[SwashoColors.primary500, SwashoColors.primary100]}
+              locations={[0.003, 1]}
+              style={[
+                styles.headerGradient,
+                {
+                  marginTop: HEADER_GRADIENT_OFFSET * scale,
+                  height: HEADER_GRADIENT_HEIGHT * scale,
+                  borderBottomLeftRadius: SwashoRadii.header * scale,
+                  borderBottomRightRadius: SwashoRadii.header * scale,
+                },
+              ]}>
+              <View style={[styles.headerContent, { height: HEADER_GRADIENT_HEIGHT * scale }]}>
+                <View style={[styles.headerAddress, { top: 5.5 * scale }]}>
+                  <AddressHeader scale={scale} />
+                </View>
+                <View style={[styles.headerSearch, { top: 70.5 * scale }]}>
+                  <SearchField scale={scale} />
+                </View>
+                <View style={[styles.headerPromise, { top: 131.5 * scale }]}>
+                  <PromiseSection scale={scale} onLearnMorePress={() => undefined} />
+                </View>
+              </View>
+            </LinearGradient>
           </View>
 
-          <View style={[styles.section, { width: 373 * scale, gap: 12 * scale }]}>
-            <SectionTitle title="Personalized Recommendation" scale={scale} />
-            <RecommendationCard scale={scale} onViewPlanPress={() => undefined} />
-          </View>
-
-          <View style={[styles.section, { width: 373 * scale, gap: 12 * scale }]}>
-            <SectionTitle title="Search by Service" scale={scale} />
-            <View style={[styles.serviceGrid, { width: 373 * scale, gap: 12 * scale, rowGap: 28 * scale }]}>
-              {SERVICES.map((service) => (
-                <ServiceTile key={service.label} {...service} scale={scale} />
-              ))}
-              <BulkLaundryCard scale={scale} />
+          <View
+            style={[
+              styles.sheetContent,
+              {
+                marginTop: SHEET_OVERLAP * scale,
+                paddingTop: SwashoSpacing.sheetTop * scale,
+                paddingHorizontal: SwashoSpacing.xxl * scale,
+                gap: SwashoSpacing.section * scale,
+                zIndex: 1,
+              },
+            ]}>
+            <View
+              style={[
+                styles.sheetBackground,
+                {
+                  top: SUBTRACT_TOP * scale,
+                  height: SUBTRACT_HEIGHT * scale,
+                },
+              ]}>
+              <SubtractIcon width={contentWidth} height={SUBTRACT_HEIGHT * scale} />
             </View>
-          </View>
 
-          <View style={[styles.section, { width: 372 * scale, gap: 12 * scale }]}>
-            <SectionTitle title="Your Orders" actionLabel="All" onActionPress={() => undefined} scale={scale} />
-            <OrderCard scale={scale} onTrackPress={() => undefined} />
+            <View style={[styles.section, { width: 373 * scale, gap: 12 * scale }]}>
+              <SectionTitle title="Personalized Recommendation" scale={scale} />
+              <RecommendationCard scale={scale} onViewPlanPress={() => undefined} />
+            </View>
+
+            <View style={[styles.section, { width: 373 * scale, gap: 12 * scale }]}>
+              <SectionTitle title="Search by Service" scale={scale} />
+              <View style={[styles.serviceGrid, { width: 373 * scale, gap: 12 * scale, rowGap: 28 * scale }]}>
+                {SERVICES.map((service) => (
+                  <ServiceTile key={service.label} {...service} scale={scale} />
+                ))}
+                <BulkLaundryCard scale={scale} />
+              </View>
+            </View>
+
+            <View style={[styles.section, { width: 372 * scale, gap: 12 * scale }]}>
+              <SectionTitle title="Your Orders" actionLabel="All" onActionPress={() => undefined} scale={scale} />
+              <OrderCard scale={scale} onTrackPress={() => undefined} />
+            </View>
           </View>
         </ScrollView>
 
@@ -227,11 +249,20 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 10,
   },
+  scroll: {
+    flex: 1,
+  },
+  stickyHeader: {
+    overflow: 'visible',
+    ...Platform.select({
+      web: {
+        position: 'sticky',
+        top: 0,
+      },
+      default: {},
+    }),
+  },
   headerGradient: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    zIndex: 1,
     overflow: 'hidden',
   },
   headerContent: {
@@ -254,11 +285,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
   },
-  scroll: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    zIndex: 2,
+  sheetContent: {
+    position: 'relative',
   },
   sheetBackground: {
     position: 'absolute',
