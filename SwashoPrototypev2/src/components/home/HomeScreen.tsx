@@ -115,7 +115,14 @@ const SHEET_COLLAPSE_DISTANCE = SHEET_REGION_TOP - SHEET_STICKY_TOP;
 const HEADER_COLLAPSE_SCROLL = Math.max(SEARCH_COLLAPSE_DISTANCE, SHEET_COLLAPSE_DISTANCE);
 
 const SHEET_STICKY_PADDING = SwashoSpacing.sheetTop;
-const SUBTRACT_TOP = 98.42;
+const PROMISE_SECTION_HEIGHT = 140;
+const PROMISE_BOTTOM_IN_HEADER =
+  PROMISE_SECTION_TOP + PROMISE_SECTION_HEIGHT;
+const SUBTRACT_TOP =
+  HEADER_REGION_TOP +
+  HEADER_GRADIENT_OFFSET +
+  PROMISE_BOTTOM_IN_HEADER -
+  SHEET_REGION_TOP;
 const SUBTRACT_HEIGHT = 905.187;
 
 const NAV_HEIGHT = 101;
@@ -475,9 +482,11 @@ const styles = StyleSheet.create({
   sheetScroll: {
     flex: 1,
     width: '100%',
+    backgroundColor: 'transparent',
   },
   sheetScrollContent: {
     width: '100%',
+    backgroundColor: 'transparent',
   },
   sheetBackground: {
     position: 'absolute',
