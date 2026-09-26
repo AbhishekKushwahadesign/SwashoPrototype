@@ -57,7 +57,7 @@ export const FigmaShadows = {
   screen: { offsetX: 0, offsetY: 4, blur: 4, color: '#000000', opacity: 0.25 },
   search: { offsetX: 0, offsetY: 2, blur: 4, color: '#5d30f7', opacity: 0.2 },
   recommendationCard: { offsetX: 0, offsetY: 0, blur: 2.976, color: '#000000', opacity: 0.19 },
-  serviceTile: { offsetX: 0, offsetY: 2, blur: 3.724, color: '#000000', opacity: 0.19 },
+  serviceTile: { offsetX: 0, offsetY: 2, blur: 3.72, color: '#000000', opacity: 0.19 },
   bulkCard: { offsetX: 0, offsetY: 2, blur: 4, color: '#000000', opacity: 0.25 },
   orderCard: { offsetX: 0, offsetY: 0, blur: 3.72, color: '#000000', opacity: 0.19 },
   navPill: { offsetX: 0, offsetY: 0, blur: 4, color: '#000000', opacity: 0.19 },

@@ -139,7 +139,6 @@ export function HomeScreen() {
             {
               top: SHEET_TOP * scale,
               bottom: bottomChromeHeight,
-              ...figmaShadow(FigmaShadows.sheet, scale),
             },
           ]}
           contentContainerStyle={{
