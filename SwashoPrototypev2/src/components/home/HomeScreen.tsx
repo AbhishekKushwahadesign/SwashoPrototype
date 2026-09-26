@@ -116,12 +116,17 @@ export function HomeScreen() {
               borderBottomRightRadius: SwashoRadii.header * scale,
             },
           ]}>
-          <View style={{ paddingTop: 5.5 * scale }}>
-            <AddressHeader scale={scale} />
+          <View style={[styles.headerContent, { height: 312 * scale }]}>
+            <View style={[styles.headerAddress, { top: 5.5 * scale }]}>
+              <AddressHeader scale={scale} />
+            </View>
+            <View style={[styles.headerSearch, { top: 70.5 * scale }]}>
+              <SearchField scale={scale} />
+            </View>
+            <View style={[styles.headerPromise, { top: 131.5 * scale }]}>
+              <PromiseSection scale={scale} onLearnMorePress={() => undefined} />
+            </View>
           </View>
-          <View style={{ height: 16 * scale }} />
-          <SearchField scale={scale} />
-          <PromiseSection scale={scale} onLearnMorePress={() => undefined} />
         </LinearGradient>
 
         <View style={[styles.statusBar, { height: 32 * scale }]}>
@@ -217,6 +222,26 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 1,
     overflow: 'hidden',
+  },
+  headerContent: {
+    position: 'relative',
+    width: '100%',
+  },
+  headerAddress: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+  },
+  headerSearch: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
+  headerPromise: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
   },
   scroll: {
     position: 'absolute',

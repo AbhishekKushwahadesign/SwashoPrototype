@@ -1,5 +1,6 @@
-import { Image } from 'expo-image';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import MaskedView from '@react-native-masked-view/masked-view';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import {
   PromiseDeco490Icon,
@@ -29,6 +30,40 @@ const STEPS = [
   { number: '2', label: 'Gentle Process', width: 115 },
   { number: '3', label: 'Safe Delivery', width: 101 },
 ];
+
+function OurText({ scale }: { scale: number }) {
+  const textStyle = {
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 15 * scale,
+    lineHeight: 10 * scale,
+    letterSpacing: 0.4655 * scale,
+    textAlign: 'center' as const,
+  };
+
+  if (Platform.OS === 'web') {
+    return (
+      <Text
+        style={[
+          textStyle,
+          {
+            backgroundImage: 'linear-gradient(180deg, #f3f2ff 0%, #ffffff 100%)',
+            backgroundClip: 'text',
+            color: 'transparent',
+          } as object,
+        ]}>
+        Our
+      </Text>
+    );
+  }
+
+  return (
+    <MaskedView maskElement={<Text style={textStyle}>Our</Text>}>
+      <LinearGradient colors={['#f3f2ff', '#ffffff']} start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }}>
+        <Text style={[textStyle, { opacity: 0 }]}>Our</Text>
+      </LinearGradient>
+    </MaskedView>
+  );
+}
 
 const DECORATIONS = [
   { Icon: PromiseLight488Icon, left: 46, top: 59.74, width: 64.998, height: 76.264 },
@@ -64,14 +99,13 @@ export function PromiseSection({ scale, onLearnMorePress }: PromiseSectionProps)
       <View
         style={[
           styles.titleBlock,
-          { top: 6 * scale, transform: [{ translateX: -48.585 * scale }] },
+          {
+            top: 6 * scale,
+            transform: [{ translateX: -48.585 * scale }],
+          },
         ]}>
-        <Image
-          source={require('@/assets/images/home/our.png')}
-          style={{ width: 30 * scale, height: 10 * scale }}
-          contentFit="contain"
-        />
-        <PromiseIcon width={97.17 * scale} height={18.49 * scale} />
+        <OurText scale={scale} />
+        <PromiseIcon width={97.167 * scale} height={18.487 * scale} />
       </View>
 
       <Pressable
