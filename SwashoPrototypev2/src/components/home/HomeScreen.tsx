@@ -134,7 +134,7 @@ export function HomeScreen() {
 
   const frameHeight = contentHeight + safeTop;
   const bottomChromeHeight = (NAV_HEIGHT + HOME_INDICATOR_HEIGHT) * scale;
-  const collapseViewportHeight = frameHeight - bottomChromeHeight;
+  const collapseViewportHeight = SHEET_REGION_TOP * scale;
   const maxCollapseScroll = HEADER_COLLAPSE_SCROLL * scale;
   const collapseScrollContentHeight = collapseViewportHeight + maxCollapseScroll;
 
@@ -179,9 +179,9 @@ export function HomeScreen() {
     const deltaY = y - sheetScrollOffsetRef.current;
     sheetScrollOffsetRef.current = y;
 
-    if (deltaY > 0 && !isFullyCollapsed) {
+    if (!isFullyCollapsed && deltaY !== 0) {
       const consumed = absorbCollapseDelta(deltaY);
-      if (consumed > 0) {
+      if (consumed !== 0) {
         const nextSheetOffset = Math.max(0, y - consumed);
         sheetScrollOffsetRef.current = nextSheetOffset;
         sheetScrollRef.current?.scrollTo({ y: nextSheetOffset, animated: false });
@@ -196,14 +196,30 @@ export function HomeScreen() {
     }
   };
 
-  const handleSheetWheel = (event: { deltaY: number }) => {
-    if (Platform.OS !== 'web' || sheetScrollOffsetRef.current > 0) {
+  const handleCollapseWheel = (event: { deltaY: number }) => {
+    if (Platform.OS !== 'web') {
       return;
     }
 
     if (event.deltaY < 0 && collapseScrollYRef.current > 0) {
       absorbCollapseDelta(event.deltaY);
     } else if (event.deltaY > 0 && collapseScrollYRef.current < maxCollapseScroll) {
+      absorbCollapseDelta(event.deltaY);
+    }
+  };
+
+  const handleSheetWheel = (event: { deltaY: number }) => {
+    if (Platform.OS !== 'web') {
+      return;
+    }
+
+    if (sheetScrollOffsetRef.current > 0) {
+      return;
+    }
+
+    if (event.deltaY < 0 && collapseScrollYRef.current > 0) {
+      absorbCollapseDelta(event.deltaY);
+    } else if (event.deltaY > 0 && !isFullyCollapsed) {
       absorbCollapseDelta(event.deltaY);
     }
   };
@@ -259,18 +275,19 @@ export function HomeScreen() {
           <StatusBar scale={scale} />
         </View>
 
-        {/* Collapse scroll — captures header/sheet-top gestures until fully collapsed */}
+        {/* Collapse scroll — header zone only; sheet scroll drives collapse over the promise area */}
         <ScrollView
           ref={collapseScrollRef}
-          pointerEvents={isFullyCollapsed ? 'none' : 'auto'}
-          style={[styles.collapseScroll, { bottom: bottomChromeHeight }]}
-          contentContainerStyle={{ minHeight: collapseScrollContentHeight }}
+          pointerEvents={isFullyCollapsed ? 'none' : 'box-none'}
+          style={[styles.collapseScroll, { height: sheetTop }]}
+          contentContainerStyle={{ height: collapseScrollContentHeight }}
           showsVerticalScrollIndicator={false}
           onScroll={handleCollapseScroll}
           scrollEventThrottle={16}
           bounces={collapseScrollY > 0}
           overScrollMode="always"
-          nestedScrollEnabled />
+          nestedScrollEnabled
+          {...(Platform.OS === 'web' ? { onWheel: handleCollapseWheel } : {})} />
 
         {/* Header gradient — address + promise scroll up with collapse */}
         <View
@@ -319,7 +336,7 @@ export function HomeScreen() {
           <SearchField scale={scale} />
         </View>
 
-        {/* White sheet — slides up to 12px below sticky search */}
+        {/* White sheet — slides up to 12px below sticky search, covering promise */}
         <View
           pointerEvents="box-none"
           style={[
@@ -328,9 +345,21 @@ export function HomeScreen() {
               top: sheetTop,
               height: sheetHeight,
               zIndex: 4,
+              borderTopLeftRadius: SwashoRadii.header * scale,
+              borderTopRightRadius: SwashoRadii.header * scale,
             },
           ]}
           {...(Platform.OS === 'web' ? { onWheel: handleSheetWheel } : {})}>
+          <View
+            pointerEvents="none"
+            style={[
+              styles.sheetCover,
+              {
+                borderTopLeftRadius: SwashoRadii.header * scale,
+                borderTopRightRadius: SwashoRadii.header * scale,
+              },
+            ]}
+          />
           <ScrollView
             ref={sheetScrollRef}
             style={styles.sheetScroll}
@@ -431,6 +460,12 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     overflow: 'hidden',
+    backgroundColor: SwashoColors.surface,
+  },
+  sheetCover: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: SwashoColors.surface,
+    zIndex: 0,
   },
   sheetScroll: {
     flex: 1,
