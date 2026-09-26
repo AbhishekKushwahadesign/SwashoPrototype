@@ -107,10 +107,12 @@ const HEADER_GRADIENT_HEIGHT = 312;
 
 // Search bar stays at Figma y=70.5 inside gradient; sheet sticks 12px below it when collapsed
 const SEARCH_BAR_TOP = 70.5;
+const PROMISE_SECTION_TOP = 131.5;
 const SEARCH_FIELD_HEIGHT = 45;
 const SEARCH_BAR_BOTTOM_GAP = SwashoSpacing.lg;
 const SHEET_STICKY_TOP =
   SEARCH_BAR_TOP + HEADER_GRADIENT_OFFSET + SEARCH_FIELD_HEIGHT + SEARCH_BAR_BOTTOM_GAP;
+const PROMISE_REGION_TOP = HEADER_REGION_TOP + HEADER_GRADIENT_OFFSET + PROMISE_SECTION_TOP;
 
 // Figma frame 3344:8748 — sheet scroll region
 const SHEET_REGION_TOP = 155.58;
@@ -178,9 +180,6 @@ export function HomeScreen() {
       <View style={[styles.headerContent, { height: HEADER_GRADIENT_HEIGHT * scale }]}>
         <View style={[styles.headerAddress, { top: 5.5 * scale }]}>
           <AddressHeader scale={scale} />
-        </View>
-        <View style={[styles.headerPromise, { top: 131.5 * scale }]}>
-          <PromiseSection scale={scale} onLearnMorePress={() => undefined} />
         </View>
       </View>
     </LinearGradient>
@@ -281,6 +280,19 @@ export function HomeScreen() {
             style={[
               styles.scrollRegion,
               {
+                top: PROMISE_REGION_TOP * scale,
+                height: 140 * scale,
+                zIndex: 3,
+              },
+            ]}>
+            <PromiseSection scale={scale} onLearnMorePress={() => undefined} />
+          </View>
+
+          <View
+            pointerEvents="box-none"
+            style={[
+              styles.scrollRegion,
+              {
                 top: (HEADER_REGION_TOP + HEADER_GRADIENT_OFFSET + SEARCH_BAR_TOP) * scale,
                 height: (SEARCH_FIELD_HEIGHT + SEARCH_BAR_BOTTOM_GAP * 2) * scale,
                 zIndex: 6,
@@ -316,7 +328,6 @@ export function HomeScreen() {
                 stickySheetPosition(SHEET_STICKY_TOP * scale),
                 {
                   height: sheetMaxHeight,
-                  backgroundColor: SwashoColors.surface,
                 },
               ]}>
               <ScrollView
@@ -421,12 +432,6 @@ const styles = StyleSheet.create({
   stickySearch: {
     width: '100%',
     alignItems: 'center',
-  },
-  headerPromise: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    zIndex: 1,
   },
   sheetBackground: {
     position: 'absolute',
