@@ -1,5 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Platform,
   ScrollView,
@@ -134,12 +134,46 @@ export function HomeScreen() {
   const sheetScrollRef = useRef<ScrollView>(null);
   const sheetScrollOffsetRef = useRef(0);
   const collapseScrollRef = useRef<ScrollView>(null);
+  const maxCollapseScrollRef = useRef(0);
+
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') {
+      return;
+    }
+
+    const onWheel = (event: WheelEvent) => {
+      const max = maxCollapseScrollRef.current;
+      const current = collapseScrollYRef.current;
+
+      if (event.deltaY > 0 && current < max) {
+        event.preventDefault();
+        const next = Math.min(current + event.deltaY, max);
+        collapseScrollYRef.current = next;
+        setCollapseScrollY(next);
+        return;
+      }
+
+      if (event.deltaY < 0 && sheetScrollOffsetRef.current <= 0 && current > 0) {
+        event.preventDefault();
+        const next = Math.max(0, current + event.deltaY);
+        collapseScrollYRef.current = next;
+        setCollapseScrollY(next);
+      }
+    };
+
+    window.addEventListener('wheel', onWheel, { passive: false, capture: true });
+    return () => window.removeEventListener('wheel', onWheel, { capture: true });
+  }, []);
 
   const frameHeight = contentHeight + safeTop;
   const bottomChromeHeight = (NAV_HEIGHT + HOME_INDICATOR_HEIGHT) * scale;
   const collapseViewportHeight = SHEET_REGION_TOP * scale;
   const maxCollapseScroll = HEADER_COLLAPSE_SCROLL * scale;
   const collapseScrollContentHeight = collapseViewportHeight + maxCollapseScroll;
+
+  useEffect(() => {
+    maxCollapseScrollRef.current = maxCollapseScroll;
+  }, [maxCollapseScroll]);
 
   const collapsedProgress = Math.min(collapseScrollY / scale, HEADER_COLLAPSE_SCROLL);
   const isFullyCollapsed = collapsedProgress >= HEADER_COLLAPSE_SCROLL - 0.5;
