@@ -1,4 +1,4 @@
-import { Image } from 'expo-image';
+import { Image, ImageContentFit, ImageContentPosition } from 'expo-image';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
@@ -17,6 +17,8 @@ export type ServiceTileLayout = {
   labelWidth: number;
   contentTop?: number;
   contentCenterOffsetY?: number;
+  contentFit?: ImageContentFit;
+  contentPosition?: ImageContentPosition;
 };
 
 type ServiceTileProps = ServiceTileLayout & {
@@ -32,6 +34,8 @@ export function ServiceTile({
   labelWidth,
   contentTop,
   contentCenterOffsetY,
+  contentFit = 'fill',
+  contentPosition = 'bottom',
   scale,
 }: ServiceTileProps) {
   const tileSize = 83.79 * scale;
@@ -64,12 +68,19 @@ export function ServiceTile({
             gap: contentGap * scale,
           },
         ]}>
-        <Image
-          source={image}
-          style={{ width: imageWidth * scale, height: imageHeight * scale }}
-          contentFit="cover"
-          contentPosition="bottom"
-        />
+        <View
+          style={{
+            width: imageWidth * scale,
+            height: imageHeight * scale,
+            overflow: 'hidden',
+          }}>
+          <Image
+            source={image}
+            style={{ width: '100%', height: '100%' }}
+            contentFit={contentFit}
+            contentPosition={contentPosition}
+          />
+        </View>
         <Text
           style={[
             styles.label,

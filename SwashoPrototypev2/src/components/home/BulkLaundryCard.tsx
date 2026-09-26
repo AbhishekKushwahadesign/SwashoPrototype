@@ -21,13 +21,21 @@ export function BulkLaundryCard({ scale }: BulkLaundryCardProps) {
           ...figmaShadow(FigmaShadows.bulkCard, scale),
         },
       ]}>
-      <View style={[styles.left, { gap: 2 * scale, left: -4 * scale, top: -15 * scale }]}>
-        <Image
-          source={require('@/assets/images/home/bulk-laundry.png')}
-          style={{ width: 54.68 * scale, height: 64.48 * scale }}
-          contentFit="contain"
-          contentPosition="bottom"
-        />
+      <View style={[styles.left, { gap: 2 * scale, left: -4 * scale, top: -15 * scale, width: 81 * scale }]}>
+        <View
+          style={{
+            width: 54.684 * scale,
+            height: 64.478 * scale,
+            overflow: 'hidden',
+            alignSelf: 'center',
+          }}>
+          <Image
+            source={require('@/assets/images/home/bulk-laundry.png')}
+            style={{ width: '100%', height: '100%' }}
+            contentFit="fill"
+            contentPosition="bottom"
+          />
+        </View>
         <View style={{ alignItems: 'center' }}>
           <Text style={[styles.bulkLabel, { fontSize: 10 * scale, lineHeight: 12 * scale }]}>Bulk</Text>
           <Text style={[styles.bulkLabel, { fontSize: 10 * scale, lineHeight: 12 * scale }]}>Laundry</Text>
@@ -59,7 +67,6 @@ const styles = StyleSheet.create({
   left: {
     position: 'absolute',
     alignItems: 'center',
-    width: 81,
   },
   bulkLabel: {
     fontFamily: 'Poppins_600SemiBold',

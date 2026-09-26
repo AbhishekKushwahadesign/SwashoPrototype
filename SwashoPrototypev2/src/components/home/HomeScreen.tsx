@@ -30,6 +30,8 @@ const SERVICES: ServiceTileLayout[] = [
     contentGap: 9,
     labelWidth: 52.136,
     contentCenterOffsetY: 8.88,
+    contentFit: 'fill',
+    contentPosition: 'bottom',
   },
   {
     label: ' Wash & Fold',
@@ -39,6 +41,8 @@ const SERVICES: ServiceTileLayout[] = [
     contentGap: 13,
     labelWidth: 59.584,
     contentTop: -14.95,
+    contentFit: 'fill',
+    contentPosition: 'bottom',
   },
   {
     label: 'Wash & Iron',
@@ -48,6 +52,8 @@ const SERVICES: ServiceTileLayout[] = [
     contentGap: 10,
     labelWidth: 57.722,
     contentTop: -12.83,
+    contentFit: 'fill',
+    contentPosition: 'bottom',
   },
   {
     label: 'Dry Cleaning',
@@ -57,6 +63,8 @@ const SERVICES: ServiceTileLayout[] = [
     contentGap: 6,
     labelWidth: 51.94,
     contentTop: -14.99,
+    contentFit: 'fill',
+    contentPosition: 'bottom',
   },
   {
     label: ' Stain Removal',
@@ -66,6 +74,8 @@ const SERVICES: ServiceTileLayout[] = [
     contentGap: 8,
     labelWidth: 57.722,
     contentTop: -17.69,
+    contentFit: 'fill',
+    contentPosition: 'bottom',
   },
   {
     label: ' Specialty Cleaning',
@@ -75,6 +85,8 @@ const SERVICES: ServiceTileLayout[] = [
     contentGap: 7,
     labelWidth: 63.308,
     contentTop: -17.62,
+    contentFit: 'fill',
+    contentPosition: 'bottom',
   },
 ];
 
