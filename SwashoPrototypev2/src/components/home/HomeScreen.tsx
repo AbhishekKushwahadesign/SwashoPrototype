@@ -104,16 +104,17 @@ const SEARCH_BAR_TOP = 70.5;
 const PROMISE_SECTION_TOP = 131.5;
 const SEARCH_FIELD_HEIGHT = 45;
 const SEARCH_BAR_BOTTOM_GAP = SwashoSpacing.lg;
+const STATUS_BAR_HEIGHT = 32;
 
-const SHEET_STICKY_TOP =
-  SEARCH_BAR_TOP + HEADER_GRADIENT_OFFSET + SEARCH_FIELD_HEIGHT + SEARCH_BAR_BOTTOM_GAP;
+const SEARCH_ABSOLUTE_TOP = HEADER_REGION_TOP + HEADER_GRADIENT_OFFSET + SEARCH_BAR_TOP;
+const SEARCH_STICKY_TOP = STATUS_BAR_HEIGHT + SEARCH_BAR_BOTTOM_GAP;
+const SHEET_STICKY_TOP = SEARCH_STICKY_TOP + SEARCH_FIELD_HEIGHT + SEARCH_BAR_BOTTOM_GAP;
 const SHEET_REGION_TOP = 155.58;
 const HEADER_COLLAPSE_SCROLL = SHEET_REGION_TOP - SHEET_STICKY_TOP;
+
 const SHEET_STICKY_PADDING = SwashoSpacing.sheetTop;
 const SUBTRACT_TOP = 98.42;
 const SUBTRACT_HEIGHT = 905.187;
-
-const SEARCH_ABSOLUTE_TOP = HEADER_REGION_TOP + HEADER_GRADIENT_OFFSET + SEARCH_BAR_TOP;
 
 const NAV_HEIGHT = 101;
 const HOME_INDICATOR_HEIGHT = 24;
@@ -123,22 +124,25 @@ export function HomeScreen() {
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
   const [navVariant, setNavVariant] = useState<NavBarVariant>('Home');
-  const [headerScrollY, setHeaderScrollY] = useState(0);
-  const headerScrollRef = useRef<ScrollView>(null);
+  const [collapseScrollY, setCollapseScrollY] = useState(0);
+  const collapseScrollRef = useRef<ScrollView>(null);
 
   const frameHeight = contentHeight + safeTop;
   const bottomChromeHeight = (NAV_HEIGHT + HOME_INDICATOR_HEIGHT) * scale;
-  const collapseScrollY = HEADER_COLLAPSE_SCROLL * scale;
-  const sheetTop =
-    (SHEET_STICKY_TOP + HEADER_COLLAPSE_SCROLL - headerScrollY / scale) * scale;
-  const sheetHeight = frameHeight - sheetTop - bottomChromeHeight;
+  const maxCollapseScroll = HEADER_COLLAPSE_SCROLL * scale;
 
-  const handleHeaderScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+  const collapsedProgress = Math.min(collapseScrollY / scale, HEADER_COLLAPSE_SCROLL);
+  const sheetTop = (SHEET_REGION_TOP - collapsedProgress) * scale;
+  const sheetHeight = frameHeight - sheetTop - bottomChromeHeight;
+  const headerTranslateY = -collapsedProgress * scale;
+  const searchTop = Math.max(SEARCH_STICKY_TOP, SEARCH_ABSOLUTE_TOP - collapsedProgress) * scale;
+
+  const handleCollapseScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const y = event.nativeEvent.contentOffset.y;
-    const clampedY = Math.min(y, collapseScrollY);
-    setHeaderScrollY(clampedY);
-    if (y > collapseScrollY) {
-      headerScrollRef.current?.scrollTo({ y: collapseScrollY, animated: false });
+    const clamped = Math.min(y, maxCollapseScroll);
+    setCollapseScrollY(clamped);
+    if (y > maxCollapseScroll) {
+      collapseScrollRef.current?.scrollTo({ y: maxCollapseScroll, animated: false });
     }
   };
 
@@ -189,23 +193,33 @@ export function HomeScreen() {
             ...figmaShadow(FigmaShadows.screen, scale),
           },
         ]}>
-        <View style={[styles.statusBar, { height: 32 * scale }]}>
+        <View style={[styles.statusBar, { height: STATUS_BAR_HEIGHT * scale }]}>
           <StatusBar scale={scale} />
         </View>
 
-        {/* Header collapse scroll — address + promise scroll away behind sheet */}
+        {/* Collapse scroll — drives address/promise away and sheet slide */}
         <ScrollView
-          ref={headerScrollRef}
-          style={styles.headerScroll}
-          contentContainerStyle={{
-            paddingTop: HEADER_REGION_TOP * scale,
-            paddingBottom: sheetHeight,
-          }}
+          ref={collapseScrollRef}
+          style={[styles.collapseScroll, { height: sheetTop }]}
+          contentContainerStyle={{ height: maxCollapseScroll + sheetHeight }}
           showsVerticalScrollIndicator={false}
-          onScroll={handleHeaderScroll}
+          onScroll={handleCollapseScroll}
           scrollEventThrottle={16}
           bounces={false}
-          overScrollMode="never">
+          overScrollMode="never"
+          nestedScrollEnabled />
+
+        {/* Header gradient — address + promise scroll up with collapse */}
+        <View
+          pointerEvents="none"
+          style={[
+            styles.headerLayer,
+            {
+              top: HEADER_REGION_TOP * scale,
+              transform: [{ translateY: headerTranslateY }],
+              zIndex: 2,
+            },
+          ]}>
           <LinearGradient
             colors={[SwashoColors.primary500, SwashoColors.primary100]}
             locations={[0.003, 1]}
@@ -227,24 +241,24 @@ export function HomeScreen() {
               </View>
             </View>
           </LinearGradient>
-          <View style={{ height: collapseScrollY }} />
-        </ScrollView>
+        </View>
 
-        {/* Search — fixed at Figma position, always visible */}
+        {/* Sticky search — pins below status bar with 12px gap */}
         <View
           pointerEvents="box-none"
           style={[
-            styles.searchOverlay,
+            styles.searchLayer,
             {
-              top: SEARCH_ABSOLUTE_TOP * scale,
+              top: searchTop,
               zIndex: 6,
             },
           ]}>
           <SearchField scale={scale} />
         </View>
 
-        {/* White sheet — fixed below search, content scrolls inside */}
+        {/* White sheet — slides up to 12px below sticky search */}
         <View
+          pointerEvents="box-none"
           style={[
             styles.sheetContainer,
             {
@@ -297,6 +311,7 @@ const styles = StyleSheet.create({
     ...Platform.select({
       web: {
         maxHeight: ScreenHeight,
+        overflow: 'visible',
       },
     }),
   },
@@ -307,13 +322,19 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 10,
   },
-  headerScroll: {
+  collapseScroll: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    bottom: 0,
-    zIndex: 2,
+    zIndex: 5,
+    opacity: 0.01,
+  },
+  headerLayer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    width: '100%',
   },
   headerGradient: {
     overflow: 'hidden',
@@ -331,9 +352,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    zIndex: 3,
   },
-  searchOverlay: {
+  searchLayer: {
     position: 'absolute',
     left: 0,
     right: 0,
