@@ -142,14 +142,19 @@ export function HomeScreen() {
   const collapseScrollContentHeight = collapseViewportHeight + maxCollapseScroll;
 
   const collapsedProgress = Math.min(collapseScrollY / scale, HEADER_COLLAPSE_SCROLL);
-  const isFullyCollapsed = collapsedProgress >= HEADER_COLLAPSE_SCROLL;
-  const sheetTop = Math.max(SHEET_STICKY_TOP, SHEET_REGION_TOP - collapsedProgress) * scale;
-  const sheetHeight = frameHeight - sheetTop - bottomChromeHeight;
+  const isFullyCollapsed = collapsedProgress >= HEADER_COLLAPSE_SCROLL - 0.5;
+  // Always pin sheet at least 12px below the current/sticky search bottom; travel from Figma rest.
   const searchTopUnscaled = Math.max(SEARCH_STICKY_TOP, SEARCH_ABSOLUTE_TOP - collapsedProgress);
   const searchTop = searchTopUnscaled * scale;
+  const searchBottomUnscaled = searchTopUnscaled + SEARCH_FIELD_HEIGHT;
+  const sheetTopUnscaled = Math.max(
+    searchBottomUnscaled + SEARCH_BAR_BOTTOM_GAP,
+    SHEET_REGION_TOP - collapsedProgress,
+  );
+  const sheetTop = sheetTopUnscaled * scale;
+  const sheetHeight = frameHeight - sheetTop - bottomChromeHeight;
   // Address always tracks full collapse so it fully exits; promise stops once it
   // would get closer than PROMISE_SEARCH_MIN_GAP below the current/sticky search.
-  const searchBottomUnscaled = searchTopUnscaled + SEARCH_FIELD_HEIGHT;
   const maxPromiseCollapse = Math.max(
     0,
     PROMISE_ABSOLUTE_TOP - (searchBottomUnscaled + PROMISE_SEARCH_MIN_GAP),
@@ -157,9 +162,12 @@ export function HomeScreen() {
   const addressTranslateY = -collapsedProgress * scale;
   const promiseTranslateY = -Math.min(collapsedProgress, maxPromiseCollapse) * scale;
   // Curve sits at Figma Subtract y=57.5 at rest; slides to sheet top (under search) when collapsed.
-  const sheetCollapseT = Math.min(collapsedProgress / SHEET_COLLAPSE_DISTANCE, 1);
-  const subtractTop = SUBTRACT_TOP * (1 - sheetCollapseT);
-  const sheetContentPaddingTop = SHEET_STICKY_PADDING - SUBTRACT_TOP * sheetCollapseT;
+  const sheetTravelDone = Math.min(
+    Math.max(SHEET_REGION_TOP - sheetTopUnscaled, 0) / SHEET_COLLAPSE_DISTANCE,
+    1,
+  );
+  const subtractTop = SUBTRACT_TOP * (1 - sheetTravelDone);
+  const sheetContentPaddingTop = SHEET_STICKY_PADDING - SUBTRACT_TOP * sheetTravelDone;
 
   const setCollapsedOffset = (nextY: number) => {
     const clamped = Math.max(0, Math.min(nextY, maxCollapseScroll));
@@ -195,9 +203,12 @@ export function HomeScreen() {
     const deltaY = y - sheetScrollOffsetRef.current;
     sheetScrollOffsetRef.current = y;
 
-    if (!isFullyCollapsed && deltaY !== 0) {
+    const remainingCollapse = maxCollapseScroll - collapseScrollYRef.current;
+
+    // Prefer collapsing the sheet up to 12px below search before scrolling content.
+    if (deltaY > 0 && remainingCollapse > 0) {
       const consumed = absorbCollapseDelta(deltaY);
-      if (consumed !== 0) {
+      if (consumed > 0) {
         const nextSheetOffset = Math.max(0, y - consumed);
         sheetScrollOffsetRef.current = nextSheetOffset;
         sheetScrollRef.current?.scrollTo({ y: nextSheetOffset, animated: false });
@@ -212,30 +223,33 @@ export function HomeScreen() {
     }
   };
 
-  const handleCollapseWheel = (event: { deltaY: number }) => {
+  const handleCollapseWheel = (event: { deltaY: number; preventDefault?: () => void }) => {
     if (Platform.OS !== 'web') {
       return;
     }
 
     if (event.deltaY < 0 && collapseScrollYRef.current > 0) {
+      event.preventDefault?.();
       absorbCollapseDelta(event.deltaY);
     } else if (event.deltaY > 0 && collapseScrollYRef.current < maxCollapseScroll) {
+      event.preventDefault?.();
       absorbCollapseDelta(event.deltaY);
     }
   };
 
-  const handleSheetWheel = (event: { deltaY: number }) => {
+  const handleSheetWheel = (event: { deltaY: number; preventDefault?: () => void }) => {
     if (Platform.OS !== 'web') {
       return;
     }
 
-    if (sheetScrollOffsetRef.current > 0) {
+    if (event.deltaY > 0 && collapseScrollYRef.current < maxCollapseScroll) {
+      event.preventDefault?.();
+      absorbCollapseDelta(event.deltaY);
       return;
     }
 
-    if (event.deltaY < 0 && collapseScrollYRef.current > 0) {
-      absorbCollapseDelta(event.deltaY);
-    } else if (event.deltaY > 0 && !isFullyCollapsed) {
+    if (event.deltaY < 0 && sheetScrollOffsetRef.current <= 0 && collapseScrollYRef.current > 0) {
+      event.preventDefault?.();
       absorbCollapseDelta(event.deltaY);
     }
   };
@@ -283,8 +297,8 @@ export function HomeScreen() {
         {/* Collapse scroll — header zone only; sheet scroll drives collapse over the promise area */}
         <ScrollView
           ref={collapseScrollRef}
-          pointerEvents={isFullyCollapsed ? 'none' : 'box-none'}
-          style={[styles.collapseScroll, { height: sheetTop }]}
+          pointerEvents={isFullyCollapsed ? 'none' : 'auto'}
+          style={[styles.collapseScroll, { height: Math.max(sheetTop, SEARCH_STICKY_TOP * scale) }]}
           contentContainerStyle={{ height: collapseScrollContentHeight }}
           showsVerticalScrollIndicator={false}
           onScroll={handleCollapseScroll}
