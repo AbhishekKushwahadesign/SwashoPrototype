@@ -32,18 +32,23 @@ export function TertiaryButton({
         styles.base,
         isFilled ? styles.filled : styles.text,
         {
-          width: isFilled ? 83 * scale : undefined,
+          minWidth: isFilled ? 83 * scale : undefined,
           paddingHorizontal: isFilled ? 8 * scale : (showTrailingIcon ? 4 * scale : 0),
           height: isFilled ? 24 * scale : 18 * scale,
           borderRadius: isFilled ? SwashoRadii.sm * scale : 0,
           gap: (isFilled || isAccent ? 6 : 4) * scale,
+          flexShrink: isFilled ? 0 : undefined,
           opacity: pressed ? 0.7 : 1,
         },
       ]}>
       <Text
+        numberOfLines={1}
         style={[
           isFilled ? styles.filledLabel : isAccent ? styles.accentLabel : styles.textLabel,
-          { fontSize: (isFilled ? 12 : 14) * scale, lineHeight: (isFilled ? 16 : 12) * scale },
+          {
+            fontSize: (isFilled ? 12 : 14) * scale,
+            lineHeight: (isFilled ? 16 : 12) * scale,
+          },
         ]}>
         {label}
       </Text>
@@ -73,7 +78,8 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_600SemiBold',
     color: SwashoColors.neutral50,
     textAlign: 'center',
-    letterSpacing: 1,
+    letterSpacing: 0.5,
+    flexShrink: 0,
   },
   textLabel: {
     fontFamily: 'Poppins_500Medium',
