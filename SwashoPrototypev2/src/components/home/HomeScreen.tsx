@@ -7,7 +7,6 @@ import {
   View,
   type NativeScrollEvent,
   type NativeSyntheticEvent,
-  type ViewStyle,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -98,92 +97,50 @@ const SERVICES: ServiceTileLayout[] = [
   },
 ];
 
-// Figma frame 3344:8670 — header scroll region
 const HEADER_REGION_TOP = 55;
-const HEADER_REGION_HEIGHT = 1104;
-const HEADER_STICKY_HEIGHT = 246;
 const HEADER_GRADIENT_OFFSET = -25;
 const HEADER_GRADIENT_HEIGHT = 312;
-
-// Search bar stays at Figma y=70.5 inside gradient; sheet sticks 12px below it when collapsed
 const SEARCH_BAR_TOP = 70.5;
 const PROMISE_SECTION_TOP = 131.5;
 const SEARCH_FIELD_HEIGHT = 45;
 const SEARCH_BAR_BOTTOM_GAP = SwashoSpacing.lg;
+
 const SHEET_STICKY_TOP =
   SEARCH_BAR_TOP + HEADER_GRADIENT_OFFSET + SEARCH_FIELD_HEIGHT + SEARCH_BAR_BOTTOM_GAP;
-const PROMISE_REGION_TOP = HEADER_REGION_TOP + HEADER_GRADIENT_OFFSET + PROMISE_SECTION_TOP;
-
-// Figma frame 3344:8748 — sheet scroll region
 const SHEET_REGION_TOP = 155.58;
-const SHEET_COLLAPSE_SCROLL = SHEET_REGION_TOP - SHEET_STICKY_TOP;
+const HEADER_COLLAPSE_SCROLL = SHEET_REGION_TOP - SHEET_STICKY_TOP;
 const SHEET_STICKY_PADDING = SwashoSpacing.sheetTop;
 const SUBTRACT_TOP = 98.42;
 const SUBTRACT_HEIGHT = 905.187;
 
+const SEARCH_ABSOLUTE_TOP = HEADER_REGION_TOP + HEADER_GRADIENT_OFFSET + SEARCH_BAR_TOP;
+
 const NAV_HEIGHT = 101;
 const HOME_INDICATOR_HEIGHT = 24;
-const STATUS_BAR_HEIGHT = 32;
-
-const stickyPosition = Platform.select<ViewStyle>({
-  web: {
-    position: 'sticky' as ViewStyle['position'],
-    top: 0,
-  },
-  default: {},
-});
-
-const stickySheetPosition = (top: number): ViewStyle =>
-  Platform.select<ViewStyle>({
-    web: {
-      position: 'sticky' as ViewStyle['position'],
-      top,
-    },
-    default: {},
-  }) ?? {};
 
 export function HomeScreen() {
   const { scale, contentWidth, contentHeight } = useScreenScale();
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
   const [navVariant, setNavVariant] = useState<NavBarVariant>('Home');
-  const outerScrollRef = useRef<ScrollView>(null);
+  const [headerScrollY, setHeaderScrollY] = useState(0);
+  const headerScrollRef = useRef<ScrollView>(null);
 
   const frameHeight = contentHeight + safeTop;
   const bottomChromeHeight = (NAV_HEIGHT + HOME_INDICATOR_HEIGHT) * scale;
-  const sheetMaxHeight =
-    contentHeight - STATUS_BAR_HEIGHT * scale - SHEET_STICKY_TOP * scale - bottomChromeHeight;
-  const sheetRegionHeight = SHEET_COLLAPSE_SCROLL + sheetMaxHeight / scale;
-  const scrollContentHeight = SHEET_REGION_TOP + sheetRegionHeight;
-  const collapseScrollY = Math.max(SHEET_COLLAPSE_SCROLL, HEADER_REGION_TOP) * scale;
+  const collapseScrollY = HEADER_COLLAPSE_SCROLL * scale;
+  const sheetTop =
+    (SHEET_STICKY_TOP + HEADER_COLLAPSE_SCROLL - headerScrollY / scale) * scale;
+  const sheetHeight = frameHeight - sheetTop - bottomChromeHeight;
 
-  const handleOuterScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+  const handleHeaderScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const y = event.nativeEvent.contentOffset.y;
+    const clampedY = Math.min(y, collapseScrollY);
+    setHeaderScrollY(clampedY);
     if (y > collapseScrollY) {
-      outerScrollRef.current?.scrollTo({ y: collapseScrollY, animated: false });
+      headerScrollRef.current?.scrollTo({ y: collapseScrollY, animated: false });
     }
   };
-
-  const headerGradient = (
-    <LinearGradient
-      colors={[SwashoColors.primary500, SwashoColors.primary100]}
-      locations={[0.003, 1]}
-      style={[
-        styles.headerGradient,
-        {
-          marginTop: HEADER_GRADIENT_OFFSET * scale,
-          height: HEADER_GRADIENT_HEIGHT * scale,
-          borderBottomLeftRadius: SwashoRadii.header * scale,
-          borderBottomRightRadius: SwashoRadii.header * scale,
-        },
-      ]}>
-      <View style={[styles.headerContent, { height: HEADER_GRADIENT_HEIGHT * scale }]}>
-        <View style={[styles.headerAddress, { top: 5.5 * scale }]}>
-          <AddressHeader scale={scale} />
-        </View>
-      </View>
-    </LinearGradient>
-  );
 
   const sheetSections = (
     <>
@@ -236,120 +193,84 @@ export function HomeScreen() {
           <StatusBar scale={scale} />
         </View>
 
+        {/* Header collapse scroll — address + promise scroll away behind sheet */}
         <ScrollView
-          ref={outerScrollRef}
-          style={styles.scroll}
-          contentContainerStyle={[
-            styles.scrollContent,
-            {
-              minHeight: scrollContentHeight * scale + bottomChromeHeight,
-              paddingBottom: bottomChromeHeight + 16 * scale,
-            },
-          ]}
+          ref={headerScrollRef}
+          style={styles.headerScroll}
+          contentContainerStyle={{
+            paddingTop: HEADER_REGION_TOP * scale,
+            paddingBottom: sheetHeight,
+          }}
           showsVerticalScrollIndicator={false}
-          nestedScrollEnabled
-          onScroll={handleOuterScroll}
+          onScroll={handleHeaderScroll}
           scrollEventThrottle={16}
-          bounces
-          overScrollMode="always">
-          <View
-            pointerEvents="box-none"
+          bounces={false}
+          overScrollMode="never">
+          <LinearGradient
+            colors={[SwashoColors.primary500, SwashoColors.primary100]}
+            locations={[0.003, 1]}
             style={[
-              styles.scrollRegion,
+              styles.headerGradient,
               {
-                top: HEADER_REGION_TOP * scale,
-                height: HEADER_REGION_HEIGHT * scale,
-                zIndex: 2,
+                marginTop: HEADER_GRADIENT_OFFSET * scale,
+                height: HEADER_GRADIENT_HEIGHT * scale,
+                borderBottomLeftRadius: SwashoRadii.header * scale,
+                borderBottomRightRadius: SwashoRadii.header * scale,
               },
             ]}>
-            <View
-              pointerEvents="auto"
-              style={[
-                styles.stickyHeader,
-                stickyPosition,
-                {
-                  height: HEADER_STICKY_HEIGHT * scale,
-                },
-              ]}>
-              {headerGradient}
+            <View style={[styles.headerContent, { height: HEADER_GRADIENT_HEIGHT * scale }]}>
+              <View style={[styles.headerAddress, { top: 5.5 * scale }]}>
+                <AddressHeader scale={scale} />
+              </View>
+              <View style={[styles.headerPromise, { top: PROMISE_SECTION_TOP * scale }]}>
+                <PromiseSection scale={scale} onLearnMorePress={() => undefined} />
+              </View>
             </View>
-          </View>
-
-          <View
-            pointerEvents="box-none"
-            style={[
-              styles.scrollRegion,
-              {
-                top: PROMISE_REGION_TOP * scale,
-                height: 140 * scale,
-                zIndex: 3,
-              },
-            ]}>
-            <PromiseSection scale={scale} onLearnMorePress={() => undefined} />
-          </View>
-
-          <View
-            pointerEvents="box-none"
-            style={[
-              styles.scrollRegion,
-              {
-                top: (HEADER_REGION_TOP + HEADER_GRADIENT_OFFSET + SEARCH_BAR_TOP) * scale,
-                height: (SEARCH_FIELD_HEIGHT + SEARCH_BAR_BOTTOM_GAP * 2) * scale,
-                zIndex: 6,
-              },
-            ]}>
-            <View
-              pointerEvents="auto"
-              style={[
-                styles.stickySearch,
-                stickySheetPosition((HEADER_GRADIENT_OFFSET + SEARCH_BAR_TOP) * scale),
-                {
-                  paddingVertical: SEARCH_BAR_BOTTOM_GAP * scale,
-                },
-              ]}>
-              <SearchField scale={scale} />
-            </View>
-          </View>
-
-          <View
-            pointerEvents="box-none"
-            style={[
-              styles.scrollRegion,
-              {
-                top: SHEET_REGION_TOP * scale,
-                height: sheetRegionHeight * scale,
-                zIndex: 4,
-              },
-            ]}>
-            <View
-              pointerEvents="auto"
-              style={[
-                styles.stickySheet,
-                stickySheetPosition(SHEET_STICKY_TOP * scale),
-                {
-                  height: sheetMaxHeight,
-                },
-              ]}>
-              <ScrollView
-                style={styles.sheetScroll}
-                contentContainerStyle={[
-                  styles.sheetScrollContent,
-                  {
-                    paddingTop: SHEET_STICKY_PADDING * scale,
-                    paddingHorizontal: SwashoSpacing.xxl * scale,
-                    paddingBottom: 16 * scale,
-                    gap: SwashoSpacing.section * scale,
-                  },
-                ]}
-                showsVerticalScrollIndicator={false}
-                nestedScrollEnabled
-                bounces
-                overScrollMode="always">
-                {sheetSections}
-              </ScrollView>
-            </View>
-          </View>
+          </LinearGradient>
+          <View style={{ height: collapseScrollY }} />
         </ScrollView>
+
+        {/* Search — fixed at Figma position, always visible */}
+        <View
+          pointerEvents="box-none"
+          style={[
+            styles.searchOverlay,
+            {
+              top: SEARCH_ABSOLUTE_TOP * scale,
+              zIndex: 6,
+            },
+          ]}>
+          <SearchField scale={scale} />
+        </View>
+
+        {/* White sheet — fixed below search, content scrolls inside */}
+        <View
+          style={[
+            styles.sheetContainer,
+            {
+              top: sheetTop,
+              height: sheetHeight,
+              zIndex: 4,
+            },
+          ]}>
+          <ScrollView
+            style={styles.sheetScroll}
+            contentContainerStyle={[
+              styles.sheetScrollContent,
+              {
+                paddingTop: SHEET_STICKY_PADDING * scale,
+                paddingHorizontal: SwashoSpacing.xxl * scale,
+                paddingBottom: 16 * scale,
+                gap: SwashoSpacing.section * scale,
+              },
+            ]}
+            showsVerticalScrollIndicator={false}
+            nestedScrollEnabled
+            bounces
+            overScrollMode="always">
+            {sheetSections}
+          </ScrollView>
+        </View>
 
         <View style={[styles.navBarWrap, { height: bottomChromeHeight }]}>
           <NavBar
@@ -372,13 +293,10 @@ const styles = StyleSheet.create({
   },
   frame: {
     backgroundColor: SwashoColors.surface,
+    overflow: 'hidden',
     ...Platform.select({
       web: {
         maxHeight: ScreenHeight,
-        overflow: 'visible',
-      },
-      default: {
-        overflow: 'hidden',
       },
     }),
   },
@@ -389,33 +307,13 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 10,
   },
-  scroll: {
-    flex: 1,
-  },
-  scrollContent: {
-    position: 'relative',
-    width: '100%',
-  },
-  scrollRegion: {
+  headerScroll: {
     position: 'absolute',
+    top: 0,
     left: 0,
     right: 0,
-    width: '100%',
-  },
-  stickyHeader: {
-    overflow: 'visible',
-    width: '100%',
-  },
-  stickySheet: {
-    width: '100%',
-    overflow: 'hidden',
-  },
-  sheetScroll: {
-    flex: 1,
-    width: '100%',
-  },
-  sheetScrollContent: {
-    width: '100%',
+    bottom: 0,
+    zIndex: 2,
   },
   headerGradient: {
     overflow: 'hidden',
@@ -429,9 +327,30 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
   },
-  stickySearch: {
-    width: '100%',
+  headerPromise: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    zIndex: 3,
+  },
+  searchOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
     alignItems: 'center',
+  },
+  sheetContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    overflow: 'hidden',
+  },
+  sheetScroll: {
+    flex: 1,
+    width: '100%',
+  },
+  sheetScrollContent: {
+    width: '100%',
   },
   sheetBackground: {
     position: 'absolute',
