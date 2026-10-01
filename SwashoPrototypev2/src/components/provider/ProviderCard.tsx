@@ -6,6 +6,7 @@ import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
 import { StarRatingIcon } from '@/components/home/figma-icons';
 import { FigmaShadows, figmaShadow } from '@/components/home/figma-shadows';
+import { searchFont } from '@/components/search/search-fonts';
 
 import type { ProviderOffer } from '@/data/providers';
 
@@ -55,6 +56,7 @@ export function ProviderCard({ provider, scale }: ProviderCardProps) {
           <Text
             style={[
               styles.topTagLabel,
+              searchFont('semibold'),
               {
                 fontSize: 10 * scale,
                 lineHeight: 4.347 * scale,
@@ -84,9 +86,8 @@ export function ProviderCard({ provider, scale }: ProviderCardProps) {
         <View style={[styles.imageWrap, { aspectRatio: IMAGE_ASPECT }]}>
           <Image
             source={require('@/assets/images/search/laundromat.png')}
-            style={StyleSheet.absoluteFill}
+            style={styles.laundromatImage}
             contentFit="cover"
-            contentPosition="center"
           />
         </View>
         <View style={[styles.info, { gap: 8 * scale, paddingHorizontal: 8 * scale }]}>
@@ -94,6 +95,7 @@ export function ProviderCard({ provider, scale }: ProviderCardProps) {
             <Text
               style={[
                 styles.name,
+                searchFont('medium'),
                 {
                   fontSize: 12 * scale,
                   lineHeight: 14 * scale,
@@ -116,6 +118,7 @@ export function ProviderCard({ provider, scale }: ProviderCardProps) {
               <Text
                 style={[
                   styles.ratingText,
+                  searchFont('semibold'),
                   {
                     fontSize: 8.97 * scale,
                     lineHeight: 7.104 * scale,
@@ -129,6 +132,7 @@ export function ProviderCard({ provider, scale }: ProviderCardProps) {
           <Text
             style={[
               styles.offer,
+              searchFont('semibold'),
               {
                 fontSize: 12 * scale,
                 lineHeight: 10 * scale,
@@ -155,7 +159,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   topTagLabel: {
-    fontFamily: 'Poppins_600SemiBold',
     color: '#6940e0',
     textAlign: 'center',
     letterSpacing: 0.2717,
@@ -168,6 +171,14 @@ const styles = StyleSheet.create({
   imageWrap: {
     width: '100%',
     overflow: 'hidden',
+    position: 'relative',
+  },
+  laundromatImage: {
+    position: 'absolute',
+    width: '100.05%',
+    height: '110.64%',
+    left: '-0.03%',
+    top: '-5.32%',
   },
   info: {
     alignItems: 'flex-start',
@@ -178,7 +189,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   name: {
-    fontFamily: 'Poppins_500Medium',
     color: '#000000',
     letterSpacing: 0.5,
   },
@@ -189,12 +199,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   ratingText: {
-    fontFamily: 'Poppins_600SemiBold',
     color: '#292929',
     textAlign: 'center',
   },
   offer: {
-    fontFamily: 'Poppins_600SemiBold',
     color: SwashoColors.darkText,
   },
 });

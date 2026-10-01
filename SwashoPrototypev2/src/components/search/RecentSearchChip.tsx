@@ -1,5 +1,7 @@
 import { Pressable, StyleSheet, Text } from 'react-native';
 
+import { searchFont } from '@/components/search/search-fonts';
+
 type RecentSearchChipProps = {
   label: string;
   scale: number;
@@ -21,6 +23,7 @@ export function RecentSearchChip({ label, scale, onPress }: RecentSearchChipProp
       <Text
         style={[
           styles.label,
+          searchFont('medium'),
           {
             fontSize: 12 * scale,
             lineHeight: 10 * scale,
@@ -37,7 +40,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
   },
   label: {
-    fontFamily: 'Poppins_500Medium',
     color: '#000000',
     letterSpacing: 0.5,
   },

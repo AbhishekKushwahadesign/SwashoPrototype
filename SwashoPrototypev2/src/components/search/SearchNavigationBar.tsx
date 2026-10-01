@@ -5,6 +5,7 @@ import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
 import { ArrowLeftIcon, LineDividerIcon, MicrophoneIcon } from '@/components/home/figma-icons';
 import { FigmaShadows, figmaShadow } from '@/components/home/figma-shadows';
+import { searchFont } from '@/components/search/search-fonts';
 
 type SearchNavigationBarProps = {
   scale: number;
@@ -67,6 +68,7 @@ export function SearchNavigationBar({
           returnKeyType="search"
           style={[
             styles.input,
+            searchFont('medium'),
             {
               fontSize: 16 * scale,
               lineHeight: 14 * scale,
@@ -98,7 +100,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   input: {
-    fontFamily: 'Poppins_500Medium',
     color: '#3d3d3d',
     letterSpacing: 0.5,
     paddingVertical: 0,

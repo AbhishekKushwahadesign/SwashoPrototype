@@ -9,6 +9,8 @@ import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { ProviderCard } from '@/components/provider/ProviderCard';
 import { RECENT_SEARCHES, SEARCH_OFFERS } from '@/data/providers';
 
+import { searchFont } from '@/components/search/search-fonts';
+
 import { RecentSearchChip } from './RecentSearchChip';
 import { SearchNavigationBar } from './SearchNavigationBar';
 import { SearchStatusBar } from './SearchStatusBar';
@@ -142,6 +144,7 @@ export function Search1Screen() {
               <Text
                 style={[
                   styles.offersTitle,
+                  searchFont('medium'),
                   {
                     fontSize: 18 * scale,
                     lineHeight: 16 * scale,
@@ -221,7 +224,6 @@ const styles = StyleSheet.create({
   },
   offersTitle: {
     flex: 1,
-    fontFamily: 'Poppins_500Medium',
     color: '#3d3d3d',
     letterSpacing: 0.5,
   },
