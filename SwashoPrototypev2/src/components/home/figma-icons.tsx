@@ -118,6 +118,17 @@ export function HomeSmileIcon({ width, height, style }: IconProps) {
   return <SvgXml xml={HomeSmileIconXml} width={width} height={height} style={style} />;
 }
 
+const HomeSmileLinearIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20.8844" height="20.8844" viewBox="0 0 20.8844 20.8844" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Linear / Essentional, UI / Home Smile">
+<path id="Vector" d="M1.74037 10.6197C1.74037 8.6283 1.74037 7.63262 2.19217 6.80722C2.64397 5.98182 3.46937 5.46955 5.12019 4.44501L6.86056 3.36489C8.60558 2.28187 9.4781 1.74037 10.4422 1.74037C11.4063 1.74037 12.2788 2.28187 14.0239 3.36489L15.7642 4.44501C17.415 5.46955 18.2404 5.98182 18.6922 6.80722C19.144 7.63262 19.144 8.6283 19.144 10.6197V11.9432C19.144 15.3377 19.144 17.035 18.1246 18.0895C17.1051 19.144 15.4642 19.144 12.1826 19.144H8.70184C5.42017 19.144 3.77934 19.144 2.75985 18.0895C1.74037 17.035 1.74037 15.3377 1.74037 11.9432V10.6197Z" stroke="#7C7C7C" stroke-width="1.30528"/>
+<path id="Vector_2" d="M7.83165 13.9229C8.57164 14.4714 9.47157 14.7931 10.4422 14.7931C11.4128 14.7931 12.3128 14.4714 13.0528 13.9229" stroke="#656565" stroke-width="1.30528" stroke-linecap="round"/>
+</g>
+</svg>`;
+
+export function HomeSmileLinearIcon({ width, height, style }: IconProps) {
+  return <SvgXml xml={HomeSmileLinearIconXml} width={width} height={height} style={style} />;
+}
+
 const Line13IconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="229" height="2" viewBox="0 0 229 2" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path id="Line 13" d="M1 1H228" stroke="url(#paint0_linear_0_302)" strokeWidth="2" strokeLinecap="round" stroke-dasharray="6 6"/>
 <defs>
