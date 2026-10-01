@@ -1,5 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { Platform, Pressable, StyleSheet, Text, View, type ViewStyle } from 'react-native';
+import { createElement } from 'react';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import {
@@ -24,63 +25,87 @@ type NavBarProps = {
   onSubscriptionPress?: () => void;
 };
 
+const NAV_HEIGHT = 101;
 const NAV_PILL_SHADOW = { offsetX: 0, offsetY: 0, blur: 2, color: '#000000', opacity: 0.19 } as const;
 
-function webBlurLayer(blurPx: number, fadeStart: string, fadeEnd: string): ViewStyle {
+const BLUR_LAYERS = [
+  { blurPx: 1.5, fadeStart: '0%', fadeEnd: '100%' },
+  { blurPx: 6, fadeStart: '30%', fadeEnd: '100%' },
+  { blurPx: 14, fadeStart: '55%', fadeEnd: '100%' },
+  { blurPx: 24, fadeStart: '75%', fadeEnd: '100%' },
+] as const;
+
+function webBlurLayerStyle(blurPx: number, fadeStart: string, fadeEnd: string, height: number) {
   const mask = `linear-gradient(to top, black ${fadeStart}, transparent ${fadeEnd})`;
   return {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height,
+    pointerEvents: 'none',
     backdropFilter: `blur(${blurPx}px)`,
     WebkitBackdropFilter: `blur(${blurPx}px)`,
     maskImage: mask,
     WebkitMaskImage: mask,
-  } as ViewStyle;
+  } as const;
+}
+
+function WebBlurLayer({
+  blurPx,
+  fadeStart,
+  fadeEnd,
+  height,
+}: {
+  blurPx: number;
+  fadeStart: string;
+  fadeEnd: string;
+  height: number;
+}) {
+  return createElement('div', {
+    style: webBlurLayerStyle(blurPx, fadeStart, fadeEnd, height),
+  });
 }
 
 function ProgressiveBlurFade({ scale }: { scale: number }) {
-  const height = 101 * scale;
+  const height = NAV_HEIGHT * scale;
+  const fadeStyle = [styles.blurFade, { height }];
 
   if (Platform.OS !== 'web') {
     return (
       <LinearGradient
         colors={['rgba(255,255,255,0.05)', '#ffffff']}
         locations={[0, 0.75]}
-        style={[StyleSheet.absoluteFill, { height }]}
+        style={fadeStyle}
         pointerEvents="none"
       />
     );
   }
 
   return (
-    <>
-      <View
-        pointerEvents="none"
-        style={[StyleSheet.absoluteFill, { height }, webBlurLayer(1.5, '0%', '100%')]}
-      />
-      <View
-        pointerEvents="none"
-        style={[StyleSheet.absoluteFill, { height }, webBlurLayer(6, '30%', '100%')]}
-      />
-      <View
-        pointerEvents="none"
-        style={[StyleSheet.absoluteFill, { height }, webBlurLayer(14, '55%', '100%')]}
-      />
-      <View
-        pointerEvents="none"
-        style={[StyleSheet.absoluteFill, { height }, webBlurLayer(24, '75%', '100%')]}
-      />
+    <View pointerEvents="none" style={fadeStyle}>
+      {BLUR_LAYERS.map((layer) => (
+        <WebBlurLayer
+          key={`${layer.blurPx}-${layer.fadeStart}`}
+          blurPx={layer.blurPx}
+          fadeStart={layer.fadeStart}
+          fadeEnd={layer.fadeEnd}
+          height={height}
+        />
+      ))}
       <LinearGradient
         colors={['rgba(255,255,255,0.05)', '#ffffff']}
         locations={[0, 0.75]}
-        style={[StyleSheet.absoluteFill, { height }]}
+        style={StyleSheet.absoluteFill}
         pointerEvents="none"
       />
       <LinearGradient
         colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.01)']}
         locations={[0.19232, 0.87445]}
-        style={[StyleSheet.absoluteFill, { height }]}
+        style={StyleSheet.absoluteFill}
         pointerEvents="none"
       />
-    </>
+    </View>
   );
 }
 
@@ -148,12 +173,13 @@ export function NavBar({ variant, scale, onSubscriptionPress }: NavBarProps) {
   const iconSize = 20.884 * scale;
 
   return (
-    <View style={[styles.container, { height: 101 * scale, paddingTop: 9.03 * scale }]}>
+    <View style={[styles.container, { height: NAV_HEIGHT * scale, paddingTop: 9.03 * scale }]}>
       <ProgressiveBlurFade scale={scale} />
 
       <View
         style={[
           styles.pill,
+          styles.pillSharp,
           {
             width: pillWidth,
             height: pillHeight,
@@ -261,7 +287,17 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     position: 'relative',
-    overflow: 'hidden',
+    ...Platform.select({
+      web: { overflow: 'visible' as const },
+      default: { overflow: 'hidden' as const },
+    }),
+  },
+  blurFade: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 0,
   },
   pill: {
     backgroundColor: '#ffffff',
@@ -269,7 +305,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
-    zIndex: 1,
+  },
+  pillSharp: {
+    zIndex: 2,
   },
   capsule: {
     position: 'absolute',
