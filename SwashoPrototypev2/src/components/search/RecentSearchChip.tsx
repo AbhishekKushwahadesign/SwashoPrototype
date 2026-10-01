@@ -1,13 +1,15 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
 
 type RecentSearchChipProps = {
   label: string;
   scale: number;
+  onPress?: () => void;
 };
 
-export function RecentSearchChip({ label, scale }: RecentSearchChipProps) {
+export function RecentSearchChip({ label, scale, onPress }: RecentSearchChipProps) {
   return (
-    <View
+    <Pressable
+      onPress={onPress}
       style={[
         styles.chip,
         {
@@ -26,7 +28,7 @@ export function RecentSearchChip({ label, scale }: RecentSearchChipProps) {
         ]}>
         {label}
       </Text>
-    </View>
+    </Pressable>
   );
 }
 

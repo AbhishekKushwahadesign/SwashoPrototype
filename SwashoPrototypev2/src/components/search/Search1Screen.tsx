@@ -1,3 +1,5 @@
+import { useRouter } from 'expo-router';
+import { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -30,11 +32,36 @@ function buildOfferColumns() {
 }
 
 export function Search1Screen() {
+  const router = useRouter();
+  const [query, setQuery] = useState('');
   const { scale, contentWidth, contentHeight } = useScreenScale();
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
   const frameHeight = contentHeight + safeTop;
   const offerColumns = buildOfferColumns();
+
+  const handleBackPress = useCallback(() => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.replace('/');
+  }, [router]);
+
+  const handleSubmit = useCallback(() => {
+    const trimmed = query.trim();
+    if (!trimmed) {
+      return;
+    }
+    router.push({
+      pathname: '/search-2',
+      params: { q: trimmed },
+    });
+  }, [query, router]);
+
+  const handleRecentSearchPress = useCallback((label: string) => {
+    setQuery(label);
+  }, []);
 
   return (
     <View style={styles.root}>
@@ -60,9 +87,17 @@ export function Search1Screen() {
               paddingBottom: 24 * scale,
             },
           ]}
-          showsVerticalScrollIndicator={false}>
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled">
           <View style={[styles.searchBlock, { gap: SEARCH_INTERNAL_GAP * scale, width: contentWidth }]}>
-            <SearchNavigationBar scale={scale} />
+            <SearchNavigationBar
+              scale={scale}
+              value={query}
+              onChangeText={setQuery}
+              onSubmit={handleSubmit}
+              onBackPress={handleBackPress}
+              autoFocus
+            />
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -73,9 +108,15 @@ export function Search1Screen() {
                   paddingRight: 17 * scale,
                   gap: 8 * scale,
                 },
-              ]}>
+              ]}
+              keyboardShouldPersistTaps="handled">
               {RECENT_SEARCHES.map((label, index) => (
-                <RecentSearchChip key={`${label}-${index}`} label={label} scale={scale} />
+                <RecentSearchChip
+                  key={`${label}-${index}`}
+                  label={label}
+                  scale={scale}
+                  onPress={() => handleRecentSearchPress(label)}
+                />
               ))}
             </ScrollView>
           </View>

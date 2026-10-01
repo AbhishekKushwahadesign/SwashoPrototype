@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useRef } from 'react';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
@@ -7,10 +8,33 @@ import { FigmaShadows, figmaShadow } from '@/components/home/figma-shadows';
 
 type SearchNavigationBarProps = {
   scale: number;
+  value: string;
+  onChangeText: (text: string) => void;
+  onSubmit?: () => void;
   onBackPress?: () => void;
+  onMicrophonePress?: () => void;
+  autoFocus?: boolean;
 };
 
-export function SearchNavigationBar({ scale, onBackPress }: SearchNavigationBarProps) {
+export function SearchNavigationBar({
+  scale,
+  value,
+  onChangeText,
+  onSubmit,
+  onBackPress,
+  onMicrophonePress,
+  autoFocus = false,
+}: SearchNavigationBarProps) {
+  const inputRef = useRef<TextInput>(null);
+
+  const handleMicrophonePress = () => {
+    if (onMicrophonePress) {
+      onMicrophonePress();
+      return;
+    }
+    inputRef.current?.focus();
+  };
+
   return (
     <View style={[styles.wrapper, { paddingHorizontal: 20 * scale }]}>
       <View
@@ -32,15 +56,32 @@ export function SearchNavigationBar({ scale, onBackPress }: SearchNavigationBarP
             <LineDividerIcon width={28 * scale} height={1} />
           </View>
         </View>
-        <Text style={[styles.placeholder, { fontSize: 16 * scale, lineHeight: 14 * scale, flex: 1 }]}>
-          Search
-        </Text>
+        <TextInput
+          ref={inputRef}
+          value={value}
+          onChangeText={onChangeText}
+          onSubmitEditing={onSubmit}
+          placeholder="Search"
+          placeholderTextColor={SwashoColors.neutral500}
+          autoFocus={autoFocus}
+          returnKeyType="search"
+          style={[
+            styles.input,
+            {
+              fontSize: 16 * scale,
+              lineHeight: 14 * scale,
+              flex: 1,
+            },
+          ]}
+        />
         <View style={{ width: 0, height: 28 * scale, justifyContent: 'center', alignItems: 'center' }}>
           <View style={{ transform: [{ rotate: '90deg' }] }}>
             <LineDividerIcon width={28 * scale} height={1} />
           </View>
         </View>
-        <MicrophoneIcon width={20 * scale} height={20 * scale} />
+        <Pressable onPress={handleMicrophonePress} hitSlop={8} style={{ width: 20 * scale, height: 20 * scale }}>
+          <MicrophoneIcon width={20 * scale} height={20 * scale} />
+        </Pressable>
       </View>
     </View>
   );
@@ -56,9 +97,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
   },
-  placeholder: {
+  input: {
     fontFamily: 'Poppins_500Medium',
-    color: SwashoColors.neutral500,
+    color: '#3d3d3d',
     letterSpacing: 0.5,
+    paddingVertical: 0,
+    margin: 0,
   },
 });

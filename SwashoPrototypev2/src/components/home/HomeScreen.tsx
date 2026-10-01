@@ -1,4 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
   Platform,
@@ -362,7 +363,7 @@ export function HomeScreen() {
               zIndex: 6,
             },
           ]}>
-          <SearchField scale={scale} />
+          <SearchField scale={scale} onPress={() => router.push('/search')} />
         </View>
 
         {/* White sheet — pins so the concave notch wraps the stuck search */}

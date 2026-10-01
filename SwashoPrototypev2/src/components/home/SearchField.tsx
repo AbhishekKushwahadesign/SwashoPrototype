@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
@@ -7,11 +7,13 @@ import { FigmaShadows, figmaShadow } from './figma-shadows';
 
 type SearchFieldProps = {
   scale: number;
+  onPress?: () => void;
 };
 
-export function SearchField({ scale }: SearchFieldProps) {
+export function SearchField({ scale, onPress }: SearchFieldProps) {
   return (
-    <View
+    <Pressable
+      onPress={onPress}
       style={[
         styles.container,
         {
@@ -39,7 +41,7 @@ export function SearchField({ scale }: SearchFieldProps) {
         </View>
       </View>
       <MicrophoneIcon width={20 * scale} height={20 * scale} />
-    </View>
+    </Pressable>
   );
 }
 
