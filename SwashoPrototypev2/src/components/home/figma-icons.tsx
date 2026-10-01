@@ -45,6 +45,33 @@ export function ArrowRightIcon({ width, height, style }: IconProps) {
   return <SvgXml xml={ArrowRightIconXml} width={width} height={height} style={style} />;
 }
 
+const ArrowLeftIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Linear / Arrows / Arrow Left">
+<path id="Vector" d="M16.6667 10H3.33333M8.33333 15L3.33333 10L8.33333 5" stroke="#292929" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+</g>
+</svg>`;
+
+export function ArrowLeftIcon({ width, height, style }: IconProps) {
+  return <SvgXml xml={ArrowLeftIconXml} width={width} height={height} style={style} />;
+}
+
+const StarRatingIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="9.59049" height="9.59049" viewBox="0 0 9.59049 9.59049" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Linear / Like / Star">
+<g clip-path="url(#clip0_0_84)">
+<path id="Vector" d="M3.65764 2.16121C4.1638 1.25321 4.41688 0.799208 4.79525 0.799208C5.17362 0.799208 5.42669 1.25321 5.93285 2.16121L6.0638 2.39612C6.20764 2.65414 6.27955 2.78316 6.39169 2.86828C6.50382 2.9534 6.64347 2.985 6.92278 3.0482L7.17707 3.10573C8.15997 3.32812 8.65142 3.43932 8.76834 3.81531C8.88526 4.1913 8.55022 4.58308 7.88015 5.36665L7.70679 5.56937C7.51638 5.79203 7.42117 5.90336 7.37834 6.0411C7.33551 6.17883 7.3499 6.32737 7.37869 6.62445L7.4049 6.89492C7.50621 7.94037 7.55686 8.46309 7.25075 8.69547C6.94464 8.92784 6.4845 8.71598 5.56421 8.29225L5.32613 8.18262C5.06461 8.06221 4.93385 8.00201 4.79525 8.00201C4.65664 8.00201 4.52588 8.06221 4.26437 8.18262L4.02628 8.29225C3.10599 8.71598 2.64585 8.92784 2.33974 8.69547C2.03363 8.46309 2.08429 7.94037 2.18559 6.89492L2.2118 6.62445C2.24059 6.32737 2.25498 6.17883 2.21215 6.0411C2.16932 5.90336 2.07411 5.79203 1.8837 5.56937L1.71034 5.36665C1.04027 4.58308 0.705231 4.1913 0.822153 3.81531C0.939076 3.43932 1.43052 3.32812 2.41342 3.10573L2.66771 3.0482C2.94702 2.985 3.08667 2.9534 3.19881 2.86828C3.31094 2.78316 3.38286 2.65414 3.52669 2.39612L3.65764 2.16121Z" stroke="#292929" stroke-width="0.799208"/>
+</g>
+</g>
+<defs>
+<clipPath id="clip0_0_84">
+<rect width="9.59049" height="9.59049" rx="2.66403" fill="white"/>
+</clipPath>
+</defs>
+</svg>`;
+
+export function StarRatingIcon({ width, height, style }: IconProps) {
+  return <SvgXml xml={StarRatingIconXml} width={width} height={height} style={style} />;
+}
+
 const BatteryIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g id="Battery">
 <path id="Vector" d="M5.66667 14.3333C5.47778 14.3333 5.31944 14.2694 5.19167 14.1417C5.06389 14.0139 5 13.8556 5 13.6667V3C5 2.81111 5.06389 2.65278 5.19167 2.525C5.31944 2.39722 5.47778 2.33333 5.66667 2.33333H7V1H9.66667V2.33333H11C11.1889 2.33333 11.3472 2.39722 11.475 2.525C11.6028 2.65278 11.6667 2.81111 11.6667 3V13.6667C11.6667 13.8556 11.6028 14.0139 11.475 14.1417C11.3472 14.2694 11.1889 14.3333 11 14.3333H5.66667ZM6.33333 5H10.3333V3.66667H6.33333V5Z" fill="#E6E6E6"/>
