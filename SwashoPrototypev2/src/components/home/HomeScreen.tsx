@@ -256,7 +256,7 @@ export function HomeScreen() {
       </View>
 
       <View style={[styles.section, { width: 373 * scale, gap: 12 * scale }]}>
-        <SectionTitle title="Search by Service" scale={scale} />
+        <SectionTitle title="Search by Service" scale={scale} headerHeight={18} />
         <View style={[styles.serviceGrid, { width: 373 * scale, gap: 12 * scale, rowGap: 28 * scale }]}>
           {SERVICES.map((service) => (
             <ServiceTile key={service.label} {...service} scale={scale} />

@@ -9,11 +9,19 @@ type SectionTitleProps = {
   actionLabel?: string;
   onActionPress?: () => void;
   scale: number;
+  /** Figma section header frame height (e.g. Services/Orders use 18). */
+  headerHeight?: number;
 };
 
-export function SectionTitle({ title, actionLabel, onActionPress, scale }: SectionTitleProps) {
+export function SectionTitle({
+  title,
+  actionLabel,
+  onActionPress,
+  scale,
+  headerHeight,
+}: SectionTitleProps) {
   return (
-    <View style={styles.row}>
+    <View style={[styles.row, headerHeight != null && { height: headerHeight * scale }]}>
       <Text style={[styles.title, { fontSize: 16 * scale, lineHeight: 14 * scale }]}>{title}</Text>
       {actionLabel ? (
         <TertiaryButton
