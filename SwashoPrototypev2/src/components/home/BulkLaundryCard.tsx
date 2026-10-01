@@ -49,11 +49,6 @@ export function BulkLaundryCard({ scale }: BulkLaundryCardProps) {
         <Text style={[styles.savingsTitle, { fontSize: 12 * scale, lineHeight: 16 * scale, width: 91.5 * scale }]}>
           Big loads? Bigger savings!!
         </Text>
-        <Text style={[styles.savingsAmount, { fontSize: 11 * scale, lineHeight: 14 * scale, width: 55 * scale }]}>
-          <Text style={{ fontFamily: 'Poppins_500Medium' }}>Upto </Text>
-          <Text style={{ fontFamily: 'Poppins_700Bold' }}>30%</Text>
-          <Text style={{ fontFamily: 'Poppins_500Medium' }}> saving</Text>
-        </Text>
       </View>
     </View>
   );
@@ -82,8 +77,5 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_400Regular',
     color: '#000000',
     letterSpacing: 0.5,
-  },
-  savingsAmount: {
-    color: SwashoColors.darkHeaderText,
   },
 });
