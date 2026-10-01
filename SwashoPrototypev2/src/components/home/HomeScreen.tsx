@@ -186,7 +186,8 @@ export function HomeScreen() {
   const searchBottomUnscaled = searchTopUnscaled + SEARCH_FIELD_HEIGHT;
   const sheetTopUnscaled = Math.max(SHEET_STICKY_TOP, SHEET_REGION_TOP - collapsedProgress);
   const sheetTop = sheetTopUnscaled * scale;
-  const sheetHeight = frameHeight - sheetTop - bottomChromeHeight;
+  // Sheet runs under the bottom chrome so content scrolls behind the nav's backdrop blur.
+  const sheetHeight = frameHeight - sheetTop;
   // Address always tracks full collapse so it fully exits; promise stops once it
   // would get closer than PROMISE_SEARCH_MIN_GAP below the current/sticky search.
   const maxPromiseCollapse = Math.max(
@@ -385,7 +386,7 @@ export function HomeScreen() {
               {
                 paddingTop: sheetContentPaddingTop * scale,
                 paddingHorizontal: SwashoSpacing.xxl * scale,
-                paddingBottom: 16 * scale,
+                paddingBottom: 16 * scale + bottomChromeHeight,
                 gap: SwashoSpacing.section * scale,
               },
             ]}
@@ -405,7 +406,9 @@ export function HomeScreen() {
             scale={scale}
             onSubscriptionPress={() => setNavVariant('Orders')}
           />
-          <HomeIndicator scale={scale} />
+          <View style={styles.homeIndicatorWrap}>
+            <HomeIndicator scale={scale} />
+          </View>
         </View>
       </View>
     </View>
@@ -504,5 +507,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 8,
+  },
+  homeIndicatorWrap: {
+    backgroundColor: SwashoColors.surface,
   },
 });
