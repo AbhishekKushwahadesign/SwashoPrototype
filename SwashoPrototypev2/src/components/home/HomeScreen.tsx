@@ -128,6 +128,8 @@ const SUBTRACT_HEIGHT = 908.1035;
 
 const NAV_HEIGHT = 101;
 const HOME_INDICATOR_HEIGHT = 24;
+/** Figma Service Cards (3344:8773) inner offset: top 0.5 + first card y 16.105. */
+const SERVICE_GRID_PADDING_TOP = 16.605;
 
 export function HomeScreen() {
   const { scale, contentWidth, contentHeight } = useScreenScale();
@@ -257,7 +259,16 @@ export function HomeScreen() {
 
       <View style={[styles.section, { width: 373 * scale, gap: 12 * scale }]}>
         <SectionTitle title="Search by Service" scale={scale} headerHeight={18} />
-        <View style={[styles.serviceGrid, { width: 373 * scale, gap: 12 * scale, rowGap: 28 * scale }]}>
+        <View
+          style={[
+            styles.serviceGrid,
+            {
+              width: 373 * scale,
+              gap: 12 * scale,
+              rowGap: 28 * scale,
+              paddingTop: SERVICE_GRID_PADDING_TOP * scale,
+            },
+          ]}>
           {SERVICES.map((service) => (
             <ServiceTile key={service.label} {...service} scale={scale} />
           ))}
