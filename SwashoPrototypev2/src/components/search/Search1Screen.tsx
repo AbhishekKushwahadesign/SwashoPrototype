@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { HomeIndicator } from '@/components/home/HomeIndicator';
@@ -21,9 +21,9 @@ const SEARCH_TO_OFFERS_GAP = 40;
 const SEARCH_INTERNAL_GAP = 16;
 const OFFERS_HEADER_TO_GRID_GAP = 12;
 const CARD_GAP = 16;
-const GRID_WIDTH = 467;
 const GRID_HEIGHT = 403.74;
 const OFFERS_HEADER_WIDTH = 372;
+const OFFERS_SECTION_PADDING_LEFT = 20;
 
 function buildOfferColumns() {
   const columns: (typeof SEARCH_OFFERS)[] = [];
@@ -41,6 +41,7 @@ export function Search1Screen() {
   const safeTop = useSafeTopInset(insets.top);
   const frameHeight = contentHeight + safeTop;
   const offerColumns = buildOfferColumns();
+  const offersViewportWidth = contentWidth - OFFERS_SECTION_PADDING_LEFT * scale;
 
   const handleBackPress = useCallback(() => {
     if (router.canGoBack()) {
@@ -157,9 +158,23 @@ export function Search1Screen() {
 
             <ScrollView
               horizontal
+              nestedScrollEnabled
+              directionalLockEnabled
               showsHorizontalScrollIndicator={false}
-              style={{ width: GRID_WIDTH * scale, height: GRID_HEIGHT * scale }}
-              contentContainerStyle={{ gap: CARD_GAP * scale }}>
+              style={[
+                styles.offersGrid,
+                {
+                  width: offersViewportWidth,
+                  height: GRID_HEIGHT * scale,
+                },
+                Platform.OS === 'web' ? styles.offersGridWeb : null,
+              ]}
+              contentContainerStyle={{
+                flexDirection: 'row',
+                alignItems: 'flex-end',
+                gap: CARD_GAP * scale,
+                paddingRight: OFFERS_SECTION_PADDING_LEFT * scale,
+              }}>
               {offerColumns.map((column, columnIndex) => (
                 <View
                   key={`column-${columnIndex}`}
@@ -216,6 +231,15 @@ const styles = StyleSheet.create({
   },
   offersSection: {
     width: '100%',
+    overflow: 'hidden',
+  },
+  offersGrid: {
+    flexGrow: 0,
+    flexShrink: 0,
+  },
+  offersGridWeb: {
+    overflowX: 'auto',
+    overflowY: 'hidden',
   },
   offersHeader: {
     flexDirection: 'row',
