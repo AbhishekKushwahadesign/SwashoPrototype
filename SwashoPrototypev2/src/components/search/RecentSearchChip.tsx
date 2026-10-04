@@ -1,5 +1,7 @@
 import { Pressable, StyleSheet, Text } from 'react-native';
 
+import { SwashoColors } from '@/constants/swasho-tokens';
+
 import { searchFont } from '@/components/search/search-fonts';
 
 type RecentSearchChipProps = {
@@ -17,7 +19,7 @@ export function RecentSearchChip({ label, scale, onPress }: RecentSearchChipProp
         {
           paddingHorizontal: 16 * scale,
           paddingVertical: 10 * scale,
-          borderRadius: 9999,
+          borderRadius: 9999 * scale,
         },
       ]}>
       <Text
@@ -37,7 +39,9 @@ export function RecentSearchChip({ label, scale, onPress }: RecentSearchChipProp
 
 const styles = StyleSheet.create({
   chip: {
-    backgroundColor: '#ffffff',
+    backgroundColor: SwashoColors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   label: {
     color: '#000000',

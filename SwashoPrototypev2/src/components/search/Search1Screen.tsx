@@ -1,12 +1,13 @@
 import { useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AltArrowRightIcon } from '@/components/home/figma-icons';
 import { HomeIndicator } from '@/components/home/HomeIndicator';
-import { TertiaryButton } from '@/components/home/TertiaryButton';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { ProviderCard } from '@/components/provider/ProviderCard';
+import { SwashoColors } from '@/constants/swasho-tokens';
 import { RECENT_SEARCHES, SEARCH_OFFERS } from '@/data/providers';
 
 import { searchFont } from '@/components/search/search-fonts';
@@ -17,13 +18,23 @@ import { SearchStatusBar } from './SearchStatusBar';
 
 const STATUS_BAR_HEIGHT = 32;
 const CONTENT_TOP_OFFSET = 23.67;
+const CHIPS_PADDING_LEFT = 16;
+const CHIPS_PADDING_RIGHT = 17;
+const CHIPS_GAP = 8;
 const SEARCH_TO_OFFERS_GAP = 40;
 const SEARCH_INTERNAL_GAP = 16;
 const OFFERS_HEADER_TO_GRID_GAP = 12;
+const OFFERS_SECTION_PADDING_X = 20;
+const OFFERS_HEADER_HEIGHT = 18;
+const OFFERS_TITLE_SIZE = 18;
+const OFFERS_TITLE_LINE_HEIGHT = 16;
+const EXPLORE_LABEL_SIZE = 14;
+const EXPLORE_LABEL_LINE_HEIGHT = 12;
+const EXPLORE_BUTTON_GAP = 4;
+const EXPLORE_BUTTON_MIN_WIDTH = 60;
+const EXPLORE_ICON_SIZE = 20;
 const CARD_GAP = 16;
 const GRID_HEIGHT = 403.74;
-const OFFERS_HEADER_WIDTH = 372;
-const OFFERS_SECTION_PADDING_LEFT = 20;
 
 function buildOfferColumns() {
   const columns: (typeof SEARCH_OFFERS)[] = [];
@@ -41,7 +52,8 @@ export function Search1Screen() {
   const safeTop = useSafeTopInset(insets.top);
   const frameHeight = contentHeight + safeTop;
   const offerColumns = buildOfferColumns();
-  const offersViewportWidth = contentWidth - OFFERS_SECTION_PADDING_LEFT * scale;
+  const offersHeaderWidth = contentWidth - OFFERS_SECTION_PADDING_X * 2 * scale;
+  const offersViewportWidth = contentWidth - OFFERS_SECTION_PADDING_X * scale;
 
   const handleBackPress = useCallback(() => {
     if (router.canGoBack()) {
@@ -104,12 +116,13 @@ export function Search1Screen() {
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
+              style={{ width: contentWidth }}
               contentContainerStyle={[
                 styles.chipsRow,
                 {
-                  paddingLeft: 16 * scale,
-                  paddingRight: 17 * scale,
-                  gap: 8 * scale,
+                  paddingLeft: CHIPS_PADDING_LEFT * scale,
+                  paddingRight: CHIPS_PADDING_RIGHT * scale,
+                  gap: CHIPS_GAP * scale,
                 },
               ]}
               keyboardShouldPersistTaps="handled">
@@ -130,7 +143,7 @@ export function Search1Screen() {
             style={[
               styles.offersSection,
               {
-                paddingLeft: 20 * scale,
+                paddingLeft: OFFERS_SECTION_PADDING_X * scale,
                 gap: OFFERS_HEADER_TO_GRID_GAP * scale,
               },
             ]}>
@@ -138,8 +151,8 @@ export function Search1Screen() {
               style={[
                 styles.offersHeader,
                 {
-                  width: OFFERS_HEADER_WIDTH * scale,
-                  height: 18 * scale,
+                  width: offersHeaderWidth,
+                  height: OFFERS_HEADER_HEIGHT * scale,
                 },
               ]}>
               <Text
@@ -147,13 +160,36 @@ export function Search1Screen() {
                   styles.offersTitle,
                   searchFont('medium'),
                   {
-                    fontSize: 18 * scale,
-                    lineHeight: 16 * scale,
+                    fontSize: OFFERS_TITLE_SIZE * scale,
+                    lineHeight: OFFERS_TITLE_LINE_HEIGHT * scale,
                   },
                 ]}>
                 Top Offers
               </Text>
-              <TertiaryButton label="Explore" showTrailingIcon trailingIcon="alt-arrow" scale={scale} />
+              <Pressable
+                style={[
+                  styles.exploreButton,
+                  {
+                    gap: EXPLORE_BUTTON_GAP * scale,
+                    height: OFFERS_HEADER_HEIGHT * scale,
+                    minWidth: EXPLORE_BUTTON_MIN_WIDTH * scale,
+                  },
+                ]}>
+                <Text
+                  style={[
+                    styles.exploreLabel,
+                    searchFont('medium'),
+                    {
+                      fontSize: EXPLORE_LABEL_SIZE * scale,
+                      lineHeight: EXPLORE_LABEL_LINE_HEIGHT * scale,
+                    },
+                  ]}>
+                  Explore
+                </Text>
+                <View style={{ width: EXPLORE_ICON_SIZE * scale, height: EXPLORE_ICON_SIZE * scale }}>
+                  <AltArrowRightIcon width={EXPLORE_ICON_SIZE * scale} height={EXPLORE_ICON_SIZE * scale} />
+                </View>
+              </Pressable>
             </View>
 
             <ScrollView
@@ -173,7 +209,7 @@ export function Search1Screen() {
                 flexDirection: 'row',
                 alignItems: 'flex-end',
                 gap: CARD_GAP * scale,
-                paddingRight: OFFERS_SECTION_PADDING_LEFT * scale,
+                paddingRight: OFFERS_SECTION_PADDING_X * scale,
               }}>
               {offerColumns.map((column, columnIndex) => (
                 <View
@@ -248,8 +284,20 @@ const styles = StyleSheet.create({
   },
   offersTitle: {
     flex: 1,
-    color: '#3d3d3d',
+    color: SwashoColors.neutral900,
     letterSpacing: 0.5,
+  },
+  exploreButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  exploreLabel: {
+    flex: 1,
+    color: SwashoColors.darkText,
+    letterSpacing: 0.5,
+    textAlign: 'center',
   },
   homeIndicatorWrap: {
     position: 'absolute',

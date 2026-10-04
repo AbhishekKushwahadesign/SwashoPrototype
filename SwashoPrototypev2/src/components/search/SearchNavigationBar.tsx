@@ -72,6 +72,7 @@ export function SearchNavigationBar({
             {
               fontSize: 16 * scale,
               lineHeight: 14 * scale,
+              height: 14 * scale,
               flex: 1,
             },
           ]}
@@ -94,7 +95,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   bar: {
-    backgroundColor: '#ffffff',
+    backgroundColor: SwashoColors.surface,
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
@@ -104,5 +105,6 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
     paddingVertical: 0,
     margin: 0,
+    textAlignVertical: 'center',
   },
 });
