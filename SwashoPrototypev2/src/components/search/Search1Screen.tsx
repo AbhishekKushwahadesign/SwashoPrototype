@@ -17,7 +17,8 @@ import { SearchNavigationBar } from './SearchNavigationBar';
 import { SearchStatusBar } from './SearchStatusBar';
 
 const STATUS_BAR_HEIGHT = 32;
-const CONTENT_TOP_OFFSET = 23.67;
+const SEARCH_BELOW_STATUS_GAP = 23.67;
+const SEARCH_CONTENT_TOP = STATUS_BAR_HEIGHT + SEARCH_BELOW_STATUS_GAP;
 const CHIPS_PADDING_LEFT = 16;
 const CHIPS_PADDING_RIGHT = 17;
 const CHIPS_GAP = 8;
@@ -98,7 +99,7 @@ export function Search1Screen() {
           contentContainerStyle={[
             styles.scrollContent,
             {
-              paddingTop: CONTENT_TOP_OFFSET * scale,
+              paddingTop: SEARCH_CONTENT_TOP * scale,
               paddingBottom: 24 * scale,
             },
           ]}
