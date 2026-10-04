@@ -18,7 +18,6 @@ import { SearchStatusBar } from './SearchStatusBar';
 
 const STATUS_BAR_HEIGHT = 32;
 const SEARCH_BELOW_STATUS_GAP = 23.67;
-const SEARCH_CONTENT_TOP = STATUS_BAR_HEIGHT + SEARCH_BELOW_STATUS_GAP;
 const CHIPS_PADDING_LEFT = 16;
 const CHIPS_PADDING_RIGHT = 17;
 const CHIPS_GAP = 8;
@@ -95,11 +94,11 @@ export function Search1Screen() {
         </View>
 
         <ScrollView
-          style={styles.scroll}
+          style={[styles.scroll, { marginTop: STATUS_BAR_HEIGHT * scale }]}
           contentContainerStyle={[
             styles.scrollContent,
             {
-              paddingTop: SEARCH_CONTENT_TOP * scale,
+              paddingTop: SEARCH_BELOW_STATUS_GAP * scale,
               paddingBottom: 24 * scale,
             },
           ]}
@@ -245,6 +244,7 @@ const styles = StyleSheet.create({
   frame: {
     backgroundColor: '#f2f2f2',
     overflow: 'hidden',
+    flexDirection: 'column',
   },
   statusBar: {
     position: 'absolute',
