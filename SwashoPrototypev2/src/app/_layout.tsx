@@ -42,7 +42,8 @@ export default function RootLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
       <Stack.Screen name="search" />
-      <Stack.Screen name="search-2" />
+      <Stack.Screen name="provider-results" />
+      <Stack.Screen name="provider/[id]" />
     </Stack>
   );
 }

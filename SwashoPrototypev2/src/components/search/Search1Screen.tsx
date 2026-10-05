@@ -79,7 +79,7 @@ export function Search1Screen() {
       return;
     }
     router.push({
-      pathname: '/search-2',
+      pathname: '/provider-results',
       params: { q: trimmed },
     });
   }, [query, router]);

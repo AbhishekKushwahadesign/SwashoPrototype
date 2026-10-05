@@ -76,4 +76,5 @@ export const FigmaShadows = {
   pickupMark: { offsetX: 0, offsetY: 0, blur: 2, color: '#000000', opacity: 0.35 },
   underLaundryMark: { offsetX: 0, offsetY: 0, blur: 1.9, color: '#000000', opacity: 0.45 },
   deliveredMark: { offsetX: 0, offsetY: 0, blur: 2, color: '#000000', opacity: 0.75 },
+  providerResultCard: { offsetX: 0, offsetY: 0, blur: 8, color: '#000000', opacity: 0.1 },
 } as const satisfies Record<string, ShadowSpec>;

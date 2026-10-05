@@ -3,20 +3,24 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useSafeTopInset } from '@/components/home/scale';
+import { SwashoFonts } from '@/constants/swasho-tokens';
+import { getProviderResultById } from '@/data/providers';
 
-export default function Search2Route() {
+export default function ProviderDetailsRoute() {
   const router = useRouter();
-  const { q } = useLocalSearchParams<{ q?: string }>();
+  const { id, q } = useLocalSearchParams<{ id?: string; q?: string }>();
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
   const query = typeof q === 'string' ? q : '';
+  const providerId = typeof id === 'string' ? id : '';
+  const provider = getProviderResultById(providerId, query);
 
   const handleBackPress = () => {
     if (router.canGoBack()) {
       router.back();
       return;
     }
-    router.replace('/search');
+    router.replace({ pathname: '/provider-results', params: { q: query } });
   };
 
   return (
@@ -24,9 +28,13 @@ export default function Search2Route() {
       <Pressable onPress={handleBackPress} style={styles.backButton}>
         <Text style={styles.backLabel}>Back</Text>
       </Pressable>
-      <Text style={styles.title}>Search 2</Text>
-      <Text style={styles.subtitle}>Results for</Text>
-      <Text style={styles.query}>{query || 'No query provided'}</Text>
+      <Text style={styles.title}>Provider Details</Text>
+      <Text style={styles.subtitle}>Coming soon</Text>
+      {provider ? (
+        <Text style={styles.query}>{provider.serviceName} — {provider.category}</Text>
+      ) : (
+        <Text style={styles.query}>Provider not found</Text>
+      )}
     </View>
   );
 }
@@ -43,24 +51,24 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   backLabel: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: SwashoFonts.poppinsMedium,
     fontSize: 16,
     color: '#5d30f7',
   },
   title: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: SwashoFonts.poppinsSemiBold,
     fontSize: 24,
     color: '#3d3d3d',
     marginBottom: 8,
   },
   subtitle: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: SwashoFonts.poppinsRegular,
     fontSize: 14,
     color: '#6b6b6b',
     marginBottom: 4,
   },
   query: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: SwashoFonts.poppinsMedium,
     fontSize: 18,
     color: '#3d3d3d',
     textAlign: 'center',
