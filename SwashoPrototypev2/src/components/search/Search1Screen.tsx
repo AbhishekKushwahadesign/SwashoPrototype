@@ -1,6 +1,15 @@
-import { useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
+import { useCallback, useRef, useState } from 'react';
+import {
+  Keyboard,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AltArrowRightIcon } from '@/components/home/figma-icons';
@@ -13,7 +22,7 @@ import { RECENT_SEARCHES, SEARCH_OFFERS } from '@/data/providers';
 import { searchFont } from '@/components/search/search-fonts';
 
 import { RecentSearchChip } from './RecentSearchChip';
-import { SearchNavigationBar } from './SearchNavigationBar';
+import { SearchNavigationBar, type SearchNavigationBarHandle } from './SearchNavigationBar';
 import { SearchStatusBar } from './SearchStatusBar';
 
 const STATUS_BAR_HEIGHT = 32;
@@ -46,6 +55,7 @@ function buildOfferColumns() {
 
 export function Search1Screen() {
   const router = useRouter();
+  const searchBarRef = useRef<SearchNavigationBarHandle>(null);
   const [query, setQuery] = useState('');
   const { scale, contentWidth, contentHeight } = useScreenScale();
   const insets = useSafeAreaInsets();
@@ -78,6 +88,18 @@ export function Search1Screen() {
     setQuery(label);
   }, []);
 
+  const dismissKeyboard = useCallback(() => {
+    searchBarRef.current?.blur();
+    Keyboard.dismiss();
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      const timer = setTimeout(() => searchBarRef.current?.focus(), 100);
+      return () => clearTimeout(timer);
+    }, []),
+  );
+
   return (
     <View style={styles.root}>
       <View
@@ -93,26 +115,30 @@ export function Search1Screen() {
           <SearchStatusBar scale={scale} />
         </View>
 
-        <ScrollView
-          style={[styles.scroll, { marginTop: STATUS_BAR_HEIGHT * scale }]}
-          contentContainerStyle={[
-            styles.scrollContent,
-            {
-              paddingTop: SEARCH_BELOW_STATUS_GAP * scale,
-              paddingBottom: 24 * scale,
-            },
-          ]}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled">
-          <View style={[styles.searchBlock, { gap: SEARCH_INTERNAL_GAP * scale, width: contentWidth }]}>
-            <SearchNavigationBar
-              scale={scale}
-              value={query}
-              onChangeText={setQuery}
-              onSubmit={handleSubmit}
-              onBackPress={handleBackPress}
-              autoFocus
-            />
+        <TouchableWithoutFeedback onPress={dismissKeyboard} accessible={false}>
+          <ScrollView
+            style={[styles.scroll, { marginTop: STATUS_BAR_HEIGHT * scale }]}
+            contentContainerStyle={[
+              styles.scrollContent,
+              {
+                paddingTop: SEARCH_BELOW_STATUS_GAP * scale,
+                paddingBottom: 24 * scale,
+              },
+            ]}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
+            onScrollBeginDrag={dismissKeyboard}>
+            <View style={[styles.searchBlock, { gap: SEARCH_INTERNAL_GAP * scale, width: contentWidth }]}>
+              <SearchNavigationBar
+                ref={searchBarRef}
+                scale={scale}
+                value={query}
+                onChangeText={setQuery}
+                onSubmit={handleSubmit}
+                onBackPress={handleBackPress}
+                autoFocus
+              />
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -197,6 +223,9 @@ export function Search1Screen() {
               nestedScrollEnabled
               directionalLockEnabled
               showsHorizontalScrollIndicator={false}
+              onScrollBeginDrag={dismissKeyboard}
+              onScroll={Platform.OS === 'web' ? dismissKeyboard : undefined}
+              keyboardShouldPersistTaps="handled"
               style={[
                 styles.offersGrid,
                 {
@@ -225,7 +254,8 @@ export function Search1Screen() {
               ))}
             </ScrollView>
           </View>
-        </ScrollView>
+          </ScrollView>
+        </TouchableWithoutFeedback>
 
         <View style={styles.homeIndicatorWrap}>
           <HomeIndicator scale={scale} />
