@@ -20,7 +20,6 @@ const LIST_GAP = 8;
 const FILTER_PADDING_LEFT = 20;
 const FILTER_PADDING_RIGHT = 21;
 const FILTER_GAP = 8;
-const HOME_INDICATOR_HEIGHT = 24;
 const SCROLL_BOTTOM_GAP = 200;
 
 type ProviderResultsScreenProps = {
@@ -33,7 +32,7 @@ export function ProviderResultsScreen({ query }: ProviderResultsScreenProps) {
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
   const frameHeight = contentHeight + safeTop;
-  const scrollBottomPadding = (HOME_INDICATOR_HEIGHT + SCROLL_BOTTOM_GAP) * scale;
+  const scrollBottomGap = SCROLL_BOTTOM_GAP * scale;
   const providers = getProviderResultsForQuery(query);
   const displayQuery = query.trim() || 'Dry Cleaning';
 
@@ -116,7 +115,6 @@ export function ProviderResultsScreen({ query }: ProviderResultsScreenProps) {
             styles.scrollContent,
             {
               paddingTop: LIST_TOP_GAP * scale,
-              paddingBottom: scrollBottomPadding,
               gap: LIST_GAP * scale,
             },
           ]}
@@ -130,11 +128,10 @@ export function ProviderResultsScreen({ query }: ProviderResultsScreenProps) {
               onPress={() => handleProviderPress(provider.id)}
             />
           ))}
+          <View style={{ height: scrollBottomGap, width: '100%' }} />
         </ScrollView>
 
-        <View style={styles.homeIndicatorWrap} pointerEvents="none">
-          <HomeIndicator scale={scale} />
-        </View>
+        <HomeIndicator scale={scale} />
       </View>
     </View>
   );
@@ -176,12 +173,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     flexWrap: 'wrap',
-  },
-  homeIndicatorWrap: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: 'transparent',
   },
 });
