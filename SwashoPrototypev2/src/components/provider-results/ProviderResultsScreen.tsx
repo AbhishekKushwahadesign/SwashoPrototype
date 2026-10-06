@@ -21,7 +21,7 @@ const FILTER_PADDING_LEFT = 20;
 const FILTER_PADDING_RIGHT = 21;
 const FILTER_GAP = 8;
 const HOME_INDICATOR_HEIGHT = 24;
-const SCROLL_BOTTOM_MARGIN = 16;
+const SCROLL_BOTTOM_GAP = 200;
 
 type ProviderResultsScreenProps = {
   query: string;
@@ -33,7 +33,7 @@ export function ProviderResultsScreen({ query }: ProviderResultsScreenProps) {
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
   const frameHeight = contentHeight + safeTop;
-  const scrollBottomPadding = (HOME_INDICATOR_HEIGHT + SCROLL_BOTTOM_MARGIN) * scale;
+  const scrollBottomPadding = (HOME_INDICATOR_HEIGHT + SCROLL_BOTTOM_GAP) * scale;
   const providers = getProviderResultsForQuery(query);
   const displayQuery = query.trim() || 'Dry Cleaning';
 
