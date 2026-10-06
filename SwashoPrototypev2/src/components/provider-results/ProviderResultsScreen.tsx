@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useCallback } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { HomeIndicator } from '@/components/home/HomeIndicator';
@@ -15,12 +15,13 @@ import { ProviderResultsSearchBar } from './ProviderResultsSearchBar';
 const STATUS_BAR_HEIGHT = 32;
 const HEADER_TOP_PADDING = 64;
 const HEADER_GAP = 12;
-const LIST_PADDING_TOP = 174;
-const LIST_WIDTH = 390;
+const LIST_TOP_GAP = 8;
 const LIST_GAP = 8;
 const FILTER_PADDING_LEFT = 20;
 const FILTER_PADDING_RIGHT = 21;
 const FILTER_GAP = 8;
+const HOME_INDICATOR_HEIGHT = 24;
+const SCROLL_BOTTOM_MARGIN = 16;
 
 type ProviderResultsScreenProps = {
   query: string;
@@ -32,6 +33,7 @@ export function ProviderResultsScreen({ query }: ProviderResultsScreenProps) {
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
   const frameHeight = contentHeight + safeTop;
+  const scrollBottomPadding = (HOME_INDICATOR_HEIGHT + SCROLL_BOTTOM_MARGIN) * scale;
   const providers = getProviderResultsForQuery(query);
   const displayQuery = query.trim() || 'Dry Cleaning';
 
@@ -72,74 +74,65 @@ export function ProviderResultsScreen({ query }: ProviderResultsScreenProps) {
           <SearchStatusBar scale={scale} />
         </View>
 
+        <View
+          style={[
+            styles.headerSection,
+            {
+              paddingTop: HEADER_TOP_PADDING * scale,
+              gap: HEADER_GAP * scale,
+            },
+          ]}>
+          <ProviderResultsSearchBar
+            scale={scale}
+            query={displayQuery}
+            onBackPress={handleBackPress}
+            onClearPress={handleClearPress}
+          />
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={[
+              styles.filtersRow,
+              {
+                paddingLeft: FILTER_PADDING_LEFT * scale,
+                paddingRight: FILTER_PADDING_RIGHT * scale,
+                gap: FILTER_GAP * scale,
+              },
+            ]}>
+            {PROVIDER_RESULT_FILTERS.map((filter) => (
+              <FilterChip
+                key={filter.id}
+                label={filter.label}
+                scale={scale}
+                hasDropdown={filter.hasDropdown}
+              />
+            ))}
+          </ScrollView>
+        </View>
+
         <ScrollView
-          style={styles.scroll}
+          style={[styles.scroll, Platform.OS === 'web' ? styles.scrollWeb : null]}
           contentContainerStyle={[
             styles.scrollContent,
             {
-              paddingTop: LIST_PADDING_TOP * scale,
-              paddingBottom: 24 * scale,
+              paddingTop: LIST_TOP_GAP * scale,
+              paddingBottom: scrollBottomPadding,
+              gap: LIST_GAP * scale,
             },
           ]}
-          showsVerticalScrollIndicator={false}>
-          <View
-            style={[
-              styles.list,
-              {
-                width: LIST_WIDTH * scale,
-                gap: LIST_GAP * scale,
-              },
-            ]}>
-            {providers.map((provider) => (
-              <ProviderResultCard
-                key={provider.id}
-                provider={provider}
-                scale={scale}
-                onPress={() => handleProviderPress(provider.id)}
-              />
-            ))}
-          </View>
+          showsVerticalScrollIndicator={false}
+          nestedScrollEnabled>
+          {providers.map((provider) => (
+            <ProviderResultCard
+              key={provider.id}
+              provider={provider}
+              scale={scale}
+              onPress={() => handleProviderPress(provider.id)}
+            />
+          ))}
         </ScrollView>
 
-        <View style={[styles.stickyHeader, { width: contentWidth }]}>
-          <View
-            style={[
-              styles.headerInner,
-              {
-                paddingTop: HEADER_TOP_PADDING * scale,
-                gap: HEADER_GAP * scale,
-              },
-            ]}>
-            <ProviderResultsSearchBar
-              scale={scale}
-              query={displayQuery}
-              onBackPress={handleBackPress}
-              onClearPress={handleClearPress}
-            />
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={[
-                styles.filtersRow,
-                {
-                  paddingLeft: FILTER_PADDING_LEFT * scale,
-                  paddingRight: FILTER_PADDING_RIGHT * scale,
-                  gap: FILTER_GAP * scale,
-                },
-              ]}>
-              {PROVIDER_RESULT_FILTERS.map((filter) => (
-                <FilterChip
-                  key={filter.id}
-                  label={filter.label}
-                  scale={scale}
-                  hasDropdown={filter.hasDropdown}
-                />
-              ))}
-            </ScrollView>
-          </View>
-        </View>
-
-        <View style={styles.homeIndicatorWrap}>
+        <View style={styles.homeIndicatorWrap} pointerEvents="none">
           <HomeIndicator scale={scale} />
         </View>
       </View>
@@ -156,6 +149,7 @@ const styles = StyleSheet.create({
   frame: {
     backgroundColor: '#f2f2f2',
     overflow: 'hidden',
+    flexDirection: 'column',
   },
   statusBar: {
     position: 'absolute',
@@ -164,25 +158,19 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 20,
   },
+  headerSection: {
+    backgroundColor: '#ffffff',
+    zIndex: 10,
+  },
   scroll: {
     flex: 1,
+    minHeight: 0,
+  },
+  scrollWeb: {
+    overflowY: 'auto',
   },
   scrollContent: {
     alignItems: 'center',
-  },
-  list: {
-    alignItems: 'center',
-  },
-  stickyHeader: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 10,
-    backgroundColor: '#ffffff',
-  },
-  headerInner: {
-    backgroundColor: '#ffffff',
   },
   filtersRow: {
     flexDirection: 'row',
