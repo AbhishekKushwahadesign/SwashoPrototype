@@ -15,12 +15,14 @@ import { ProviderResultsSearchBar } from './ProviderResultsSearchBar';
 const STATUS_BAR_HEIGHT = 32;
 const HEADER_TOP_PADDING = 64;
 const HEADER_GAP = 12;
-const LIST_TOP_GAP = 8;
+const LIST_PADDING_TOP = 174;
 const LIST_GAP = 8;
 const FILTER_PADDING_LEFT = 20;
 const FILTER_PADDING_RIGHT = 21;
 const FILTER_GAP = 8;
+const HOME_INDICATOR_HEIGHT = 24;
 const SCROLL_BOTTOM_GAP = 200;
+const PROVIDER_RESULTS_HEIGHT = 917;
 
 type ProviderResultsScreenProps = {
   query: string;
@@ -28,11 +30,12 @@ type ProviderResultsScreenProps = {
 
 export function ProviderResultsScreen({ query }: ProviderResultsScreenProps) {
   const router = useRouter();
-  const { scale, contentWidth, contentHeight } = useScreenScale();
+  const { scale, contentWidth } = useScreenScale();
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
-  const frameHeight = contentHeight + safeTop;
-  const scrollBottomGap = SCROLL_BOTTOM_GAP * scale;
+  const frameHeight = PROVIDER_RESULTS_HEIGHT * scale + safeTop;
+  const scrollBottomSpacer = SCROLL_BOTTOM_GAP * scale;
+  const scrollBottomInset = HOME_INDICATOR_HEIGHT * scale;
   const providers = getProviderResultsForQuery(query);
   const displayQuery = query.trim() || 'Dry Cleaning';
 
@@ -73,48 +76,13 @@ export function ProviderResultsScreen({ query }: ProviderResultsScreenProps) {
           <SearchStatusBar scale={scale} />
         </View>
 
-        <View
-          style={[
-            styles.headerSection,
-            {
-              paddingTop: HEADER_TOP_PADDING * scale,
-              gap: HEADER_GAP * scale,
-            },
-          ]}>
-          <ProviderResultsSearchBar
-            scale={scale}
-            query={displayQuery}
-            onBackPress={handleBackPress}
-            onClearPress={handleClearPress}
-          />
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={[
-              styles.filtersRow,
-              {
-                paddingLeft: FILTER_PADDING_LEFT * scale,
-                paddingRight: FILTER_PADDING_RIGHT * scale,
-                gap: FILTER_GAP * scale,
-              },
-            ]}>
-            {PROVIDER_RESULT_FILTERS.map((filter) => (
-              <FilterChip
-                key={filter.id}
-                label={filter.label}
-                scale={scale}
-                hasDropdown={filter.hasDropdown}
-              />
-            ))}
-          </ScrollView>
-        </View>
-
         <ScrollView
           style={[styles.scroll, Platform.OS === 'web' ? styles.scrollWeb : null]}
           contentContainerStyle={[
             styles.scrollContent,
             {
-              paddingTop: LIST_TOP_GAP * scale,
+              paddingTop: LIST_PADDING_TOP * scale,
+              paddingBottom: scrollBottomInset,
               gap: LIST_GAP * scale,
             },
           ]}
@@ -128,10 +96,50 @@ export function ProviderResultsScreen({ query }: ProviderResultsScreenProps) {
               onPress={() => handleProviderPress(provider.id)}
             />
           ))}
-          <View style={{ height: scrollBottomGap, width: '100%' }} />
+          <View style={[styles.scrollBottomSpacer, { height: scrollBottomSpacer }]} />
         </ScrollView>
 
-        <HomeIndicator scale={scale} />
+        <View style={[styles.stickyHeader, { width: contentWidth }]}>
+          <View
+            style={[
+              styles.headerInner,
+              {
+                paddingTop: HEADER_TOP_PADDING * scale,
+                gap: HEADER_GAP * scale,
+              },
+            ]}>
+            <ProviderResultsSearchBar
+              scale={scale}
+              query={displayQuery}
+              onBackPress={handleBackPress}
+              onClearPress={handleClearPress}
+            />
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={[
+                styles.filtersRow,
+                {
+                  paddingLeft: FILTER_PADDING_LEFT * scale,
+                  paddingRight: FILTER_PADDING_RIGHT * scale,
+                  gap: FILTER_GAP * scale,
+                },
+              ]}>
+              {PROVIDER_RESULT_FILTERS.map((filter) => (
+                <FilterChip
+                  key={filter.id}
+                  label={filter.label}
+                  scale={scale}
+                  hasDropdown={filter.hasDropdown}
+                />
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+
+        <View style={styles.homeIndicatorWrap} pointerEvents="none">
+          <HomeIndicator scale={scale} />
+        </View>
       </View>
     </View>
   );
@@ -146,7 +154,6 @@ const styles = StyleSheet.create({
   frame: {
     backgroundColor: '#f2f2f2',
     overflow: 'hidden',
-    flexDirection: 'column',
   },
   statusBar: {
     position: 'absolute',
@@ -154,10 +161,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 20,
-  },
-  headerSection: {
-    backgroundColor: '#ffffff',
-    zIndex: 10,
   },
   scroll: {
     flex: 1,
@@ -169,9 +172,30 @@ const styles = StyleSheet.create({
   scrollContent: {
     alignItems: 'center',
   },
+  scrollBottomSpacer: {
+    width: '100%',
+  },
+  stickyHeader: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+    backgroundColor: '#ffffff',
+  },
+  headerInner: {
+    backgroundColor: '#ffffff',
+  },
   filtersRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
     flexWrap: 'wrap',
+  },
+  homeIndicatorWrap: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'transparent',
   },
 });
