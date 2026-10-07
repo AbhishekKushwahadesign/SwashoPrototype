@@ -22,11 +22,11 @@ import type {
 
 import {
   AddSquareIcon,
+  BulkServiceIcon,
   ChevronDownIcon,
-  getBulkServiceIcon,
-  getListServiceIcon,
   GridToggleIcon,
   ListIcon,
+  ListServiceIcon,
   PhoneIcon,
 } from './provider-page-icons';
 
@@ -167,7 +167,7 @@ function BulkServiceCard({
       ]}>
       <View style={[styles.bulkCardContent, { gap: 10 * scale }]}>
         <View style={[styles.bulkIconWrap, { width: 35 * scale, height: 35 * scale, borderRadius: 4.087 * scale }]}>
-          <Image source={getBulkServiceIcon(service.icon)} style={{ width: 28 * scale, height: 20 * scale }} contentFit="contain" />
+          <BulkServiceIcon icon={service.icon} width={28 * scale} height={20 * scale} />
         </View>
         <Text
           style={[
@@ -217,7 +217,7 @@ function ServiceListRow({
       <View style={[styles.listRowContent, { gap: 8 * scale, paddingRight: 8 * scale }]}>
         <View style={[styles.listRowTitle, { gap: 8 * scale }]}>
           <View style={[styles.listIconWrap, { width: 35 * scale, height: 35 * scale, borderRadius: 3.5 * scale }]}>
-            <Image source={getListServiceIcon(service.icon)} style={{ width: 26 * scale, height: 25 * scale }} contentFit="contain" />
+            <ListServiceIcon icon={service.icon} width={26 * scale} height={25 * scale} />
           </View>
           <Text
             style={[
