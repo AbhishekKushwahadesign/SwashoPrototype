@@ -1,0 +1,895 @@
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
+import { useCallback } from 'react';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { ArrowLeftIcon, LineDividerIcon, MicrophoneIcon, StarRatingIcon } from '@/components/home/figma-icons';
+import { HomeIndicator } from '@/components/home/HomeIndicator';
+import { FigmaShadows, figmaShadow } from '@/components/home/figma-shadows';
+import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
+import { DocumentIcon, SaleIcon, StarsBoldIcon } from '@/components/provider-results/provider-results-icons';
+import { SearchStatusBar } from '@/components/search/SearchStatusBar';
+import { searchFont } from '@/components/search/search-fonts';
+import { SwashoColors, SwashoFonts, SwashoRadii } from '@/constants/swasho-tokens';
+import type {
+  ProviderBulkService,
+  ProviderListService,
+  ProviderResult,
+  ProviderServiceSection,
+} from '@/data/providers';
+
+import {
+  AddSquareIcon,
+  ChevronDownIcon,
+  getBulkServiceIcon,
+  getListServiceIcon,
+  GridToggleIcon,
+  ListIcon,
+  PhoneIcon,
+} from './provider-page-icons';
+
+const STATUS_BAR_HEIGHT = 32;
+const BACK_HEADER_HEIGHT = 94;
+const SCROLL_BOTTOM_GAP = 120;
+const HOME_INDICATOR_HEIGHT = 24;
+
+type ProviderPageScreenProps = {
+  provider: ProviderResult;
+  query: string;
+};
+
+function OfferText({ provider, scale }: { provider: ProviderResult; scale: number }) {
+  const { boldSegments, regularText } = provider.offerText;
+
+  if (boldSegments.length === 3) {
+    return (
+      <Text style={[styles.offerText, { fontSize: 14 * scale, lineHeight: 20 * scale, letterSpacing: 0.5 * scale, flex: 1 }]}>
+        <Text style={[styles.offerBold, searchFont('medium')]}>{boldSegments[0]}</Text>
+        <Text style={searchFont('medium')}> </Text>
+        <Text style={[styles.offerBold, searchFont('medium')]}>{boldSegments[1]}</Text>
+        <Text style={{ fontFamily: SwashoFonts.poppinsRegular }}> and </Text>
+        <Text style={[styles.offerBold, searchFont('medium')]}>{boldSegments[2]}</Text>
+        <Text style={{ fontFamily: SwashoFonts.poppinsRegular }}>{regularText.replace(' and ', '')}</Text>
+      </Text>
+    );
+  }
+
+  return (
+    <Text style={[styles.offerText, { fontSize: 14 * scale, lineHeight: 20 * scale, letterSpacing: 0.5 * scale, flex: 1 }]}>
+      <Text style={[styles.offerBold, searchFont('medium')]}>{boldSegments[0]}</Text>
+      <Text style={{ fontFamily: SwashoFonts.poppinsRegular }}> and </Text>
+      <Text style={[styles.offerBold, searchFont('medium')]}>{boldSegments[1]}</Text>
+      <Text style={{ fontFamily: SwashoFonts.poppinsRegular }}>{regularText.replace(' and ', '')}</Text>
+    </Text>
+  );
+}
+
+function TopPicksTag({ scale }: { scale: number }) {
+  return (
+    <LinearGradient
+      colors={['#ffffff', SwashoColors.primary100, '#ffffff']}
+      start={{ x: 0, y: 0.5 }}
+      end={{ x: 1, y: 0.5 }}
+      style={[styles.topPicksTag, { paddingHorizontal: 4 * scale, paddingVertical: 1 * scale, width: 75 * scale }]}>
+      <Image
+        source={require('@/assets/images/search/top-picks-badge.png')}
+        style={{ width: 19 * scale, height: 21 * scale, transform: [{ scaleX: -1 }, { scaleY: -1 }] }}
+        contentFit="contain"
+      />
+      <Text
+        style={[
+          styles.topPicksLabel,
+          searchFont('semibold'),
+          { fontSize: 10 * scale, lineHeight: 4.347 * scale, letterSpacing: 0.2717 * scale },
+        ]}>
+        Top Picks
+      </Text>
+    </LinearGradient>
+  );
+}
+
+function SpecialistTag({
+  label,
+  scale,
+}: {
+  label: string;
+  scale: number;
+}) {
+  return (
+    <LinearGradient
+      colors={['rgba(255, 215, 0, 0)', 'rgba(255, 215, 0, 0.25)', 'rgba(255, 215, 0, 0)']}
+      start={{ x: 0, y: 0.5 }}
+      end={{ x: 1, y: 0.5 }}
+      style={[styles.specialistTag, { paddingHorizontal: 6 * scale, paddingVertical: 4 * scale }]}>
+      <StarsBoldIcon width={18 * scale} height={18 * scale} />
+      <Text
+        style={[
+          styles.specialistLabel,
+          searchFont('semibold'),
+          { fontSize: 10 * scale, lineHeight: 16 * scale, letterSpacing: 1 * scale },
+        ]}>
+        {label}
+      </Text>
+    </LinearGradient>
+  );
+}
+
+function AddButton({ scale, onPress }: { scale: number; onPress?: () => void }) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={[
+        styles.addButton,
+        {
+          height: 32 * scale,
+          width: 86 * scale,
+          borderRadius: SwashoRadii.md * scale,
+          paddingHorizontal: 16 * scale,
+          paddingVertical: 8 * scale,
+          gap: 6 * scale,
+          ...figmaShadow(FigmaShadows.search, scale),
+        },
+      ]}>
+      <Text
+        style={[
+          styles.addButtonLabel,
+          searchFont('medium'),
+          { fontSize: 14 * scale, lineHeight: 12 * scale, letterSpacing: 0.5 * scale },
+        ]}>
+        ADD
+      </Text>
+      <AddSquareIcon width={18 * scale} height={18 * scale} />
+    </Pressable>
+  );
+}
+
+function BulkServiceCard({
+  service,
+  scale,
+  onPress,
+}: {
+  service: ProviderBulkService;
+  scale: number;
+  onPress?: () => void;
+}) {
+  return (
+    <View
+      style={[
+        styles.bulkCard,
+        {
+          borderRadius: 12 * scale,
+          paddingHorizontal: 16 * scale,
+          paddingVertical: 12 * scale,
+          gap: 16 * scale,
+        },
+      ]}>
+      <View style={[styles.bulkCardContent, { gap: 10 * scale }]}>
+        <View style={[styles.bulkIconWrap, { width: 35 * scale, height: 35 * scale, borderRadius: 4.087 * scale }]}>
+          <Image source={getBulkServiceIcon(service.icon)} style={{ width: 28 * scale, height: 20 * scale }} contentFit="contain" />
+        </View>
+        <Text
+          style={[
+            styles.bulkName,
+            searchFont('semibold'),
+            { fontSize: 14 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
+          ]}>
+          {service.name}
+        </Text>
+        <Text
+          style={[
+            styles.bulkPrice,
+            searchFont('medium'),
+            { fontSize: 13 * scale, lineHeight: 20 * scale, letterSpacing: 0.5 * scale },
+          ]}>
+          {service.priceLabel}
+        </Text>
+      </View>
+      <AddButton scale={scale} onPress={onPress} />
+    </View>
+  );
+}
+
+function ServiceListRow({
+  service,
+  serviceName,
+  scale,
+  onPress,
+}: {
+  service: ProviderListService;
+  serviceName: string;
+  scale: number;
+  onPress?: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={[
+        styles.listRow,
+        {
+          paddingHorizontal: 12 * scale,
+          paddingVertical: 12 * scale,
+          gap: 16 * scale,
+          borderRadius: SwashoRadii.lg * scale,
+        },
+      ]}>
+      <View style={[styles.listRowContent, { gap: 8 * scale, paddingRight: 8 * scale }]}>
+        <View style={[styles.listRowTitle, { gap: 8 * scale }]}>
+          <View style={[styles.listIconWrap, { width: 35 * scale, height: 35 * scale, borderRadius: 3.5 * scale }]}>
+            <Image source={getListServiceIcon(service.icon)} style={{ width: 26 * scale, height: 25 * scale }} contentFit="contain" />
+          </View>
+          <Text
+            style={[
+              styles.listName,
+              searchFont('semibold'),
+              { fontSize: 14 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale, flex: 1 },
+            ]}>
+            {service.name}
+          </Text>
+        </View>
+        <Text
+          style={[
+            styles.listPrice,
+            searchFont('medium'),
+            { fontSize: 13 * scale, lineHeight: 20 * scale, letterSpacing: 0.5 * scale },
+          ]}>
+          {serviceName} at ₹{service.price}
+        </Text>
+      </View>
+      <AddButton scale={scale} onPress={onPress} />
+    </Pressable>
+  );
+}
+
+function SectionDivider({ scale }: { scale: number }) {
+  return <View style={[styles.sectionDivider, { width: '100%', marginVertical: 0 }]} />;
+}
+
+function ServiceSection({
+  section,
+  serviceName,
+  scale,
+  onServicePress,
+}: {
+  section: ProviderServiceSection;
+  serviceName: string;
+  scale: number;
+  onServicePress: (serviceId: string) => void;
+}) {
+  return (
+    <View style={[styles.serviceSection, { gap: 16 * scale }]}>
+      <View style={[styles.sectionHeader, { gap: 8 * scale, paddingHorizontal: 8 * scale, height: 24 * scale }]}>
+        <Text
+          style={[
+            styles.sectionTitle,
+            searchFont('medium'),
+            { fontSize: 18 * scale, lineHeight: 16 * scale, letterSpacing: 0.5 * scale, flex: 1 },
+          ]}>
+          {section.title}
+        </Text>
+        <ChevronDownIcon width={24 * scale} height={24 * scale} />
+      </View>
+      {section.items.map((item, index) => (
+        <View key={item.id}>
+          <ServiceListRow
+            service={item}
+            serviceName={serviceName}
+            scale={scale}
+            onPress={() => onServicePress(item.id)}
+          />
+          {index < section.items.length - 1 ? (
+            <View style={[styles.listDivider, { width: 362 * scale, alignSelf: 'center' }]} />
+          ) : null}
+        </View>
+      ))}
+    </View>
+  );
+}
+
+export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps) {
+  const router = useRouter();
+  const { scale, contentWidth } = useScreenScale();
+  const insets = useSafeAreaInsets();
+  const safeTop = useSafeTopInset(insets.top);
+  const displayQuery = query.trim() || provider.serviceName;
+
+  const handleBackPress = useCallback(() => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.replace({ pathname: '/provider-results', params: { q: displayQuery } });
+  }, [displayQuery, router]);
+
+  const handleServicePress = useCallback(
+    (serviceId: string) => {
+      router.push({
+        pathname: '/service-selection/[serviceId]' as const,
+        params: { serviceId, providerId: provider.id, q: displayQuery },
+      } as never);
+    },
+    [displayQuery, provider.id, router],
+  );
+
+  const bulkServices = provider.bulkServices ?? [];
+  const serviceSections = provider.serviceSections ?? [];
+
+  return (
+    <View style={styles.root}>
+      <View style={[styles.frame, { width: contentWidth, marginTop: safeTop }]}>
+        <View style={[styles.statusBar, { height: STATUS_BAR_HEIGHT * scale }]}>
+          <SearchStatusBar scale={scale} />
+        </View>
+
+        <View style={[styles.backHeader, { width: contentWidth, paddingTop: 64 * scale, paddingHorizontal: 20 * scale }]}>
+          <Pressable onPress={handleBackPress} hitSlop={8} style={{ width: 26 * scale, height: 26 * scale }}>
+            <ArrowLeftIcon width={20 * scale} height={20 * scale} />
+          </Pressable>
+        </View>
+
+        <ScrollView
+          style={[styles.scroll, Platform.OS === 'web' ? styles.scrollWeb : null]}
+          contentContainerStyle={[
+            styles.scrollContent,
+            {
+              paddingTop: BACK_HEADER_HEIGHT * scale,
+              paddingBottom: (SCROLL_BOTTOM_GAP + HOME_INDICATOR_HEIGHT) * scale,
+            },
+          ]}
+          showsVerticalScrollIndicator={false}>
+          <View style={[styles.headerCardWrap, { gap: 20 * scale }]}>
+            <View
+              style={[
+                styles.headerCardShadow,
+                {
+                  borderBottomLeftRadius: SwashoRadii.xl * scale,
+                  borderBottomRightRadius: SwashoRadii.xl * scale,
+                  ...figmaShadow({ offsetX: 0, offsetY: 8, blur: 5, color: '#000000', opacity: 0.1 }, scale),
+                },
+              ]}>
+              <LinearGradient
+                colors={['#ffffff', 'rgba(255,255,255,0)']}
+                locations={[0.7024, 0.9749]}
+                style={styles.headerGradient}>
+                <View
+                  style={[
+                    styles.headerCard,
+                    {
+                      paddingHorizontal: 20.5 * scale,
+                      paddingVertical: 16 * scale,
+                      gap: 12 * scale,
+                      borderBottomLeftRadius: SwashoRadii.xl * scale,
+                      borderBottomRightRadius: SwashoRadii.xl * scale,
+                    },
+                  ]}>
+                  <View style={[styles.badgeRow, { gap: 12 * scale }]}>
+                    {provider.topPicks ? <TopPicksTag scale={scale} /> : null}
+                    {provider.specialistTag ? (
+                      <SpecialistTag label={provider.specialistTag.label} scale={scale} />
+                    ) : null}
+                  </View>
+
+                  <View style={[styles.nameRow, { gap: 8 * scale }]}>
+                    <View style={[styles.nameLeft, { gap: 16 * scale }]}>
+                      <Text
+                        style={[
+                          styles.providerName,
+                          searchFont('semibold'),
+                          { fontSize: 20 * scale, lineHeight: 18 * scale },
+                        ]}>
+                        {provider.category}
+                      </Text>
+                      <View
+                        style={[
+                          styles.phoneButton,
+                          {
+                            width: 30 * scale,
+                            height: 30 * scale,
+                            borderRadius: 9999,
+                          },
+                        ]}>
+                        <PhoneIcon width={20 * scale} height={20 * scale} />
+                      </View>
+                    </View>
+                    <View
+                      style={[
+                        styles.rating,
+                        {
+                          paddingHorizontal: 4.844 * scale,
+                          paddingVertical: 4 * scale,
+                          borderRadius: SwashoRadii.md * scale,
+                          gap: 2.398 * scale,
+                        },
+                      ]}>
+                      <StarRatingIcon width={15.537 * scale} height={15.537 * scale} />
+                      <Text
+                        style={[
+                          styles.ratingText,
+                          searchFont('semibold'),
+                          {
+                            fontSize: 14.531 * scale,
+                            lineHeight: 11.509 * scale,
+                            letterSpacing: 0.4795 * scale,
+                          },
+                        ]}>
+                        {provider.rating.toFixed(1)}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View style={[styles.rateCardRow, { gap: 6 * scale, height: 18 * scale }]}>
+                    <DocumentIcon width={20 * scale} height={20 * scale} />
+                    <Text
+                      style={[
+                        styles.rateCardLabel,
+                        searchFont('medium'),
+                        { fontSize: 12 * scale, lineHeight: 10 * scale, letterSpacing: 0.5 * scale },
+                      ]}>
+                      Rate Card
+                    </Text>
+                  </View>
+
+                  {provider.trustedCustomerCount ? (
+                    <Text
+                      style={[
+                        styles.trustedText,
+                        {
+                          fontFamily: SwashoFonts.poppinsRegular,
+                          fontSize: 13 * scale,
+                          lineHeight: 12 * scale,
+                          letterSpacing: 0.5 * scale,
+                        },
+                      ]}>
+                      Trusted by {provider.trustedCustomerCount}+ customers
+                    </Text>
+                  ) : null}
+
+                  <View style={[styles.offerDivider, { width: '100%' }]} />
+
+                  <View style={[styles.offerRow, { gap: 6 * scale, paddingHorizontal: 16 * scale }]}>
+                    <View style={[styles.offerContent, { gap: 8 * scale, flex: 1 }]}>
+                      <View style={{ paddingVertical: 2.4 * scale }}>
+                        <SaleIcon width={24 * scale} height={24 * scale} />
+                      </View>
+                      <OfferText provider={provider} scale={scale} />
+                    </View>
+                    <View style={[styles.pagination, { gap: 4 * scale, width: 30 * scale, height: 4 * scale }]}>
+                      <View style={[styles.paginationTrack, { width: 30 * scale, height: 4 * scale, borderRadius: SwashoRadii.sm * scale }]} />
+                      <View
+                        style={[
+                          styles.paginationActive,
+                          {
+                            width: 15.472 * scale,
+                            height: 4 * scale,
+                            borderRadius: SwashoRadii.sm * scale,
+                          },
+                        ]}
+                      />
+                    </View>
+                  </View>
+                </View>
+              </LinearGradient>
+            </View>
+
+            <View
+              style={[
+                styles.servicesPanel,
+                {
+                  paddingTop: 20 * scale,
+                  paddingBottom: 25 * scale,
+                  gap: 20 * scale,
+                },
+              ]}>
+              <View style={[styles.serviceBar, { gap: 13 * scale, width: 372 * scale }]}>
+                <View
+                  style={[
+                    styles.searchField,
+                    {
+                      width: 264 * scale,
+                      height: 40 * scale,
+                      borderRadius: SwashoRadii.md * scale,
+                      paddingHorizontal: 12 * scale,
+                      gap: 12 * scale,
+                    },
+                  ]}>
+                  <Text
+                    style={[
+                      styles.searchQuery,
+                      searchFont('medium'),
+                      { fontSize: 14 * scale, lineHeight: 12 * scale, letterSpacing: 0.5 * scale, flex: 1 },
+                    ]}>
+                    {displayQuery}
+                  </Text>
+                  <View style={{ width: 0, height: 28 * scale, justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{ transform: [{ rotate: '90deg' }] }}>
+                      <LineDividerIcon width={28 * scale} height={1} />
+                    </View>
+                  </View>
+                  <MicrophoneIcon width={20 * scale} height={20 * scale} />
+                </View>
+                <View style={[styles.gridToggleRow, { gap: 4 * scale }]}>
+                  <GridToggleIcon width={43 * scale} height={23 * scale} />
+                  <Text
+                    style={[
+                      styles.gridToggleLabel,
+                      searchFont('medium'),
+                      { fontSize: 12 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
+                    ]}>
+                    Grid View
+                  </Text>
+                </View>
+              </View>
+
+              <SectionDivider scale={scale} />
+
+              {bulkServices.length > 0 ? (
+                <View style={[styles.bulkSection, { gap: 16 * scale, width: 388 * scale }]}>
+                  <View style={[styles.sectionHeader, { gap: 8 * scale, paddingHorizontal: 8 * scale, height: 24 * scale }]}>
+                    <Text
+                      style={[
+                        styles.sectionTitle,
+                        searchFont('medium'),
+                        { fontSize: 18 * scale, lineHeight: 16 * scale, letterSpacing: 0.5 * scale, flex: 1 },
+                      ]}>
+                      Bulk Services
+                    </Text>
+                    <ChevronDownIcon width={24 * scale} height={24 * scale} />
+                  </View>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    contentContainerStyle={[styles.bulkRow, { gap: 20 * scale, paddingHorizontal: 12 * scale }]}>
+                    {bulkServices.map((service) => (
+                      <BulkServiceCard
+                        key={service.id}
+                        service={service}
+                        scale={scale}
+                        onPress={() => handleServicePress(service.id)}
+                      />
+                    ))}
+                  </ScrollView>
+                </View>
+              ) : null}
+
+              {bulkServices.length > 0 ? <SectionDivider scale={scale} /> : null}
+
+              {serviceSections.map((section, index) => (
+                <View key={section.id}>
+                  <ServiceSection
+                    section={section}
+                    serviceName={displayQuery}
+                    scale={scale}
+                    onServicePress={handleServicePress}
+                  />
+                  {index < serviceSections.length - 1 ? <SectionDivider scale={scale} /> : null}
+                </View>
+              ))}
+            </View>
+          </View>
+        </ScrollView>
+
+        <Pressable
+          style={[
+            styles.itemsFab,
+            {
+              borderRadius: SwashoRadii.lg * scale,
+              paddingHorizontal: 12 * scale,
+              paddingVertical: 8 * scale,
+              gap: 4 * scale,
+              ...figmaShadow(FigmaShadows.providerCard, scale),
+            },
+          ]}>
+          <ListIcon width={24 * scale} height={24 * scale} />
+          <Text
+            style={[
+              styles.itemsFabLabel,
+              searchFont('medium'),
+              { fontSize: 12 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
+            ]}>
+            Items
+          </Text>
+        </Pressable>
+
+        <View style={styles.homeIndicatorWrap} pointerEvents="none">
+          <HomeIndicator scale={scale} />
+        </View>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    alignItems: 'center',
+    backgroundColor: '#f0f0f0',
+  },
+  frame: {
+    flex: 1,
+    backgroundColor: '#f2f2f2',
+    overflow: 'hidden',
+  },
+  statusBar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 30,
+  },
+  backHeader: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 20,
+    backgroundColor: SwashoColors.surface,
+    paddingBottom: 4,
+  },
+  scroll: {
+    flex: 1,
+    minHeight: 0,
+  },
+  scrollWeb: {
+    overflowY: 'auto',
+  },
+  scrollContent: {
+    alignItems: 'center',
+  },
+  headerCardWrap: {
+    width: '100%',
+    alignItems: 'center',
+  },
+  headerCardShadow: {
+    width: '100%',
+    overflow: 'hidden',
+  },
+  headerGradient: {
+    width: '100%',
+  },
+  headerCard: {
+    backgroundColor: SwashoColors.surface,
+    width: '100%',
+  },
+  badgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+  },
+  topPicksTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    borderRadius: SwashoRadii.sm,
+  },
+  topPicksLabel: {
+    color: '#6940e0',
+    textAlign: 'center',
+  },
+  specialistTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  specialistLabel: {
+    color: '#92610e',
+  },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  nameLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  providerName: {
+    color: SwashoColors.darkHeaderText,
+  },
+  phoneButton: {
+    borderWidth: 1,
+    borderColor: SwashoColors.neutral200,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rating: {
+    backgroundColor: '#86efad',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  ratingText: {
+    color: '#292929',
+    textAlign: 'center',
+  },
+  rateCardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  rateCardLabel: {
+    color: SwashoColors.primary,
+    textAlign: 'center',
+  },
+  trustedText: {
+    color: SwashoColors.neutral400,
+    width: '100%',
+  },
+  offerDivider: {
+    height: 1,
+    backgroundColor: SwashoColors.neutral200,
+  },
+  offerRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  offerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  offerText: {
+    color: '#000000',
+  },
+  offerBold: {
+    color: '#000000',
+  },
+  pagination: {
+    position: 'relative',
+    justifyContent: 'center',
+  },
+  paginationTrack: {
+    backgroundColor: SwashoColors.neutral200,
+  },
+  paginationActive: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    backgroundColor: SwashoColors.primary,
+  },
+  servicesPanel: {
+    backgroundColor: SwashoColors.surface,
+    width: '100%',
+    alignItems: 'center',
+  },
+  serviceBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  searchField: {
+    backgroundColor: SwashoColors.neutral50,
+    borderWidth: 1,
+    borderColor: SwashoColors.neutral200,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  searchQuery: {
+    color: '#292929',
+  },
+  gridToggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  gridToggleLabel: {
+    color: SwashoColors.darkText,
+  },
+  sectionDivider: {
+    height: 1,
+    backgroundColor: SwashoColors.neutral200,
+    width: '100%',
+  },
+  bulkSection: {
+    alignItems: 'flex-start',
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
+  sectionTitle: {
+    color: '#464646',
+  },
+  bulkRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  bulkCard: {
+    borderWidth: 1,
+    borderColor: SwashoColors.neutral200,
+    backgroundColor: SwashoColors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bulkCardContent: {
+    alignItems: 'flex-start',
+    width: 100,
+  },
+  bulkIconWrap: {
+    borderWidth: 0.511,
+    borderColor: '#dbdbdb',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  bulkName: {
+    color: SwashoColors.darkHeaderText,
+  },
+  bulkPrice: {
+    color: '#464646',
+  },
+  addButton: {
+    backgroundColor: SwashoColors.surface,
+    borderWidth: 0.5,
+    borderColor: SwashoColors.primary300,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addButtonLabel: {
+    color: SwashoColors.primary,
+    textAlign: 'center',
+  },
+  serviceSection: {
+    width: '100%',
+    maxWidth: 388,
+    alignItems: 'center',
+  },
+  listRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    maxWidth: 388,
+  },
+  listRowContent: {
+    flex: 1,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+  },
+  listRowTitle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
+  listIconWrap: {
+    borderWidth: 0.438,
+    borderColor: '#dbdbdb',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  listName: {
+    color: SwashoColors.darkHeaderText,
+  },
+  listPrice: {
+    color: '#464646',
+  },
+  listDivider: {
+    height: 1,
+    backgroundColor: SwashoColors.neutral200,
+  },
+  itemsFab: {
+    position: 'absolute',
+    right: 20,
+    bottom: 120,
+    zIndex: 15,
+    backgroundColor: '#f2f2f2',
+    borderWidth: 0.5,
+    borderColor: SwashoColors.neutral300,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  itemsFabLabel: {
+    color: '#292929',
+    textAlign: 'center',
+  },
+  homeIndicatorWrap: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'transparent',
+  },
+});
