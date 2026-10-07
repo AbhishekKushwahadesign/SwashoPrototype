@@ -25,15 +25,20 @@ import {
   BulkServiceIcon,
   ChevronDownIcon,
   GridToggleIcon,
+  ListDividerIcon,
   ListIcon,
   ListServiceIcon,
   PhoneIcon,
 } from './provider-page-icons';
 
 const STATUS_BAR_HEIGHT = 32;
-const BACK_HEADER_HEIGHT = 94;
+const CONTENT_TOP_OFFSET = 87;
 const SCROLL_BOTTOM_GAP = 120;
 const HOME_INDICATOR_HEIGHT = 24;
+const HEADER_CONTENT_WIDTH = 371;
+const BULK_SECTION_WIDTH = 388;
+const LIST_SECTION_WIDTH = 388;
+const LIST_HEADER_WIDTH = 372;
 
 type ProviderPageScreenProps = {
   provider: ProviderResult;
@@ -75,7 +80,7 @@ function TopPicksTag({ scale }: { scale: number }) {
       style={[styles.topPicksTag, { paddingHorizontal: 4 * scale, paddingVertical: 1 * scale, width: 75 * scale }]}>
       <Image
         source={require('@/assets/images/search/top-picks-badge.png')}
-        style={{ width: 19 * scale, height: 21 * scale, transform: [{ scaleX: -1 }, { scaleY: -1 }] }}
+        style={{ width: 19 * scale, height: 21 * scale }}
         contentFit="contain"
       />
       <Text
@@ -102,7 +107,7 @@ function SpecialistTag({
       colors={['rgba(255, 215, 0, 0)', 'rgba(255, 215, 0, 0.25)', 'rgba(255, 215, 0, 0)']}
       start={{ x: 0, y: 0.5 }}
       end={{ x: 1, y: 0.5 }}
-      style={[styles.specialistTag, { paddingHorizontal: 6 * scale, paddingVertical: 4 * scale }]}>
+      style={[styles.specialistTag, { paddingHorizontal: 6 * scale, paddingVertical: 4 * scale, width: 192 * scale }]}>
       <StarsBoldIcon width={18 * scale} height={18 * scale} />
       <Text
         style={[
@@ -165,26 +170,30 @@ function BulkServiceCard({
           gap: 16 * scale,
         },
       ]}>
-      <View style={[styles.bulkCardContent, { gap: 10 * scale }]}>
-        <View style={[styles.bulkIconWrap, { width: 35 * scale, height: 35 * scale, borderRadius: 4.087 * scale }]}>
-          <BulkServiceIcon icon={service.icon} width={28 * scale} height={20 * scale} />
+      <View style={[styles.bulkCardContent, { gap: 10 * scale, width: 100 * scale }]}>
+        <View style={[styles.bulkIconBlock, { gap: 8 * scale, paddingVertical: 4 * scale }]}>
+          <View style={[styles.bulkIconGroup, { gap: 12 * scale }]}>
+            <View style={[styles.bulkIconWrap, { width: 35 * scale, height: 35 * scale, borderRadius: 4.087 * scale }]}>
+              <BulkServiceIcon icon={service.icon} width={28 * scale} height={20 * scale} />
+            </View>
+            <Text
+              style={[
+                styles.bulkName,
+                searchFont('semibold'),
+                { fontSize: 14 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
+              ]}>
+              {service.name}
+            </Text>
+          </View>
+          <Text
+            style={[
+              styles.bulkPrice,
+              searchFont('medium'),
+              { fontSize: 13 * scale, lineHeight: 20 * scale, letterSpacing: 0.5 * scale },
+            ]}>
+            {service.priceLabel}
+          </Text>
         </View>
-        <Text
-          style={[
-            styles.bulkName,
-            searchFont('semibold'),
-            { fontSize: 14 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
-          ]}>
-          {service.name}
-        </Text>
-        <Text
-          style={[
-            styles.bulkPrice,
-            searchFont('medium'),
-            { fontSize: 13 * scale, lineHeight: 20 * scale, letterSpacing: 0.5 * scale },
-          ]}>
-          {service.priceLabel}
-        </Text>
       </View>
       <AddButton scale={scale} onPress={onPress} />
     </View>
@@ -208,6 +217,7 @@ function ServiceListRow({
       style={[
         styles.listRow,
         {
+          width: LIST_SECTION_WIDTH * scale,
           paddingHorizontal: 12 * scale,
           paddingVertical: 12 * scale,
           gap: 16 * scale,
@@ -242,8 +252,30 @@ function ServiceListRow({
   );
 }
 
-function SectionDivider({ scale }: { scale: number }) {
-  return <View style={[styles.sectionDivider, { width: '100%', marginVertical: 0 }]} />;
+function SectionDivider() {
+  return <View style={styles.sectionDivider} />;
+}
+
+function OfferPagination({ scale }: { scale: number }) {
+  return (
+    <View style={[styles.paginationGroup, { gap: 4 * scale }]}>
+      <View style={[styles.pagination, { width: 30 * scale, height: 4 * scale }]}>
+        <View style={[styles.paginationTrack, { width: 30 * scale, height: 4 * scale, borderRadius: SwashoRadii.sm * scale }]} />
+        <View
+          style={[
+            styles.paginationActive,
+            {
+              width: 15.472 * scale,
+              height: 4 * scale,
+              borderRadius: SwashoRadii.sm * scale,
+            },
+          ]}
+        />
+      </View>
+      <View style={[styles.paginationDot, { width: 4 * scale, height: 4 * scale, borderRadius: SwashoRadii.sm * scale }]} />
+      <View style={[styles.paginationDot, { width: 4 * scale, height: 4 * scale, borderRadius: SwashoRadii.sm * scale }]} />
+    </View>
+  );
 }
 
 function ServiceSection({
@@ -258,8 +290,12 @@ function ServiceSection({
   onServicePress: (serviceId: string) => void;
 }) {
   return (
-    <View style={[styles.serviceSection, { gap: 16 * scale }]}>
-      <View style={[styles.sectionHeader, { gap: 8 * scale, paddingHorizontal: 8 * scale, height: 24 * scale }]}>
+    <View style={[styles.serviceSection, { gap: 16 * scale, width: LIST_SECTION_WIDTH * scale }]}>
+      <View
+        style={[
+          styles.sectionHeader,
+          { gap: 8 * scale, height: 24 * scale, width: LIST_HEADER_WIDTH * scale, alignSelf: 'center' },
+        ]}>
         <Text
           style={[
             styles.sectionTitle,
@@ -279,7 +315,7 @@ function ServiceSection({
             onPress={() => onServicePress(item.id)}
           />
           {index < section.items.length - 1 ? (
-            <View style={[styles.listDivider, { width: 362 * scale, alignSelf: 'center' }]} />
+            <ListDividerIcon width={362 * scale} height={1} style={{ alignSelf: 'center' }} />
           ) : null}
         </View>
       ))}
@@ -333,7 +369,7 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
           contentContainerStyle={[
             styles.scrollContent,
             {
-              paddingTop: BACK_HEADER_HEIGHT * scale,
+              paddingTop: CONTENT_TOP_OFFSET * scale,
               paddingBottom: (SCROLL_BOTTOM_GAP + HOME_INDICATOR_HEIGHT) * scale,
             },
           ]}
@@ -370,8 +406,9 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
                     ) : null}
                   </View>
 
-                  <View style={[styles.nameRow, { gap: 8 * scale }]}>
-                    <View style={[styles.nameLeft, { gap: 16 * scale }]}>
+                  <View style={[styles.nameDetailsCol, { gap: 8 * scale, width: HEADER_CONTENT_WIDTH * scale }]}>
+                  <View style={[styles.nameRow, { width: HEADER_CONTENT_WIDTH * scale }]}>
+                    <View style={[styles.nameLeft, { gap: 16 * scale, width: 176 * scale }]}>
                       <Text
                         style={[
                           styles.providerName,
@@ -429,23 +466,29 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
                       Rate Card
                     </Text>
                   </View>
+                  </View>
 
                   {provider.trustedCustomerCount ? (
                     <Text
                       style={[
                         styles.trustedText,
                         {
-                          fontFamily: SwashoFonts.poppinsRegular,
                           fontSize: 13 * scale,
                           lineHeight: 12 * scale,
                           letterSpacing: 0.5 * scale,
+                          width: HEADER_CONTENT_WIDTH * scale,
                         },
                       ]}>
-                      Trusted by {provider.trustedCustomerCount}+ customers
+                      <Text style={{ fontFamily: SwashoFonts.poppinsRegular, color: '#000000' }}>
+                        Trusted by {provider.trustedCustomerCount}
+                      </Text>
+                      <Text style={{ fontFamily: SwashoFonts.poppinsRegular, color: SwashoColors.neutral400 }}>
+                        + customers
+                      </Text>
                     </Text>
                   ) : null}
 
-                  <View style={[styles.offerDivider, { width: '100%' }]} />
+                  <View style={[styles.offerDivider, { width: HEADER_CONTENT_WIDTH * scale }]} />
 
                   <View style={[styles.offerRow, { gap: 6 * scale, paddingHorizontal: 16 * scale }]}>
                     <View style={[styles.offerContent, { gap: 8 * scale, flex: 1 }]}>
@@ -454,19 +497,7 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
                       </View>
                       <OfferText provider={provider} scale={scale} />
                     </View>
-                    <View style={[styles.pagination, { gap: 4 * scale, width: 30 * scale, height: 4 * scale }]}>
-                      <View style={[styles.paginationTrack, { width: 30 * scale, height: 4 * scale, borderRadius: SwashoRadii.sm * scale }]} />
-                      <View
-                        style={[
-                          styles.paginationActive,
-                          {
-                            width: 15.472 * scale,
-                            height: 4 * scale,
-                            borderRadius: SwashoRadii.sm * scale,
-                          },
-                        ]}
-                      />
-                    </View>
+                    <OfferPagination scale={scale} />
                   </View>
                 </View>
               </LinearGradient>
@@ -508,24 +539,28 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
                   </View>
                   <MicrophoneIcon width={20 * scale} height={20 * scale} />
                 </View>
-                <View style={[styles.gridToggleRow, { gap: 4 * scale }]}>
+                <View style={[styles.gridToggleRow, { gap: 4 * scale, width: 93 * scale }]}>
                   <GridToggleIcon width={43 * scale} height={23 * scale} />
                   <Text
                     style={[
                       styles.gridToggleLabel,
                       searchFont('medium'),
-                      { fontSize: 12 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
+                      { fontSize: 12 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale, flex: 1 },
                     ]}>
                     Grid View
                   </Text>
                 </View>
               </View>
 
-              <SectionDivider scale={scale} />
+              <SectionDivider />
 
               {bulkServices.length > 0 ? (
-                <View style={[styles.bulkSection, { gap: 16 * scale, width: 388 * scale }]}>
-                  <View style={[styles.sectionHeader, { gap: 8 * scale, paddingHorizontal: 8 * scale, height: 24 * scale }]}>
+                <View style={[styles.bulkSection, { gap: 16 * scale, width: BULK_SECTION_WIDTH * scale }]}>
+                  <View
+                    style={[
+                      styles.sectionHeader,
+                      { gap: 8 * scale, paddingHorizontal: 8 * scale, height: 24 * scale, width: BULK_SECTION_WIDTH * scale },
+                    ]}>
                     <Text
                       style={[
                         styles.sectionTitle,
@@ -536,10 +571,16 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
                     </Text>
                     <ChevronDownIcon width={24 * scale} height={24 * scale} />
                   </View>
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={[styles.bulkRow, { gap: 20 * scale, paddingHorizontal: 12 * scale }]}>
+                  <View
+                    style={[
+                      styles.bulkRow,
+                      {
+                        gap: 16 * scale,
+                        rowGap: 16 * scale,
+                        columnGap: 20 * scale,
+                        paddingHorizontal: 12 * scale,
+                      },
+                    ]}>
                     {bulkServices.map((service) => (
                       <BulkServiceCard
                         key={service.id}
@@ -548,21 +589,21 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
                         onPress={() => handleServicePress(service.id)}
                       />
                     ))}
-                  </ScrollView>
+                  </View>
                 </View>
               ) : null}
 
-              {bulkServices.length > 0 ? <SectionDivider scale={scale} /> : null}
+              {bulkServices.length > 0 ? <SectionDivider /> : null}
 
               {serviceSections.map((section, index) => (
-                <View key={section.id}>
+                <View key={section.id} style={{ alignItems: 'center', width: '100%' }}>
                   <ServiceSection
                     section={section}
                     serviceName={displayQuery}
                     scale={scale}
                     onServicePress={handleServicePress}
                   />
-                  {index < serviceSections.length - 1 ? <SectionDivider scale={scale} /> : null}
+                  {index < serviceSections.length - 1 ? <SectionDivider /> : null}
                 </View>
               ))}
             </View>
@@ -573,6 +614,7 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
           style={[
             styles.itemsFab,
             {
+              left: (contentWidth * 0.875 - 25.5) * scale,
               borderRadius: SwashoRadii.lg * scale,
               paddingHorizontal: 12 * scale,
               paddingVertical: 8 * scale,
@@ -675,11 +717,13 @@ const styles = StyleSheet.create({
   specialistLabel: {
     color: '#92610e',
   },
+  nameDetailsCol: {
+    alignItems: 'flex-start',
+  },
   nameRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    width: '100%',
   },
   nameLeft: {
     flexDirection: 'row',
@@ -713,7 +757,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   trustedText: {
-    color: SwashoColors.neutral400,
     width: '100%',
   },
   offerDivider: {
@@ -736,6 +779,10 @@ const styles = StyleSheet.create({
   offerBold: {
     color: '#000000',
   },
+  paginationGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   pagination: {
     position: 'relative',
     justifyContent: 'center',
@@ -748,6 +795,9 @@ const styles = StyleSheet.create({
     left: 0,
     top: 0,
     backgroundColor: SwashoColors.primary,
+  },
+  paginationDot: {
+    backgroundColor: SwashoColors.neutral200,
   },
   servicesPanel: {
     backgroundColor: SwashoColors.surface,
@@ -793,7 +843,9 @@ const styles = StyleSheet.create({
   },
   bulkRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'flex-start',
+    width: '100%',
   },
   bulkCard: {
     borderWidth: 1,
@@ -804,7 +856,13 @@ const styles = StyleSheet.create({
   },
   bulkCardContent: {
     alignItems: 'flex-start',
-    width: 100,
+  },
+  bulkIconBlock: {
+    alignItems: 'flex-start',
+    width: '100%',
+  },
+  bulkIconGroup: {
+    alignItems: 'flex-start',
   },
   bulkIconWrap: {
     borderWidth: 0.511,
@@ -832,15 +890,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   serviceSection: {
-    width: '100%',
-    maxWidth: 388,
     alignItems: 'center',
   },
   listRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '100%',
-    maxWidth: 388,
   },
   listRowContent: {
     flex: 1,
@@ -865,13 +919,8 @@ const styles = StyleSheet.create({
   listPrice: {
     color: '#464646',
   },
-  listDivider: {
-    height: 1,
-    backgroundColor: SwashoColors.neutral200,
-  },
   itemsFab: {
     position: 'absolute',
-    right: 20,
     bottom: 120,
     zIndex: 15,
     backgroundColor: '#f2f2f2',

@@ -57,13 +57,21 @@ export function ListIcon({ width, height, style }: IconProps) {
   return <SvgXml xml={ListIconXml} width={width} height={height} style={style} />;
 }
 
-const GridToggleIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="29" height="14.5" viewBox="0 0 29 14.5" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect x="0.5" y="0.5" width="28" height="13.5" rx="6.75" fill="#DCDCDC" stroke="#BDBDBD"/>
-<circle cx="7.25" cy="7.25" r="5.75" fill="white"/>
+const GridToggleIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="39.7861" height="27.9375" viewBox="0 0 39.7861 27.9375" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M10.7861 11.9375C10.7861 7.93344 14.0321 4.6875 18.0361 4.6875H32.5361C36.5402 4.6875 39.7861 7.93344 39.7861 11.9375C39.7861 15.9416 36.5402 19.1875 32.5361 19.1875H18.0361C14.0321 19.1875 10.7861 15.9416 10.7861 11.9375Z" fill="#DCDCDC"/>
+<circle cx="15.9688" cy="11.9688" r="9.96875" fill="#656565"/>
 </svg>`;
 
 export function GridToggleIcon({ width, height, style }: IconProps) {
   return <SvgXml xml={GridToggleIconXml} width={width} height={height} style={style} />;
+}
+
+const ListDividerIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="362" height="1" viewBox="0 0 362 1" fill="none" xmlns="http://www.w3.org/2000/svg">
+<line y1="0.5" x2="362" y2="0.5" stroke="#DCDCDC" stroke-dasharray="3 3"/>
+</svg>`;
+
+export function ListDividerIcon({ width, height, style }: IconProps) {
+  return <SvgXml xml={ListDividerIconXml} width={width} height={height} style={style} />;
 }
 
 const IroningIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="28.435" height="18.8031" viewBox="0 0 28.435 18.8031" fill="none" xmlns="http://www.w3.org/2000/svg">
