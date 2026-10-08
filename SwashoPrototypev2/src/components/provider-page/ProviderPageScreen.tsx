@@ -577,7 +577,7 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
                     nestedScrollEnabled
                     style={[
                       styles.bulkScroll,
-                      { width: BULK_SECTION_WIDTH * scale, height: 162 * scale },
+                      { width: BULK_SECTION_WIDTH * scale },
                       Platform.OS === 'web' ? styles.bulkScrollWeb : null,
                     ]}
                     contentContainerStyle={[
@@ -849,7 +849,7 @@ const styles = StyleSheet.create({
   },
   bulkScrollWeb: {
     overflowX: 'auto',
-    overflowY: 'hidden',
+    overflowY: 'visible',
   },
   bulkRow: {
     flexDirection: 'row',
