@@ -571,15 +571,18 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
                     </Text>
                     <ChevronDownIcon width={24 * scale} height={24 * scale} />
                   </View>
-                  <View
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    nestedScrollEnabled
                     style={[
+                      styles.bulkScroll,
+                      { width: BULK_SECTION_WIDTH * scale, height: 162 * scale },
+                      Platform.OS === 'web' ? styles.bulkScrollWeb : null,
+                    ]}
+                    contentContainerStyle={[
                       styles.bulkRow,
-                      {
-                        gap: 16 * scale,
-                        rowGap: 16 * scale,
-                        columnGap: 20 * scale,
-                        paddingHorizontal: 12 * scale,
-                      },
+                      { gap: 20 * scale, paddingHorizontal: 12 * scale },
                     ]}>
                     {bulkServices.map((service) => (
                       <BulkServiceCard
@@ -589,7 +592,7 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
                         onPress={() => handleServicePress(service.id)}
                       />
                     ))}
-                  </View>
+                  </ScrollView>
                 </View>
               ) : null}
 
@@ -841,11 +844,16 @@ const styles = StyleSheet.create({
   sectionTitle: {
     color: '#464646',
   },
+  bulkScroll: {
+    flexGrow: 0,
+  },
+  bulkScrollWeb: {
+    overflowX: 'auto',
+    overflowY: 'hidden',
+  },
   bulkRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     alignItems: 'flex-start',
-    width: '100%',
   },
   bulkCard: {
     borderWidth: 1,
@@ -853,6 +861,7 @@ const styles = StyleSheet.create({
     backgroundColor: SwashoColors.surface,
     alignItems: 'center',
     justifyContent: 'center',
+    flexShrink: 0,
   },
   bulkCardContent: {
     alignItems: 'flex-start',
