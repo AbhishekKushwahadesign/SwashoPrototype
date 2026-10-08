@@ -75,19 +75,30 @@ function TopPicksTag({ scale }: { scale: number }) {
   return (
     <LinearGradient
       colors={['#ffffff', SwashoColors.primary100, '#ffffff']}
+      locations={[0.096687, 0.19834, 1]}
       start={{ x: 0, y: 0.5 }}
       end={{ x: 1, y: 0.5 }}
       style={[styles.topPicksTag, { paddingHorizontal: 4 * scale, paddingVertical: 1 * scale, width: 75 * scale }]}>
-      <Image
-        source={require('@/assets/images/search/top-picks-badge.png')}
-        style={{ width: 19 * scale, height: 21 * scale }}
-        contentFit="contain"
-      />
+      <View
+        style={[
+          styles.topPicksBadgeWrap,
+          {
+            width: 19 * scale,
+            height: 21 * scale,
+            transform: [{ scaleY: -1 }, { rotate: '180deg' }],
+          },
+        ]}>
+        <Image
+          source={require('@/assets/images/search/top-picks-badge.png')}
+          style={{ width: 19 * scale, height: 21 * scale }}
+          contentFit="contain"
+        />
+      </View>
       <Text
         style={[
           styles.topPicksLabel,
           searchFont('semibold'),
-          { fontSize: 10 * scale, lineHeight: 4.347 * scale, letterSpacing: 0.2717 * scale },
+          { fontSize: 10 * scale, lineHeight: 12 * scale, letterSpacing: 0.2717 * scale },
         ]}>
         Top Picks
       </Text>
@@ -707,6 +718,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 4,
     borderRadius: SwashoRadii.sm,
+    overflow: 'hidden',
+  },
+  topPicksBadgeWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   topPicksLabel: {
     color: '#6940e0',
