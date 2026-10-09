@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -309,35 +309,82 @@ function OfferPagination({ scale }: { scale: number }) {
   );
 }
 
+const BULK_SERVICES_SECTION_ID = 'bulk-services';
+
+function CollapsibleSectionHeader({
+  title,
+  expanded,
+  onToggle,
+  scale,
+  width,
+  paddingHorizontal,
+  alignSelf,
+}: {
+  title: string;
+  expanded: boolean;
+  onToggle: () => void;
+  scale: number;
+  width: number;
+  paddingHorizontal?: number;
+  alignSelf?: 'auto' | 'center';
+}) {
+  return (
+    <Pressable
+      onPress={onToggle}
+      accessibilityRole="button"
+      accessibilityState={{ expanded }}
+      style={[
+        styles.sectionHeader,
+        {
+          gap: 8 * scale,
+          height: 24 * scale,
+          width,
+          paddingHorizontal: paddingHorizontal !== undefined ? paddingHorizontal * scale : undefined,
+          alignSelf,
+        },
+      ]}>
+      <Text
+        style={[
+          styles.sectionTitle,
+          searchFont('medium'),
+          { fontSize: 18 * scale, lineHeight: 16 * scale, letterSpacing: 0.5 * scale, flex: 1 },
+        ]}>
+        {title}
+      </Text>
+      <View style={{ transform: [{ rotate: expanded ? '0deg' : '-90deg' }] }}>
+        <ChevronDownIcon width={24 * scale} height={24 * scale} />
+      </View>
+    </Pressable>
+  );
+}
+
 function ServiceSection({
   section,
   serviceName,
   scale,
+  expanded,
+  onToggle,
   onServicePress,
 }: {
   section: ProviderServiceSection;
   serviceName: string;
   scale: number;
+  expanded: boolean;
+  onToggle: () => void;
   onServicePress: (serviceId: string) => void;
 }) {
   return (
     <View style={[styles.serviceSection, { gap: 16 * scale, width: LIST_SECTION_WIDTH * scale }]}>
-      <View
-        style={[
-          styles.sectionHeader,
-          { gap: 8 * scale, height: 24 * scale, width: LIST_HEADER_WIDTH * scale, alignSelf: 'center' },
-        ]}>
-        <Text
-          style={[
-            styles.sectionTitle,
-            searchFont('medium'),
-            { fontSize: 18 * scale, lineHeight: 16 * scale, letterSpacing: 0.5 * scale, flex: 1 },
-          ]}>
-          {section.title}
-        </Text>
-        <ChevronDownIcon width={24 * scale} height={24 * scale} />
-      </View>
-      {section.items.map((item, index) => (
+      <CollapsibleSectionHeader
+        title={section.title}
+        expanded={expanded}
+        onToggle={onToggle}
+        scale={scale}
+        width={LIST_HEADER_WIDTH * scale}
+        alignSelf="center"
+      />
+      {expanded
+        ? section.items.map((item, index) => (
         <View key={item.id}>
           <ServiceListRow
             service={item}
@@ -349,7 +396,8 @@ function ServiceSection({
             <ListDividerIcon width={362 * scale} height={1} style={{ alignSelf: 'center' }} />
           ) : null}
         </View>
-      ))}
+      ))
+        : null}
     </View>
   );
 }
@@ -381,6 +429,20 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
 
   const bulkServices = provider.bulkServices ?? [];
   const serviceSections = provider.serviceSections ?? [];
+
+  const [sectionExpanded, setSectionExpanded] = useState<Record<string, boolean>>({});
+
+  const isSectionExpanded = useCallback(
+    (sectionId: string) => sectionExpanded[sectionId] ?? true,
+    [sectionExpanded],
+  );
+
+  const toggleSection = useCallback((sectionId: string) => {
+    setSectionExpanded((prev) => ({
+      ...prev,
+      [sectionId]: !(prev[sectionId] ?? true),
+    }));
+  }, []);
 
   return (
     <View style={styles.root}>
@@ -584,43 +646,38 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
 
               {bulkServices.length > 0 ? (
                 <View style={[styles.bulkSection, { gap: 16 * scale, width: BULK_SECTION_WIDTH * scale }]}>
-                  <View
-                    style={[
-                      styles.sectionHeader,
-                      { gap: 8 * scale, paddingHorizontal: 8 * scale, height: 24 * scale, width: BULK_SECTION_WIDTH * scale },
-                    ]}>
-                    <Text
+                  <CollapsibleSectionHeader
+                    title="Bulk Services"
+                    expanded={isSectionExpanded(BULK_SERVICES_SECTION_ID)}
+                    onToggle={() => toggleSection(BULK_SERVICES_SECTION_ID)}
+                    scale={scale}
+                    width={BULK_SECTION_WIDTH * scale}
+                    paddingHorizontal={8}
+                  />
+                  {isSectionExpanded(BULK_SERVICES_SECTION_ID) ? (
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                      nestedScrollEnabled
                       style={[
-                        styles.sectionTitle,
-                        searchFont('medium'),
-                        { fontSize: 18 * scale, lineHeight: 16 * scale, letterSpacing: 0.5 * scale, flex: 1 },
+                        styles.bulkScroll,
+                        { width: BULK_SECTION_WIDTH * scale },
+                        Platform.OS === 'web' ? styles.bulkScrollWeb : null,
+                      ]}
+                      contentContainerStyle={[
+                        styles.bulkRow,
+                        { gap: 20 * scale, paddingHorizontal: 12 * scale },
                       ]}>
-                      Bulk Services
-                    </Text>
-                    <ChevronDownIcon width={24 * scale} height={24 * scale} />
-                  </View>
-                  <ScrollView
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    nestedScrollEnabled
-                    style={[
-                      styles.bulkScroll,
-                      { width: BULK_SECTION_WIDTH * scale },
-                      Platform.OS === 'web' ? styles.bulkScrollWeb : null,
-                    ]}
-                    contentContainerStyle={[
-                      styles.bulkRow,
-                      { gap: 20 * scale, paddingHorizontal: 12 * scale },
-                    ]}>
-                    {bulkServices.map((service) => (
-                      <BulkServiceCard
-                        key={service.id}
-                        service={service}
-                        scale={scale}
-                        onPress={() => handleServicePress(service.id)}
-                      />
-                    ))}
-                  </ScrollView>
+                      {bulkServices.map((service) => (
+                        <BulkServiceCard
+                          key={service.id}
+                          service={service}
+                          scale={scale}
+                          onPress={() => handleServicePress(service.id)}
+                        />
+                      ))}
+                    </ScrollView>
+                  ) : null}
                 </View>
               ) : null}
 
@@ -632,6 +689,8 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
                     section={section}
                     serviceName={displayQuery}
                     scale={scale}
+                    expanded={isSectionExpanded(section.id)}
+                    onToggle={() => toggleSection(section.id)}
                     onServicePress={handleServicePress}
                   />
                   {index < serviceSections.length - 1 ? <SectionDivider /> : null}
