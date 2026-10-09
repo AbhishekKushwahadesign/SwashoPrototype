@@ -78,7 +78,7 @@ function TopPicksTag({ scale }: { scale: number }) {
       locations={[0.096687, 0.19834, 1]}
       start={{ x: 0, y: 0.5 }}
       end={{ x: 1, y: 0.5 }}
-      style={[styles.topPicksTag, { paddingHorizontal: 4 * scale, paddingVertical: 1 * scale, width: 75 * scale }]}>
+      style={[styles.topPicksTag, { paddingHorizontal: 4 * scale, paddingVertical: 1 * scale, minWidth: 75 * scale }]}>
       <View
         style={[
           styles.topPicksBadgeWrap,
@@ -95,10 +95,16 @@ function TopPicksTag({ scale }: { scale: number }) {
         />
       </View>
       <Text
+        numberOfLines={1}
         style={[
           styles.topPicksLabel,
           searchFont('semibold'),
-          { fontSize: 10 * scale, lineHeight: 12 * scale, letterSpacing: 0.2717 * scale },
+          {
+            fontSize: 10 * scale,
+            lineHeight: 21 * scale,
+            letterSpacing: 0.2717 * scale,
+            flexShrink: 0,
+          },
         ]}>
         Top Picks
       </Text>
@@ -714,11 +720,12 @@ const styles = StyleSheet.create({
   },
   topPicksTag: {
     flexDirection: 'row',
+    flexWrap: 'nowrap',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 4,
     borderRadius: SwashoRadii.sm,
-    overflow: 'hidden',
+    alignSelf: 'flex-start',
   },
   topPicksBadgeWrap: {
     alignItems: 'center',
@@ -726,7 +733,7 @@ const styles = StyleSheet.create({
   },
   topPicksLabel: {
     color: '#6940e0',
-    textAlign: 'center',
+    textAlign: 'left',
   },
   specialistTag: {
     flexDirection: 'row',
