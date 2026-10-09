@@ -510,11 +510,8 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
                           width: HEADER_CONTENT_WIDTH * scale,
                         },
                       ]}>
-                      <Text style={{ fontFamily: SwashoFonts.poppinsRegular, color: '#000000' }}>
-                        Trusted by {provider.trustedCustomerCount}
-                      </Text>
-                      <Text style={{ fontFamily: SwashoFonts.poppinsRegular, color: SwashoColors.neutral400 }}>
-                        + customers
+                      <Text style={{ fontFamily: SwashoFonts.poppinsRegular, color: SwashoColors.darkHeaderText }}>
+                        Trusted by {provider.trustedCustomerCount}+ customers
                       </Text>
                     </Text>
                   ) : null}
