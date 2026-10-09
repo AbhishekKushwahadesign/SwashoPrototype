@@ -190,8 +190,22 @@ function BulkServiceCard({
       <View style={[styles.bulkCardContent, { gap: 10 * scale, width: 100 * scale }]}>
         <View style={[styles.bulkIconBlock, { gap: 8 * scale, paddingVertical: 4 * scale }]}>
           <View style={[styles.bulkIconGroup, { gap: 12 * scale }]}>
-            <View style={[styles.bulkIconWrap, { width: 35 * scale, height: 35 * scale, borderRadius: 4.087 * scale }]}>
-              <BulkServiceIcon icon={service.icon} width={28 * scale} height={20 * scale} />
+            <View
+              style={[
+                styles.bulkIconWrap,
+                {
+                  width: 35 * scale,
+                  height: 35 * scale,
+                  borderRadius: 3.5 * scale,
+                  borderWidth: 0.438 * scale,
+                },
+              ]}>
+              <BulkServiceIcon
+                icon={service.icon}
+                width={28 * scale}
+                height={20 * scale}
+                frameSize={35 * scale}
+              />
             </View>
             <Text
               style={[
@@ -897,7 +911,6 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   bulkIconWrap: {
-    borderWidth: 0.511,
     borderColor: '#dbdbdb',
     alignItems: 'center',
     justifyContent: 'center',
