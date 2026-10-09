@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { Fragment, useCallback, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -684,17 +684,19 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
               {bulkServices.length > 0 ? <SectionDivider /> : null}
 
               {serviceSections.map((section, index) => (
-                <View key={section.id} style={{ alignItems: 'center', width: '100%' }}>
-                  <ServiceSection
-                    section={section}
-                    serviceName={displayQuery}
-                    scale={scale}
-                    expanded={isSectionExpanded(section.id)}
-                    onToggle={() => toggleSection(section.id)}
-                    onServicePress={handleServicePress}
-                  />
+                <Fragment key={section.id}>
+                  <View style={{ alignItems: 'center', width: '100%' }}>
+                    <ServiceSection
+                      section={section}
+                      serviceName={displayQuery}
+                      scale={scale}
+                      expanded={isSectionExpanded(section.id)}
+                      onToggle={() => toggleSection(section.id)}
+                      onServicePress={handleServicePress}
+                    />
+                  </View>
                   {index < serviceSections.length - 1 ? <SectionDivider /> : null}
-                </View>
+                </Fragment>
               ))}
             </View>
           </View>
