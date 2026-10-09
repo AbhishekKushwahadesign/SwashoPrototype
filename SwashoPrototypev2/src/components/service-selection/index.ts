@@ -20,4 +20,5 @@ export { ServiceSelectionCard } from './ServiceSelectionCard';
 export type { ServiceSelectionCardState } from './ServiceSelectionCard';
 export { ServiceSelectionStickyBar } from './ServiceSelectionStickyBar';
 export { ServiceSheetTitle } from './ServiceSheetTitle';
+export { ServiceSelectionScreen } from './ServiceSelectionScreen';
 export { SubscriptionOfferBadge } from './SubscriptionOfferBadge';

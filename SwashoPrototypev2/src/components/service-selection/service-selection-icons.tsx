@@ -53,3 +53,11 @@ const TabDividerIconXml = `<svg preserveAspectRatio="none" overflow="visible" st
 export function TabDividerIcon({ width, height, style }: IconProps) {
   return <SvgXml xml={TabDividerIconXml} width={width} height={height} style={style} />;
 }
+
+const SheetCloseIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M5 5L15 15M15 5L5 15" stroke="#656565" stroke-width="1.8" stroke-linecap="round"/>
+</svg>`;
+
+export function SheetCloseIcon({ width, height, style }: IconProps) {
+  return <SvgXml xml={SheetCloseIconXml} width={width} height={height} style={style} />;
+}
