@@ -44,7 +44,14 @@ export default function RootLayout() {
       <Stack.Screen name="search" />
       <Stack.Screen name="provider-results" />
       <Stack.Screen name="provider/[id]" />
-      <Stack.Screen name="service-selection/[serviceId]" />
+      <Stack.Screen
+        name="service-selection"
+        options={{
+          presentation: 'transparentModal',
+          animation: 'fade',
+          contentStyle: { backgroundColor: 'transparent' },
+        }}
+      />
     </Stack>
   );
 }
