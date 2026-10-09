@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ArrowLeftIcon, LineDividerIcon, MicrophoneIcon, StarRatingIcon } from '@/components/home/figma-icons';
 import { HomeIndicator } from '@/components/home/HomeIndicator';
-import { FigmaShadows, figmaShadow } from '@/components/home/figma-shadows';
+import { FigmaShadows, figmaDropShadow, figmaShadow } from '@/components/home/figma-shadows';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { DocumentIcon, SaleIcon, StarsBoldIcon } from '@/components/provider-results/provider-results-icons';
 import { SearchStatusBar } from '@/components/search/SearchStatusBar';
@@ -26,6 +26,7 @@ import {
   ChevronDownIcon,
   GridToggleIcon,
   ListDividerIcon,
+  SectionDividerIcon,
   ListIcon,
   ListServiceIcon,
   PhoneIcon,
@@ -283,8 +284,12 @@ function ServiceListRow({
   );
 }
 
-function SectionDivider() {
-  return <View style={styles.sectionDivider} />;
+function SectionDivider({ scale }: { scale: number }) {
+  return (
+    <View style={styles.sectionDividerWrap}>
+      <SectionDividerIcon width={412 * scale} height={1} />
+    </View>
+  );
 }
 
 function OfferPagination({ scale }: { scale: number }) {
@@ -474,7 +479,7 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
                 {
                   borderBottomLeftRadius: SwashoRadii.xl * scale,
                   borderBottomRightRadius: SwashoRadii.xl * scale,
-                  ...figmaShadow({ offsetX: 0, offsetY: 8, blur: 5, color: '#000000', opacity: 0.1 }, scale),
+                  ...figmaDropShadow(FigmaShadows.providerPageHeader, scale),
                 },
               ]}>
               <LinearGradient
@@ -642,7 +647,7 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
                 </View>
               </View>
 
-              <SectionDivider />
+              <SectionDivider scale={scale} />
 
               {bulkServices.length > 0 ? (
                 <View style={[styles.bulkSection, { gap: 16 * scale, width: BULK_SECTION_WIDTH * scale }]}>
@@ -681,7 +686,7 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
                 </View>
               ) : null}
 
-              {bulkServices.length > 0 ? <SectionDivider /> : null}
+              {bulkServices.length > 0 ? <SectionDivider scale={scale} /> : null}
 
               {serviceSections.map((section, index) => (
                 <Fragment key={section.id}>
@@ -695,7 +700,7 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
                       onServicePress={handleServicePress}
                     />
                   </View>
-                  {index < serviceSections.length - 1 ? <SectionDivider /> : null}
+                  {index < serviceSections.length - 1 ? <SectionDivider scale={scale} /> : null}
                 </Fragment>
               ))}
             </View>
@@ -923,10 +928,9 @@ const styles = StyleSheet.create({
   gridToggleLabel: {
     color: SwashoColors.darkText,
   },
-  sectionDivider: {
-    height: 1,
-    backgroundColor: SwashoColors.neutral200,
+  sectionDividerWrap: {
     width: '100%',
+    alignItems: 'center',
   },
   bulkSection: {
     alignItems: 'flex-start',

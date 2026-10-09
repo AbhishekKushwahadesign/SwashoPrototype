@@ -77,4 +77,20 @@ export const FigmaShadows = {
   underLaundryMark: { offsetX: 0, offsetY: 0, blur: 1.9, color: '#000000', opacity: 0.45 },
   deliveredMark: { offsetX: 0, offsetY: 0, blur: 2, color: '#000000', opacity: 0.75 },
   providerResultCard: { offsetX: 0, offsetY: 0, blur: 8, color: '#000000', opacity: 0.1 },
+  /** Figma node 3346:8468 — Provider Page header card */
+  providerPageHeader: { offsetX: 0, offsetY: 8, blur: 5, color: '#000000', opacity: 0.1 },
 } as const satisfies Record<string, ShadowSpec>;
+
+/** CSS drop-shadow (Figma effect on clipped rounded headers). Falls back to box shadow on native. */
+export function figmaDropShadow(spec: ShadowSpec, scale = 1): ViewStyle {
+  if (Platform.OS === 'web') {
+    const x = spec.offsetX * scale;
+    const y = spec.offsetY * scale;
+    const blur = spec.blur * scale;
+    const color = spec.color.startsWith('rgba') ? spec.color : rgba(spec.color, spec.opacity);
+    return {
+      filter: `drop-shadow(${x}px ${y}px ${blur}px ${color})`,
+    } as ViewStyle;
+  }
+  return figmaShadow(spec, scale);
+}
