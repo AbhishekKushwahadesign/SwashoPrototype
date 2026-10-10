@@ -89,3 +89,43 @@ export function getCatalogOptionById(optionId: string): ServiceCatalogOption | S
   }
   return SERVICE_SELECTION_CATALOG.standaloneRows.find((row) => row.id === optionId);
 }
+
+export type CatalogDisplayRow = {
+  optionId: string;
+  title: string;
+  amount: number;
+  subscriptionAmount?: number;
+  titleStyle?: 'semibold' | 'medium';
+  titleFontSize?: 14 | 15 | 16;
+  addMode?: 'add' | 'select';
+};
+
+/** Catalog row order as rendered in `ServiceSelectionScreen` (single / multi create). */
+export function listCatalogDisplayRows(): CatalogDisplayRow[] {
+  const rows: CatalogDisplayRow[] = [];
+  SERVICE_SELECTION_CATALOG.sections.forEach((section, sectionIndex) => {
+    for (const option of section.options) {
+      rows.push({
+        optionId: option.id,
+        title: option.title,
+        amount: option.amount,
+        subscriptionAmount: option.subscriptionAmount,
+        titleStyle: option.titleStyle,
+        titleFontSize: option.titleFontSize,
+        addMode: option.addMode,
+      });
+    }
+    if (sectionIndex === 0) {
+      for (const standalone of SERVICE_SELECTION_CATALOG.standaloneRows) {
+        rows.push({
+          optionId: standalone.id,
+          title: standalone.title,
+          amount: standalone.amount,
+          titleStyle: standalone.titleStyle,
+          addMode: 'add',
+        });
+      }
+    }
+  });
+  return rows;
+}
