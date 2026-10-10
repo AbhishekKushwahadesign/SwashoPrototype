@@ -676,7 +676,6 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   scrollWeb: {
-    // @ts-expect-error web-only
     overflowY: 'auto',
   },
   listBlock: {
