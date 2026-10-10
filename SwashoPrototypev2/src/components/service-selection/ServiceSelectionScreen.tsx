@@ -17,11 +17,9 @@ import { CreateComboSelectPanel } from './CreateComboSelectPanel';
 import {
   SERVICE_SELECTION_CATALOG,
   getCatalogOptionById,
-  listCatalogDisplayRows,
   type ServiceCatalogOption,
   type ServiceCatalogStandaloneRow,
 } from './service-selection-catalog';
-import { SingleSelectedItemsPanel } from './SingleSelectedItemsPanel';
 import { ServiceComboDetailCard } from './ServiceComboDetailCard';
 import { ServiceGarmentRow } from './ServiceGarmentRow';
 import { ServiceInstructionText } from './ServiceInstructionText';
@@ -260,13 +258,6 @@ export function ServiceSelectionScreen({
 
   const hasSingleSelections = singleTotals.serviceCount > 0;
 
-  const singleSelectedRows = useMemo(() => {
-    if (!hasSingleSelections) {
-      return [];
-    }
-    return listCatalogDisplayRows().filter((row) => (quantities[row.optionId] ?? 0) > 0);
-  }, [hasSingleSelections, quantities]);
-
   const multiTotals = useMemo(() => {
     let count = 0;
     let total = 0;
@@ -369,42 +360,6 @@ export function ServiceSelectionScreen({
         onDecrement={() => decrementQuantity(optionId)}
         scale={scale}
       />
-    );
-  };
-
-  const isHiddenInSingleCatalog = useCallback(
-    (optionId: string) => mode === 'single' && hasSingleSelections && (quantities[optionId] ?? 0) > 0,
-    [hasSingleSelections, mode, quantities],
-  );
-
-  const renderSingleSelectedItems = () => {
-    if (mode !== 'single' || singleSelectedRows.length === 0) {
-      return null;
-    }
-
-    return (
-      <View style={{ gap: 16 * scale, width: '100%', alignItems: 'center' }}>
-        <SingleSelectedItemsPanel scale={scale}>
-          {singleSelectedRows.map((row, index) => {
-            const rowAddMode = resolveRowAddMode('single', row.addMode);
-            return (
-              <View key={row.optionId} style={{ gap: 20 * scale, width: '100%', alignItems: 'center' }}>
-                {renderSingleRow(
-                  row.optionId,
-                  row.title,
-                  row.amount,
-                  row.subscriptionAmount,
-                  row.titleStyle ?? 'semibold',
-                  rowAddMode,
-                  row.titleFontSize,
-                )}
-                {index < singleSelectedRows.length - 1 ? <ServiceRowDivider scale={scale} /> : null}
-              </View>
-            );
-          })}
-        </SingleSelectedItemsPanel>
-        <ServiceRowDivider variant="solid" width={389} scale={scale} />
-      </View>
     );
   };
 
@@ -515,9 +470,6 @@ export function ServiceSelectionScreen({
       catalogAddMode?: 'add' | 'select',
       titleFontSize?: 14 | 15 | 16,
     ) => {
-      if (isHiddenInSingleCatalog(optionId)) {
-        return null;
-      }
       const rowAddMode = resolveRowAddMode(mode, catalogAddMode);
       if (mode === 'single') {
         return renderSingleRow(
@@ -542,85 +494,54 @@ export function ServiceSelectionScreen({
 
     const optionRowGap = mode === 'multi' && multiFlow === 'create' ? 16 : 20;
 
-    const catalogSections = SERVICE_SELECTION_CATALOG.sections.map((section, sectionIndex) => {
-      const expanded = isSectionExpanded(section.id);
-      const visibleSectionOptions = section.options.filter((option) => !isHiddenInSingleCatalog(option.id));
-      const visibleStandaloneRows =
-        sectionIndex === 0
-          ? SERVICE_SELECTION_CATALOG.standaloneRows.filter((row) => !isHiddenInSingleCatalog(row.id))
-          : [];
-      const hasSectionCard = visibleSectionOptions.length > 0;
-      const hasStandalone = visibleStandaloneRows.length > 0;
-
-      if (!hasSectionCard && !hasStandalone) {
-        return null;
-      }
-
-      return (
-        <View key={section.id} style={{ gap: 16 * scale, width: '100%', alignItems: 'center' }}>
-          {hasSectionCard ? (
-            <ServiceSelectionCard
-              title={section.title}
-              headerVariant={section.headerVariant === 'emphasis' ? 'emphasis' : 'category'}
-              expanded={expanded}
-              onToggle={() => toggleSection(section.id)}
-              scale={scale}>
-              {visibleSectionOptions.map((option, optionIndex) => (
-                <View
-                  key={option.id}
-                  style={{ gap: optionRowGap * scale, width: '100%', alignItems: 'center' }}>
-                  {renderOptionRow(
-                    option.id,
-                    option.title,
-                    option.amount,
-                    option.subscriptionAmount,
-                    option.titleStyle,
-                    option.addMode,
-                    option.titleFontSize,
-                  )}
-                  {optionIndex < visibleSectionOptions.length - 1 ? <ServiceRowDivider scale={scale} /> : null}
-                </View>
-              ))}
-            </ServiceSelectionCard>
-          ) : null}
-          {hasStandalone ? (
-            <>
-              {hasSectionCard ? <ServiceRowDivider variant="solid" width={362} scale={scale} /> : null}
-              {visibleStandaloneRows.map((row, rowIndex) => (
-                <View
-                  key={row.id}
-                  style={{ gap: optionRowGap * scale, width: '100%', alignItems: 'center' }}>
-                  {renderOptionRow(row.id, row.title, row.amount, undefined, row.titleStyle, 'add')}
-                  {rowIndex < visibleStandaloneRows.length - 1 ? <ServiceRowDivider scale={scale} /> : null}
-                </View>
-              ))}
-            </>
-          ) : null}
-          {sectionIndex < SERVICE_SELECTION_CATALOG.sections.length - 1 ? (
-            <ServiceRowDivider variant="solid" width={389} scale={scale} />
-          ) : null}
-        </View>
-      );
-    });
-
     const catalogList = (
-      <View
-        style={[styles.listBlock, { gap: 20 * scale, paddingHorizontal: multiFlow === 'create' ? 0 : 16 * scale }]}>
-        {catalogSections}
+      <View style={[styles.listBlock, { gap: 20 * scale, paddingHorizontal: multiFlow === 'create' ? 0 : 16 * scale }]}>
+        {SERVICE_SELECTION_CATALOG.sections.map((section, sectionIndex) => {
+          const expanded = isSectionExpanded(section.id);
+          return (
+            <View key={section.id} style={{ gap: 16 * scale, width: '100%', alignItems: 'center' }}>
+              <ServiceSelectionCard
+                title={section.title}
+                headerVariant={section.headerVariant === 'emphasis' ? 'emphasis' : 'category'}
+                expanded={expanded}
+                onToggle={() => toggleSection(section.id)}
+                scale={scale}>
+                {section.options.map((option, optionIndex) => (
+                  <View
+                    key={option.id}
+                    style={{ gap: optionRowGap * scale, width: '100%', alignItems: 'center' }}>
+                    {renderOptionRow(
+                      option.id,
+                      option.title,
+                      option.amount,
+                      option.subscriptionAmount,
+                      option.titleStyle,
+                      option.addMode,
+                      option.titleFontSize,
+                    )}
+                    {optionIndex < section.options.length - 1 ? <ServiceRowDivider scale={scale} /> : null}
+                  </View>
+                ))}
+              </ServiceSelectionCard>
+              {sectionIndex === 0 ? (
+                <>
+                  <ServiceRowDivider variant="solid" width={362} scale={scale} />
+                  {SERVICE_SELECTION_CATALOG.standaloneRows.map((row) =>
+                    renderOptionRow(row.id, row.title, row.amount, undefined, row.titleStyle, 'add'),
+                  )}
+                </>
+              ) : null}
+              {sectionIndex < SERVICE_SELECTION_CATALOG.sections.length - 1 ? (
+                <ServiceRowDivider variant="solid" width={389} scale={scale} />
+              ) : null}
+            </View>
+          );
+        })}
       </View>
     );
 
     if (showMultiCreate) {
       return <CreateComboSelectPanel scale={scale}>{catalogList}</CreateComboSelectPanel>;
-    }
-
-    if (mode === 'single') {
-      return (
-        <View style={[styles.listBlock, { gap: 20 * scale, paddingHorizontal: 16 * scale }]}>
-          {renderSingleSelectedItems()}
-          {catalogSections}
-        </View>
-      );
     }
 
     return catalogList;
