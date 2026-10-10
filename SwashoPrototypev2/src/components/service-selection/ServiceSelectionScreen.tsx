@@ -238,6 +238,7 @@ export function ServiceSelectionScreen({
   const singleTotals = useMemo(() => {
     let count = 0;
     let total = 0;
+    let serviceCount = 0;
     for (const [optionId, qty] of Object.entries(quantities)) {
       if (qty <= 0) {
         continue;
@@ -248,10 +249,14 @@ export function ServiceSelectionScreen({
       }
       const unit = getUnitPrice(optionId, option.amount, catalogSubscriptionAmount(option));
       count += qty;
+      serviceCount += 1;
       total += unit * qty;
     }
-    return { count, total };
+    const summaryLine = serviceCount > 0 ? `${serviceCount} services` : undefined;
+    return { count, total, serviceCount, summaryLine };
   }, [getUnitPrice, quantities]);
+
+  const hasSingleSelections = singleTotals.serviceCount > 0;
 
   const multiTotals = useMemo(() => {
     let count = 0;
@@ -289,22 +294,36 @@ export function ServiceSelectionScreen({
     return { count, total, summaryLine };
   }, [comboDraftIds, getUnitPrice, multiFlow, savedCombos]);
 
-  const stickyMetrics =
-    mode === 'single' ? { ...singleTotals, summaryLine: undefined as string | undefined } : multiTotals;
+  const showMultiCreate = mode === 'multi' && multiFlow === 'create';
+  const showComboList = mode === 'multi' && multiFlow === 'list';
+
+  const stickyMetrics = useMemo(() => {
+    if (mode === 'single') {
+      return { ...singleTotals, summaryLine: undefined as string | undefined };
+    }
+    if (showMultiCreate && hasSingleSelections) {
+      return singleTotals;
+    }
+    return multiTotals;
+  }, [hasSingleSelections, mode, multiTotals, showMultiCreate, singleTotals]);
+
   const instructionText =
     mode === 'single'
       ? garmentInstruction(serviceId)
-      : multiFlow === 'create'
+      : showMultiCreate
         ? 'Select services you want to combine'
         : 'Choose or Create combo';
 
-  const showComboList = mode === 'multi' && multiFlow === 'list';
+  const nestedMultiCreateInstruction = showMultiCreate ? instructionText : undefined;
+  const showStandaloneInstruction = instructionText != null && nestedMultiCreateInstruction == null;
+  const showCreateComboCta = showMultiCreate;
+  const showMultiCreateSticky = showMultiCreate && hasSingleSelections;
 
   const handleModeChange = (nextMode: ServiceMode) => {
     setMode(nextMode);
     if (nextMode === 'multi') {
       setComboDraftIds([]);
-      setMultiFlow(savedCombos.length === 0 ? 'create' : 'list');
+      setMultiFlow('create');
     }
   };
 
@@ -521,23 +540,8 @@ export function ServiceSelectionScreen({
       </View>
     );
 
-    if (mode === 'multi' && multiFlow === 'create') {
-      return (
-        <CreateComboSelectPanel
-          scale={scale}
-          footer={
-            <ServiceSelectionButton
-              label="Add as combo"
-              variant="secondary"
-              disabled={comboDraftIds.length < 2}
-              onPress={handleAddCombo}
-              scale={scale}
-              style={{ width: 356 * scale }}
-            />
-          }>
-          {catalogList}
-        </CreateComboSelectPanel>
-      );
+    if (showMultiCreate) {
+      return <CreateComboSelectPanel scale={scale}>{catalogList}</CreateComboSelectPanel>;
     }
 
     return catalogList;
@@ -588,36 +592,56 @@ export function ServiceSelectionScreen({
           <ServiceModeTabs
             mode={mode}
             onModeChange={handleModeChange}
-            showPlanPriceToggle={mode === 'multi' && multiFlow === 'list'}
+            showPlanPriceToggle={showComboList}
             planPriceEnabled={planPriceEnabled}
             onPlanPriceChange={setPlanPriceEnabled}
+            instructionText={nestedMultiCreateInstruction}
             scale={scale}
           />
 
-          <View style={{ paddingHorizontal: 16 * scale, width: '100%' }}>
-            <ServiceInstructionText scale={scale}>{instructionText}</ServiceInstructionText>
-          </View>
+          {showStandaloneInstruction ? (
+            <View style={{ paddingHorizontal: 16 * scale, width: '100%' }}>
+              <ServiceInstructionText scale={scale}>{instructionText}</ServiceInstructionText>
+            </View>
+          ) : null}
 
           <ScrollView
             style={[styles.scroll, Platform.OS === 'web' ? styles.scrollWeb : null]}
             contentContainerStyle={{
               gap: 16 * scale,
-              paddingBottom: stickyBarHeight + 16 * scale,
+              paddingBottom: stickyBarHeight + (showCreateComboCta ? 53 * scale : 0) + 16 * scale,
             }}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled">
             {renderCatalogBody()}
           </ScrollView>
 
-          <View onLayout={onStickyLayout} style={styles.stickyWrap}>
-            <ServiceSelectionStickyBar
-              itemCount={stickyMetrics.count}
-              summaryLine={stickyMetrics.summaryLine}
-              totalPrice={stickyMetrics.count > 0 ? stickyMetrics.total : undefined}
-              onConfirm={onClose}
+          {showCreateComboCta ? (
+            <ServiceSelectionButton
+              label="Add as combo"
+              variant="secondary"
+              disabled={comboDraftIds.length < 2}
+              onPress={handleAddCombo}
               scale={scale}
+              style={{
+                width: 380 * scale,
+                alignSelf: 'center',
+                marginBottom: showMultiCreateSticky ? 8 * scale : 0,
+              }}
             />
-          </View>
+          ) : null}
+
+          {showMultiCreateSticky || mode === 'single' || showComboList ? (
+            <View onLayout={onStickyLayout} style={styles.stickyWrap}>
+              <ServiceSelectionStickyBar
+                itemCount={stickyMetrics.count}
+                summaryLine={stickyMetrics.summaryLine}
+                totalPrice={stickyMetrics.count > 0 ? stickyMetrics.total : undefined}
+                onConfirm={onClose}
+                scale={scale}
+              />
+            </View>
+          ) : null}
         </View>
       </View>
     </View>

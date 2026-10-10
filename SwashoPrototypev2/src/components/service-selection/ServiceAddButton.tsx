@@ -47,7 +47,7 @@ export function ServiceAddButton({
         isSelected ? styles.selected : null,
         disabled && styles.disabled,
         {
-          width: isTertiary ? undefined : 86 * scale,
+          width: isTertiary ? undefined : isSelected ? 96 * scale : 86 * scale,
           minWidth: isTertiary ? 60 * scale : undefined,
           height: 32 * scale,
           borderRadius: SwashoRadii.md * scale,
@@ -90,13 +90,13 @@ const styles = StyleSheet.create({
   disabled: {
     opacity: 0.5,
   },
-  label: {
-    color: SwashoColors.primary600,
-    textAlign: 'center',
-  },
   selected: {
     backgroundColor: SwashoColors.primary600,
     borderColor: SwashoColors.primary600,
+  },
+  label: {
+    color: SwashoColors.primary600,
+    textAlign: 'center',
   },
   selectedLabel: {
     color: SwashoColors.surface,

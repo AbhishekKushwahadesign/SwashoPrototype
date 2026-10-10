@@ -4,6 +4,7 @@ import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
 import { PlanPriceToggle } from './PlanPriceToggle';
+import { ServiceInstructionText } from './ServiceInstructionText';
 import { TabDividerIcon } from './service-selection-icons';
 
 export type ServiceMode = 'single' | 'multi';
@@ -14,6 +15,7 @@ type ServiceModeTabsProps = {
   showPlanPriceToggle?: boolean;
   planPriceEnabled?: boolean;
   onPlanPriceChange?: (enabled: boolean) => void;
+  instructionText?: string;
   scale: number;
 };
 
@@ -26,13 +28,16 @@ export function ServiceModeTabs({
   showPlanPriceToggle = false,
   planPriceEnabled = false,
   onPlanPriceChange,
+  instructionText,
   scale,
 }: ServiceModeTabsProps) {
   const indicatorWidth = (mode === 'single' ? TAB_SINGLE_WIDTH : TAB_MULTI_WIDTH) * scale;
   const indicatorOffset = mode === 'single' ? 4 * scale : 144 * scale;
 
+  const wrapGap = instructionText != null ? 12 * scale : 6 * scale;
+
   return (
-    <View style={[styles.wrap, { paddingHorizontal: 16 * scale, gap: 6 * scale }]}>
+    <View style={[styles.wrap, { paddingHorizontal: 16 * scale, gap: wrapGap }]}>
       <View style={[styles.tabRow, { gap: 10 * scale, paddingLeft: 6 * scale, paddingRight: 4 * scale }]}>
         <Pressable
           accessibilityRole="tab"
@@ -81,6 +86,11 @@ export function ServiceModeTabs({
           ]}
         />
       </View>
+      {instructionText ? (
+        <View style={styles.instructionWrap}>
+          <ServiceInstructionText scale={scale}>{instructionText}</ServiceInstructionText>
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -108,5 +118,9 @@ const styles = StyleSheet.create({
   },
   indicator: {
     backgroundColor: SwashoColors.primary600,
+  },
+  instructionWrap: {
+    width: '100%',
+    alignItems: 'center',
   },
 });
