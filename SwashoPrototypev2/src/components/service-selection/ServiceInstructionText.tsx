@@ -1,5 +1,7 @@
 import { StyleSheet, Text } from 'react-native';
 
+import { SwashoColors } from '@/constants/swasho-tokens';
+
 type ServiceInstructionTextProps = {
   children: string;
   scale: number;
@@ -20,6 +22,6 @@ export function ServiceInstructionText({ children, scale }: ServiceInstructionTe
 const styles = StyleSheet.create({
   text: {
     fontFamily: 'Poppins_400Regular',
-    color: '#464646',
+    color: SwashoColors.neutral800,
   },
 });

@@ -18,7 +18,8 @@ type ServiceGarmentRowProps = {
   titleStyle?: 'semibold' | 'medium';
   state?: ServiceGarmentRowState;
   quantity?: number;
-  addMode?: 'add' | 'select';
+  addMode?: 'add' | 'select' | 'tertiary';
+  titleFontSize?: 14 | 15 | 16;
   disabled?: boolean;
   onAddPress?: () => void;
   onIncrement?: () => void;
@@ -36,6 +37,7 @@ export function ServiceGarmentRow({
   state = 'idle',
   quantity = 0,
   addMode = 'add',
+  titleFontSize,
   disabled = false,
   onAddPress,
   onIncrement,
@@ -43,6 +45,12 @@ export function ServiceGarmentRow({
   trailing,
   scale,
 }: ServiceGarmentRowProps) {
+  const resolvedTitleSize =
+    titleFontSize ?? (titleStyle === 'semibold' ? 15 : titleStyle === 'medium' ? 14 : 15);
+  const titleColor =
+    titleStyle === 'semibold' ? SwashoColors.neutral950 : SwashoColors.neutral900;
+  const priceVariant = resolvedTitleSize >= 16 ? 'default' : 'compact';
+
   const trailingNode =
     trailing ??
     (state === 'quantity' ? (
@@ -73,9 +81,10 @@ export function ServiceGarmentRow({
             titleStyle === 'semibold' ? searchFont('semibold') : searchFont('medium'),
             styles.title,
             {
-              fontSize: (titleStyle === 'semibold' ? 15 : 16) * scale,
-              lineHeight: 14 * scale,
+              fontSize: resolvedTitleSize * scale,
+              lineHeight: (titleStyle === 'semibold' ? 14 : resolvedTitleSize >= 16 ? 14 : 12) * scale,
               letterSpacing: titleStyle === 'semibold' ? 0.3 * scale : 0.5 * scale,
+              color: titleColor,
             },
           ]}>
           {title}
@@ -84,7 +93,7 @@ export function ServiceGarmentRow({
           amount={amount}
           unit={unit}
           subscriptionAmount={subscriptionAmount}
-          titleVariant={titleStyle === 'medium' ? 'compact' : 'default'}
+          titleVariant={priceVariant}
           scale={scale}
         />
       </View>
@@ -104,7 +113,5 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'center',
   },
-  title: {
-    color: SwashoColors.neutral900,
-  },
+  title: {},
 });

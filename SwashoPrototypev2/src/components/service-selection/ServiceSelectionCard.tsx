@@ -3,13 +3,14 @@ import { StyleSheet, View } from 'react-native';
 
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
-import { ServiceSectionHeader } from './ServiceSectionHeader';
+import { ServiceSectionHeader, type ServiceSectionHeaderVariant } from './ServiceSectionHeader';
 
 export type ServiceSelectionCardState = 'default' | 'expanded' | 'selected';
 
 type ServiceSelectionCardProps = {
   title: string;
   state?: ServiceSelectionCardState;
+  headerVariant?: ServiceSectionHeaderVariant;
   expanded?: boolean;
   onToggle?: () => void;
   children?: ReactNode;
@@ -19,12 +20,14 @@ type ServiceSelectionCardProps = {
 export function ServiceSelectionCard({
   title,
   state = 'default',
+  headerVariant: headerVariantProp,
   expanded = true,
   onToggle,
   children,
   scale,
 }: ServiceSelectionCardProps) {
-  const headerVariant = state === 'expanded' ? 'combo' : 'category';
+  const headerVariant =
+    headerVariantProp ?? (state === 'expanded' ? 'combo' : 'category');
 
   return (
     <View

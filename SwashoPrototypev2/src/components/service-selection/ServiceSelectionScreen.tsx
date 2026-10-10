@@ -53,6 +53,19 @@ type ServiceSelectionScreenProps = {
 
 type MultiFlow = 'create' | 'list';
 
+function resolveRowAddMode(
+  flowMode: ServiceMode,
+  catalogAddMode: 'add' | 'select' | undefined,
+): 'add' | 'select' | 'tertiary' {
+  if (flowMode === 'multi') {
+    return catalogAddMode === 'select' ? 'select' : 'add';
+  }
+  if (catalogAddMode === 'select') {
+    return 'tertiary';
+  }
+  return catalogAddMode ?? 'add';
+}
+
 function resolveGarmentLabel(serviceId: string, providerId?: string, query?: string) {
   const provider = providerId ? getProviderResultById(providerId, query ?? '') : undefined;
   if (provider?.serviceSections) {
@@ -318,7 +331,8 @@ export function ServiceSelectionScreen({
     amount: number,
     subscriptionAmount?: number,
     titleStyle: 'semibold' | 'medium' = 'semibold',
-    addMode: 'add' | 'select' = 'add',
+    addMode: 'add' | 'select' | 'tertiary' = 'add',
+    titleFontSize?: 14 | 15 | 16,
   ) => {
     const qty = quantities[optionId] ?? 0;
     const unit = getUnitPrice(optionId, amount, subscriptionAmount);
@@ -331,6 +345,7 @@ export function ServiceSelectionScreen({
         unit="pc"
         subscriptionAmount={planPriceEnabled ? undefined : subscriptionAmount}
         titleStyle={titleStyle}
+        titleFontSize={titleFontSize}
         state={qty > 0 ? 'quantity' : 'idle'}
         quantity={qty}
         addMode={addMode}
@@ -348,6 +363,7 @@ export function ServiceSelectionScreen({
     amount: number,
     subscriptionAmount?: number,
     titleStyle: 'semibold' | 'medium' = 'semibold',
+    titleFontSize?: 14 | 15 | 16,
   ) => {
     const selected = comboDraftIds.includes(optionId);
     const unit = getUnitPrice(optionId, amount, subscriptionAmount);
@@ -362,6 +378,7 @@ export function ServiceSelectionScreen({
           unit="pc"
           subscriptionAmount={planPriceEnabled ? undefined : subscriptionAmount}
           titleStyle={titleStyle}
+          titleFontSize={titleFontSize}
           addMode="select"
           onAddPress={() => toggleComboDraft(optionId)}
           scale={scale}
@@ -443,13 +460,32 @@ export function ServiceSelectionScreen({
       amount: number,
       subscriptionAmount?: number,
       titleStyle: 'semibold' | 'medium' = 'semibold',
-      addMode: 'add' | 'select' = 'add',
+      catalogAddMode?: 'add' | 'select',
+      titleFontSize?: 14 | 15 | 16,
     ) => {
+      const rowAddMode = resolveRowAddMode(mode, catalogAddMode);
       if (mode === 'single') {
-        return renderSingleRow(optionId, title, amount, subscriptionAmount, titleStyle, addMode);
+        return renderSingleRow(
+          optionId,
+          title,
+          amount,
+          subscriptionAmount,
+          titleStyle,
+          rowAddMode,
+          titleFontSize,
+        );
       }
-      return renderMultiCreateRow(optionId, title, amount, subscriptionAmount, titleStyle);
+      return renderMultiCreateRow(
+        optionId,
+        title,
+        amount,
+        subscriptionAmount,
+        titleStyle,
+        titleFontSize,
+      );
     };
+
+    const optionRowGap = mode === 'multi' && multiFlow === 'create' ? 16 : 20;
 
     return (
       <View style={[styles.listBlock, { gap: 20 * scale, paddingHorizontal: 16 * scale }]}>
@@ -459,12 +495,14 @@ export function ServiceSelectionScreen({
             <View key={section.id} style={{ gap: 16 * scale, width: '100%', alignItems: 'center' }}>
               <ServiceSelectionCard
                 title={section.title}
-                state={section.headerVariant === 'emphasis' ? 'expanded' : 'default'}
+                headerVariant={section.headerVariant === 'emphasis' ? 'emphasis' : 'category'}
                 expanded={expanded}
                 onToggle={() => toggleSection(section.id)}
                 scale={scale}>
                 {section.options.map((option, optionIndex) => (
-                  <View key={option.id} style={{ gap: 20 * scale, width: '100%', alignItems: 'center' }}>
+                  <View
+                    key={option.id}
+                    style={{ gap: optionRowGap * scale, width: '100%', alignItems: 'center' }}>
                     {renderOptionRow(
                       option.id,
                       option.title,
@@ -472,6 +510,7 @@ export function ServiceSelectionScreen({
                       option.subscriptionAmount,
                       option.titleStyle,
                       option.addMode,
+                      option.titleFontSize,
                     )}
                     {optionIndex < section.options.length - 1 ? <ServiceRowDivider scale={scale} /> : null}
                   </View>

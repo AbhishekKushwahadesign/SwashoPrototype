@@ -67,9 +67,7 @@ export function ServiceSelectionButton({
           paddingVertical: 8 * scale,
           gap: 6 * scale,
           opacity: pressed && !isDisabled ? 0.85 : 1,
-          ...(variant === 'tertiary' || variant === 'secondaryDashed'
-            ? figmaShadow(FigmaShadows.search, scale)
-            : {}),
+          ...(variant === 'tertiary' ? figmaShadow(FigmaShadows.addButton, scale) : {}),
         },
         style,
       ]}>

@@ -18,6 +18,8 @@ export const SwashoColors = {
   neutral500: '#7c7c7c',
   neutral600: '#656565',
   neutral700: '#525252',
+  neutral800: '#464646',
+  neutral950: '#292929',
   neutral900: '#3d3d3d',
   darkHeaderText: '#0d0d0d',
   darkText: '#1a1a1a',

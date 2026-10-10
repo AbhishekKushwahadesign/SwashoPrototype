@@ -23,9 +23,10 @@ export function ServiceSectionHeader({
   scale,
 }: ServiceSectionHeaderProps) {
   const titleColor =
-    variant === 'category' ? '#464646' : variant === 'emphasis' ? SwashoColors.darkHeaderText : SwashoColors.darkHeaderText;
+    variant === 'category' ? SwashoColors.neutral800 : SwashoColors.darkHeaderText;
   const fontSize = (variant === 'emphasis' ? 18 : 16) * scale;
   const lineHeight = (variant === 'emphasis' ? 16 : 14) * scale;
+  const rowWidth = (variant === 'emphasis' ? 360 : 366) * scale;
 
   return (
     <Pressable
@@ -33,7 +34,7 @@ export function ServiceSectionHeader({
       accessibilityState={{ expanded }}
       accessibilityLabel={title}
       onPress={onToggle}
-      style={[styles.row, { gap: 16 * scale, width: 366 * scale }]}>
+      style={[styles.row, { gap: 16 * scale, width: rowWidth }]}>
       <Text
         style={[
           searchFont('medium'),

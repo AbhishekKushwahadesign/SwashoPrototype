@@ -4,6 +4,7 @@ export type ServiceCatalogOption = {
   amount: number;
   subscriptionAmount?: number;
   titleStyle?: 'semibold' | 'medium';
+  titleFontSize?: 14 | 15 | 16;
   addMode?: 'add' | 'select';
 };
 
@@ -45,6 +46,7 @@ export const SERVICE_SELECTION_CATALOG: {
           amount: 49,
           subscriptionAmount: 39,
           titleStyle: 'medium',
+          titleFontSize: 14,
           addMode: 'select',
         },
       ],
@@ -60,6 +62,7 @@ export const SERVICE_SELECTION_CATALOG: {
           amount: 49,
           subscriptionAmount: 39,
           titleStyle: 'medium',
+          titleFontSize: 16,
           addMode: 'select',
         },
       ],

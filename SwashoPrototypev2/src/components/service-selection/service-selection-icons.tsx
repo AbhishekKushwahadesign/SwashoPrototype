@@ -100,3 +100,12 @@ const SheetCloseIconXml = `<svg preserveAspectRatio="none" overflow="visible" st
 export function SheetCloseIcon({ width, height, style }: IconProps) {
   return <SvgXml xml={SheetCloseIconXml} width={width} height={height} style={style} />;
 }
+
+const DoubleAltArrowRightIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M4.5 4.5L8.5 10L4.5 15.5" stroke="#5D30F7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M10.5 4.5L14.5 10L10.5 15.5" stroke="#5D30F7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
+
+export function DoubleAltArrowRightIcon({ width, height, style }: IconProps) {
+  return <SvgXml xml={DoubleAltArrowRightIconXml} width={width} height={height} style={style} />;
+}

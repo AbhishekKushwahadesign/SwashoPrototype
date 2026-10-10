@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import { searchFont } from '@/components/search/search-fonts';
-import { SwashoColors } from '@/constants/swasho-tokens';
+import { SwashoColors, SwashoFonts } from '@/constants/swasho-tokens';
 
 type ServicePriceDisplayProps = {
   amount: number | string;
@@ -32,7 +32,7 @@ export function ServicePriceDisplay({
     <View style={[styles.column, { gap: 12 * scale }]}>
       <Text
         style={[
-          searchFont('medium'),
+          titleVariant === 'default' ? styles.priceRegular : searchFont('medium'),
           styles.price,
           { fontSize: priceFontSize, lineHeight: priceLineHeight, letterSpacing: 0.5 * scale },
         ]}>
@@ -55,8 +55,11 @@ const styles = StyleSheet.create({
   price: {
     color: SwashoColors.neutral900,
   },
+  priceRegular: {
+    fontFamily: SwashoFonts.poppinsRegular,
+  },
   subscription: {
-    color: SwashoColors.primary600,
+    color: SwashoColors.neutral950,
     letterSpacing: 0.5,
   },
 });

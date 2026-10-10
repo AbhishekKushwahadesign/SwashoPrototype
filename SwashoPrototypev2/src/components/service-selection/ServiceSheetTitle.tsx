@@ -19,15 +19,17 @@ export function ServiceSheetTitle({
   scale,
 }: ServiceSheetTitleProps) {
   return (
-    <View style={[styles.column, { gap: 12 * scale, paddingLeft: 20 * scale }]}>
-      <Text
-        style={[
-          searchFont('medium'),
-          styles.title,
-          { fontSize: 16 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
-        ]}>
-        {garmentLabel}
-      </Text>
+    <View style={[styles.column, { gap: 12 * scale }]}>
+      <View style={{ width: '100%', paddingLeft: 20 * scale }}>
+        <Text
+          style={[
+            searchFont('medium'),
+            styles.title,
+            { fontSize: 16 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
+          ]}>
+          {garmentLabel}
+        </Text>
+      </View>
       {showOfferBadge ? <SubscriptionOfferBadge message={offerMessage} scale={scale} /> : null}
     </View>
   );
@@ -36,10 +38,10 @@ export function ServiceSheetTitle({
 const styles = StyleSheet.create({
   column: {
     width: '100%',
-    alignItems: 'flex-start',
+    alignItems: 'center',
   },
   title: {
     color: SwashoColors.neutral600,
-    textAlign: 'left',
+    textAlign: 'center',
   },
 });

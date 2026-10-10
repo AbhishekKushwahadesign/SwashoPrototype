@@ -4,9 +4,9 @@ import { figmaShadow, FigmaShadows } from '@/components/home/figma-shadows';
 import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
-import { AddSquareIcon } from './service-selection-icons';
+import { AddSquareIcon, DoubleAltArrowRightIcon } from './service-selection-icons';
 
-export type ServiceAddButtonMode = 'add' | 'select';
+export type ServiceAddButtonMode = 'add' | 'select' | 'tertiary';
 
 type ServiceAddButtonProps = {
   mode?: ServiceAddButtonMode;
@@ -16,7 +16,8 @@ type ServiceAddButtonProps = {
 };
 
 export function ServiceAddButton({ mode = 'add', disabled = false, onPress, scale }: ServiceAddButtonProps) {
-  const label = mode === 'add' ? 'ADD' : 'SELECT';
+  const label = mode === 'add' ? 'ADD' : mode === 'select' ? 'SELECT' : 'Add';
+  const isTertiary = mode === 'tertiary';
 
   const handlePress = () => {
     if (!disabled) {
@@ -35,7 +36,8 @@ export function ServiceAddButton({ mode = 'add', disabled = false, onPress, scal
         styles.base,
         disabled && styles.disabled,
         {
-          width: 86 * scale,
+          width: isTertiary ? undefined : 86 * scale,
+          minWidth: isTertiary ? 60 * scale : undefined,
           height: 32 * scale,
           borderRadius: SwashoRadii.md * scale,
           paddingHorizontal: 16 * scale,
@@ -49,11 +51,13 @@ export function ServiceAddButton({ mode = 'add', disabled = false, onPress, scal
         style={[
           searchFont('medium'),
           styles.label,
+          isTertiary && styles.tertiaryLabel,
           { fontSize: 14 * scale, lineHeight: 12 * scale, letterSpacing: 0.5 * scale },
         ]}>
         {label}
       </Text>
       {mode === 'add' ? <AddSquareIcon width={18 * scale} height={18 * scale} /> : null}
+      {isTertiary ? <DoubleAltArrowRightIcon width={20 * scale} height={20 * scale} /> : null}
     </Pressable>
   );
 }
@@ -73,5 +77,8 @@ const styles = StyleSheet.create({
   label: {
     color: SwashoColors.primary600,
     textAlign: 'center',
+  },
+  tertiaryLabel: {
+    flex: 1,
   },
 });
