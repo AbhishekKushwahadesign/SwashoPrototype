@@ -42,7 +42,7 @@ export function ServiceAddButton({ mode = 'add', disabled = false, onPress, scal
           paddingVertical: 8 * scale,
           gap: 6 * scale,
           opacity: pressed && !disabled ? 0.85 : 1,
-          ...figmaShadow(FigmaShadows.search, scale),
+          ...figmaShadow(FigmaShadows.addButton, scale),
         },
       ]}>
       <Text

@@ -53,6 +53,8 @@ export function figmaShadow(spec: ShadowSpec, scale = 1): ViewStyle {
 export const FigmaShadows = {
   screen: { offsetX: 0, offsetY: 4, blur: 4, color: '#000000', opacity: 0.25 },
   search: { offsetX: 0, offsetY: 2, blur: 2, color: '#5d30f7', opacity: 0.2 },
+  /** Service selection ADD / quantity controls (Figma drop-shadow 0 2px 2px @ 19%). */
+  addButton: { offsetX: 0, offsetY: 2, blur: 2, color: '#5d30f7', opacity: 0.19 },
   providerCard: { offsetX: 0, offsetY: 0, blur: 2, color: '#000000', opacity: 0.2 },
   providerCardBody: { offsetX: 0, offsetY: -1, blur: 4, color: '#000000', opacity: 0.25 },
   recommendationCard: { offsetX: 0, offsetY: 0, blur: 2.976, color: '#000000', opacity: 0.19 },

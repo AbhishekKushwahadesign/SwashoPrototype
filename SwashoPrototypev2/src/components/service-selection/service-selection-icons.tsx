@@ -2,6 +2,7 @@ import type { StyleProp, ViewStyle } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
 import { AddSquareIcon, ChevronDownIcon } from '@/components/provider-page/provider-page-icons';
+import { SwashoColors } from '@/constants/swasho-tokens';
 
 type IconProps = {
   width: number;
@@ -11,12 +12,50 @@ type IconProps = {
 
 export { AddSquareIcon, ChevronDownIcon };
 
-const MinusSquareIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M6.75 9H11.25M4.5 15.75H13.5C14.7426 15.75 15.75 14.7426 15.75 13.5V4.5C15.75 3.25736 14.7426 2.25 13.5 2.25H4.5C3.25736 2.25 2.25 3.25736 2.25 4.5V13.5C2.25 14.7426 3.25736 15.75 4.5 15.75Z" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
-</svg>`;
+export type CounterIconTone = 'default' | 'muted' | 'subdued';
 
-export function MinusSquareIcon({ width, height, style }: IconProps) {
-  return <SvgXml xml={MinusSquareIconXml} width={width} height={height} style={style} />;
+const COUNTER_ICON_STROKE: Record<CounterIconTone, string> = {
+  default: SwashoColors.neutral50,
+  muted: SwashoColors.primary300,
+  subdued: SwashoColors.primary100,
+};
+
+function counterMinusSquareXml(tone: CounterIconTone) {
+  const stroke = COUNTER_ICON_STROKE[tone];
+  return `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Linear / Essentional, UI / Minus Square">
+<path d="M3 18C3 10.9289 3 7.3934 5.1967 5.1967C7.3934 3 10.9289 3 18 3C25.0711 3 28.6066 3 30.8033 5.1967C33 7.3934 33 10.9289 33 18C33 25.0711 33 28.6066 30.8033 30.8033C28.6066 33 25.0711 33 18 33C10.9289 33 7.3934 33 5.1967 30.8033C3 28.6066 3 25.0711 3 18Z" stroke="${stroke}" stroke-width="3"/>
+<path d="M22.5 19C23.0523 19 23.5 18.5523 23.5 18C23.5 17.4477 23.0523 17 22.5 17V18V19ZM22.5 18V17H13.5V18V19H22.5V18Z" fill="${stroke}"/>
+</g>
+</svg>`;
+}
+
+function counterAddSquareXml(tone: CounterIconTone) {
+  const stroke = COUNTER_ICON_STROKE[tone];
+  return `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Linear / Essentional, UI / Add Square">
+<path d="M3 18C3 10.9289 3 7.3934 5.1967 5.1967C7.3934 3 10.9289 3 18 3C25.0711 3 28.6066 3 30.8033 5.1967C33 7.3934 33 10.9289 33 18C33 25.0711 33 28.6066 30.8033 30.8033C28.6066 33 25.0711 33 18 33C10.9289 33 7.3934 33 5.1967 30.8033C3 28.6066 3 25.0711 3 18Z" stroke="${stroke}" stroke-width="3"/>
+<path d="M22.5 18L18 18M18 18L13.5 18M18 18L18 13.5M18 18L18 22.5" stroke="${stroke}" stroke-width="2" stroke-linecap="round"/>
+</g>
+</svg>`;
+}
+
+export function CounterMinusSquareIcon({
+  width,
+  height,
+  style,
+  tone = 'default',
+}: IconProps & { tone?: CounterIconTone }) {
+  return <SvgXml xml={counterMinusSquareXml(tone)} width={width} height={height} style={style} />;
+}
+
+export function CounterAddSquareIcon({
+  width,
+  height,
+  style,
+  tone = 'default',
+}: IconProps & { tone?: CounterIconTone }) {
+  return <SvgXml xml={counterAddSquareXml(tone)} width={width} height={height} style={style} />;
 }
 
 const MoneyTagIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">

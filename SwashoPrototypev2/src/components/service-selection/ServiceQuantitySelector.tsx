@@ -4,7 +4,11 @@ import { figmaShadow, FigmaShadows } from '@/components/home/figma-shadows';
 import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
-import { AddSquareIcon, MinusSquareIcon } from './service-selection-icons';
+import {
+  CounterAddSquareIcon,
+  CounterMinusSquareIcon,
+  type CounterIconTone,
+} from './service-selection-icons';
 
 type ServiceQuantitySelectorProps = {
   value: number;
@@ -15,6 +19,37 @@ type ServiceQuantitySelectorProps = {
   onDecrement?: () => void;
   scale: number;
 };
+
+function CounterIconSlot({
+  scale,
+  tone,
+  variant,
+}: {
+  scale: number;
+  tone: CounterIconTone;
+  variant: 'minus' | 'add';
+}) {
+  const iconSize = 36 * scale;
+  const Icon = variant === 'minus' ? CounterMinusSquareIcon : CounterAddSquareIcon;
+
+  return (
+    <View
+      style={{
+        width: 22 * scale,
+        height: 24 * scale,
+        overflow: 'hidden',
+      }}>
+      <View
+        style={{
+          position: 'absolute',
+          left: -7 * scale,
+          top: -6 * scale,
+        }}>
+        <Icon width={iconSize} height={iconSize} tone={tone} />
+      </View>
+    </View>
+  );
+}
 
 export function ServiceQuantitySelector({
   value,
@@ -30,11 +65,14 @@ export function ServiceQuantitySelector({
   const decrementDisabled = disabled || atMin;
   const incrementDisabled = disabled || atMax;
 
+  const decrementTone: CounterIconTone = decrementDisabled && !disabled ? 'muted' : 'default';
+  const incrementTone: CounterIconTone = incrementDisabled && !disabled ? 'muted' : 'default';
+
   return (
     <View
       style={[
         styles.container,
-        disabled && styles.containerDisabled,
+        disabled ? styles.containerDisabled : styles.containerActive,
         {
           width: 86 * scale,
           height: 32 * scale,
@@ -42,7 +80,7 @@ export function ServiceQuantitySelector({
           paddingHorizontal: 16 * scale,
           paddingVertical: 8 * scale,
           gap: 12 * scale,
-          ...figmaShadow(FigmaShadows.search, scale),
+          ...figmaShadow(FigmaShadows.addButton, scale),
         },
       ]}>
       <Pressable
@@ -58,15 +96,20 @@ export function ServiceQuantitySelector({
         }}
         style={({ pressed }) => [
           styles.iconButton,
-          { width: 22 * scale, height: 24 * scale, opacity: pressed && !decrementDisabled ? 0.7 : 1 },
+          pressed && !decrementDisabled && styles.iconButtonPressed,
         ]}>
-        <MinusSquareIcon width={18 * scale} height={18 * scale} />
+        <CounterIconSlot scale={scale} tone={disabled ? 'subdued' : decrementTone} variant="minus" />
       </Pressable>
       <Text
         style={[
           searchFont('semibold'),
           styles.value,
-          { fontSize: 14 * scale, lineHeight: 18 * scale, letterSpacing: 1 * scale },
+          disabled && styles.valueDisabled,
+          {
+            fontSize: 14 * scale,
+            lineHeight: 18 * scale,
+            letterSpacing: 1 * scale,
+          },
         ]}>
         {value}
       </Text>
@@ -83,9 +126,9 @@ export function ServiceQuantitySelector({
         }}
         style={({ pressed }) => [
           styles.iconButton,
-          { width: 22 * scale, height: 24 * scale, opacity: pressed && !incrementDisabled ? 0.7 : 1 },
+          pressed && !incrementDisabled && styles.iconButtonPressed,
         ]}>
-        <AddSquareIcon width={18 * scale} height={18 * scale} />
+        <CounterIconSlot scale={scale} tone={disabled ? 'subdued' : incrementTone} variant="add" />
       </Pressable>
     </View>
   );
@@ -93,22 +136,31 @@ export function ServiceQuantitySelector({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: SwashoColors.primary600,
-    borderWidth: 0.5,
-    borderColor: SwashoColors.primary600,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 0.5,
+  },
+  containerActive: {
+    backgroundColor: SwashoColors.primary600,
+    borderColor: SwashoColors.primary600,
   },
   containerDisabled: {
-    opacity: 0.5,
+    backgroundColor: SwashoColors.primary300,
+    borderColor: SwashoColors.primary300,
   },
   iconButton: {
     alignItems: 'center',
     justifyContent: 'center',
   },
+  iconButtonPressed: {
+    opacity: 0.85,
+  },
   value: {
     color: SwashoColors.surface,
     textAlign: 'center',
+  },
+  valueDisabled: {
+    color: SwashoColors.primary100,
   },
 });
