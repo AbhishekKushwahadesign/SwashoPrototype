@@ -10,13 +10,23 @@ export type ServiceAddButtonMode = 'add' | 'select' | 'tertiary';
 
 type ServiceAddButtonProps = {
   mode?: ServiceAddButtonMode;
+  /** When `mode` is `select`, filled brand style matching the quantity counter (primary600). */
+  selected?: boolean;
   disabled?: boolean;
   onPress?: () => void;
   scale: number;
 };
 
-export function ServiceAddButton({ mode = 'add', disabled = false, onPress, scale }: ServiceAddButtonProps) {
-  const label = mode === 'select' ? 'SELECT' : 'ADD';
+export function ServiceAddButton({
+  mode = 'add',
+  selected = false,
+  disabled = false,
+  onPress,
+  scale,
+}: ServiceAddButtonProps) {
+  const isSelect = mode === 'select';
+  const isSelected = isSelect && selected;
+  const label = isSelected ? 'SELECTED' : isSelect ? 'SELECT' : 'ADD';
   const isTertiary = mode === 'tertiary';
 
   const handlePress = () => {
@@ -34,6 +44,7 @@ export function ServiceAddButton({ mode = 'add', disabled = false, onPress, scal
       onPress={handlePress}
       style={({ pressed }) => [
         styles.base,
+        isSelected ? styles.selected : null,
         disabled && styles.disabled,
         {
           width: isTertiary ? undefined : 86 * scale,
@@ -49,10 +60,15 @@ export function ServiceAddButton({ mode = 'add', disabled = false, onPress, scal
       ]}>
       <Text
         style={[
-          searchFont('medium'),
+          isSelected ? searchFont('semibold') : searchFont('medium'),
           styles.label,
+          isSelected && styles.selectedLabel,
           isTertiary && styles.tertiaryLabel,
-          { fontSize: 14 * scale, lineHeight: 12 * scale, letterSpacing: 0.5 * scale },
+          {
+            fontSize: 14 * scale,
+            lineHeight: isSelected ? 18 * scale : 12 * scale,
+            letterSpacing: isSelected ? 1 * scale : 0.5 * scale,
+          },
         ]}>
         {label}
       </Text>
@@ -76,6 +92,14 @@ const styles = StyleSheet.create({
   },
   label: {
     color: SwashoColors.primary600,
+    textAlign: 'center',
+  },
+  selected: {
+    backgroundColor: SwashoColors.primary600,
+    borderColor: SwashoColors.primary600,
+  },
+  selectedLabel: {
+    color: SwashoColors.surface,
     textAlign: 'center',
   },
   tertiaryLabel: {

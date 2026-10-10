@@ -380,6 +380,7 @@ export function ServiceSelectionScreen({
           titleStyle={titleStyle}
           titleFontSize={titleFontSize}
           addMode="select"
+          addSelected={selected}
           onAddPress={() => toggleComboDraft(optionId)}
           scale={scale}
         />

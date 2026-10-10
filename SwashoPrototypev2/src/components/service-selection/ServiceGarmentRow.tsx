@@ -19,6 +19,7 @@ type ServiceGarmentRowProps = {
   state?: ServiceGarmentRowState;
   quantity?: number;
   addMode?: 'add' | 'select' | 'tertiary';
+  addSelected?: boolean;
   titleFontSize?: 14 | 15 | 16;
   disabled?: boolean;
   onAddPress?: () => void;
@@ -37,6 +38,7 @@ export function ServiceGarmentRow({
   state = 'idle',
   quantity = 0,
   addMode = 'add',
+  addSelected = false,
   titleFontSize,
   disabled = false,
   onAddPress,
@@ -62,7 +64,13 @@ export function ServiceGarmentRow({
         scale={scale}
       />
     ) : (
-      <ServiceAddButton mode={addMode} disabled={disabled} onPress={onAddPress} scale={scale} />
+      <ServiceAddButton
+        mode={addMode}
+        selected={addSelected}
+        disabled={disabled}
+        onPress={onAddPress}
+        scale={scale}
+      />
     ));
 
   return (
