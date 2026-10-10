@@ -13,8 +13,8 @@ import { useScreenScale } from '@/components/home/scale';
 import { getProviderResultById } from '@/data/providers';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
+import { CreateComboSelectPanel } from './CreateComboSelectPanel';
 import {
-  DEFAULT_COMBOS,
   SERVICE_SELECTION_CATALOG,
   getCatalogOptionById,
   type ServiceCatalogOption,
@@ -118,20 +118,7 @@ export function ServiceSelectionScreen({
   const [sectionExpanded, setSectionExpanded] = useState<Record<string, boolean>>({});
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [comboDraftIds, setComboDraftIds] = useState<string[]>([]);
-  const [savedCombos, setSavedCombos] = useState<SavedCombo[]>(() =>
-    DEFAULT_COMBOS.map((combo) => ({
-      id: combo.id,
-      title: combo.title,
-      items: [
-        {
-          optionId: `combo-${combo.id}`,
-          title: combo.label,
-          amount: combo.amount,
-          quantity: 0,
-        },
-      ],
-    })),
-  );
+  const [savedCombos, setSavedCombos] = useState<SavedCombo[]>([]);
   const [pickupPersonChecked, setPickupPersonChecked] = useState(false);
   const [stickyBarHeight, setStickyBarHeight] = useState(0);
 
@@ -311,13 +298,13 @@ export function ServiceSelectionScreen({
         ? 'Select services you want to combine'
         : 'Choose or Create combo';
 
-  const showCreateComboCta = mode === 'multi' && multiFlow === 'create';
   const showComboList = mode === 'multi' && multiFlow === 'list';
 
   const handleModeChange = (nextMode: ServiceMode) => {
     setMode(nextMode);
-    if (nextMode === 'multi' && savedCombos.length === 0) {
-      setMultiFlow('create');
+    if (nextMode === 'multi') {
+      setComboDraftIds([]);
+      setMultiFlow(savedCombos.length === 0 ? 'create' : 'list');
     }
   };
 
@@ -488,8 +475,8 @@ export function ServiceSelectionScreen({
 
     const optionRowGap = mode === 'multi' && multiFlow === 'create' ? 16 : 20;
 
-    return (
-      <View style={[styles.listBlock, { gap: 20 * scale, paddingHorizontal: 16 * scale }]}>
+    const catalogList = (
+      <View style={[styles.listBlock, { gap: 20 * scale, paddingHorizontal: multiFlow === 'create' ? 0 : 16 * scale }]}>
         {SERVICE_SELECTION_CATALOG.sections.map((section, sectionIndex) => {
           const expanded = isSectionExpanded(section.id);
           return (
@@ -533,6 +520,27 @@ export function ServiceSelectionScreen({
         })}
       </View>
     );
+
+    if (mode === 'multi' && multiFlow === 'create') {
+      return (
+        <CreateComboSelectPanel
+          scale={scale}
+          footer={
+            <ServiceSelectionButton
+              label="Add as combo"
+              variant="secondary"
+              disabled={comboDraftIds.length < 2}
+              onPress={handleAddCombo}
+              scale={scale}
+              style={{ width: 356 * scale }}
+            />
+          }>
+          {catalogList}
+        </CreateComboSelectPanel>
+      );
+    }
+
+    return catalogList;
   };
 
   const sheetMaxHeight = Math.min(contentHeight * 0.92, 600 * scale);
@@ -594,21 +602,11 @@ export function ServiceSelectionScreen({
             style={[styles.scroll, Platform.OS === 'web' ? styles.scrollWeb : null]}
             contentContainerStyle={{
               gap: 16 * scale,
-              paddingBottom: stickyBarHeight + (showCreateComboCta ? 56 * scale : 0) + 16 * scale,
+              paddingBottom: stickyBarHeight + 16 * scale,
             }}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled">
             {renderCatalogBody()}
-            {showCreateComboCta ? (
-              <ServiceSelectionButton
-                label="Add as combo"
-                variant="secondary"
-                disabled={comboDraftIds.length < 2}
-                onPress={handleAddCombo}
-                scale={scale}
-                style={{ width: 380 * scale, alignSelf: 'center' }}
-              />
-            ) : null}
           </ScrollView>
 
           <View onLayout={onStickyLayout} style={styles.stickyWrap}>

@@ -2,6 +2,7 @@ export { PlanPriceToggle } from './PlanPriceToggle';
 export { ServiceAddButton } from './ServiceAddButton';
 export type { ServiceAddButtonMode } from './ServiceAddButton';
 export { ServiceCheckbox } from './ServiceCheckbox';
+export { CreateComboSelectPanel } from './CreateComboSelectPanel';
 export { ServiceComboDetailCard } from './ServiceComboDetailCard';
 export { ServiceGarmentRow } from './ServiceGarmentRow';
 export type { ServiceGarmentRowState } from './ServiceGarmentRow';
