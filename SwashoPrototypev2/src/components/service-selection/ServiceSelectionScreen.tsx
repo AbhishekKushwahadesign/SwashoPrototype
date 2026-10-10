@@ -61,7 +61,7 @@ function resolveRowAddMode(
     return catalogAddMode === 'select' ? 'select' : 'add';
   }
   if (catalogAddMode === 'select') {
-    return 'tertiary';
+    return 'add';
   }
   return catalogAddMode ?? 'add';
 }

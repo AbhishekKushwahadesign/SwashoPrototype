@@ -16,7 +16,7 @@ type ServiceAddButtonProps = {
 };
 
 export function ServiceAddButton({ mode = 'add', disabled = false, onPress, scale }: ServiceAddButtonProps) {
-  const label = mode === 'add' ? 'ADD' : mode === 'select' ? 'SELECT' : 'Add';
+  const label = mode === 'select' ? 'SELECT' : 'ADD';
   const isTertiary = mode === 'tertiary';
 
   const handlePress = () => {
