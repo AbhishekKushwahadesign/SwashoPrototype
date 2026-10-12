@@ -38,10 +38,10 @@ export function ServiceSheetTitle({
 const styles = StyleSheet.create({
   column: {
     width: '100%',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   title: {
     color: SwashoColors.neutral600,
-    textAlign: 'center',
+    textAlign: 'left',
   },
 });
