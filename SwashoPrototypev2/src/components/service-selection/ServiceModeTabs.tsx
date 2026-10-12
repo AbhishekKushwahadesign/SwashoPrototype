@@ -1,11 +1,4 @@
-import { useCallback, useState } from 'react';
-import {
-  type LayoutChangeEvent,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
@@ -26,13 +19,16 @@ type ServiceModeTabsProps = {
   scale: number;
 };
 
-/** Figma `3458:6203` / `58836:3083` indicator bar widths (px at scale 1). */
+/** Figma indicator row `58836:3082` / bars `3458:6203`, `58836:3083`. */
+const INDICATOR_TRACK_WIDTH = 393;
 const INDICATOR_WIDTH: Record<ServiceMode, number> = {
   single: 126.292,
   multi: 123,
 };
-
-type TabLayout = { x: number; width: number };
+const INDICATOR_LEFT: Record<ServiceMode, number> = {
+  single: 4,
+  multi: 144,
+};
 
 export function ServiceModeTabs({
   mode,
@@ -43,19 +39,8 @@ export function ServiceModeTabs({
   instructionText,
   scale,
 }: ServiceModeTabsProps) {
-  const [tabLayouts, setTabLayouts] = useState<Partial<Record<ServiceMode, TabLayout>>>({});
-
-  const onTabLayout = useCallback((tab: ServiceMode) => (event: LayoutChangeEvent) => {
-    const { x, width } = event.nativeEvent.layout;
-    setTabLayouts((prev) => (prev[tab]?.x === x && prev[tab]?.width === width ? prev : { ...prev, [tab]: { x, width } }));
-  }, []);
-
-  const activeLayout = tabLayouts[mode];
   const indicatorWidth = INDICATOR_WIDTH[mode] * scale;
-  const indicatorLeft =
-    activeLayout != null
-      ? activeLayout.x + (activeLayout.width - indicatorWidth) / 2
-      : undefined;
+  const indicatorLeft = INDICATOR_LEFT[mode] * scale;
 
   const wrapGap = instructionText != null ? 12 * scale : 6 * scale;
 
@@ -66,7 +51,6 @@ export function ServiceModeTabs({
           <Pressable
             accessibilityRole="tab"
             accessibilityState={{ selected: mode === 'single' }}
-            onLayout={onTabLayout('single')}
             onPress={() => onModeChange?.('single')}
             style={[styles.tab, { width: 119 * scale, height: 20 * scale }]}>
             <Text
@@ -82,7 +66,6 @@ export function ServiceModeTabs({
           <Pressable
             accessibilityRole="tab"
             accessibilityState={{ selected: mode === 'multi' }}
-            onLayout={onTabLayout('multi')}
             onPress={() => onModeChange?.('multi')}
             style={[styles.tab, { width: 118 * scale, height: 20 * scale }]}>
             <Text
@@ -98,22 +81,27 @@ export function ServiceModeTabs({
             <PlanPriceToggle enabled={planPriceEnabled} onChange={onPlanPriceChange} scale={scale} />
           ) : null}
         </View>
-        <View style={[styles.indicatorRow, { height: 4 * scale }]}>
-          {indicatorLeft != null ? (
-            <View
-              style={[
-                styles.indicator,
-                {
-                  position: 'absolute',
-                  left: indicatorLeft,
-                  width: indicatorWidth,
-                  height: 4 * scale,
-                  borderTopLeftRadius: SwashoRadii.sm * scale,
-                  borderTopRightRadius: SwashoRadii.sm * scale,
-                },
-              ]}
-            />
-          ) : null}
+        <View
+          style={[
+            styles.indicatorTrack,
+            {
+              width: INDICATOR_TRACK_WIDTH * scale,
+              height: 4 * scale,
+            },
+          ]}>
+          <View
+            style={[
+              styles.indicator,
+              {
+                position: 'absolute',
+                left: indicatorLeft,
+                width: indicatorWidth,
+                height: 4 * scale,
+                borderTopLeftRadius: SwashoRadii.sm * scale,
+                borderTopRightRadius: SwashoRadii.sm * scale,
+              },
+            ]}
+          />
         </View>
       </View>
       {instructionText ? (
@@ -131,6 +119,7 @@ const styles = StyleSheet.create({
   },
   tabBlock: {
     width: '100%',
+    alignItems: 'flex-start',
   },
   tabRow: {
     flexDirection: 'row',
@@ -146,9 +135,9 @@ const styles = StyleSheet.create({
     color: SwashoColors.darkHeaderText,
     textAlign: 'center',
   },
-  indicatorRow: {
-    width: '100%',
+  indicatorTrack: {
     position: 'relative',
+    alignItems: 'flex-start',
   },
   indicator: {
     backgroundColor: SwashoColors.primary600,
