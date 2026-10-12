@@ -15,16 +15,8 @@ export type ServiceCatalogSection = {
   options: ServiceCatalogOption[];
 };
 
-export type ServiceCatalogStandaloneRow = {
-  id: string;
-  title: string;
-  amount: number;
-  titleStyle?: 'semibold' | 'medium';
-};
-
 export const SERVICE_SELECTION_CATALOG: {
   sections: ServiceCatalogSection[];
-  standaloneRows: ServiceCatalogStandaloneRow[];
 } = {
   sections: [
     {
@@ -33,6 +25,7 @@ export const SERVICE_SELECTION_CATALOG: {
       options: [
         { id: 'ironing', title: 'Ironing', amount: 15, titleStyle: 'semibold' },
         { id: 'wash-iron', title: 'Wash & Iron', amount: 49, titleStyle: 'semibold' },
+        { id: 'wash-fold', title: 'Wash & fold', amount: 49, titleStyle: 'semibold' },
       ],
     },
     {
@@ -68,7 +61,6 @@ export const SERVICE_SELECTION_CATALOG: {
       ],
     },
   ],
-  standaloneRows: [{ id: 'wash-fold', title: 'Wash & fold', amount: 49, titleStyle: 'semibold' }],
 };
 
 export const DEFAULT_COMBOS = [
@@ -80,12 +72,12 @@ export const DEFAULT_COMBOS = [
   },
 ] as const;
 
-export function getCatalogOptionById(optionId: string): ServiceCatalogOption | ServiceCatalogStandaloneRow | undefined {
+export function getCatalogOptionById(optionId: string): ServiceCatalogOption | undefined {
   for (const section of SERVICE_SELECTION_CATALOG.sections) {
     const match = section.options.find((option) => option.id === optionId);
     if (match) {
       return match;
     }
   }
-  return SERVICE_SELECTION_CATALOG.standaloneRows.find((row) => row.id === optionId);
+  return undefined;
 }

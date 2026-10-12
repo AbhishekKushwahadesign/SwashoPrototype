@@ -18,7 +18,6 @@ import {
   SERVICE_SELECTION_CATALOG,
   getCatalogOptionById,
   type ServiceCatalogOption,
-  type ServiceCatalogStandaloneRow,
 } from './service-selection-catalog';
 import { ServiceComboDetailCard } from './ServiceComboDetailCard';
 import { ServiceGarmentRow } from './ServiceGarmentRow';
@@ -82,9 +81,7 @@ function resolveGarmentLabel(serviceId: string, providerId?: string, query?: str
   return 'Choose services for garment';
 }
 
-function catalogSubscriptionAmount(
-  option: ServiceCatalogOption | ServiceCatalogStandaloneRow,
-): number | undefined {
+function catalogSubscriptionAmount(option: ServiceCatalogOption): number | undefined {
   return 'subscriptionAmount' in option ? option.subscriptionAmount : undefined;
 }
 
@@ -523,14 +520,6 @@ export function ServiceSelectionScreen({
                   </View>
                 ))}
               </ServiceSelectionCard>
-              {sectionIndex === 0 ? (
-                <>
-                  <ServiceRowDivider variant="solid" width={362} scale={scale} />
-                  {SERVICE_SELECTION_CATALOG.standaloneRows.map((row) =>
-                    renderOptionRow(row.id, row.title, row.amount, undefined, row.titleStyle, 'add'),
-                  )}
-                </>
-              ) : null}
               {sectionIndex < SERVICE_SELECTION_CATALOG.sections.length - 1 ? (
                 <ServiceRowDivider variant="solid" width={389} scale={scale} />
               ) : null}
