@@ -28,6 +28,11 @@ import { ServiceSelectionButton } from './ServiceSelectionButton';
 import { ServiceSelectionCard } from './ServiceSelectionCard';
 import { ServiceSelectionStickyBar } from './ServiceSelectionStickyBar';
 import { ServiceSheetTitle } from './ServiceSheetTitle';
+import {
+  countMultiGarmentItems,
+  countSingleGarmentItems,
+  formatSingleMultiSummary,
+} from './service-selection-assignment-counts';
 import { SheetCloseIcon } from './service-selection-icons';
 
 type ComboLineItem = {
@@ -233,17 +238,29 @@ export function ServiceSelectionScreen({
       serviceCount += 1;
       total += option.amount * qty;
     }
-    const summaryLine = serviceCount > 0 ? `${serviceCount} services` : undefined;
-    return { count, total, serviceCount, summaryLine };
+    return { count, total, serviceCount };
   }, [quantities]);
 
   const hasSingleSelections = singleTotals.serviceCount > 0;
 
+  const garmentAssignmentCounts = useMemo(() => {
+    const singleCount = countSingleGarmentItems(quantities);
+    const multiCount = countMultiGarmentItems(savedCombos);
+    return { singleCount, multiCount };
+  }, [quantities, savedCombos]);
+
+  const assignmentSummaryLine = useMemo(
+    () =>
+      formatSingleMultiSummary(
+        garmentAssignmentCounts.singleCount,
+        garmentAssignmentCounts.multiCount,
+      ),
+    [garmentAssignmentCounts.multiCount, garmentAssignmentCounts.singleCount],
+  );
+
   const multiTotals = useMemo(() => {
     let count = 0;
     let total = 0;
-    let serviceLines = 0;
-    let multiLines = 0;
 
     for (const combo of savedCombos) {
       for (const item of combo.items) {
@@ -252,41 +269,54 @@ export function ServiceSelectionScreen({
         }
         count += item.quantity;
         total += item.amount * item.quantity;
-        multiLines += item.quantity;
       }
     }
 
     if (multiFlow === 'create') {
-      serviceLines = comboDraftIds.length;
+      const draftServiceLines = comboDraftIds.length;
       for (const optionId of comboDraftIds) {
         const option = getCatalogOptionById(optionId);
         if (option) {
           total += option.amount;
         }
       }
-      count = Math.max(count, serviceLines);
+      count = Math.max(count, draftServiceLines);
     }
 
-    const summaryLine =
-      count > 0
-        ? `${serviceLines || count} services + ${multiLines || Math.max(savedCombos.length, 1)} multi`
-        : undefined;
-
-    return { count, total, summaryLine };
+    return { count, total };
   }, [comboDraftIds, multiFlow, savedCombos]);
 
   const showMultiCreate = mode === 'multi' && multiFlow === 'create';
   const showComboList = mode === 'multi' && multiFlow === 'list';
 
   const stickyMetrics = useMemo(() => {
+    let priceBasis;
     if (mode === 'single') {
-      return { ...singleTotals, summaryLine: undefined as string | undefined };
+      priceBasis = singleTotals;
+    } else if (showMultiCreate && hasSingleSelections) {
+      priceBasis = singleTotals;
+    } else {
+      priceBasis = multiTotals;
     }
-    if (showMultiCreate && hasSingleSelections) {
-      return singleTotals;
-    }
-    return multiTotals;
-  }, [hasSingleSelections, mode, multiTotals, showMultiCreate, singleTotals]);
+
+    const assignmentItemCount =
+      garmentAssignmentCounts.singleCount + garmentAssignmentCounts.multiCount;
+
+    return {
+      count: assignmentItemCount > 0 ? assignmentItemCount : priceBasis.count,
+      total: priceBasis.total,
+      summaryLine: assignmentSummaryLine,
+    };
+  }, [
+    assignmentSummaryLine,
+    garmentAssignmentCounts.multiCount,
+    garmentAssignmentCounts.singleCount,
+    hasSingleSelections,
+    mode,
+    multiTotals,
+    showMultiCreate,
+    singleTotals,
+  ]);
 
   const instructionText =
     mode === 'single'
