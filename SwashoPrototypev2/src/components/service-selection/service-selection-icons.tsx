@@ -1,5 +1,5 @@
 import type { StyleProp, ViewStyle } from 'react-native';
-import { SvgXml } from 'react-native-svg';
+import Svg, { Path, SvgXml } from 'react-native-svg';
 
 import { AddSquareIcon, ChevronDownIcon } from '@/components/provider-page/provider-page-icons';
 import { SwashoColors } from '@/constants/swasho-tokens';
@@ -58,14 +58,21 @@ export function CounterAddSquareIcon({
   return <SvgXml xml={counterAddSquareXml(tone)} width={width} height={height} style={style} />;
 }
 
-const MoneyTagIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g id="Bold / Money / Tag">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M1.76887 10.68C2.00849 11.5155 2.65246 12.1595 3.9404 13.4474L5.4651 14.9721C7.70592 17.2129 8.82633 18.3333 10.2186 18.3333C11.6109 18.3333 12.7313 17.2129 14.9721 14.9721C17.2129 12.7313 18.3333 11.6109 18.3333 10.2186C18.3333 8.82633 17.2129 7.70592 14.9721 5.4651L13.4474 3.9404C12.1595 2.65246 11.5155 2.00849 10.68 1.76887C9.84447 1.52925 8.95708 1.73403 7.18229 2.14359L6.15881 2.37978C4.66567 2.72435 3.9191 2.89664 3.40787 3.40787C2.89664 3.9191 2.72435 4.66567 2.37978 6.15881L2.14359 7.18229C1.73403 8.95708 1.52925 9.84447 1.76887 10.68ZM8.43616 6.05915C9.09248 6.71547 9.09248 7.77958 8.43616 8.4359C7.77984 9.09222 6.71573 9.09222 6.05941 8.4359C5.40309 7.77958 5.40309 6.71547 6.05941 6.05915C6.71573 5.40282 7.77984 5.40282 8.43616 6.05915ZM15.8759 10.0426L10.0601 15.8586C9.816 16.1027 9.42027 16.1027 9.17619 15.8586C8.93211 15.6145 8.9321 15.2188 9.17617 14.9747L14.992 9.15869C15.2361 8.91461 15.6318 8.9146 15.8759 9.15868C16.12 9.40275 16.12 9.79848 15.8759 10.0426Z" fill="${SwashoColors.primary600}"/>
-</g>
-</svg>`;
+/** Figma Bold / Money / Tag (3458:6194) — Path uses evenodd; SvgXml ignores kebab-case fill-rule on web. */
+const MONEY_TAG_PATH =
+  'M1.76887 10.68C2.00849 11.5155 2.65246 12.1595 3.9404 13.4474L5.4651 14.9721C7.70592 17.2129 8.82633 18.3333 10.2186 18.3333C11.6109 18.3333 12.7313 17.2129 14.9721 14.9721C17.2129 12.7313 18.3333 11.6109 18.3333 10.2186C18.3333 8.82633 17.2129 7.70592 14.9721 5.4651L13.4474 3.9404C12.1595 2.65246 11.5155 2.00849 10.68 1.76887C9.84447 1.52925 8.95708 1.73403 7.18229 2.14359L6.15881 2.37978C4.66567 2.72435 3.9191 2.89664 3.40787 3.40787C2.89664 3.9191 2.72435 4.66567 2.37978 6.15881L2.14359 7.18229C1.73403 8.95708 1.52925 9.84447 1.76887 10.68ZM8.43616 6.05915C9.09248 6.71547 9.09248 7.77958 8.43616 8.4359C7.77984 9.09222 6.71573 9.09222 6.05941 8.4359C5.40309 7.77958 5.40309 6.71547 6.05941 6.05915C6.71573 5.40282 7.77984 5.40282 8.43616 6.05915ZM15.8759 10.0426L10.0601 15.8586C9.816 16.1027 9.42027 16.1027 9.17619 15.8586C8.93211 15.6145 8.9321 15.2188 9.17617 14.9747L14.992 9.15869C15.2361 8.91461 15.6318 8.9146 15.8759 9.15868C16.12 9.40275 16.12 9.79848 15.8759 10.0426Z';
 
 export function MoneyTagIcon({ width, height, style }: IconProps) {
-  return <SvgXml xml={MoneyTagIconXml} width={width} height={height} style={style} />;
+  return (
+    <Svg width={width} height={height} viewBox="0 0 20 20" fill="none" style={style}>
+      <Path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d={MONEY_TAG_PATH}
+        fill={SwashoColors.primary600}
+      />
+    </Svg>
+  );
 }
 
 const InfoCircleIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
