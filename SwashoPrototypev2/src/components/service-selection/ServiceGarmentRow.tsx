@@ -20,6 +20,7 @@ type ServiceGarmentRowProps = {
   addMode?: 'add' | 'select' | 'tertiary';
   addSelected?: boolean;
   titleFontSize?: 14 | 15 | 16;
+  titleNumberOfLines?: number;
   disabled?: boolean;
   onAddPress?: () => void;
   onIncrement?: () => void;
@@ -38,6 +39,7 @@ export function ServiceGarmentRow({
   addMode = 'add',
   addSelected = false,
   titleFontSize,
+  titleNumberOfLines,
   disabled = false,
   onAddPress,
   onIncrement,
@@ -83,6 +85,8 @@ export function ServiceGarmentRow({
       ]}>
       <View style={[styles.content, { gap: 12 * scale }]}>
         <Text
+          numberOfLines={titleNumberOfLines}
+          ellipsizeMode={titleNumberOfLines != null ? 'tail' : undefined}
           style={[
             titleStyle === 'semibold' ? searchFont('semibold') : searchFont('medium'),
             styles.title,
@@ -91,6 +95,7 @@ export function ServiceGarmentRow({
               lineHeight: (titleStyle === 'semibold' ? 14 : resolvedTitleSize >= 16 ? 14 : 12) * scale,
               letterSpacing: titleStyle === 'semibold' ? 0.3 * scale : 0.5 * scale,
               color: titleColor,
+              alignSelf: titleNumberOfLines != null ? 'stretch' : undefined,
             },
           ]}>
           {title}

@@ -33,6 +33,7 @@ import {
   countSingleGarmentItems,
   formatSingleMultiSummary,
 } from './service-selection-assignment-counts';
+import { formatComboLabel, sumComboUnitAmount } from './service-selection-combo';
 import { SheetCloseIcon } from './service-selection-icons';
 
 type ComboLineItem = {
@@ -405,15 +406,54 @@ export function ServiceSelectionScreen({
         <View style={[styles.listBlock, { gap: 20 * scale, paddingHorizontal: 16 * scale }]}>
           {savedCombos.map((combo, comboIndex) => {
             const expanded = isSectionExpanded(combo.id);
+            const comboLabel = formatComboLabel(combo.items.map((item) => item.title));
+            const comboUnitTotal = sumComboUnitAmount(combo.items);
+            const summaryHasQuantity = combo.items.some((item) => item.quantity > 0);
+            const summaryQuantity = combo.items.reduce(
+              (max, item) => (item.quantity > max ? item.quantity : max),
+              0,
+            );
+            const firstItemId = combo.items[0]?.optionId;
+
             return (
               <View key={combo.id} style={{ gap: 16 * scale, width: '100%', alignItems: 'center' }}>
                 <ServiceSelectionCard
                   title={combo.title}
-                  state="expanded"
+                  state="default"
+                  headerVariant="category"
                   expanded={expanded}
                   onToggle={() => toggleSection(combo.id)}
-                  scale={scale}>
-                  {combo.items.map((item, itemIndex) => {
+                  scale={scale}
+                  headerAccessory={
+                    !expanded ? (
+                      <ServiceGarmentRow
+                        title={comboLabel}
+                        amount={comboUnitTotal}
+                        unit="pc"
+                        titleNumberOfLines={1}
+                        onAddPress={
+                          firstItemId
+                            ? () => incrementComboLine(combo.id, firstItemId)
+                            : undefined
+                        }
+                        state={summaryHasQuantity ? 'quantity' : 'idle'}
+                        quantity={summaryQuantity}
+                        onIncrement={
+                          firstItemId
+                            ? () => incrementComboLine(combo.id, firstItemId)
+                            : undefined
+                        }
+                        onDecrement={
+                          firstItemId
+                            ? () => decrementComboLine(combo.id, firstItemId)
+                            : undefined
+                        }
+                        scale={scale}
+                      />
+                    ) : null
+                  }>
+                  {expanded
+                    ? combo.items.map((item, itemIndex) => {
                     const qty = item.quantity;
                     const showDetail = qty > 0;
                     return (
@@ -444,7 +484,8 @@ export function ServiceSelectionScreen({
                         ) : null}
                       </View>
                     );
-                  })}
+                  })
+                    : null}
                 </ServiceSelectionCard>
                 {comboIndex < savedCombos.length - 1 ? (
                   <ServiceRowDivider variant="solid" width={389} scale={scale} />
