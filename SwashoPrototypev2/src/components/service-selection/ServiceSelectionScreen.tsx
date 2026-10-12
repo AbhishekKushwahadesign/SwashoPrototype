@@ -81,10 +81,6 @@ function resolveGarmentLabel(serviceId: string, providerId?: string, query?: str
   return 'Choose services for garment';
 }
 
-function catalogSubscriptionAmount(option: ServiceCatalogOption): number | undefined {
-  return 'subscriptionAmount' in option ? option.subscriptionAmount : undefined;
-}
-
 function garmentInstruction(serviceId: string) {
   const noun = serviceId.includes('trouser')
     ? 'trouser'
@@ -111,7 +107,6 @@ export function ServiceSelectionScreen({
 
   const [mode, setMode] = useState<ServiceMode>('single');
   const [multiFlow, setMultiFlow] = useState<MultiFlow>('list');
-  const [planPriceEnabled, setPlanPriceEnabled] = useState(false);
   const [sectionExpanded, setSectionExpanded] = useState<Record<string, boolean>>({});
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [comboDraftIds, setComboDraftIds] = useState<string[]>([]);
@@ -130,16 +125,6 @@ export function ServiceSelectionScreen({
       [sectionId]: !(prev[sectionId] ?? true),
     }));
   }, []);
-
-  const getUnitPrice = useCallback(
-    (optionId: string, baseAmount: number, subscriptionAmount?: number) => {
-      if (planPriceEnabled && subscriptionAmount != null) {
-        return subscriptionAmount;
-      }
-      return baseAmount;
-    },
-    [planPriceEnabled],
-  );
 
   const incrementQuantity = useCallback((optionId: string) => {
     setQuantities((prev) => ({ ...prev, [optionId]: (prev[optionId] ?? 0) + 1 }));
@@ -244,14 +229,13 @@ export function ServiceSelectionScreen({
       if (!option) {
         continue;
       }
-      const unit = getUnitPrice(optionId, option.amount, catalogSubscriptionAmount(option));
       count += qty;
       serviceCount += 1;
-      total += unit * qty;
+      total += option.amount * qty;
     }
     const summaryLine = serviceCount > 0 ? `${serviceCount} services` : undefined;
     return { count, total, serviceCount, summaryLine };
-  }, [getUnitPrice, quantities]);
+  }, [quantities]);
 
   const hasSingleSelections = singleTotals.serviceCount > 0;
 
@@ -277,7 +261,7 @@ export function ServiceSelectionScreen({
       for (const optionId of comboDraftIds) {
         const option = getCatalogOptionById(optionId);
         if (option) {
-          total += getUnitPrice(optionId, option.amount, catalogSubscriptionAmount(option));
+          total += option.amount;
         }
       }
       count = Math.max(count, serviceLines);
@@ -289,7 +273,7 @@ export function ServiceSelectionScreen({
         : undefined;
 
     return { count, total, summaryLine };
-  }, [comboDraftIds, getUnitPrice, multiFlow, savedCombos]);
+  }, [comboDraftIds, multiFlow, savedCombos]);
 
   const showMultiCreate = mode === 'multi' && multiFlow === 'create';
   const showComboList = mode === 'multi' && multiFlow === 'list';
@@ -332,21 +316,18 @@ export function ServiceSelectionScreen({
     optionId: string,
     title: string,
     amount: number,
-    subscriptionAmount?: number,
     titleStyle: 'semibold' | 'medium' = 'semibold',
     addMode: 'add' | 'select' | 'tertiary' = 'add',
     titleFontSize?: 14 | 15 | 16,
   ) => {
     const qty = quantities[optionId] ?? 0;
-    const unit = getUnitPrice(optionId, amount, subscriptionAmount);
 
     return (
       <ServiceGarmentRow
         key={optionId}
         title={title}
-        amount={unit}
+        amount={amount}
         unit="pc"
-        subscriptionAmount={planPriceEnabled ? undefined : subscriptionAmount}
         titleStyle={titleStyle}
         titleFontSize={titleFontSize}
         state={qty > 0 ? 'quantity' : 'idle'}
@@ -364,12 +345,10 @@ export function ServiceSelectionScreen({
     optionId: string,
     title: string,
     amount: number,
-    subscriptionAmount?: number,
     titleStyle: 'semibold' | 'medium' = 'semibold',
     titleFontSize?: 14 | 15 | 16,
   ) => {
     const selected = comboDraftIds.includes(optionId);
-    const unit = getUnitPrice(optionId, amount, subscriptionAmount);
 
     return (
       <View
@@ -377,9 +356,8 @@ export function ServiceSelectionScreen({
         style={selected ? [styles.selectedRow, { borderRadius: SwashoRadii.md * scale }] : undefined}>
         <ServiceGarmentRow
           title={title}
-          amount={unit}
+          amount={amount}
           unit="pc"
-          subscriptionAmount={planPriceEnabled ? undefined : subscriptionAmount}
           titleStyle={titleStyle}
           titleFontSize={titleFontSize}
           addMode="select"
@@ -462,31 +440,15 @@ export function ServiceSelectionScreen({
       optionId: string,
       title: string,
       amount: number,
-      subscriptionAmount?: number,
       titleStyle: 'semibold' | 'medium' = 'semibold',
       catalogAddMode?: 'add' | 'select',
       titleFontSize?: 14 | 15 | 16,
     ) => {
       const rowAddMode = resolveRowAddMode(mode, catalogAddMode);
       if (mode === 'single') {
-        return renderSingleRow(
-          optionId,
-          title,
-          amount,
-          subscriptionAmount,
-          titleStyle,
-          rowAddMode,
-          titleFontSize,
-        );
+        return renderSingleRow(optionId, title, amount, titleStyle, rowAddMode, titleFontSize);
       }
-      return renderMultiCreateRow(
-        optionId,
-        title,
-        amount,
-        subscriptionAmount,
-        titleStyle,
-        titleFontSize,
-      );
+      return renderMultiCreateRow(optionId, title, amount, titleStyle, titleFontSize);
     };
 
     const optionRowGap = mode === 'multi' && multiFlow === 'create' ? 16 : 20;
@@ -499,7 +461,7 @@ export function ServiceSelectionScreen({
             <View key={section.id} style={{ gap: 16 * scale, width: '100%', alignItems: 'center' }}>
               <ServiceSelectionCard
                 title={section.title}
-                headerVariant={section.headerVariant === 'emphasis' ? 'emphasis' : 'category'}
+                headerVariant="category"
                 expanded={expanded}
                 onToggle={() => toggleSection(section.id)}
                 scale={scale}>
@@ -511,7 +473,6 @@ export function ServiceSelectionScreen({
                       option.id,
                       option.title,
                       option.amount,
-                      option.subscriptionAmount,
                       option.titleStyle,
                       option.addMode,
                       option.titleFontSize,
@@ -581,9 +542,6 @@ export function ServiceSelectionScreen({
           <ServiceModeTabs
             mode={mode}
             onModeChange={handleModeChange}
-            showPlanPriceToggle={showComboList}
-            planPriceEnabled={planPriceEnabled}
-            onPlanPriceChange={setPlanPriceEnabled}
             instructionText={nestedMultiCreateInstruction}
             scale={scale}
           />

@@ -2,7 +2,6 @@ export type ServiceCatalogOption = {
   id: string;
   title: string;
   amount: number;
-  subscriptionAmount?: number;
   titleStyle?: 'semibold' | 'medium';
   titleFontSize?: 14 | 15 | 16;
   addMode?: 'add' | 'select';
@@ -11,7 +10,6 @@ export type ServiceCatalogOption = {
 export type ServiceCatalogSection = {
   id: string;
   title: string;
-  headerVariant?: 'category' | 'emphasis';
   options: ServiceCatalogOption[];
 };
 
@@ -33,31 +31,14 @@ export const SERVICE_SELECTION_CATALOG: {
       title: 'Special Care',
       options: [
         { id: 'dry-cleaning', title: 'Dry Cleaning', amount: 49, titleStyle: 'semibold', addMode: 'select' },
-        {
-          id: 'stain-removal',
-          title: 'Stain removal',
-          amount: 49,
-          subscriptionAmount: 39,
-          titleStyle: 'medium',
-          titleFontSize: 14,
-          addMode: 'select',
-        },
+        { id: 'stain-removal', title: 'Stain removal', amount: 49, titleStyle: 'semibold', addMode: 'select' },
       ],
     },
     {
       id: 'pressing',
       title: 'Pressing',
-      headerVariant: 'emphasis',
       options: [
-        {
-          id: 'pressing-ironing',
-          title: 'Ironing',
-          amount: 49,
-          subscriptionAmount: 39,
-          titleStyle: 'medium',
-          titleFontSize: 16,
-          addMode: 'select',
-        },
+        { id: 'pressing-ironing', title: 'Ironing', amount: 49, titleStyle: 'semibold', addMode: 'select' },
       ],
     },
   ],

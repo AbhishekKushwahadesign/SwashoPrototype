@@ -11,7 +11,6 @@ type ServiceComboDetailCardProps = {
   title: string;
   amount: number | string;
   unit?: string;
-  subscriptionAmount?: number | string;
   quantity: number;
   imageUri?: string | null;
   pickupPersonChecked: boolean;
@@ -27,7 +26,6 @@ export function ServiceComboDetailCard({
   title,
   amount,
   unit,
-  subscriptionAmount,
   quantity,
   imageUri,
   pickupPersonChecked,
@@ -44,7 +42,6 @@ export function ServiceComboDetailCard({
         title={title}
         amount={amount}
         unit={unit}
-        subscriptionAmount={subscriptionAmount}
         state="quantity"
         quantity={quantity}
         disabled={disabled}

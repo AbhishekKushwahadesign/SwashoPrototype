@@ -14,7 +14,6 @@ type ServiceGarmentRowProps = {
   title: string;
   amount: number | string;
   unit?: string;
-  subscriptionAmount?: number | string;
   titleStyle?: 'semibold' | 'medium';
   state?: ServiceGarmentRowState;
   quantity?: number;
@@ -33,7 +32,6 @@ export function ServiceGarmentRow({
   title,
   amount,
   unit,
-  subscriptionAmount,
   titleStyle = 'semibold',
   state = 'idle',
   quantity = 0,
@@ -51,7 +49,7 @@ export function ServiceGarmentRow({
     titleFontSize ?? (titleStyle === 'semibold' ? 15 : titleStyle === 'medium' ? 14 : 15);
   const titleColor =
     titleStyle === 'semibold' ? SwashoColors.neutral950 : SwashoColors.neutral900;
-  const priceVariant = resolvedTitleSize >= 16 ? 'default' : 'compact';
+  const priceVariant = 'compact';
 
   const trailingNode =
     trailing ??
@@ -97,13 +95,7 @@ export function ServiceGarmentRow({
           ]}>
           {title}
         </Text>
-        <ServicePriceDisplay
-          amount={amount}
-          unit={unit}
-          subscriptionAmount={subscriptionAmount}
-          titleVariant={priceVariant}
-          scale={scale}
-        />
+        <ServicePriceDisplay amount={amount} unit={unit} titleVariant={priceVariant} scale={scale} />
       </View>
       {trailingNode}
     </View>
