@@ -425,24 +425,26 @@ export function ServiceSelectionScreen({
                   onToggle={() => toggleSection(combo.id)}
                   scale={scale}
                   headerAccessory={
-                    <ServiceGarmentRow
-                      title={comboLabel}
-                      amount={comboUnitTotal}
-                      unit="pc"
-                      titleNumberOfLines={1}
-                      onAddPress={
-                        firstItemId ? () => incrementComboLine(combo.id, firstItemId) : undefined
-                      }
-                      state={summaryHasQuantity ? 'quantity' : 'idle'}
-                      quantity={summaryQuantity}
-                      onIncrement={
-                        firstItemId ? () => incrementComboLine(combo.id, firstItemId) : undefined
-                      }
-                      onDecrement={
-                        firstItemId ? () => decrementComboLine(combo.id, firstItemId) : undefined
-                      }
-                      scale={scale}
-                    />
+                    expanded ? (
+                      <ServiceGarmentRow
+                        title={comboLabel}
+                        amount={comboUnitTotal}
+                        unit="pc"
+                        titleNumberOfLines={1}
+                        onAddPress={
+                          firstItemId ? () => incrementComboLine(combo.id, firstItemId) : undefined
+                        }
+                        state={summaryHasQuantity ? 'quantity' : 'idle'}
+                        quantity={summaryQuantity}
+                        onIncrement={
+                          firstItemId ? () => incrementComboLine(combo.id, firstItemId) : undefined
+                        }
+                        onDecrement={
+                          firstItemId ? () => decrementComboLine(combo.id, firstItemId) : undefined
+                        }
+                        scale={scale}
+                      />
+                    ) : null
                   }>
                   {expanded && summaryHasQuantity ? (
                     <ServiceComboDetailCard

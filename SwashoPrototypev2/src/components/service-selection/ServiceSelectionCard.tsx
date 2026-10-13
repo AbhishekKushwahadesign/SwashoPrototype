@@ -13,7 +13,7 @@ type ServiceSelectionCardProps = {
   headerVariant?: ServiceSectionHeaderVariant;
   expanded?: boolean;
   onToggle?: () => void;
-  /** Shown above expandable body; visible when collapsed (e.g. combo summary row). */
+  /** Shown below header when expanded (e.g. combo summary row). */
   headerAccessory?: ReactNode;
   children?: ReactNode;
   scale: number;
