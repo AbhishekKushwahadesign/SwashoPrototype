@@ -72,14 +72,19 @@ function OfferText({ provider, scale }: { provider: ProviderResult; scale: numbe
   );
 }
 
+/** Figma 3346:10697 — Top Quality Tag gradient */
+const TOP_PICKS_GRADIENT_COLORS = ['#FFFFFF', '#E9E8FF', '#FFFFFF'] as const;
+const TOP_PICKS_GRADIENT_LOCATIONS = [0.096687, 0.19834, 1] as const;
+
 function TopPicksTag({ scale }: { scale: number }) {
-  return (
-    <LinearGradient
-      colors={['#ffffff', SwashoColors.primary100, '#ffffff']}
-      locations={[0.096687, 0.19834, 1]}
-      start={{ x: 0, y: 0.5 }}
-      end={{ x: 1, y: 0.5 }}
-      style={[styles.topPicksTag, { paddingHorizontal: 4 * scale, paddingVertical: 1 * scale, minWidth: 75 * scale }]}>
+  const tagStyle = [
+    styles.topPicksTag,
+    { paddingHorizontal: 4 * scale, paddingVertical: 1 * scale, minWidth: 75 * scale },
+    Platform.OS === 'web' ? styles.topPicksTagGradientWeb : null,
+  ];
+
+  const content = (
+    <>
       <View
         style={[
           styles.topPicksBadgeWrap,
@@ -109,6 +114,21 @@ function TopPicksTag({ scale }: { scale: number }) {
         ]}>
         Top Picks
       </Text>
+    </>
+  );
+
+  if (Platform.OS === 'web') {
+    return <View style={tagStyle}>{content}</View>;
+  }
+
+  return (
+    <LinearGradient
+      colors={[...TOP_PICKS_GRADIENT_COLORS]}
+      locations={[...TOP_PICKS_GRADIENT_LOCATIONS]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 0 }}
+      style={tagStyle}>
+      {content}
     </LinearGradient>
   );
 }
@@ -874,6 +894,11 @@ const styles = StyleSheet.create({
     gap: 4,
     borderRadius: SwashoRadii.sm,
     alignSelf: 'flex-start',
+    overflow: 'hidden',
+  },
+  topPicksTagGradientWeb: {
+    backgroundImage:
+      'linear-gradient(90.27deg, #FFFFFF 9.6687%, #E9E8FF 19.834%, #FFFFFF 109.62%)',
   },
   topPicksBadgeWrap: {
     alignItems: 'center',
@@ -995,6 +1020,7 @@ const styles = StyleSheet.create({
   gridToggleRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexShrink: 0,
   },
   gridToggleLabel: {
     color: SwashoColors.darkText,
