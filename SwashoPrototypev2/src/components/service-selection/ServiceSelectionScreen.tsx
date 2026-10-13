@@ -33,7 +33,11 @@ import {
   countSingleGarmentItems,
   formatSingleMultiSummary,
 } from './service-selection-assignment-counts';
-import { formatComboLabel, sumComboUnitAmount } from './service-selection-combo';
+import {
+  formatComboLabel,
+  getComboGarmentQuantity,
+  sumComboUnitAmount,
+} from './service-selection-combo';
 import { SheetCloseIcon } from './service-selection-icons';
 
 type ComboLineItem = {
@@ -153,37 +157,31 @@ export function ServiceSelectionScreen({
     );
   }, []);
 
-  const incrementComboLine = useCallback((comboId: string, optionId: string) => {
+  const incrementComboGarment = useCallback((comboId: string) => {
     setSavedCombos((prev) =>
       prev.map((combo) => {
         if (combo.id !== comboId) {
           return combo;
         }
+        const nextQty = getComboGarmentQuantity(combo.items) + 1;
         return {
           ...combo,
-          items: combo.items.map((item) =>
-            item.optionId === optionId ? { ...item, quantity: item.quantity + 1 } : item,
-          ),
+          items: combo.items.map((item) => ({ ...item, quantity: nextQty })),
         };
       }),
     );
   }, []);
 
-  const decrementComboLine = useCallback((comboId: string, optionId: string) => {
+  const decrementComboGarment = useCallback((comboId: string) => {
     setSavedCombos((prev) =>
       prev.map((combo) => {
         if (combo.id !== comboId) {
           return combo;
         }
+        const nextQty = Math.max(0, getComboGarmentQuantity(combo.items) - 1);
         return {
           ...combo,
-          items: combo.items.map((item) => {
-            if (item.optionId !== optionId) {
-              return item;
-            }
-            const nextQty = Math.max(0, item.quantity - 1);
-            return { ...item, quantity: nextQty };
-          }),
+          items: combo.items.map((item) => ({ ...item, quantity: nextQty })),
         };
       }),
     );
@@ -264,13 +262,12 @@ export function ServiceSelectionScreen({
     let total = 0;
 
     for (const combo of savedCombos) {
-      for (const item of combo.items) {
-        if (item.quantity <= 0) {
-          continue;
-        }
-        count += item.quantity;
-        total += item.amount * item.quantity;
+      const comboQty = getComboGarmentQuantity(combo.items);
+      if (comboQty <= 0) {
+        continue;
       }
+      count += comboQty;
+      total += sumComboUnitAmount(combo.items) * comboQty;
     }
 
     if (multiFlow === 'create') {
@@ -409,17 +406,13 @@ export function ServiceSelectionScreen({
             const comboLabel = formatComboLabel(combo.items.map((item) => item.title));
             const comboUnitTotal = sumComboUnitAmount(combo.items);
             const summaryHasQuantity = combo.items.some((item) => item.quantity > 0);
-            const summaryQuantity = combo.items.reduce(
-              (max, item) => (item.quantity > max ? item.quantity : max),
-              0,
-            );
-            const firstItemId = combo.items[0]?.optionId;
+            const summaryQuantity = getComboGarmentQuantity(combo.items);
 
             return (
               <View key={combo.id} style={{ gap: 16 * scale, width: '100%', alignItems: 'center' }}>
                 <ServiceSelectionCard
                   title={combo.title}
-                  state="default"
+                  state={summaryHasQuantity ? 'selected' : 'default'}
                   headerVariant="category"
                   expanded={expanded}
                   onToggle={() => toggleSection(combo.id)}
@@ -431,9 +424,7 @@ export function ServiceSelectionScreen({
                         amount={comboUnitTotal}
                         unit="pc"
                         titleNumberOfLines={1}
-                        onAddPress={
-                          firstItemId ? () => incrementComboLine(combo.id, firstItemId) : undefined
-                        }
+                        onAddPress={() => incrementComboGarment(combo.id)}
                         scale={scale}
                       />
                     ) : null
@@ -445,12 +436,8 @@ export function ServiceSelectionScreen({
                       unit="pc"
                       quantity={summaryQuantity}
                       pickupPersonChecked={pickupPersonChecked}
-                      onIncrement={
-                        firstItemId ? () => incrementComboLine(combo.id, firstItemId) : undefined
-                      }
-                      onDecrement={
-                        firstItemId ? () => decrementComboLine(combo.id, firstItemId) : undefined
-                      }
+                      onIncrement={() => incrementComboGarment(combo.id)}
+                      onDecrement={() => decrementComboGarment(combo.id)}
                       onPickupPersonChange={setPickupPersonChecked}
                       scale={scale}
                     />
