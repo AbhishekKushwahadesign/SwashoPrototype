@@ -6,18 +6,18 @@ type SavedCombo = {
   items: ComboLineItem[];
 };
 
-/** Garment pieces on single services (one garment line; no double-count across service options). */
+/** Sum of single-service line quantities (each service × qty counts toward Single). */
 export function countSingleGarmentItems(quantities: Record<string, number>): number {
-  let maxQty = 0;
+  let total = 0;
   for (const qty of Object.values(quantities)) {
-    if (qty > maxQty) {
-      maxQty = qty;
+    if (qty > 0) {
+      total += qty;
     }
   }
-  return maxQty;
+  return total;
 }
 
-/** Garment pieces assigned to saved multi-service combos (per combo: max line qty). */
+/** Sum of garment quantities per saved combo (one combo row = max line qty, not # of services in combo). */
 export function countMultiGarmentItems(savedCombos: SavedCombo[]): number {
   let total = 0;
   for (const combo of savedCombos) {
