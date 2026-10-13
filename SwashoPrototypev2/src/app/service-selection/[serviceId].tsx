@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 
 import { ServiceSelectionScreen } from '@/components/service-selection/ServiceSelectionScreen';
 
@@ -38,5 +38,17 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: 'transparent',
+    ...Platform.select({
+      web: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        width: '100%',
+        minHeight: '100%',
+      },
+      default: {},
+    }),
   },
 });

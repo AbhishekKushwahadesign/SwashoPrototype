@@ -28,6 +28,8 @@ export const SwashoColors = {
   promiseChipBorder: '#ededed',
   statusTime: '#e6e6e6',
   homeIndicator: '#333333',
+  /** Dimmed overlay between provider page and bottom sheets (Figma 3346:11182). */
+  modalScrim: 'rgba(0, 0, 0, 0.35)',
 } as const;
 
 export const SwashoRadii = {

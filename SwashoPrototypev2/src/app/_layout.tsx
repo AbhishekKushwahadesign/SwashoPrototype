@@ -50,6 +50,7 @@ export default function RootLayout() {
           presentation: 'transparentModal',
           animation: 'fade',
           contentStyle: { backgroundColor: 'transparent' },
+          cardStyle: { backgroundColor: 'transparent' },
         }}
       />
     </Stack>

@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { ProviderPageModalShell } from '@/components/common/ProviderPageModalShell';
 import { useScreenScale } from '@/components/home/scale';
 import { getProviderGarmentName } from '@/data/providers';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
@@ -478,13 +479,7 @@ export function ServiceSelectionScreen({
   const sheetMaxHeight = Math.min(contentHeight * 0.92, 600 * scale);
 
   return (
-    <View style={styles.root}>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Dismiss service selection"
-        onPress={onClose}
-        style={styles.overlay}
-      />
+    <ProviderPageModalShell onDismiss={onClose}>
       <View style={[styles.sheetColumn, { width: contentWidth, paddingBottom: insets.bottom }]}>
         <Pressable
           accessibilityRole="button"
@@ -589,21 +584,13 @@ export function ServiceSelectionScreen({
           </View>
         </View>
       </View>
-    </View>
+    </ProviderPageModalShell>
   );
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: 'transparent',
-  },
-  overlay: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(0, 0, 0, 0.35)',
-  },
   sheetColumn: {
-    flex: 1,
+    width: '100%',
     justifyContent: 'flex-end',
     alignItems: 'center',
   },

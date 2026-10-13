@@ -8,6 +8,7 @@ export default function ServiceSelectionLayout() {
         presentation: 'transparentModal',
         animation: 'fade',
         contentStyle: { backgroundColor: 'transparent' },
+        cardStyle: { backgroundColor: 'transparent' },
       }}
     />
   );
