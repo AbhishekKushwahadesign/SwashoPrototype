@@ -120,7 +120,6 @@ export function ServiceSelectionScreen({
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [comboDraftIds, setComboDraftIds] = useState<string[]>([]);
   const [savedCombos, setSavedCombos] = useState<SavedCombo[]>([]);
-  const [stickyBarHeight, setStickyBarHeight] = useState(0);
 
   const isSectionExpanded = useCallback(
     (sectionId: string) => sectionExpanded[sectionId] ?? true,
@@ -314,10 +313,6 @@ export function ServiceSelectionScreen({
       setComboDraftIds([]);
       setMultiFlow(savedCombos.length > 0 ? 'list' : 'create');
     }
-  };
-
-  const onStickyLayout = (event: LayoutChangeEvent) => {
-    setStickyBarHeight(event.nativeEvent.layout.height);
   };
 
   const renderSingleRow = (
@@ -529,7 +524,7 @@ export function ServiceSelectionScreen({
               borderTopLeftRadius: SwashoRadii.xl * scale,
               borderTopRightRadius: SwashoRadii.xl * scale,
               paddingTop: 24 * scale,
-              paddingBottom: 20 * scale,
+              paddingBottom: 0,
               gap: 20 * scale,
             },
           ]}>
@@ -552,39 +547,41 @@ export function ServiceSelectionScreen({
             style={[styles.scroll, Platform.OS === 'web' ? styles.scrollWeb : null]}
             contentContainerStyle={{
               gap: 16 * scale,
-              paddingBottom: stickyBarHeight + (showCreateComboCta ? 53 * scale : 0) + 16 * scale,
+              paddingBottom: 16 * scale,
             }}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled">
             {renderCatalogBody()}
           </ScrollView>
 
-          {showCreateComboCta ? (
-            <ServiceSelectionButton
-              label="Add as combo"
-              variant={comboDraftIds.length >= 2 ? 'primary' : 'secondary'}
-              disabled={comboDraftIds.length < 2}
-              onPress={handleAddCombo}
-              scale={scale}
-              style={{
-                width: 380 * scale,
-                alignSelf: 'center',
-                marginBottom: showMultiCreateSticky ? 8 * scale : 0,
-              }}
-            />
-          ) : null}
-
-          {showMultiCreateSticky || mode === 'single' || showComboList ? (
-            <View onLayout={onStickyLayout} style={styles.stickyWrap}>
-              <ServiceSelectionStickyBar
-                itemCount={stickyMetrics.count}
-                summaryLine={stickyMetrics.summaryLine}
-                totalPrice={stickyMetrics.count > 0 ? stickyMetrics.total : undefined}
-                onConfirm={onClose}
+          <View style={styles.sheetFooter}>
+            {showCreateComboCta ? (
+              <ServiceSelectionButton
+                label="Add as combo"
+                variant={comboDraftIds.length >= 2 ? 'primary' : 'secondary'}
+                disabled={comboDraftIds.length < 2}
+                onPress={handleAddCombo}
                 scale={scale}
+                style={{
+                  width: 380 * scale,
+                  alignSelf: 'center',
+                  marginBottom: showMultiCreateSticky ? 8 * scale : 0,
+                }}
               />
-            </View>
-          ) : null}
+            ) : null}
+
+            {showMultiCreateSticky || mode === 'single' || showComboList ? (
+              <View style={[styles.stickyWrap, { paddingBottom: 20 * scale }]}>
+                <ServiceSelectionStickyBar
+                  itemCount={stickyMetrics.count}
+                  summaryLine={stickyMetrics.summaryLine}
+                  totalPrice={stickyMetrics.count > 0 ? stickyMetrics.total : undefined}
+                  onConfirm={onClose}
+                  scale={scale}
+                />
+              </View>
+            ) : null}
+          </View>
         </View>
       </View>
     </View>
@@ -613,10 +610,15 @@ const styles = StyleSheet.create({
   sheet: {
     backgroundColor: SwashoColors.surface,
     overflow: 'hidden',
+    flexDirection: 'column',
+  },
+  sheetFooter: {
+    width: '100%',
+    marginTop: 'auto',
   },
   scroll: {
-    flexGrow: 0,
-    flexShrink: 1,
+    flex: 1,
+    minHeight: 0,
   },
   scrollWeb: {
     overflowY: 'auto',
