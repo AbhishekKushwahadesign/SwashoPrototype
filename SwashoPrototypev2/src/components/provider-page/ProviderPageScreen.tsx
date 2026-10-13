@@ -493,12 +493,11 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
             <Text
               numberOfLines={1}
               style={[
-                styles.searchQuery,
-                searchFont('medium'),
+                styles.providerName,
+                searchFont('semibold'),
                 {
-                  fontSize: 14 * scale,
-                  lineHeight: 12 * scale,
-                  letterSpacing: 0.5 * scale,
+                  fontSize: 20 * scale,
+                  lineHeight: 18 * scale,
                   flex: 1,
                 },
               ]}>
