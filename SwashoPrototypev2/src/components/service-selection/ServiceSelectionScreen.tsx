@@ -286,32 +286,25 @@ export function ServiceSelectionScreen({
   const showComboList = mode === 'multi' && multiFlow === 'list';
 
   const stickyMetrics = useMemo(() => {
-    let priceBasis;
-    if (mode === 'single') {
-      priceBasis = singleTotals;
-    } else if (showMultiCreate && hasSingleSelections) {
-      priceBasis = singleTotals;
-    } else {
-      priceBasis = multiTotals;
-    }
-
     const assignmentItemCount =
       garmentAssignmentCounts.singleCount + garmentAssignmentCounts.multiCount;
 
+    const combinedTotal = singleTotals.total + multiTotals.total;
+    const fallbackCount = singleTotals.count + multiTotals.count;
+
     return {
-      count: assignmentItemCount > 0 ? assignmentItemCount : priceBasis.count,
-      total: priceBasis.total,
+      count: assignmentItemCount > 0 ? assignmentItemCount : fallbackCount,
+      total: combinedTotal,
       summaryLine: assignmentSummaryLine,
     };
   }, [
     assignmentSummaryLine,
     garmentAssignmentCounts.multiCount,
     garmentAssignmentCounts.singleCount,
-    hasSingleSelections,
-    mode,
-    multiTotals,
-    showMultiCreate,
-    singleTotals,
+    multiTotals.count,
+    multiTotals.total,
+    singleTotals.count,
+    singleTotals.total,
   ]);
 
   const instructionText =
