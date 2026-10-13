@@ -577,6 +577,7 @@ export function ServiceSelectionScreen({
             styles.sheet,
             {
               width: contentWidth,
+              height: sheetMaxHeight,
               maxHeight: sheetMaxHeight,
               borderTopLeftRadius: SwashoRadii.xl * scale,
               borderTopRightRadius: SwashoRadii.xl * scale,
