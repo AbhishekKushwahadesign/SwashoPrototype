@@ -19,7 +19,6 @@ import {
   getCatalogOptionById,
   type ServiceCatalogOption,
 } from './service-selection-catalog';
-import { ServiceComboDetailCard } from './ServiceComboDetailCard';
 import { ServiceGarmentRow } from './ServiceGarmentRow';
 import { ServiceInstructionText } from './ServiceInstructionText';
 import { ServiceModeTabs, type ServiceMode } from './ServiceModeTabs';
@@ -414,31 +413,22 @@ export function ServiceSelectionScreen({
                   onToggle={() => toggleSection(combo.id)}
                   scale={scale}
                   headerAccessory={
-                    expanded && !summaryHasQuantity ? (
+                    expanded ? (
                       <ServiceGarmentRow
                         title={comboLabel}
                         amount={comboUnitTotal}
                         unit="pc"
                         titleNumberOfLines={1}
                         onAddPress={() => incrementComboGarment(combo.id)}
+                        state={summaryHasQuantity ? 'quantity' : 'idle'}
+                        quantity={summaryQuantity}
+                        onIncrement={() => incrementComboGarment(combo.id)}
+                        onDecrement={() => decrementComboGarment(combo.id)}
                         scale={scale}
                       />
                     ) : null
-                  }>
-                  {expanded && summaryHasQuantity ? (
-                    <ServiceComboDetailCard
-                      title={comboLabel}
-                      amount={comboUnitTotal}
-                      unit="pc"
-                      quantity={summaryQuantity}
-                      pickupPersonChecked={pickupPersonChecked}
-                      onIncrement={() => incrementComboGarment(combo.id)}
-                      onDecrement={() => decrementComboGarment(combo.id)}
-                      onPickupPersonChange={setPickupPersonChecked}
-                      scale={scale}
-                    />
-                  ) : null}
-                </ServiceSelectionCard>
+                  }
+                />
                 {comboIndex < savedCombos.length - 1 ? (
                   <ServiceRowDivider variant="solid" width={389} scale={scale} />
                 ) : null}
