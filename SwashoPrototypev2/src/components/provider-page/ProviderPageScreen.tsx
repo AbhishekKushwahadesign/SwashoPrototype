@@ -437,19 +437,20 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
 
   const [sectionExpanded, setSectionExpanded] = useState<Record<string, boolean>>({});
   const [showCompactProviderName, setShowCompactProviderName] = useState(false);
-  const nameRowRef = useRef<View>(null);
+  const providerNameRef = useRef<View>(null);
   const backHeaderRef = useRef<View>(null);
 
   const updateCompactProviderName = useCallback(() => {
-    const nameEl = nameRowRef.current;
+    const nameEl = providerNameRef.current;
     const headerEl = backHeaderRef.current;
     if (!nameEl || !headerEl) {
       return;
     }
-    nameEl.measureInWindow((_nameX, nameTop) => {
+    nameEl.measureInWindow((_nameX, nameTop, _nameWidth, nameHeight) => {
       headerEl.measureInWindow((_headerX, headerTop, _headerWidth, headerHeight) => {
         const headerBottom = headerTop + headerHeight;
-        setShowCompactProviderName(nameTop < headerBottom);
+        const nameBottom = nameTop + nameHeight;
+        setShowCompactProviderName(nameBottom <= headerBottom);
       });
     });
   }, []);
@@ -550,19 +551,18 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
                   </View>
 
                   <View style={[styles.nameDetailsCol, { gap: 8 * scale, width: HEADER_CONTENT_WIDTH * scale }]}>
-                  <View
-                    ref={nameRowRef}
-                    onLayout={updateCompactProviderName}
-                    style={[styles.nameRow, { width: HEADER_CONTENT_WIDTH * scale }]}>
+                  <View style={[styles.nameRow, { width: HEADER_CONTENT_WIDTH * scale }]}>
                     <View style={[styles.nameLeft, { gap: 16 * scale, width: 176 * scale }]}>
-                      <Text
-                        style={[
-                          styles.providerName,
-                          searchFont('semibold'),
-                          { fontSize: 20 * scale, lineHeight: 18 * scale },
-                        ]}>
-                        {provider.category}
-                      </Text>
+                      <View ref={providerNameRef} onLayout={updateCompactProviderName} collapsable={false}>
+                        <Text
+                          style={[
+                            styles.providerName,
+                            searchFont('semibold'),
+                            { fontSize: 20 * scale, lineHeight: 18 * scale },
+                          ]}>
+                          {provider.category}
+                        </Text>
+                      </View>
                       <View
                         style={[
                           styles.phoneButton,
