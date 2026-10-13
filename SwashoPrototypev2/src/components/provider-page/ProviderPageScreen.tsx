@@ -686,13 +686,23 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
                   </View>
                   <MicrophoneIcon width={20 * scale} height={20 * scale} />
                 </View>
-                <View style={[styles.gridToggleRow, { gap: 4 * scale, width: 93 * scale }]}>
+                <View
+                  style={[
+                    styles.gridToggleRow,
+                    { gap: 4 * scale, minWidth: 93 * scale, flex: 1, justifyContent: 'flex-end' },
+                  ]}>
                   <GridToggleIcon width={43 * scale} height={23 * scale} />
                   <Text
+                    numberOfLines={1}
                     style={[
                       styles.gridToggleLabel,
                       searchFont('medium'),
-                      { fontSize: 12 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale, flex: 1 },
+                      {
+                        fontSize: 12 * scale,
+                        lineHeight: 10 * scale,
+                        letterSpacing: 0.5 * scale,
+                        flexShrink: 0,
+                      },
                     ]}>
                     Grid View
                   </Text>
@@ -820,8 +830,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   stickyNavBackHit: {
-    width: 20,
-    height: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
