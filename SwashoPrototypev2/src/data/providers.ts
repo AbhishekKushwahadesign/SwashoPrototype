@@ -165,3 +165,22 @@ export function getProviderResultsForQuery(query: string): ProviderResult[] {
 export function getProviderResultById(id: string, query: string): ProviderResult | undefined {
   return getProviderResultsForQuery(query).find((provider) => provider.id === id);
 }
+
+/** Display name for a garment row in the provider catalogue (e.g. Shirt, T-Shirt). */
+export function getProviderGarmentName(
+  serviceId: string,
+  providerId?: string,
+  query?: string,
+): string | undefined {
+  const provider = providerId ? getProviderResultById(providerId, query ?? '') : undefined;
+  if (!provider?.serviceSections) {
+    return undefined;
+  }
+  for (const section of provider.serviceSections) {
+    const match = section.items.find((item) => item.id === serviceId);
+    if (match) {
+      return match.name;
+    }
+  }
+  return undefined;
+}

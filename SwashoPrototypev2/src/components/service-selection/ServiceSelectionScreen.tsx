@@ -9,7 +9,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useScreenScale } from '@/components/home/scale';
-import { getProviderResultById } from '@/data/providers';
+import { getProviderGarmentName } from '@/data/providers';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
 import { CreateComboSelectPanel } from './CreateComboSelectPanel';
@@ -73,20 +73,18 @@ function resolveRowAddMode(
   return catalogAddMode ?? 'add';
 }
 
+function humanizeServiceId(serviceId: string): string {
+  const slug = serviceId.replace(/^(mens|womens)-/, '');
+  return slug
+    .split('-')
+    .map((part) => (part.length > 0 ? `${part.charAt(0).toUpperCase()}${part.slice(1)}` : part))
+    .join(' ');
+}
+
 function resolveGarmentLabel(serviceId: string, providerId?: string, query?: string) {
-  const provider = providerId ? getProviderResultById(providerId, query ?? '') : undefined;
-  if (provider?.serviceSections) {
-    for (const section of provider.serviceSections) {
-      const match = section.items.find((item) => item.id === serviceId);
-      if (match) {
-        return `Choose services for ${match.name.toLowerCase()}(cotton)`;
-      }
-    }
-  }
-  if (serviceId.includes('shirt')) {
-    return 'Choose services for shirt(cotton)';
-  }
-  return 'Choose services for garment';
+  const garmentName =
+    getProviderGarmentName(serviceId, providerId, query) ?? humanizeServiceId(serviceId);
+  return `Choose service(s) for ${garmentName}`;
 }
 
 function garmentInstruction(serviceId: string) {
