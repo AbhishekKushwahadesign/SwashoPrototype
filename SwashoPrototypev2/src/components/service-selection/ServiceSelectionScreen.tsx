@@ -5,7 +5,6 @@ import {
   ScrollView,
   StyleSheet,
   View,
-  type LayoutChangeEvent,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -305,6 +304,7 @@ export function ServiceSelectionScreen({
   const nestedMultiCreateInstruction = showMultiCreate ? instructionText : undefined;
   const showStandaloneInstruction = instructionText != null && nestedMultiCreateInstruction == null;
   const showCreateComboCta = showMultiCreate;
+  const showCreateNewComboCta = showComboList;
   const showMultiCreateSticky = showMultiCreate && hasSingleSelections;
 
   const handleModeChange = (nextMode: ServiceMode) => {
@@ -412,16 +412,6 @@ export function ServiceSelectionScreen({
               </View>
             );
           })}
-          <ServiceSelectionButton
-            label="Create New Combo"
-            variant="secondaryDashed"
-            onPress={() => {
-              setMultiFlow('create');
-              setComboDraftIds([]);
-            }}
-            scale={scale}
-            style={{ width: 380 * scale, alignSelf: 'center' }}
-          />
         </View>
       );
     }
@@ -566,6 +556,23 @@ export function ServiceSelectionScreen({
                   width: 380 * scale,
                   alignSelf: 'center',
                   marginBottom: showMultiCreateSticky ? 8 * scale : 0,
+                }}
+              />
+            ) : null}
+
+            {showCreateNewComboCta ? (
+              <ServiceSelectionButton
+                label="Create New Combo"
+                variant="secondaryDashed"
+                onPress={() => {
+                  setMultiFlow('create');
+                  setComboDraftIds([]);
+                }}
+                scale={scale}
+                style={{
+                  width: 380 * scale,
+                  alignSelf: 'center',
+                  marginBottom: 8 * scale,
                 }}
               />
             ) : null}
