@@ -330,7 +330,7 @@ export function ServiceSelectionScreen({
     setMode(nextMode);
     if (nextMode === 'multi') {
       setComboDraftIds([]);
-      setMultiFlow('create');
+      setMultiFlow(savedCombos.length > 0 ? 'list' : 'create');
     }
   };
 
