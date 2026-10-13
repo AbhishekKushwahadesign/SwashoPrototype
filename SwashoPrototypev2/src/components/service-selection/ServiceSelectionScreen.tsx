@@ -121,7 +121,6 @@ export function ServiceSelectionScreen({
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [comboDraftIds, setComboDraftIds] = useState<string[]>([]);
   const [savedCombos, setSavedCombos] = useState<SavedCombo[]>([]);
-  const [pickupPersonChecked, setPickupPersonChecked] = useState(false);
   const [stickyBarHeight, setStickyBarHeight] = useState(0);
 
   const isSectionExpanded = useCallback(
@@ -409,7 +408,7 @@ export function ServiceSelectionScreen({
               <View key={combo.id} style={{ gap: 16 * scale, width: '100%', alignItems: 'center' }}>
                 <ServiceSelectionCard
                   title={combo.title}
-                  state={summaryHasQuantity ? 'selected' : 'default'}
+                  state="default"
                   headerVariant="category"
                   expanded={expanded}
                   onToggle={() => toggleSection(combo.id)}
@@ -651,11 +650,6 @@ const styles = StyleSheet.create({
     overflowY: 'auto',
   },
   listBlock: {
-    width: '100%',
-    alignItems: 'center',
-  },
-  selectedRow: {
-    backgroundColor: SwashoColors.primary50,
     width: '100%',
     alignItems: 'center',
   },
