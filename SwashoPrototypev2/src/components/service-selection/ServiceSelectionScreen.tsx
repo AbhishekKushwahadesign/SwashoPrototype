@@ -425,67 +425,42 @@ export function ServiceSelectionScreen({
                   onToggle={() => toggleSection(combo.id)}
                   scale={scale}
                   headerAccessory={
-                    !expanded ? (
-                      <ServiceGarmentRow
-                        title={comboLabel}
-                        amount={comboUnitTotal}
-                        unit="pc"
-                        titleNumberOfLines={1}
-                        onAddPress={
-                          firstItemId
-                            ? () => incrementComboLine(combo.id, firstItemId)
-                            : undefined
-                        }
-                        state={summaryHasQuantity ? 'quantity' : 'idle'}
-                        quantity={summaryQuantity}
-                        onIncrement={
-                          firstItemId
-                            ? () => incrementComboLine(combo.id, firstItemId)
-                            : undefined
-                        }
-                        onDecrement={
-                          firstItemId
-                            ? () => decrementComboLine(combo.id, firstItemId)
-                            : undefined
-                        }
-                        scale={scale}
-                      />
-                    ) : null
+                    <ServiceGarmentRow
+                      title={comboLabel}
+                      amount={comboUnitTotal}
+                      unit="pc"
+                      titleNumberOfLines={1}
+                      onAddPress={
+                        firstItemId ? () => incrementComboLine(combo.id, firstItemId) : undefined
+                      }
+                      state={summaryHasQuantity ? 'quantity' : 'idle'}
+                      quantity={summaryQuantity}
+                      onIncrement={
+                        firstItemId ? () => incrementComboLine(combo.id, firstItemId) : undefined
+                      }
+                      onDecrement={
+                        firstItemId ? () => decrementComboLine(combo.id, firstItemId) : undefined
+                      }
+                      scale={scale}
+                    />
                   }>
-                  {expanded
-                    ? combo.items.map((item, itemIndex) => {
-                    const qty = item.quantity;
-                    const showDetail = qty > 0;
-                    return (
-                      <View key={item.optionId} style={{ gap: 16 * scale, width: '100%', alignItems: 'center' }}>
-                        {showDetail ? (
-                          <ServiceComboDetailCard
-                            title={item.title}
-                            amount={item.amount}
-                            unit="pc"
-                            quantity={qty}
-                            pickupPersonChecked={pickupPersonChecked}
-                            onIncrement={() => incrementComboLine(combo.id, item.optionId)}
-                            onDecrement={() => decrementComboLine(combo.id, item.optionId)}
-                            onPickupPersonChange={setPickupPersonChecked}
-                            scale={scale}
-                          />
-                        ) : (
-                          <ServiceGarmentRow
-                            title={item.title}
-                            amount={item.amount}
-                            unit="pc"
-                            onAddPress={() => incrementComboLine(combo.id, item.optionId)}
-                            scale={scale}
-                          />
-                        )}
-                        {itemIndex < combo.items.length - 1 ? (
-                          <ServiceRowDivider scale={scale} />
-                        ) : null}
-                      </View>
-                    );
-                  })
-                    : null}
+                  {expanded && summaryHasQuantity ? (
+                    <ServiceComboDetailCard
+                      title={comboLabel}
+                      amount={comboUnitTotal}
+                      unit="pc"
+                      quantity={summaryQuantity}
+                      pickupPersonChecked={pickupPersonChecked}
+                      onIncrement={
+                        firstItemId ? () => incrementComboLine(combo.id, firstItemId) : undefined
+                      }
+                      onDecrement={
+                        firstItemId ? () => decrementComboLine(combo.id, firstItemId) : undefined
+                      }
+                      onPickupPersonChange={setPickupPersonChecked}
+                      scale={scale}
+                    />
+                  ) : null}
                 </ServiceSelectionCard>
                 {comboIndex < savedCombos.length - 1 ? (
                   <ServiceRowDivider variant="solid" width={389} scale={scale} />
