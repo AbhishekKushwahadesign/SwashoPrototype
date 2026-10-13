@@ -483,7 +483,7 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
               width: contentWidth,
               paddingTop: 64 * scale,
               paddingHorizontal: 20 * scale,
-              gap: 16 * scale,
+              gap: 12 * scale,
             },
           ]}>
           <Pressable onPress={handleBackPress} hitSlop={8} style={{ width: 26 * scale, height: 26 * scale }}>
