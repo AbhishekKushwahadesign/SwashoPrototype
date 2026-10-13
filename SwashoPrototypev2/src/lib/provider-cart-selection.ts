@@ -8,6 +8,12 @@ import {
   sumComboUnitAmount,
 } from '@/components/service-selection/service-selection-combo';
 import { getCatalogOptionById } from '@/components/service-selection/service-selection-catalog';
+import {
+  estimateBulkPriceForTier,
+  formatBulkLoadSummaryLine,
+  resolveBulkLoadTier,
+  type BulkLoadTierId,
+} from '@/lib/bulk-load-tiers';
 
 export type ProviderCartComboLineItem = {
   optionId: string;
@@ -25,6 +31,8 @@ export type ProviderCartCombo = {
 export type ProviderGarmentCartSelection = {
   quantities: Record<string, number>;
   savedCombos: ProviderCartCombo[];
+  /** Bulk services: mutually exclusive load tier. */
+  bulkLoadTier?: BulkLoadTierId;
   /** Bulk services: weight tier label shown on the provider card after confirm. */
   bulkWeightLabel?: string;
 };
@@ -83,10 +91,16 @@ export function computeSelectionStickyMetrics(selection: ProviderGarmentCartSele
     multiTotal += sumComboUnitAmount(combo.items) * comboQty;
   }
 
+  let totalPrice = singleTotal + multiTotal;
+  const bulkTier = resolveBulkLoadTier(selection);
+  if (bulkTier) {
+    totalPrice += estimateBulkPriceForTier(bulkTier);
+  }
+
   const itemCount = garmentAssignmentItemCount(selection);
   return {
     itemCount,
-    totalPrice: singleTotal + multiTotal,
+    totalPrice,
   };
 }
 
@@ -111,6 +125,11 @@ export function formatProviderServiceSummaryParts(selection: ProviderGarmentCart
     }
     const label = formatComboLabel(combo.items.map((item) => item.title));
     parts.push(`${label} x ${comboQty}`);
+  }
+
+  const bulkTier = resolveBulkLoadTier(selection);
+  if (bulkTier && parts.length === 0) {
+    parts.push(formatBulkLoadSummaryLine(bulkTier));
   }
 
   return parts;

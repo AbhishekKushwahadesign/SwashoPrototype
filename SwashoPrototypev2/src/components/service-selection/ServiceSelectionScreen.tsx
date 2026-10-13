@@ -40,6 +40,7 @@ import {
   type ProviderGarmentCartSelection,
 } from '@/lib/provider-cart-selection';
 
+import { BulkServiceSelectionScreen } from './BulkServiceSelectionScreen';
 import { SheetCloseIcon } from './service-selection-icons';
 
 type ServiceSelectionScreenProps = {
@@ -91,7 +92,14 @@ function garmentInstruction(serviceId: string) {
   return `Add quantity of ${noun}`;
 }
 
-export function ServiceSelectionScreen({
+export function ServiceSelectionScreen(props: ServiceSelectionScreenProps) {
+  if (isBulkServiceId(props.serviceId)) {
+    return <BulkServiceSelectionScreen {...props} />;
+  }
+  return <GarmentServiceSelectionScreen {...props} />;
+}
+
+function GarmentServiceSelectionScreen({
   serviceId,
   providerId,
   query,
@@ -477,15 +485,11 @@ export function ServiceSelectionScreen({
   const sheetMaxHeight = Math.min(contentHeight * 0.92, 600 * scale);
 
   const handleConfirmPress = useCallback(() => {
-    const bulkWeightLabel =
-      isBulkServiceId(serviceId) && stickyMetrics.count > 0 ? '3 - 5KG' : undefined;
-
     onConfirm({
       quantities,
       savedCombos,
-      bulkWeightLabel,
     });
-  }, [initialSelection?.bulkWeightLabel, onConfirm, quantities, savedCombos, serviceId, stickyMetrics.count]);
+  }, [onConfirm, quantities, savedCombos]);
 
   return (
     <ProviderPageModalShell onDismiss={onClose}>

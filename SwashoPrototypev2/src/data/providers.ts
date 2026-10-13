@@ -184,3 +184,12 @@ export function getProviderGarmentName(
   }
   return undefined;
 }
+
+export function getProviderBulkService(
+  serviceId: string,
+  providerId?: string,
+  query?: string,
+): ProviderBulkService | undefined {
+  const provider = providerId ? getProviderResultById(providerId, query ?? '') : undefined;
+  return provider?.bulkServices?.find((service) => service.id === serviceId);
+}
