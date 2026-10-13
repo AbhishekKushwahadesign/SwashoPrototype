@@ -379,21 +379,18 @@ export function ServiceSelectionScreen({
     const selected = comboDraftIds.includes(optionId);
 
     return (
-      <View
+      <ServiceGarmentRow
         key={optionId}
-        style={selected ? [styles.selectedRow, { borderRadius: SwashoRadii.md * scale }] : undefined}>
-        <ServiceGarmentRow
-          title={title}
-          amount={amount}
-          unit="pc"
-          titleStyle={titleStyle}
-          titleFontSize={titleFontSize}
-          addMode="select"
-          addSelected={selected}
-          onAddPress={() => toggleComboDraft(optionId)}
-          scale={scale}
-        />
-      </View>
+        title={title}
+        amount={amount}
+        unit="pc"
+        titleStyle={titleStyle}
+        titleFontSize={titleFontSize}
+        addMode="select"
+        addSelected={selected}
+        onAddPress={() => toggleComboDraft(optionId)}
+        scale={scale}
+      />
     );
   };
 
