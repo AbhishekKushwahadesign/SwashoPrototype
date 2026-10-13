@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Fragment, useCallback, useState } from 'react';
+import { Fragment, useCallback, useRef, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -436,6 +436,23 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
   const serviceSections = provider.serviceSections ?? [];
 
   const [sectionExpanded, setSectionExpanded] = useState<Record<string, boolean>>({});
+  const [showCompactProviderName, setShowCompactProviderName] = useState(false);
+  const nameRowRef = useRef<View>(null);
+  const backHeaderRef = useRef<View>(null);
+
+  const updateCompactProviderName = useCallback(() => {
+    const nameEl = nameRowRef.current;
+    const headerEl = backHeaderRef.current;
+    if (!nameEl || !headerEl) {
+      return;
+    }
+    nameEl.measureInWindow((_nameX, nameTop) => {
+      headerEl.measureInWindow((_headerX, headerTop, _headerWidth, headerHeight) => {
+        const headerBottom = headerTop + headerHeight;
+        setShowCompactProviderName(nameTop < headerBottom);
+      });
+    });
+  }, []);
 
   const isSectionExpanded = useCallback(
     (sectionId: string) => sectionExpanded[sectionId] ?? true,
@@ -456,10 +473,36 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
           <SearchStatusBar scale={scale} />
         </View>
 
-        <View style={[styles.backHeader, { width: contentWidth, paddingTop: 64 * scale, paddingHorizontal: 20 * scale }]}>
+        <View
+          ref={backHeaderRef}
+          onLayout={updateCompactProviderName}
+          style={[
+            styles.backHeader,
+            {
+              width: contentWidth,
+              paddingTop: 64 * scale,
+              paddingHorizontal: 20 * scale,
+              gap: 16 * scale,
+            },
+          ]}>
           <Pressable onPress={handleBackPress} hitSlop={8} style={{ width: 26 * scale, height: 26 * scale }}>
             <ArrowLeftIcon width={20 * scale} height={20 * scale} />
           </Pressable>
+          {showCompactProviderName ? (
+            <Text
+              numberOfLines={1}
+              style={[
+                styles.providerName,
+                searchFont('semibold'),
+                {
+                  fontSize: 20 * scale,
+                  lineHeight: 18 * scale,
+                  flex: 1,
+                },
+              ]}>
+              {provider.category}
+            </Text>
+          ) : null}
         </View>
 
         <ScrollView
@@ -471,6 +514,8 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
               paddingBottom: (SCROLL_BOTTOM_GAP + HOME_INDICATOR_HEIGHT) * scale,
             },
           ]}
+          onScroll={updateCompactProviderName}
+          scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}>
           <View style={[styles.headerCardWrap, { gap: 20 * scale }]}>
             <View
@@ -505,7 +550,10 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
                   </View>
 
                   <View style={[styles.nameDetailsCol, { gap: 8 * scale, width: HEADER_CONTENT_WIDTH * scale }]}>
-                  <View style={[styles.nameRow, { width: HEADER_CONTENT_WIDTH * scale }]}>
+                  <View
+                    ref={nameRowRef}
+                    onLayout={updateCompactProviderName}
+                    style={[styles.nameRow, { width: HEADER_CONTENT_WIDTH * scale }]}>
                     <View style={[styles.nameLeft, { gap: 16 * scale, width: 176 * scale }]}>
                       <Text
                         style={[
@@ -764,6 +812,8 @@ const styles = StyleSheet.create({
     zIndex: 20,
     backgroundColor: SwashoColors.surface,
     paddingBottom: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   scroll: {
     flex: 1,
