@@ -425,7 +425,7 @@ export function ServiceSelectionScreen({
                   onToggle={() => toggleSection(combo.id)}
                   scale={scale}
                   headerAccessory={
-                    expanded ? (
+                    expanded && !summaryHasQuantity ? (
                       <ServiceGarmentRow
                         title={comboLabel}
                         amount={comboUnitTotal}
@@ -433,14 +433,6 @@ export function ServiceSelectionScreen({
                         titleNumberOfLines={1}
                         onAddPress={
                           firstItemId ? () => incrementComboLine(combo.id, firstItemId) : undefined
-                        }
-                        state={summaryHasQuantity ? 'quantity' : 'idle'}
-                        quantity={summaryQuantity}
-                        onIncrement={
-                          firstItemId ? () => incrementComboLine(combo.id, firstItemId) : undefined
-                        }
-                        onDecrement={
-                          firstItemId ? () => decrementComboLine(combo.id, firstItemId) : undefined
                         }
                         scale={scale}
                       />
