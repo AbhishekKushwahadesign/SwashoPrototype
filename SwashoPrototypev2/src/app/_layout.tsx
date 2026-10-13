@@ -15,6 +15,8 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { View } from 'react-native';
 
+import { ProviderCartProvider } from '@/context/provider-cart-context';
+
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -39,20 +41,22 @@ export default function RootLayout() {
   }
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" />
-      <Stack.Screen name="search" />
-      <Stack.Screen name="provider-results" />
-      <Stack.Screen name="provider/[id]" />
-      <Stack.Screen
-        name="service-selection"
-        options={{
-          presentation: 'transparentModal',
-          animation: 'fade',
-          contentStyle: { backgroundColor: 'transparent' },
-          cardStyle: { backgroundColor: 'transparent' },
-        }}
-      />
-    </Stack>
+    <ProviderCartProvider>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="search" />
+        <Stack.Screen name="provider-results" />
+        <Stack.Screen name="provider/[id]" />
+        <Stack.Screen
+          name="service-selection"
+          options={{
+            presentation: 'transparentModal',
+            animation: 'fade',
+            contentStyle: { backgroundColor: 'transparent' },
+            cardStyle: { backgroundColor: 'transparent' },
+          }}
+        />
+      </Stack>
+    </ProviderCartProvider>
   );
 }

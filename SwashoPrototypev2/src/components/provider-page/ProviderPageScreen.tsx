@@ -1,11 +1,20 @@
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Fragment, useCallback, useRef, useState } from 'react';
+import { Fragment, useCallback, useMemo, useRef, useState } from 'react';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ArrowLeftIcon, LineDividerIcon, MicrophoneIcon, StarRatingIcon } from '@/components/home/figma-icons';
+import { PenEditIcon } from '@/components/service-selection/service-selection-icons';
+import { PlanPriceToggle } from '@/components/service-selection/PlanPriceToggle';
+import { useProviderCart } from '@/context/provider-cart-context';
+import {
+  formatProviderServiceSummaryParts,
+  garmentAssignmentItemCount,
+  hasProviderCartSelection,
+  type ProviderGarmentCartSelection,
+} from '@/lib/provider-cart-selection';
 import { HomeIndicator } from '@/components/home/HomeIndicator';
 import { FigmaShadows, figmaDropShadow, figmaShadow } from '@/components/home/figma-shadows';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
@@ -31,10 +40,12 @@ import {
   ListServiceIcon,
   PhoneIcon,
 } from './provider-page-icons';
+import { ProviderCartBottomBar } from './ProviderCartBottomBar';
 
 const STATUS_BAR_HEIGHT = 32;
 const CONTENT_TOP_OFFSET = 87;
 const SCROLL_BOTTOM_GAP = 120;
+const SCROLL_BOTTOM_GAP_CART = 200;
 const HOME_INDICATOR_HEIGHT = 24;
 const HEADER_CONTENT_WIDTH = 371;
 const BULK_SECTION_WIDTH = 388;
@@ -188,13 +199,106 @@ function AddButton({ scale, onPress }: { scale: number; onPress?: () => void }) 
   );
 }
 
+function BulkWeightButton({
+  label,
+  scale,
+  onPress,
+}: {
+  label: string;
+  scale: number;
+  onPress?: () => void;
+}) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={[
+        styles.bulkWeightButton,
+        {
+          height: 32 * scale,
+          width: 86 * scale,
+          borderRadius: SwashoRadii.md * scale,
+          paddingHorizontal: 16 * scale,
+          paddingVertical: 8 * scale,
+          ...figmaShadow(FigmaShadows.search, scale),
+        },
+      ]}>
+      <Text
+        numberOfLines={1}
+        style={[
+          styles.bulkWeightLabel,
+          searchFont('semibold'),
+          { fontSize: 12 * scale, lineHeight: 20 * scale, letterSpacing: 0.5 * scale },
+        ]}>
+        {label}
+      </Text>
+    </Pressable>
+  );
+}
+
+function EditServiceButton({ scale, onPress }: { scale: number; onPress?: () => void }) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={[
+        styles.editServiceButton,
+        {
+          height: 32 * scale,
+          width: 86 * scale,
+          borderRadius: SwashoRadii.md * scale,
+          paddingHorizontal: 16 * scale,
+          paddingVertical: 8 * scale,
+          gap: 6 * scale,
+          ...figmaShadow(FigmaShadows.search, scale),
+        },
+      ]}>
+      <Text
+        style={[
+          styles.editServiceLabel,
+          searchFont('semibold'),
+          { fontSize: 12 * scale, lineHeight: 20 * scale, letterSpacing: 0.5 * scale },
+        ]}>
+        EDIT
+      </Text>
+      <PenEditIcon width={16 * scale} height={16 * scale} />
+    </Pressable>
+  );
+}
+
+function ItemsRowChip({ scale, onPress }: { scale: number; onPress?: () => void }) {
+  return (
+    <Pressable
+      onPress={onPress}
+      style={[
+        styles.itemsRowChip,
+        {
+          borderRadius: SwashoRadii.lg * scale,
+          paddingHorizontal: 8 * scale,
+          paddingVertical: 4 * scale,
+          gap: 4 * scale,
+        },
+      ]}>
+      <ListIcon width={16 * scale} height={16 * scale} />
+      <Text
+        style={[
+          styles.itemsRowChipLabel,
+          searchFont('medium'),
+          { fontSize: 10 * scale, lineHeight: 12 * scale, letterSpacing: 0.5 * scale },
+        ]}>
+        Items
+      </Text>
+    </Pressable>
+  );
+}
+
 function BulkServiceCard({
   service,
   scale,
+  selection,
   onPress,
 }: {
   service: ProviderBulkService;
   scale: number;
+  selection?: ProviderGarmentCartSelection;
   onPress?: () => void;
 }) {
   return (
@@ -247,7 +351,11 @@ function BulkServiceCard({
           </Text>
         </View>
       </View>
-      <AddButton scale={scale} onPress={onPress} />
+      {selection?.bulkWeightLabel ? (
+        <BulkWeightButton label={selection.bulkWeightLabel} scale={scale} onPress={onPress} />
+      ) : (
+        <AddButton scale={scale} onPress={onPress} />
+      )}
     </View>
   );
 }
@@ -301,6 +409,117 @@ function ServiceListRow({
       </View>
       <AddButton scale={scale} onPress={onPress} />
     </Pressable>
+  );
+}
+
+function SelectedServiceListRow({
+  service,
+  serviceName,
+  selection,
+  scale,
+  onEditPress,
+  onChangeServicesPress,
+  onToggleIncluded,
+  onItemsChipPress,
+}: {
+  service: ProviderListService;
+  serviceName: string;
+  selection: ProviderGarmentCartSelection;
+  scale: number;
+  onEditPress?: () => void;
+  onChangeServicesPress?: () => void;
+  onToggleIncluded?: (included: boolean) => void;
+  onItemsChipPress?: () => void;
+}) {
+  const garmentCount = garmentAssignmentItemCount(selection, service.id);
+  const summaryParts = formatProviderServiceSummaryParts(selection);
+
+  return (
+    <View
+      style={[
+        styles.selectedListRow,
+        {
+          width: LIST_SECTION_WIDTH * scale,
+          paddingHorizontal: 12 * scale,
+          paddingVertical: 12 * scale,
+          gap: 12 * scale,
+        },
+      ]}>
+      <View style={[styles.selectedListMain, { gap: 12 * scale, flex: 1 }]}>
+        <View style={[styles.selectedTitleRow, { gap: 8 * scale }]}>
+          <View style={[styles.listIconWrap, { width: 35 * scale, height: 35 * scale, borderRadius: 3.5 * scale }]}>
+            <ListServiceIcon icon={service.icon} width={26 * scale} height={25 * scale} />
+          </View>
+          <Text
+            style={[
+              styles.listName,
+              searchFont('semibold'),
+              { fontSize: 14 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
+            ]}>
+            {service.name}
+            {garmentCount > 1 ? ` x ${garmentCount}` : ''}
+          </Text>
+          <View style={[styles.selectedRowActions, { gap: 8 * scale, marginLeft: 'auto' }]}>
+            <ItemsRowChip scale={scale} onPress={onItemsChipPress} />
+            <PlanPriceToggle
+              enabled
+              showLabel={false}
+              onChange={(next) => onToggleIncluded?.(next)}
+              scale={scale}
+            />
+          </View>
+        </View>
+        {summaryParts.length > 0 ? (
+          <View style={[styles.selectedSummaryBlock, { gap: 6 * scale }]}>
+            <View style={[styles.selectedSummaryLine, { gap: 6 * scale }]}>
+              {summaryParts.map((part, index) => (
+                <Fragment key={`${part}-${index}`}>
+                  {index > 0 ? (
+                    <View style={[styles.summaryDivider, { height: 18 * scale }]}>
+                      <LineDividerIcon width={18 * scale} height={1} />
+                    </View>
+                  ) : null}
+                  <Text
+                    numberOfLines={1}
+                    style={[
+                      styles.selectedSummaryText,
+                      searchFont('medium'),
+                      {
+                        fontSize: 13 * scale,
+                        lineHeight: 20 * scale,
+                        letterSpacing: 0.5 * scale,
+                        maxWidth: index === summaryParts.length - 1 ? 131 * scale : undefined,
+                      },
+                    ]}>
+                    {part}
+                  </Text>
+                </Fragment>
+              ))}
+            </View>
+            <Pressable onPress={onChangeServicesPress} accessibilityRole="button">
+              <Text
+                style={[
+                  styles.changeServicesLabel,
+                  searchFont('medium'),
+                  { fontSize: 13 * scale, lineHeight: 20 * scale, letterSpacing: 0.5 * scale },
+                ]}>
+                Change Services
+              </Text>
+            </Pressable>
+          </View>
+        ) : (
+          <Text
+            style={[
+              styles.listPrice,
+              searchFont('medium'),
+              { fontSize: 13 * scale, lineHeight: 20 * scale, letterSpacing: 0.5 * scale },
+            ]}>
+            {serviceName} at ₹{service.price}
+          </Text>
+        )}
+      </View>
+      <EditServiceButton scale={scale} onPress={onEditPress} />
+    </View>
   );
 }
 
@@ -390,6 +609,9 @@ function ServiceSection({
   expanded,
   onToggle,
   onServicePress,
+  getGarmentSelection,
+  onClearGarmentSelection,
+  onScrollToCartSummary,
 }: {
   section: ProviderServiceSection;
   serviceName: string;
@@ -397,6 +619,9 @@ function ServiceSection({
   expanded: boolean;
   onToggle: () => void;
   onServicePress: (serviceId: string) => void;
+  getGarmentSelection: (serviceId: string) => ProviderGarmentCartSelection | undefined;
+  onClearGarmentSelection: (serviceId: string) => void;
+  onScrollToCartSummary: () => void;
 }) {
   return (
     <View style={[styles.serviceSection, { gap: 16 * scale, width: LIST_SECTION_WIDTH * scale }]}>
@@ -411,12 +636,29 @@ function ServiceSection({
       {expanded
         ? section.items.map((item, index) => (
         <View key={item.id}>
-          <ServiceListRow
-            service={item}
-            serviceName={serviceName}
-            scale={scale}
-            onPress={() => onServicePress(item.id)}
-          />
+          {hasProviderCartSelection(getGarmentSelection(item.id), item.id) ? (
+            <SelectedServiceListRow
+              service={item}
+              serviceName={serviceName}
+              selection={getGarmentSelection(item.id)!}
+              scale={scale}
+              onEditPress={() => onServicePress(item.id)}
+              onChangeServicesPress={() => onServicePress(item.id)}
+              onItemsChipPress={onScrollToCartSummary}
+              onToggleIncluded={(included) => {
+                if (!included) {
+                  onClearGarmentSelection(item.id);
+                }
+              }}
+            />
+          ) : (
+            <ServiceListRow
+              service={item}
+              serviceName={serviceName}
+              scale={scale}
+              onPress={() => onServicePress(item.id)}
+            />
+          )}
           {index < section.items.length - 1 ? (
             <ListDividerIcon width={362 * scale} height={1} style={{ alignSelf: 'center' }} />
           ) : null}
@@ -429,6 +671,7 @@ function ServiceSection({
 
 export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps) {
   const router = useRouter();
+  const { getSelection, clearSelection, getProviderCartTotals } = useProviderCart();
   const { scale, contentWidth } = useScreenScale();
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
@@ -459,6 +702,26 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
   const [showCompactProviderName, setShowCompactProviderName] = useState(false);
   const providerNameRef = useRef<View>(null);
   const backHeaderRef = useRef<View>(null);
+  const scrollRef = useRef<ScrollView>(null);
+
+  const cartTotals = useMemo(() => getProviderCartTotals(provider.id), [getProviderCartTotals, provider.id]);
+  const showCartBar = cartTotals.itemCount > 0;
+
+  const getGarmentSelection = useCallback(
+    (serviceId: string) => getSelection(provider.id, serviceId),
+    [getSelection, provider.id],
+  );
+
+  const handleClearGarmentSelection = useCallback(
+    (serviceId: string) => {
+      clearSelection(provider.id, serviceId);
+    },
+    [clearSelection, provider.id],
+  );
+
+  const scrollToCartSummary = useCallback(() => {
+    scrollRef.current?.scrollToEnd({ animated: true });
+  }, []);
 
   const updateCompactProviderName = useCallback(() => {
     const nameEl = providerNameRef.current;
@@ -531,12 +794,14 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
         </View>
 
         <ScrollView
+          ref={scrollRef}
           style={[styles.scroll, Platform.OS === 'web' ? styles.scrollWeb : null]}
           contentContainerStyle={[
             styles.scrollContent,
             {
               paddingTop: CONTENT_TOP_OFFSET * scale,
-              paddingBottom: (SCROLL_BOTTOM_GAP + HOME_INDICATOR_HEIGHT) * scale,
+              paddingBottom:
+                ((showCartBar ? SCROLL_BOTTOM_GAP_CART : SCROLL_BOTTOM_GAP) + HOME_INDICATOR_HEIGHT) * scale,
             },
           ]}
           onScroll={updateCompactProviderName}
@@ -759,6 +1024,7 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
                         <BulkServiceCard
                           key={service.id}
                           service={service}
+                          selection={getGarmentSelection(service.id)}
                           scale={scale}
                           onPress={() => handleServicePress(service.id)}
                         />
@@ -780,6 +1046,9 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
                       expanded={isSectionExpanded(section.id)}
                       onToggle={() => toggleSection(section.id)}
                       onServicePress={handleServicePress}
+                      getGarmentSelection={getGarmentSelection}
+                      onClearGarmentSelection={handleClearGarmentSelection}
+                      onScrollToCartSummary={scrollToCartSummary}
                     />
                   </View>
                   {index < serviceSections.length - 1 ? <SectionDivider scale={scale} /> : null}
@@ -790,10 +1059,12 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
         </ScrollView>
 
         <Pressable
+          onPress={scrollToCartSummary}
           style={[
             styles.itemsFab,
             {
               left: (contentWidth * 0.875 - 25.5) * scale,
+              bottom: showCartBar ? 168 * scale : 120,
               borderRadius: SwashoRadii.lg * scale,
               paddingHorizontal: 12 * scale,
               paddingVertical: 8 * scale,
@@ -811,6 +1082,17 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
             Items
           </Text>
         </Pressable>
+
+        {showCartBar ? (
+          <View style={{ bottom: HOME_INDICATOR_HEIGHT * scale, position: 'absolute', left: 0, right: 0 }}>
+            <ProviderCartBottomBar
+              itemCount={cartTotals.itemCount}
+              scale={scale}
+              contentWidth={contentWidth}
+              onItemCountPress={scrollToCartSummary}
+            />
+          </View>
+        ) : null}
 
         <View style={styles.homeIndicatorWrap} pointerEvents="none">
           <HomeIndicator scale={scale} />
@@ -1123,9 +1405,79 @@ const styles = StyleSheet.create({
   listPrice: {
     color: '#464646',
   },
+  bulkWeightButton: {
+    backgroundColor: SwashoColors.primary,
+    borderWidth: 0.5,
+    borderColor: SwashoColors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  bulkWeightLabel: {
+    color: SwashoColors.surface,
+    textAlign: 'center',
+  },
+  editServiceButton: {
+    backgroundColor: SwashoColors.primary,
+    borderWidth: 0.5,
+    borderColor: SwashoColors.primary,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  editServiceLabel: {
+    color: SwashoColors.surface,
+    textAlign: 'center',
+  },
+  itemsRowChip: {
+    backgroundColor: '#f2f2f2',
+    borderWidth: 0.5,
+    borderColor: SwashoColors.neutral300,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  itemsRowChipLabel: {
+    color: '#292929',
+  },
+  selectedListRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  selectedListMain: {
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+  },
+  selectedTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+  },
+  selectedRowActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  selectedSummaryBlock: {
+    alignItems: 'flex-start',
+    width: '100%',
+  },
+  selectedSummaryLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    maxWidth: '100%',
+  },
+  summaryDivider: {
+    justifyContent: 'center',
+    transform: [{ rotate: '90deg' }],
+  },
+  selectedSummaryText: {
+    color: SwashoColors.neutral600,
+  },
+  changeServicesLabel: {
+    color: SwashoColors.primary,
+  },
   itemsFab: {
     position: 'absolute',
-    bottom: 120,
     zIndex: 15,
     backgroundColor: '#f2f2f2',
     borderWidth: 0.5,

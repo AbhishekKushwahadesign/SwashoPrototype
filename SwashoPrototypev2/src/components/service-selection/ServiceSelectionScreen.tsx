@@ -14,11 +14,7 @@ import { getProviderGarmentName } from '@/data/providers';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
 import { CreateComboSelectPanel } from './CreateComboSelectPanel';
-import {
-  SERVICE_SELECTION_CATALOG,
-  getCatalogOptionById,
-  type ServiceCatalogOption,
-} from './service-selection-catalog';
+import { SERVICE_SELECTION_CATALOG, getCatalogOptionById } from './service-selection-catalog';
 import { ServiceGarmentRow } from './ServiceGarmentRow';
 import { ServiceInstructionText } from './ServiceInstructionText';
 import { ServiceModeTabs, type ServiceMode } from './ServiceModeTabs';
@@ -37,25 +33,21 @@ import {
   getComboGarmentQuantity,
   sumComboUnitAmount,
 } from './service-selection-combo';
+import {
+  isBulkServiceId,
+  type ProviderCartCombo,
+  type ProviderCartComboLineItem,
+  type ProviderGarmentCartSelection,
+} from '@/lib/provider-cart-selection';
+
 import { SheetCloseIcon } from './service-selection-icons';
-
-type ComboLineItem = {
-  optionId: string;
-  title: string;
-  amount: number;
-  quantity: number;
-};
-
-type SavedCombo = {
-  id: string;
-  title: string;
-  items: ComboLineItem[];
-};
 
 type ServiceSelectionScreenProps = {
   serviceId: string;
   providerId?: string;
   query?: string;
+  initialSelection?: ProviderGarmentCartSelection;
+  onConfirm: (selection: ProviderGarmentCartSelection) => void;
   onClose: () => void;
 };
 
@@ -103,6 +95,8 @@ export function ServiceSelectionScreen({
   serviceId,
   providerId,
   query,
+  initialSelection,
+  onConfirm,
   onClose,
 }: ServiceSelectionScreenProps) {
   const { scale, contentWidth, contentHeight } = useScreenScale();
@@ -115,9 +109,13 @@ export function ServiceSelectionScreen({
   const [mode, setMode] = useState<ServiceMode>('single');
   const [multiFlow, setMultiFlow] = useState<MultiFlow>('list');
   const [sectionExpanded, setSectionExpanded] = useState<Record<string, boolean>>({});
-  const [quantities, setQuantities] = useState<Record<string, number>>({});
+  const [quantities, setQuantities] = useState<Record<string, number>>(
+    () => initialSelection?.quantities ?? {},
+  );
   const [comboDraftIds, setComboDraftIds] = useState<string[]>([]);
-  const [savedCombos, setSavedCombos] = useState<SavedCombo[]>([]);
+  const [savedCombos, setSavedCombos] = useState<ProviderCartCombo[]>(
+    () => initialSelection?.savedCombos ?? [],
+  );
 
   const isSectionExpanded = useCallback(
     (sectionId: string) => sectionExpanded[sectionId] ?? true,
@@ -201,7 +199,7 @@ export function ServiceSelectionScreen({
           quantity: 0,
         };
       })
-      .filter((item): item is ComboLineItem => item != null);
+      .filter((item): item is ProviderCartComboLineItem => item != null);
 
     const comboIndex = savedCombos.length + 1;
     setSavedCombos((prev) => [
@@ -478,6 +476,17 @@ export function ServiceSelectionScreen({
 
   const sheetMaxHeight = Math.min(contentHeight * 0.92, 600 * scale);
 
+  const handleConfirmPress = useCallback(() => {
+    const bulkWeightLabel =
+      isBulkServiceId(serviceId) && stickyMetrics.count > 0 ? '3 - 5KG' : undefined;
+
+    onConfirm({
+      quantities,
+      savedCombos,
+      bulkWeightLabel,
+    });
+  }, [initialSelection?.bulkWeightLabel, onConfirm, quantities, savedCombos, serviceId, stickyMetrics.count]);
+
   return (
     <ProviderPageModalShell onDismiss={onClose}>
       <View style={[styles.sheetColumn, { width: contentWidth, paddingBottom: insets.bottom }]}>
@@ -576,7 +585,7 @@ export function ServiceSelectionScreen({
                   itemCount={stickyMetrics.count}
                   summaryLine={stickyMetrics.summaryLine}
                   totalPrice={stickyMetrics.count > 0 ? stickyMetrics.total : undefined}
-                  onConfirm={onClose}
+                  onConfirm={handleConfirmPress}
                   scale={scale}
                 />
               </View>

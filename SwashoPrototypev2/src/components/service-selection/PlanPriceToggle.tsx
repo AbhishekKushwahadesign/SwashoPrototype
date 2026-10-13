@@ -6,11 +6,18 @@ import { SwashoColors } from '@/constants/swasho-tokens';
 type PlanPriceToggleProps = {
   enabled: boolean;
   disabled?: boolean;
+  showLabel?: boolean;
   onChange?: (enabled: boolean) => void;
   scale: number;
 };
 
-export function PlanPriceToggle({ enabled, disabled = false, onChange, scale }: PlanPriceToggleProps) {
+export function PlanPriceToggle({
+  enabled,
+  disabled = false,
+  showLabel = true,
+  onChange,
+  scale,
+}: PlanPriceToggleProps) {
   const handlePress = () => {
     if (!disabled) {
       onChange?.(!enabled);
@@ -53,14 +60,16 @@ export function PlanPriceToggle({ enabled, disabled = false, onChange, scale }: 
           ]}
         />
       </View>
-      <Text
-        style={[
-          searchFont('medium'),
-          styles.label,
-          { fontSize: 12 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
-        ]}>
-        Plan price
-      </Text>
+      {showLabel ? (
+        <Text
+          style={[
+            searchFont('medium'),
+            styles.label,
+            { fontSize: 12 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
+          ]}>
+          Plan price
+        </Text>
+      ) : null}
     </Pressable>
   );
 }
