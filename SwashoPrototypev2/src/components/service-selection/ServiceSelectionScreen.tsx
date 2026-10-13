@@ -268,19 +268,8 @@ export function ServiceSelectionScreen({
       total += sumComboUnitAmount(combo.items) * comboQty;
     }
 
-    if (multiFlow === 'create') {
-      const draftServiceLines = comboDraftIds.length;
-      for (const optionId of comboDraftIds) {
-        const option = getCatalogOptionById(optionId);
-        if (option) {
-          total += option.amount;
-        }
-      }
-      count = Math.max(count, draftServiceLines);
-    }
-
     return { count, total };
-  }, [comboDraftIds, multiFlow, savedCombos]);
+  }, [savedCombos]);
 
   const showMultiCreate = mode === 'multi' && multiFlow === 'create';
   const showComboList = mode === 'multi' && multiFlow === 'list';
