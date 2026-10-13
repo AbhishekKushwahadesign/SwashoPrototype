@@ -486,20 +486,22 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
               gap: 12 * scale,
             },
           ]}>
-          <Pressable onPress={handleBackPress} hitSlop={8} style={{ width: 26 * scale, height: 26 * scale }}>
+          <Pressable
+            onPress={handleBackPress}
+            hitSlop={8}
+            style={[styles.stickyNavBackHit, { width: 20 * scale, height: 20 * scale }]}>
             <ArrowLeftIcon width={20 * scale} height={20 * scale} />
           </Pressable>
           {showCompactProviderName ? (
             <Text
               numberOfLines={1}
               style={[
-                styles.listName,
-                searchFont('semibold'),
+                styles.stickyNavTitle,
+                searchFont('medium'),
                 {
-                  fontSize: 14 * scale,
-                  lineHeight: 14 * scale,
+                  fontSize: 16 * scale,
+                  lineHeight: 16 * scale,
                   letterSpacing: 0.5 * scale,
-                  color: SwashoColors.neutral800,
                   flex: 1,
                 },
               ]}>
@@ -816,6 +818,15 @@ const styles = StyleSheet.create({
     paddingBottom: 4,
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  stickyNavBackHit: {
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stickyNavTitle: {
+    color: SwashoColors.neutral800,
   },
   scroll: {
     flex: 1,
