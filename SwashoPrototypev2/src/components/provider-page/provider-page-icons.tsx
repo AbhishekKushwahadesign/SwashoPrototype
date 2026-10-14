@@ -1,3 +1,4 @@
+import { Image } from 'expo-image';
 import type { StyleProp, ViewStyle } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
@@ -187,4 +188,18 @@ export function ListServiceIcon({
   style,
 }: IconProps & { icon: ProviderListService['icon'] }) {
   return <SvgXml xml={LIST_SERVICE_XML[icon]} width={width} height={height} style={style} />;
+}
+
+/** Figma Top Quality badge — bundled PNG for reliable Expo web rendering. */
+const topPicksBadgeImage = require('@/assets/images/search/top-picks-badge.png');
+
+export function TopPicksBadgeIcon({ width, height, style }: IconProps) {
+  return (
+    <Image
+      source={topPicksBadgeImage}
+      style={[{ width, height }, style]}
+      contentFit="contain"
+      accessibilityLabel="Top Picks badge"
+    />
+  );
 }

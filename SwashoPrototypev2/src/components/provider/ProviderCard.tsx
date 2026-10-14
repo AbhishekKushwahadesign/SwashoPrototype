@@ -1,10 +1,10 @@
-import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
 import { StarRatingIcon } from '@/components/home/figma-icons';
+import { TopPicksBadgeIcon } from '@/components/provider-page/provider-page-icons';
 import { FigmaShadows, figmaShadow } from '@/components/home/figma-shadows';
 import { searchFont } from '@/components/search/search-fonts';
 
@@ -48,11 +48,7 @@ export function ProviderCard({ provider, scale }: ProviderCardProps) {
               gap: 2.173 * scale,
             },
           ]}>
-          <Image
-            source={require('@/assets/images/search/top-picks-badge.png')}
-            style={{ width: 19 * scale, height: 21 * scale }}
-            contentFit="contain"
-          />
+          <TopPicksBadgeIcon width={19 * scale} height={21 * scale} />
           <Text
             style={[
               styles.topTagLabel,

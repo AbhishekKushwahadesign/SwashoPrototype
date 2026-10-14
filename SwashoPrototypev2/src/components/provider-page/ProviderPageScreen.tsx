@@ -1,4 +1,3 @@
-import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { Fragment, useCallback, useMemo, useRef, useState } from 'react';
@@ -31,6 +30,7 @@ import type {
 import {
   AddSquareIcon,
   BulkServiceIcon,
+  TopPicksBadgeIcon,
   ChevronDownIcon,
   GridToggleIcon,
   ListDividerIcon,
@@ -100,21 +100,7 @@ function TopPicksTag({ scale }: { scale: number }) {
 
   const content = (
     <>
-      <View
-        style={[
-          styles.topPicksBadgeWrap,
-          {
-            width: 19 * scale,
-            height: 21 * scale,
-            transform: [{ scaleY: -1 }, { rotate: '180deg' }],
-          },
-        ]}>
-        <Image
-          source={require('@/assets/images/search/top-picks-badge.png')}
-          style={{ width: 19 * scale, height: 21 * scale }}
-          contentFit="contain"
-        />
-      </View>
+      <TopPicksBadgeIcon width={19 * scale} height={21 * scale} />
       <Text
         numberOfLines={1}
         style={[
@@ -1105,10 +1091,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignSelf: 'flex-start',
     overflow: 'hidden',
-  },
-  topPicksBadgeWrap: {
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   topPicksLabel: {
     color: '#6940e0',
