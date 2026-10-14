@@ -690,6 +690,9 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
           onLayout={updateCompactProviderName}
           style={[
             styles.backHeader,
+            showCompactProviderName
+              ? figmaDropShadow(FigmaShadows.providerStickyNav, scale)
+              : null,
             {
               width: contentWidth,
               paddingTop: 64 * scale,
