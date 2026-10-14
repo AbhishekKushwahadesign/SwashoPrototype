@@ -30,6 +30,9 @@ export const SwashoColors = {
   homeIndicator: '#333333',
   /** Dimmed overlay between provider page and bottom sheets (Figma 3346:11182). */
   modalScrim: 'rgba(0, 0, 0, 0.35)',
+  info100: '#dbe8fe',
+  info300: '#93bbfd',
+  info700: '#1d64d8',
 } as const;
 
 export const SwashoRadii = {

@@ -90,3 +90,9 @@ export function formatBulkLoadSummaryLine(tierId: BulkLoadTierId): string {
   const tier = getBulkLoadTierById(tierId);
   return `${tier.title} · ${tier.weightSummary} (est.)`;
 }
+
+/** Sticky footer subtitle for bulk load sheet (Figma 58921:2640). */
+export function formatBulkStickySubtitle(tierId: BulkLoadTierId): string {
+  const tier = getBulkLoadTierById(tierId);
+  return `${tier.weightSummary} (est.)`;
+}

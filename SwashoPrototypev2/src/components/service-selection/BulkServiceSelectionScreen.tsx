@@ -18,25 +18,25 @@ import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 import {
   BULK_LOAD_TIERS,
   estimateBulkPriceForTier,
-  formatBulkLoadSummaryLine,
+  formatBulkStickySubtitle,
+  getBulkLoadTierById,
   getBulkWeightLabelForTier,
   resolveBulkLoadTier,
   type BulkLoadTierId,
 } from '@/lib/bulk-load-tiers';
 import type { ProviderGarmentCartSelection } from '@/lib/provider-cart-selection';
 
+import {
+  BULK_LOAD_RADIO_SELECTED_XML,
+  BULK_LOAD_RADIO_UNSELECTED_XML,
+  BULK_LOAD_WEIGHING_SCALE_XML,
+} from './bulk-load-icons';
 import { BulkLoadPileIllustration } from './BulkLoadPileIllustration';
-import { ServiceRadio } from './ServiceRadio';
-import { ServiceSelectionStickyBar } from './ServiceSelectionStickyBar';
+import { ServiceSelectionButton } from './ServiceSelectionButton';
 import { ServiceSheetTitle } from './ServiceSheetTitle';
 import { SheetCloseIcon } from './service-selection-icons';
 
-const SCALE_ICON_XML = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M4 16H16V17H4V16Z" fill="${SwashoColors.neutral600}"/>
-<path d="M6 14L10 4L14 14H6Z" stroke="${SwashoColors.primary600}" stroke-width="1.5" stroke-linejoin="round"/>
-<path d="M3 16H17" stroke="${SwashoColors.neutral600}" stroke-width="1.5" stroke-linecap="round"/>
-<circle cx="10" cy="15" r="1.5" fill="${SwashoColors.primary600}"/>
-</svg>`;
+const BULK_SUBTITLE = 'Choose the pile that looks closest to yours. No weighing needed';
 
 type BulkServiceSelectionScreenProps = {
   serviceId: string;
@@ -53,31 +53,32 @@ function BulkWeightAssurancePanel({ scale }: { scale: number }) {
       style={[
         styles.infoPanel,
         {
-          borderRadius: SwashoRadii.md * scale,
-          padding: 12 * scale,
+          borderTopLeftRadius: SwashoRadii.xl * scale,
+          borderTopRightRadius: SwashoRadii.xl * scale,
+          paddingHorizontal: 16 * scale,
+          paddingVertical: 10 * scale,
           gap: 8 * scale,
         },
       ]}>
-      <View style={[styles.infoHeader, { gap: 8 * scale }]}>
-        <SvgXml xml={SCALE_ICON_XML} width={20 * scale} height={20 * scale} />
+      <SvgXml xml={BULK_LOAD_WEIGHING_SCALE_XML} width={33 * scale} height={33 * scale} />
+      <View style={[styles.infoCopy, { gap: 4 * scale, flex: 1 }]}>
         <Text
           style={[
-            searchFont('semibold'),
+            searchFont('medium'),
             styles.infoTitle,
-            { fontSize: 13 * scale, lineHeight: 18 * scale, letterSpacing: 0.3 * scale, flex: 1 },
+            { fontSize: 13 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
           ]}>
-          Your final weight is confirmed at pickup
+          These sizes are estimates
+        </Text>
+        <Text
+          style={[
+            searchFont('medium'),
+            styles.infoBody,
+            { fontSize: 13 * scale, lineHeight: 18 * scale },
+          ]}>
+          We&apos;ll confirm the actual weight and price at pickup
         </Text>
       </View>
-      <Text
-        style={[
-          searchFont('medium'),
-          styles.infoBody,
-          { fontSize: 12 * scale, lineHeight: 18 * scale, letterSpacing: 0.3 * scale },
-        ]}>
-        These are estimates only. Our pickup partner will weigh your laundry and confirm the actual weight
-        for accurate billing before processing.
-      </Text>
     </View>
   );
 }
@@ -137,8 +138,74 @@ function BulkLoadOptionRow({
           {tier.garmentGuidance}
         </Text>
       </View>
-      <ServiceRadio selected={selected} onSelect={onSelect} scale={scale} />
+      <SvgXml
+        xml={selected ? BULK_LOAD_RADIO_SELECTED_XML : BULK_LOAD_RADIO_UNSELECTED_XML}
+        width={20 * scale}
+        height={20 * scale}
+      />
     </Pressable>
+  );
+}
+
+function BulkLoadStickyFooter({
+  tierId,
+  totalPrice,
+  disabled,
+  onConfirm,
+  scale,
+}: {
+  tierId: BulkLoadTierId | null;
+  totalPrice?: number;
+  disabled: boolean;
+  onConfirm: () => void;
+  scale: number;
+}) {
+  const tier = tierId ? getBulkLoadTierById(tierId) : null;
+  const confirmLabel =
+    totalPrice != null ? `₹${totalPrice} | Confirm` : 'Confirm';
+
+  return (
+    <View
+      style={[
+        styles.stickyFooter,
+        {
+          paddingLeft: 20 * scale,
+          paddingRight: 12 * scale,
+          paddingVertical: 8 * scale,
+          gap: 20 * scale,
+        },
+      ]}>
+      <View style={[styles.stickySummary, { gap: 4 * scale, width: 156 * scale }]}>
+        {tier ? (
+          <>
+            <Text
+              style={[
+                searchFont('semibold'),
+                styles.stickyTitle,
+                { fontSize: 15 * scale, lineHeight: 14 * scale, letterSpacing: 0.3 * scale },
+              ]}>
+              {tier.title}
+            </Text>
+            <Text
+              style={[
+                searchFont('semibold'),
+                styles.stickySubtitle,
+                { fontSize: 14 * scale, lineHeight: 20 * scale },
+              ]}>
+              {formatBulkStickySubtitle(tier.id)}
+            </Text>
+          </>
+        ) : null}
+      </View>
+      <ServiceSelectionButton
+        label={confirmLabel}
+        variant="primary"
+        disabled={disabled}
+        onPress={onConfirm}
+        scale={scale}
+        style={{ width: 199 * scale, flexShrink: 0 }}
+      />
+    </View>
   );
 }
 
@@ -167,16 +234,7 @@ export function BulkServiceSelectionScreen({
     return resolved ?? null;
   });
 
-  const stickyMetrics = useMemo(() => {
-    if (!selectedTier) {
-      return { count: 0, total: undefined as number | undefined, summaryLine: undefined };
-    }
-    return {
-      count: 1,
-      total: estimateBulkPriceForTier(selectedTier),
-      summaryLine: formatBulkLoadSummaryLine(selectedTier),
-    };
-  }, [selectedTier]);
+  const totalPrice = selectedTier ? estimateBulkPriceForTier(selectedTier) : undefined;
 
   const handleConfirmPress = useCallback(() => {
     if (!selectedTier) {
@@ -225,25 +283,21 @@ export function BulkServiceSelectionScreen({
               gap: 16 * scale,
             },
           ]}>
-          <ServiceSheetTitle garmentLabel={sheetTitle} showOfferBadge={false} scale={scale} />
+          <ServiceSheetTitle
+            garmentLabel={sheetTitle}
+            subtitle={BULK_SUBTITLE}
+            showOfferBadge={false}
+            scale={scale}
+          />
 
           <ScrollView
             style={[styles.scroll, Platform.OS === 'web' ? styles.scrollWeb : null]}
             contentContainerStyle={{
-              gap: 12 * scale,
+              gap: 16 * scale,
               paddingHorizontal: 16 * scale,
               paddingBottom: 16 * scale,
             }}
             showsVerticalScrollIndicator={false}>
-            <Text
-              style={[
-                searchFont('medium'),
-                styles.lead,
-                { fontSize: 13 * scale, lineHeight: 20 * scale, letterSpacing: 0.5 * scale },
-              ]}>
-              Pick the pile that best matches your laundry — no scale needed.
-            </Text>
-
             {BULK_LOAD_TIERS.map((tier) => (
               <BulkLoadOptionRow
                 key={tier.id}
@@ -253,17 +307,14 @@ export function BulkServiceSelectionScreen({
                 scale={scale}
               />
             ))}
-
-            <BulkWeightAssurancePanel scale={scale} />
           </ScrollView>
 
           <View style={[styles.sheetFooter, { paddingBottom: 20 * scale }]}>
-            <ServiceSelectionStickyBar
-              itemCount={stickyMetrics.count}
-              itemLabel="load"
-              summaryLine={stickyMetrics.summaryLine}
-              totalPrice={stickyMetrics.total}
-              confirmLabel="Confirm"
+            <BulkWeightAssurancePanel scale={scale} />
+            <BulkLoadStickyFooter
+              tierId={selectedTier}
+              totalPrice={totalPrice}
+              disabled={!selectedTier}
               onConfirm={handleConfirmPress}
               scale={scale}
             />
@@ -301,9 +352,6 @@ const styles = StyleSheet.create({
     width: '100%',
     marginTop: 'auto',
   },
-  lead: {
-    color: SwashoColors.neutral600,
-  },
   optionRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -319,7 +367,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   optionTitle: {
-    color: SwashoColors.neutral950,
+    color: SwashoColors.neutral800,
   },
   optionWeight: {
     color: SwashoColors.neutral800,
@@ -327,23 +375,38 @@ const styles = StyleSheet.create({
   optionGarments: {
     color: SwashoColors.neutral600,
   },
-  optionHint: {
-    color: SwashoColors.neutral500,
-  },
   infoPanel: {
-    backgroundColor: SwashoColors.neutral50,
+    backgroundColor: SwashoColors.info100,
     borderWidth: 1,
-    borderColor: SwashoColors.neutral200,
+    borderColor: SwashoColors.info300,
+    borderBottomWidth: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
     width: '100%',
   },
-  infoHeader: {
-    flexDirection: 'row',
+  infoCopy: {
     alignItems: 'flex-start',
   },
   infoTitle: {
-    color: SwashoColors.neutral800,
+    color: SwashoColors.info700,
   },
   infoBody: {
+    color: SwashoColors.info700,
+  },
+  stickyFooter: {
+    backgroundColor: SwashoColors.surface,
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    width: '100%',
+  },
+  stickySummary: {
+    justifyContent: 'center',
+  },
+  stickyTitle: {
+    color: SwashoColors.darkHeaderText,
+  },
+  stickySubtitle: {
     color: SwashoColors.neutral600,
   },
 });
