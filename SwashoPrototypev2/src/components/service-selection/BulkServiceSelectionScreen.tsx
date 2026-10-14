@@ -136,14 +136,6 @@ function BulkLoadOptionRow({
           ]}>
           {tier.garmentGuidance}
         </Text>
-        <Text
-          style={[
-            searchFont('medium'),
-            styles.optionHint,
-            { fontSize: 11 * scale, lineHeight: 14 * scale, letterSpacing: 0.3 * scale },
-          ]}>
-          Rough guidance — not an exact weight
-        </Text>
       </View>
       <ServiceRadio selected={selected} onSelect={onSelect} scale={scale} />
     </Pressable>
