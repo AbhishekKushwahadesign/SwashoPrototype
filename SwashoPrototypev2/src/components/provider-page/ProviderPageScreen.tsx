@@ -258,7 +258,7 @@ function EditServiceButton({ scale, onPress }: { scale: number; onPress?: () => 
         ]}>
         EDIT
       </Text>
-      <PenEditIcon width={16 * scale} height={16 * scale} />
+      <PenEditIcon width={16 * scale} height={16 * scale} color={SwashoColors.surface} />
     </Pressable>
   );
 }

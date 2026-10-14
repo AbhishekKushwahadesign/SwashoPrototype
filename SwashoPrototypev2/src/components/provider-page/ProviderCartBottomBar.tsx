@@ -28,13 +28,14 @@ export function ProviderCartBottomBar({
         styles.bar,
         {
           width: contentWidth,
-          paddingHorizontal: 20 * scale,
+          paddingLeft: 20 * scale,
+          paddingRight: 11 * scale,
           paddingVertical: 12 * scale,
-          gap: 18 * scale,
+          gap: 20 * scale,
           ...figmaShadow(FigmaShadows.sheet, scale),
         },
       ]}>
-      <View style={[styles.summaryCol, { gap: 8 * scale, width: 156 * scale }]}>
+      <View style={[styles.summaryCol, { gap: 4 * scale }]}>
         <Text
           style={[
             styles.selectedLabel,
@@ -81,7 +82,7 @@ export function ProviderCartBottomBar({
           ]}>
           Proceed
         </Text>
-        <ArrowRightIcon width={24 * scale} height={24 * scale} />
+        <ArrowRightIcon width={24 * scale} height={24 * scale} color={SwashoColors.neutral50} />
       </Pressable>
     </View>
   );
@@ -97,10 +98,14 @@ const styles = StyleSheet.create({
     backgroundColor: SwashoColors.surface,
     flexDirection: 'row',
     alignItems: 'center',
-    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    flexWrap: 'nowrap',
   },
   summaryCol: {
+    flex: 1,
+    minWidth: 0,
     justifyContent: 'center',
+    maxWidth: 156,
   },
   selectedLabel: {
     color: SwashoColors.neutral600,
@@ -115,6 +120,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    flexShrink: 0,
   },
   proceedLabel: {
     color: SwashoColors.neutral50,

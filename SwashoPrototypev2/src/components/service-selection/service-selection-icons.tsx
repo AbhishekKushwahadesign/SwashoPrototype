@@ -83,12 +83,19 @@ export function InfoCircleIcon({ width, height, style }: IconProps) {
   return <SvgXml xml={InfoCircleIconXml} width={width} height={height} style={style} />;
 }
 
-const PenEditIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M11.3333 2.00004C11.7015 1.63182 12.2985 1.63182 12.6667 2.00004C13.0349 2.36825 13.0349 2.9653 12.6667 3.33352L5.33333 10.6669L2.66667 11.3335L3.33333 8.66686L10.6667 1.33352L11.3333 2.00004Z" stroke="#292929" stroke-width="1.2" stroke-linejoin="round"/>
+function penEditIconXml(stroke: string) {
+  return `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M11.3333 2.00004C11.7015 1.63182 12.2985 1.63182 12.6667 2.00004C13.0349 2.36825 13.0349 2.9653 12.6667 3.33352L5.33333 10.6669L2.66667 11.3335L3.33333 8.66686L10.6667 1.33352L11.3333 2.00004Z" stroke="${stroke}" stroke-width="1.2" stroke-linejoin="round"/>
 </svg>`;
+}
 
-export function PenEditIcon({ width, height, style }: IconProps) {
-  return <SvgXml xml={PenEditIconXml} width={width} height={height} style={style} />;
+export function PenEditIcon({
+  width,
+  height,
+  style,
+  color = '#292929',
+}: IconProps & { color?: string }) {
+  return <SvgXml xml={penEditIconXml(color)} width={width} height={height} style={style} />;
 }
 
 const TabDividerIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="1" height="16" viewBox="0 0 1 16" fill="none" xmlns="http://www.w3.org/2000/svg">

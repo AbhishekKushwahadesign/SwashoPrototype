@@ -35,14 +35,21 @@ export function AltArrowRightIcon({ width, height, style }: IconProps) {
   return <SvgXml xml={AltArrowRightIconXml} width={width} height={height} style={style} />;
 }
 
-const ArrowRightIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+function arrowRightIconXml(stroke: string) {
+  return `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g id="Linear / Arrows / Arrow Right">
-<path id="Vector" d="M3.33333 10H16.6667M11.6667 15L16.6667 10L11.6667 5" stroke="#5D30F7" strokeWidth="1.66667" strokeLinecap="round" strokeLinejoin="round"/>
+<path id="Vector" d="M3.33333 10H16.6667M11.6667 15L16.6667 10L11.6667 5" stroke="${stroke}" strokeWidth="1.66667" strokeLinecap="round" strokeLinejoin="round"/>
 </g>
 </svg>`;
+}
 
-export function ArrowRightIcon({ width, height, style }: IconProps) {
-  return <SvgXml xml={ArrowRightIconXml} width={width} height={height} style={style} />;
+export function ArrowRightIcon({
+  width,
+  height,
+  style,
+  color = '#5D30F7',
+}: IconProps & { color?: string }) {
+  return <SvgXml xml={arrowRightIconXml(color)} width={width} height={height} style={style} />;
 }
 
 const ArrowLeftIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
