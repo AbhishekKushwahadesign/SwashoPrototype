@@ -48,11 +48,11 @@ export function getBulkLoadTierById(id: BulkLoadTierId): BulkLoadTier {
 export function getBulkWeightLabelForTier(tierId: BulkLoadTierId): string {
   switch (tierId) {
     case 'small':
-      return 'UNDER 3 KG';
+      return '(1-3kg)';
     case 'medium':
       return '3 - 5KG';
     case 'large':
-      return 'ABOVE 5 KG';
+      return '(5+kg)';
     default:
       return '3 - 5KG';
   }
@@ -69,10 +69,10 @@ export function resolveBulkLoadTier(selection: {
   if (!label) {
     return undefined;
   }
-  if (label.includes('UNDER') || label.includes('<3')) {
+  if (label.includes('UNDER') || label.includes('<3') || label.includes('1-3')) {
     return 'small';
   }
-  if (label.includes('ABOVE') || label.includes('>5')) {
+  if (label.includes('ABOVE') || label.includes('>5') || label.includes('5+')) {
     return 'large';
   }
   if (label.includes('3') && label.includes('5')) {
