@@ -82,15 +82,20 @@ function OfferText({ provider, scale }: { provider: ProviderResult; scale: numbe
   );
 }
 
-/** Figma 3346:10697 — Top Quality Tag gradient */
+/** Figma 3346:10697 — Top Quality Tag gradient (full-width horizontal wash). */
 const TOP_PICKS_GRADIENT_COLORS = ['#FFFFFF', '#E9E8FF', '#FFFFFF'] as const;
-const TOP_PICKS_GRADIENT_LOCATIONS = [0.096687, 0.19834, 1] as const;
+const TOP_PICKS_GRADIENT_LOCATIONS = [0.096687, 0.5, 1] as const;
 
 function TopPicksTag({ scale }: { scale: number }) {
   const tagStyle = [
     styles.topPicksTag,
-    { paddingHorizontal: 4 * scale, paddingVertical: 1 * scale, minWidth: 75 * scale },
-    Platform.OS === 'web' ? styles.topPicksTagGradientWeb : null,
+    {
+      paddingHorizontal: 4 * scale,
+      paddingVertical: 1 * scale,
+      minWidth: 75 * scale,
+      gap: 4 * scale,
+      borderRadius: SwashoRadii.sm * scale,
+    },
   ];
 
   const content = (
@@ -127,16 +132,12 @@ function TopPicksTag({ scale }: { scale: number }) {
     </>
   );
 
-  if (Platform.OS === 'web') {
-    return <View style={tagStyle}>{content}</View>;
-  }
-
   return (
     <LinearGradient
       colors={[...TOP_PICKS_GRADIENT_COLORS]}
       locations={[...TOP_PICKS_GRADIENT_LOCATIONS]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 0 }}
+      start={{ x: 0, y: 0.5 }}
+      end={{ x: 1, y: 0.5 }}
       style={tagStyle}>
       {content}
     </LinearGradient>
@@ -1102,14 +1103,8 @@ const styles = StyleSheet.create({
     flexWrap: 'nowrap',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
-    borderRadius: SwashoRadii.sm,
     alignSelf: 'flex-start',
     overflow: 'hidden',
-  },
-  topPicksTagGradientWeb: {
-    backgroundImage:
-      'linear-gradient(90.27deg, #FFFFFF 9.6687%, #E9E8FF 19.834%, #FFFFFF 109.62%)',
   },
   topPicksBadgeWrap: {
     alignItems: 'center',
