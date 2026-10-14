@@ -48,11 +48,11 @@ export function getBulkLoadTierById(id: BulkLoadTierId): BulkLoadTier {
 export function getBulkWeightLabelForTier(tierId: BulkLoadTierId): string {
   switch (tierId) {
     case 'small':
-      return '(1-3kg)';
+      return '1-3kg';
     case 'medium':
       return '3 - 5KG';
     case 'large':
-      return '(5+kg)';
+      return '5+kg';
     default:
       return '3 - 5KG';
   }
@@ -65,7 +65,7 @@ export function resolveBulkLoadTier(selection: {
   if (selection.bulkLoadTier) {
     return selection.bulkLoadTier;
   }
-  const label = selection.bulkWeightLabel?.toUpperCase().replace(/\s/g, '');
+  const label = selection.bulkWeightLabel?.toUpperCase().replace(/\s/g, '').replace(/[()]/g, '');
   if (!label) {
     return undefined;
   }
