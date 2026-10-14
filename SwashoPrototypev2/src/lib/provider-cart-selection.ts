@@ -70,13 +70,16 @@ export function hasProviderCartSelection(
   return garmentAssignmentItemCount(selection, serviceId) > 0 || Boolean(selection.bulkWeightLabel);
 }
 
-export function computeSelectionStickyMetrics(selection: ProviderGarmentCartSelection) {
+export function computeSelectionStickyMetrics(
+  selection: ProviderGarmentCartSelection,
+  serviceId?: string,
+) {
   let singleTotal = 0;
   for (const [optionId, qty] of Object.entries(selection.quantities)) {
     if (qty <= 0) {
       continue;
     }
-    const option = getCatalogOptionById(optionId);
+    const option = getCatalogOptionById(optionId, serviceId);
     if (option) {
       singleTotal += option.amount * qty;
     }

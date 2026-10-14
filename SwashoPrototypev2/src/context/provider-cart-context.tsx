@@ -60,7 +60,7 @@ export function ProviderCartProvider({ children }: { children: ReactNode }) {
           continue;
         }
         itemCount += count;
-        totalPrice += computeSelectionStickyMetrics(selection).totalPrice;
+        totalPrice += computeSelectionStickyMetrics(selection, serviceId).totalPrice;
       }
 
       return { itemCount, totalPrice };

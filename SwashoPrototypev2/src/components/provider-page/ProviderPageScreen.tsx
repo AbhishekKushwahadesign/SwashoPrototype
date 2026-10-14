@@ -26,6 +26,7 @@ import type {
   ProviderResult,
   ProviderServiceSection,
 } from '@/data/providers';
+import { getProviderListServicePrice } from '@/data/providers';
 
 import {
   AddSquareIcon,
@@ -323,11 +324,13 @@ function BulkServiceCard({
 function ServiceListRow({
   service,
   serviceName,
+  listPrice,
   scale,
   onPress,
 }: {
   service: ProviderListService;
   serviceName: string;
+  listPrice: number;
   scale: number;
   onPress?: () => void;
 }) {
@@ -364,7 +367,7 @@ function ServiceListRow({
             searchFont('medium'),
             { fontSize: 13 * scale, lineHeight: 20 * scale, letterSpacing: 0.5 * scale },
           ]}>
-          {serviceName} at ₹{service.price}
+          {serviceName} at ₹{listPrice}
         </Text>
       </View>
       <AddButton scale={scale} onPress={onPress} />
@@ -375,12 +378,14 @@ function ServiceListRow({
 function SelectedServiceListRow({
   service,
   serviceName,
+  listPrice,
   selection,
   scale,
   onEditPress,
 }: {
   service: ProviderListService;
   serviceName: string;
+  listPrice: number;
   selection: ProviderGarmentCartSelection;
   scale: number;
   onEditPress?: () => void;
@@ -447,7 +452,7 @@ function SelectedServiceListRow({
               searchFont('medium'),
               { fontSize: 13 * scale, lineHeight: 20 * scale, letterSpacing: 0.5 * scale },
             ]}>
-            {serviceName} at ₹{service.price}
+            {serviceName} at ₹{listPrice}
           </Text>
         )}
       </View>
@@ -563,12 +568,15 @@ function ServiceSection({
         alignSelf="center"
       />
       {expanded
-        ? section.items.map((item, index) => (
+        ? section.items.map((item, index) => {
+            const listPrice = getProviderListServicePrice(item, serviceName);
+            return (
         <View key={item.id}>
           {hasProviderCartSelection(getGarmentSelection(item.id), item.id) ? (
             <SelectedServiceListRow
               service={item}
               serviceName={serviceName}
+              listPrice={listPrice}
               selection={getGarmentSelection(item.id)!}
               scale={scale}
               onEditPress={() => onServicePress(item.id)}
@@ -577,6 +585,7 @@ function ServiceSection({
             <ServiceListRow
               service={item}
               serviceName={serviceName}
+              listPrice={listPrice}
               scale={scale}
               onPress={() => onServicePress(item.id)}
             />
@@ -585,7 +594,8 @@ function ServiceSection({
             <ListDividerIcon width={362 * scale} height={1} style={{ alignSelf: 'center' }} />
           ) : null}
         </View>
-      ))
+            );
+          })
         : null}
     </View>
   );

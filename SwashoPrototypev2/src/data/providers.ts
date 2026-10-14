@@ -1,3 +1,11 @@
+import {
+  GARMENT_CATALOG,
+  garmentPriceStartingAt,
+  normalizeSearchServiceColumn,
+  resolveGarmentListPrice,
+  type GarmentCatalogId,
+} from '@/data/garment-pricing';
+
 export type ProviderOffer = {
   id: string;
   name: string;
@@ -25,7 +33,7 @@ export type ProviderBulkService = {
 export type ProviderListService = {
   id: string;
   name: string;
-  price: number;
+  garmentId: GarmentCatalogId;
   icon: 'shirt' | 'tshirt' | 'trouser' | 'jeans';
 };
 
@@ -78,17 +86,65 @@ const DEFAULT_BULK_SERVICES: ProviderBulkService[] = [
   { id: 'bulk-wash-fold', name: 'Wash & Fold', priceLabel: '₹₹₹/Kg', icon: 'wash-fold' },
 ];
 
-const DEFAULT_MENS_SERVICES: ProviderListService[] = [
-  { id: 'mens-shirt', name: 'Shirt', price: 15, icon: 'shirt' },
-  { id: 'mens-tshirt', name: 'T-Shirt', price: 15, icon: 'tshirt' },
-  { id: 'mens-trouser', name: 'Trouser/Pant', price: 20, icon: 'trouser' },
-  { id: 'mens-jeans', name: 'Jeans', price: 25, icon: 'jeans' },
+type ListItemDef = {
+  idPrefix: 'mens' | 'womens';
+  garmentId: GarmentCatalogId;
+  icon: ProviderListService['icon'];
+};
+
+const MENS_CATALOG: ListItemDef[] = [
+  { idPrefix: 'mens', garmentId: 'shirt', icon: 'shirt' },
+  { idPrefix: 'mens', garmentId: 'tshirt', icon: 'tshirt' },
+  { idPrefix: 'mens', garmentId: 'trouser', icon: 'trouser' },
+  { idPrefix: 'mens', garmentId: 'jeans', icon: 'jeans' },
+  { idPrefix: 'mens', garmentId: 'shorts', icon: 'trouser' },
+  { idPrefix: 'mens', garmentId: 'kurta', icon: 'shirt' },
+  { idPrefix: 'mens', garmentId: 'hoodie', icon: 'shirt' },
+  { idPrefix: 'mens', garmentId: 'blazer', icon: 'shirt' },
+  { idPrefix: 'mens', garmentId: 'suit', icon: 'shirt' },
 ];
 
-const DEFAULT_WOMENS_SERVICES: ProviderListService[] = [
-  { id: 'womens-shirt', name: 'Shirt', price: 15, icon: 'shirt' },
-  { id: 'womens-trouser', name: 'Trouser/Pant', price: 20, icon: 'trouser' },
+const WOMENS_CATALOG: ListItemDef[] = [
+  { idPrefix: 'womens', garmentId: 'shirt', icon: 'shirt' },
+  { idPrefix: 'womens', garmentId: 'tshirt', icon: 'tshirt' },
+  { idPrefix: 'womens', garmentId: 'trouser', icon: 'trouser' },
+  { idPrefix: 'womens', garmentId: 'jeans', icon: 'jeans' },
+  { idPrefix: 'womens', garmentId: 'shorts', icon: 'trouser' },
+  { idPrefix: 'womens', garmentId: 'kurta', icon: 'shirt' },
+  { idPrefix: 'womens', garmentId: 'saree-cotton', icon: 'shirt' },
+  { idPrefix: 'womens', garmentId: 'saree-silk', icon: 'shirt' },
+  { idPrefix: 'womens', garmentId: 'blouse', icon: 'shirt' },
+  { idPrefix: 'womens', garmentId: 'dress-casual', icon: 'shirt' },
+  { idPrefix: 'womens', garmentId: 'dress-party', icon: 'shirt' },
+  { idPrefix: 'womens', garmentId: 'skirt', icon: 'trouser' },
+  { idPrefix: 'womens', garmentId: 'sweater', icon: 'shirt' },
+  { idPrefix: 'womens', garmentId: 'hoodie', icon: 'shirt' },
+  { idPrefix: 'womens', garmentId: 'blazer', icon: 'shirt' },
+  { idPrefix: 'womens', garmentId: 'dupatta', icon: 'shirt' },
 ];
+
+function toListService(def: ListItemDef): ProviderListService {
+  const entry = GARMENT_CATALOG[def.garmentId];
+  return {
+    id: `${def.idPrefix}-${def.garmentId}`,
+    name: entry.name,
+    garmentId: def.garmentId,
+    icon: def.icon,
+  };
+}
+
+const DEFAULT_MENS_SERVICES = MENS_CATALOG.map(toListService);
+const DEFAULT_WOMENS_SERVICES = WOMENS_CATALOG.map(toListService);
+
+function buildProviderCardPricing(serviceName: string): ProviderPricingItem[] {
+  const column = normalizeSearchServiceColumn(serviceName);
+  const shirtCell = GARMENT_CATALOG.shirt.prices[column] ?? GARMENT_CATALOG.shirt.prices.dryClean!;
+  const blazerCell = GARMENT_CATALOG.blazer.prices[column] ?? GARMENT_CATALOG.blazer.prices.dryClean!;
+  return [
+    { label: 'Shirt', price: garmentPriceStartingAt(shirtCell) },
+    { label: 'Blazer', price: garmentPriceStartingAt(blazerCell) },
+  ];
+}
 
 function buildProviderServices() {
   return {
@@ -104,6 +160,7 @@ function buildProviderServices() {
 
 export function getProviderResultsForQuery(query: string): ProviderResult[] {
   const serviceName = query.trim() || 'Dry Cleaning';
+  const pricing = buildProviderCardPricing(serviceName);
 
   return [
     {
@@ -111,10 +168,7 @@ export function getProviderResultsForQuery(query: string): ProviderResult[] {
       serviceName,
       category: 'Laundromat',
       rating: 4.5,
-      pricing: [
-        { label: 'Shirt', price: 45 },
-        { label: 'Blazer', price: 120 },
-      ],
+      pricing,
       deliveryInfo: 'Next Day Delivery Available',
       deliveryIcon: 'bold',
       offerText: {
@@ -129,10 +183,7 @@ export function getProviderResultsForQuery(query: string): ProviderResult[] {
       serviceName,
       category: 'Laundromat',
       rating: 4.5,
-      pricing: [
-        { label: 'Shirt', price: 45 },
-        { label: 'Blazer', price: 120 },
-      ],
+      pricing,
       deliveryInfo: 'Next Day Delivery Available',
       deliveryIcon: 'bold',
       offerText: {
@@ -147,10 +198,7 @@ export function getProviderResultsForQuery(query: string): ProviderResult[] {
       serviceName,
       category: 'Laundromat',
       rating: 4.5,
-      pricing: [
-        { label: 'Shirt', price: 45 },
-        { label: 'Blazer', price: 120 },
-      ],
+      pricing,
       deliveryInfo: 'Next Day Delivery Available',
       deliveryIcon: 'linear',
       offerText: {
@@ -183,6 +231,10 @@ export function getProviderGarmentName(
     }
   }
   return undefined;
+}
+
+export function getProviderListServicePrice(service: ProviderListService, searchQuery: string): number {
+  return resolveGarmentListPrice(service.garmentId, searchQuery);
 }
 
 export function getProviderBulkService(

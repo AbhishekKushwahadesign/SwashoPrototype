@@ -14,7 +14,11 @@ import { getProviderGarmentName } from '@/data/providers';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
 import { CreateComboSelectPanel } from './CreateComboSelectPanel';
-import { SERVICE_SELECTION_CATALOG, getCatalogOptionById } from './service-selection-catalog';
+import {
+  buildServiceSelectionCatalog,
+  getCatalogOptionById,
+  getCatalogOptionDisplayAmount,
+} from './service-selection-catalog';
 import { ServiceGarmentRow } from './ServiceGarmentRow';
 import { ServiceInstructionText } from './ServiceInstructionText';
 import { ServiceModeTabs, type ServiceMode } from './ServiceModeTabs';
@@ -114,6 +118,8 @@ function GarmentServiceSelectionScreen({
     [providerId, query, serviceId],
   );
 
+  const serviceCatalog = useMemo(() => buildServiceSelectionCatalog(serviceId), [serviceId]);
+
   const [mode, setMode] = useState<ServiceMode>('single');
   const [multiFlow, setMultiFlow] = useState<MultiFlow>('list');
   const [sectionExpanded, setSectionExpanded] = useState<Record<string, boolean>>({});
@@ -194,7 +200,7 @@ function GarmentServiceSelectionScreen({
     }
     const items = comboDraftIds
       .map((optionId) => {
-        const option = getCatalogOptionById(optionId);
+        const option = getCatalogOptionById(optionId, serviceId);
         if (!option) {
           return null;
         }
@@ -220,7 +226,7 @@ function GarmentServiceSelectionScreen({
     ]);
     setComboDraftIds([]);
     setMultiFlow('list');
-  }, [comboDraftIds, savedCombos.length]);
+  }, [comboDraftIds, savedCombos.length, serviceId]);
 
   const singleTotals = useMemo(() => {
     let count = 0;
@@ -230,7 +236,7 @@ function GarmentServiceSelectionScreen({
       if (qty <= 0) {
         continue;
       }
-      const option = getCatalogOptionById(optionId);
+      const option = getCatalogOptionById(optionId, serviceId);
       if (!option) {
         continue;
       }
@@ -239,7 +245,7 @@ function GarmentServiceSelectionScreen({
       total += option.amount * qty;
     }
     return { count, total, serviceCount };
-  }, [quantities]);
+  }, [quantities, serviceId]);
 
   const hasSingleSelections = singleTotals.serviceCount > 0;
 
@@ -323,7 +329,7 @@ function GarmentServiceSelectionScreen({
   const renderSingleRow = (
     optionId: string,
     title: string,
-    amount: number,
+    amount: number | string,
     titleStyle: 'semibold' | 'medium' = 'semibold',
     addMode: 'add' | 'select' | 'tertiary' = 'add',
     titleFontSize?: 14 | 15 | 16,
@@ -352,7 +358,7 @@ function GarmentServiceSelectionScreen({
   const renderMultiCreateRow = (
     optionId: string,
     title: string,
-    amount: number,
+    amount: number | string,
     titleStyle: 'semibold' | 'medium' = 'semibold',
     titleFontSize?: 14 | 15 | 16,
   ) => {
@@ -424,7 +430,7 @@ function GarmentServiceSelectionScreen({
     const renderOptionRow = (
       optionId: string,
       title: string,
-      amount: number,
+      amount: number | string,
       titleStyle: 'semibold' | 'medium' = 'semibold',
       catalogAddMode?: 'add' | 'select',
       titleFontSize?: 14 | 15 | 16,
@@ -440,7 +446,7 @@ function GarmentServiceSelectionScreen({
 
     const catalogList = (
       <View style={[styles.listBlock, { gap: 20 * scale, paddingHorizontal: multiFlow === 'create' ? 0 : 16 * scale }]}>
-        {SERVICE_SELECTION_CATALOG.sections.map((section, sectionIndex) => {
+        {serviceCatalog.sections.map((section, sectionIndex) => {
           const expanded = isSectionExpanded(section.id);
           return (
             <View key={section.id} style={{ gap: 16 * scale, width: '100%', alignItems: 'center' }}>
@@ -457,7 +463,7 @@ function GarmentServiceSelectionScreen({
                     {renderOptionRow(
                       option.id,
                       option.title,
-                      option.amount,
+                      getCatalogOptionDisplayAmount(option),
                       option.titleStyle,
                       option.addMode,
                       option.titleFontSize,
@@ -466,7 +472,7 @@ function GarmentServiceSelectionScreen({
                   </View>
                 ))}
               </ServiceSelectionCard>
-              {sectionIndex < SERVICE_SELECTION_CATALOG.sections.length - 1 ? (
+              {sectionIndex < serviceCatalog.sections.length - 1 ? (
                 <ServiceRowDivider variant="solid" width={389} scale={scale} />
               ) : null}
             </View>
