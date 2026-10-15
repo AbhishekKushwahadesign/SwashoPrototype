@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import type { StyleProp, ViewStyle } from 'react-native';
+import { View, type StyleProp, type ViewStyle } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
 import GridToggleArt from '@/assets/images/provider-page/grid-toggle.svg';
@@ -61,9 +61,43 @@ export function ListIcon({ width, height, style }: IconProps) {
   return <SvgXml xml={ListIconXml} width={width} height={height} style={style} />;
 }
 
-/** Figma 3346:8890 — 43×23 frame; art keeps native aspect ratio (no non-uniform stretch). */
+/** Figma 3346:8890 — Frame 176 (43×23); Frame 175 slot 29×14.5 @ (3, 3.25) with shadow overflow. */
+const GRID_TOGGLE_FRAME_W = 43;
+const GRID_TOGGLE_FRAME_H = 23;
+const GRID_TOGGLE_SLOT_X = 3;
+const GRID_TOGGLE_SLOT_Y = 3.25;
+const GRID_TOGGLE_SLOT_W = 29;
+const GRID_TOGGLE_SLOT_H = 14.5;
+const GRID_TOGGLE_ART_W = 39.7861;
+const GRID_TOGGLE_ART_H = 27.9375;
+/** Track pill origin in art coords (matches 29×14.5 slot). */
+const GRID_TOGGLE_TRACK_X = 10.7861;
+const GRID_TOGGLE_TRACK_Y = 4.6875;
+
 export function GridToggleIcon({ width, height, style }: IconProps) {
-  return <GridToggleArt width={width} height={height} style={style} />;
+  const frameScale = width / GRID_TOGGLE_FRAME_W;
+  const artWidth = GRID_TOGGLE_SLOT_W * frameScale;
+  const artHeight = (GRID_TOGGLE_ART_H / GRID_TOGGLE_ART_W) * artWidth;
+  const artScale = artWidth / GRID_TOGGLE_ART_W;
+  const slotLeft = GRID_TOGGLE_SLOT_X * frameScale;
+  const slotTop = GRID_TOGGLE_SLOT_Y * frameScale;
+  const artLeft = slotLeft - GRID_TOGGLE_TRACK_X * artScale;
+  const artTop = slotTop - GRID_TOGGLE_TRACK_Y * artScale;
+
+  return (
+    <View style={[{ width, height, overflow: 'visible' }, style]}>
+      <GridToggleArt
+        width={artWidth}
+        height={artHeight}
+        style={{
+          position: 'absolute',
+          left: artLeft,
+          top: artTop,
+          overflow: 'visible',
+        }}
+      />
+    </View>
+  );
 }
 
 const ListDividerIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="362" height="1" viewBox="0 0 362 1" fill="none" xmlns="http://www.w3.org/2000/svg">
