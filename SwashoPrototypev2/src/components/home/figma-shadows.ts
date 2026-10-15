@@ -83,6 +83,8 @@ export const FigmaShadows = {
   providerPageHeader: { offsetX: 0, offsetY: 8, blur: 5, color: '#000000', opacity: 0.1 },
   /** Compact sticky nav when laundry name is visible (shadow below bar). */
   providerStickyNav: { offsetX: 0, offsetY: 2, blur: 4, color: '#000000', opacity: 0.12 },
+  /** Figma 3346:8891 — grid toggle thumb drop shadow (-2, 2, blur 2 @ 19%). */
+  gridToggleThumb: { offsetX: -2, offsetY: 2, blur: 2, color: '#000000', opacity: 0.19 },
 } as const satisfies Record<string, ShadowSpec>;
 
 /** CSS drop-shadow (Figma effect on clipped rounded headers). Falls back to box shadow on native. */

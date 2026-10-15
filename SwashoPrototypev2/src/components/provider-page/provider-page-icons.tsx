@@ -1,8 +1,9 @@
 import { Image } from 'expo-image';
-import { View, type StyleProp, type ViewStyle } from 'react-native';
+import { Platform, View, type StyleProp, type ViewStyle } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
 import GridToggleArt from '@/assets/images/provider-page/grid-toggle.svg';
+import { FigmaShadows, figmaDropShadow } from '@/components/home/figma-shadows';
 import type { ProviderBulkService, ProviderListService } from '@/data/providers';
 
 import { WashFoldBulkIconXml, WashIronBulkIconXml } from './bulk-wash-icon-xml';
@@ -73,6 +74,41 @@ const GRID_TOGGLE_ART_H = 27.9375;
 /** Track pill origin in art coords (matches 29×14.5 slot). */
 const GRID_TOGGLE_TRACK_X = 10.7861;
 const GRID_TOGGLE_TRACK_Y = 4.6875;
+const GRID_TOGGLE_THUMB_CX = 15.9688;
+const GRID_TOGGLE_THUMB_CY = 11.9688;
+const GRID_TOGGLE_THUMB_R = 9.96875;
+
+const GridToggleHighlightSvg = `<svg preserveAspectRatio="xMidYMid meet" overflow="visible" width="39.7861" height="27.9375" viewBox="0 0 39.7861 27.9375" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g opacity="0.68" filter="url(#grid_toggle_thumb_highlight)">
+<path d="M24.26 9.37797C24.6241 9.32668 24.9632 9.58026 24.9901 9.94695C25.0995 11.4407 24.8712 12.943 24.3184 14.3412C23.6838 15.9461 22.6434 17.3588 21.2991 18.441C19.9547 19.5232 18.3524 20.2378 16.649 20.515C15.1651 20.7565 13.6486 20.6587 12.2127 20.2327C11.8602 20.1281 11.6849 19.7428 11.8128 19.398V19.398C11.9407 19.0533 12.3233 18.8802 12.6768 18.9811C13.8956 19.3291 15.1788 19.4053 16.4352 19.2008C17.9111 18.9607 19.2993 18.3415 20.4641 17.4038C21.6289 16.4661 22.5304 15.2421 23.0802 13.8516C23.5482 12.6679 23.7478 11.398 23.6682 10.133C23.6451 9.76605 23.896 9.42926 24.26 9.37797V9.37797Z" fill="#D5D4FF"/>
+</g>
+<defs>
+<filter id="grid_toggle_thumb_highlight" x="7.77108" y="5.37138" width="21.2456" height="19.273" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="2" result="effect1_foregroundBlur"/>
+</filter>
+</defs>
+</svg>`;
+
+/** Native-only thumb drop shadow (SVG feComposite renders harshly on RN web). */
+const GridToggleThumbShadowSvg = `<svg preserveAspectRatio="xMidYMid meet" overflow="visible" width="39.7861" height="27.9375" viewBox="0 0 39.7861 27.9375" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g filter="url(#grid_toggle_thumb_drop)">
+<circle cx="${GRID_TOGGLE_THUMB_CX}" cy="${GRID_TOGGLE_THUMB_CY}" r="${GRID_TOGGLE_THUMB_R}" fill="#656565"/>
+</g>
+<defs>
+<filter id="grid_toggle_thumb_drop" x="0" y="0" width="27.9375" height="27.9375" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dx="-2" dy="2"/>
+<feGaussianBlur stdDeviation="2"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.19 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape"/>
+</filter>
+</defs>
+</svg>`;
 
 export function GridToggleIcon({ width, height, style }: IconProps) {
   const frameScale = width / GRID_TOGGLE_FRAME_W;
@@ -83,6 +119,10 @@ export function GridToggleIcon({ width, height, style }: IconProps) {
   const slotTop = GRID_TOGGLE_SLOT_Y * frameScale;
   const artLeft = slotLeft - GRID_TOGGLE_TRACK_X * artScale;
   const artTop = slotTop - GRID_TOGGLE_TRACK_Y * artScale;
+  const thumbSize = GRID_TOGGLE_THUMB_R * 2 * artScale;
+  const thumbLeft = artLeft + (GRID_TOGGLE_THUMB_CX - GRID_TOGGLE_THUMB_R) * artScale;
+  const thumbTop = artTop + (GRID_TOGGLE_THUMB_CY - GRID_TOGGLE_THUMB_R) * artScale;
+  const thumbShadowStyle = figmaDropShadow(FigmaShadows.gridToggleThumb, artScale);
 
   return (
     <View style={[{ width, height, overflow: 'visible' }, style]}>
@@ -94,6 +134,49 @@ export function GridToggleIcon({ width, height, style }: IconProps) {
           left: artLeft,
           top: artTop,
           overflow: 'visible',
+        }}
+      />
+      {Platform.OS === 'web' ? (
+        <View
+          pointerEvents="none"
+          style={[
+            {
+              position: 'absolute',
+              left: thumbLeft,
+              top: thumbTop,
+              width: thumbSize,
+              height: thumbSize,
+              borderRadius: thumbSize / 2,
+              backgroundColor: '#656565',
+              zIndex: 1,
+            },
+            thumbShadowStyle,
+          ]}
+        />
+      ) : (
+        <SvgXml
+          xml={GridToggleThumbShadowSvg}
+          width={artWidth}
+          height={artHeight}
+          style={{
+            position: 'absolute',
+            left: artLeft,
+            top: artTop,
+            overflow: 'visible',
+            zIndex: 1,
+          }}
+        />
+      )}
+      <SvgXml
+        xml={GridToggleHighlightSvg}
+        width={artWidth}
+        height={artHeight}
+        style={{
+          position: 'absolute',
+          left: artLeft,
+          top: artTop,
+          overflow: 'visible',
+          zIndex: 2,
         }}
       />
     </View>
