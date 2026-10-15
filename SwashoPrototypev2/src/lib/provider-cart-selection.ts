@@ -10,6 +10,7 @@ import {
 import { getCatalogOptionById } from '@/components/service-selection/service-selection-catalog';
 import {
   estimateBulkPriceForTier,
+  getBulkServiceRatePerKg,
   formatBulkLoadSummaryLine,
   resolveBulkLoadTier,
   type BulkLoadTierId,
@@ -97,7 +98,10 @@ export function computeSelectionStickyMetrics(
   let totalPrice = singleTotal + multiTotal;
   const bulkTier = resolveBulkLoadTier(selection);
   if (bulkTier) {
-    totalPrice += estimateBulkPriceForTier(bulkTier);
+    totalPrice += estimateBulkPriceForTier(
+      bulkTier,
+      serviceId ? getBulkServiceRatePerKg(serviceId) : undefined,
+    );
   }
 
   const itemCount = garmentAssignmentItemCount(selection);

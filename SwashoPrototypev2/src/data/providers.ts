@@ -5,6 +5,7 @@ import {
   resolveGarmentListPrice,
   type GarmentCatalogId,
 } from '@/data/garment-pricing';
+import { formatBulkServicePriceLabel } from '@/lib/bulk-load-tiers';
 
 export type ProviderOffer = {
   id: string;
@@ -81,9 +82,24 @@ export const PROVIDER_RESULT_FILTERS = [
 ];
 
 const DEFAULT_BULK_SERVICES: ProviderBulkService[] = [
-  { id: 'bulk-ironing', name: 'Ironing Only', priceLabel: '₹₹₹/Kg', icon: 'ironing' },
-  { id: 'bulk-wash-iron', name: 'Wash & Iron', priceLabel: '₹₹₹/Kg', icon: 'wash-iron' },
-  { id: 'bulk-wash-fold', name: 'Wash & Fold', priceLabel: '₹₹₹/Kg', icon: 'wash-fold' },
+  {
+    id: 'bulk-ironing',
+    name: 'Ironing Only',
+    priceLabel: formatBulkServicePriceLabel('bulk-ironing'),
+    icon: 'ironing',
+  },
+  {
+    id: 'bulk-wash-iron',
+    name: 'Wash & Iron',
+    priceLabel: formatBulkServicePriceLabel('bulk-wash-iron'),
+    icon: 'wash-iron',
+  },
+  {
+    id: 'bulk-wash-fold',
+    name: 'Wash & Fold',
+    priceLabel: formatBulkServicePriceLabel('bulk-wash-fold'),
+    icon: 'wash-fold',
+  },
 ];
 
 type ListItemDef = {

@@ -18,6 +18,7 @@ import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 import {
   BULK_LOAD_TIERS,
   estimateBulkPriceForTier,
+  getBulkServiceRatePerKg,
   formatBulkStickySubtitle,
   getBulkLoadTierById,
   getBulkWeightLabelForTier,
@@ -234,7 +235,8 @@ export function BulkServiceSelectionScreen({
     return resolved ?? null;
   });
 
-  const totalPrice = selectedTier ? estimateBulkPriceForTier(selectedTier) : undefined;
+  const ratePerKg = getBulkServiceRatePerKg(serviceId);
+  const totalPrice = selectedTier ? estimateBulkPriceForTier(selectedTier, ratePerKg) : undefined;
 
   const handleConfirmPress = useCallback(() => {
     if (!selectedTier) {

@@ -9,8 +9,22 @@ export type BulkLoadTier = {
   estimatedKg: number;
 };
 
-/** Prototype per-kg rate until provider-specific bulk pricing exists. */
+/** Fallback per-kg rate when bulk service id is unknown. */
 export const BULK_ESTIMATE_RATE_PER_KG = 49;
+
+export const BULK_SERVICE_RATE_PER_KG: Record<string, number> = {
+  'bulk-ironing': 70,
+  'bulk-wash-iron': 120,
+  'bulk-wash-fold': 80,
+};
+
+export function getBulkServiceRatePerKg(serviceId: string): number {
+  return BULK_SERVICE_RATE_PER_KG[serviceId] ?? BULK_ESTIMATE_RATE_PER_KG;
+}
+
+export function formatBulkServicePriceLabel(serviceId: string): string {
+  return `₹${getBulkServiceRatePerKg(serviceId)}/Kg`;
+}
 
 export const BULK_LOAD_TIERS: BulkLoadTier[] = [
   {
