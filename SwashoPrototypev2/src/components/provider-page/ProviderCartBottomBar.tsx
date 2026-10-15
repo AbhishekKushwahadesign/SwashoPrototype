@@ -36,14 +36,6 @@ export function ProviderCartBottomBar({
         },
       ]}>
       <View style={[styles.summaryCol, { gap: 4 * scale }]}>
-        <Text
-          style={[
-            styles.selectedLabel,
-            searchFont('medium'),
-            { fontSize: 16 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
-          ]}>
-          Selected
-        </Text>
         <Pressable onPress={onItemCountPress} accessibilityRole="button">
           <Text
             style={[
@@ -60,6 +52,14 @@ export function ProviderCartBottomBar({
             {`${itemCount} ${itemLabel}`}
           </Text>
         </Pressable>
+        <Text
+          style={[
+            styles.selectedLabel,
+            searchFont('medium'),
+            { fontSize: 16 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
+          ]}>
+          Selected
+        </Text>
       </View>
       <Pressable
         accessibilityRole="button"
