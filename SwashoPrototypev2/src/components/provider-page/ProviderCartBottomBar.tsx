@@ -45,8 +45,6 @@ export function ProviderCartBottomBar({
                 fontSize: 16 * scale,
                 lineHeight: 14 * scale,
                 letterSpacing: 0.5 * scale,
-                textDecorationLine: 'underline',
-                textDecorationStyle: 'dotted',
               },
             ]}>
             {`${itemCount} ${itemLabel}`}
