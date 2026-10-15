@@ -2,11 +2,11 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import {
   NativeScrollEvent,
   NativeSyntheticEvent,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   View,
-  type LayoutChangeEvent,
 } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
@@ -19,9 +19,11 @@ import { BULK_LOAD_WEIGHING_SCALE_XML } from './bulk-load-icons';
 const AUTO_ADVANCE_MS = 5000;
 const CARD_COUNT = 2;
 
+/** Width of one carousel page (sheet content inset; Figma 16px side padding). */
 type BulkInfoCardsCarouselProps = {
   serviceId: string;
   scale: number;
+  pageWidth: number;
 };
 
 function BulkInfoCardShell({
@@ -139,13 +141,13 @@ function InfoCarouselPagination({ activeIndex, scale }: { activeIndex: number; s
   );
 }
 
-export function BulkInfoCardsCarousel({ serviceId, scale }: BulkInfoCardsCarouselProps) {
+export function BulkInfoCardsCarousel({ serviceId, scale, pageWidth }: BulkInfoCardsCarouselProps) {
   const ratePerKg = getBulkServiceRatePerKg(serviceId);
   const scrollRef = useRef<ScrollView>(null);
   const activeIndexRef = useRef(0);
   const autoAdvanceTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [cardWidth, setCardWidth] = useState(0);
+  const cardWidth = Math.max(0, Math.round(pageWidth));
 
   const clearAutoAdvance = useCallback(() => {
     if (autoAdvanceTimerRef.current) {
@@ -182,13 +184,6 @@ export function BulkInfoCardsCarousel({ serviceId, scale }: BulkInfoCardsCarouse
     return clearAutoAdvance;
   }, [cardWidth, scheduleAutoAdvance, clearAutoAdvance]);
 
-  const handleLayout = useCallback((event: LayoutChangeEvent) => {
-    const width = Math.round(event.nativeEvent.layout.width);
-    if (width > 0 && width !== cardWidth) {
-      setCardWidth(width);
-    }
-  }, [cardWidth]);
-
   const handleMomentumScrollEnd = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       if (cardWidth <= 0) {
@@ -207,35 +202,37 @@ export function BulkInfoCardsCarousel({ serviceId, scale }: BulkInfoCardsCarouse
     clearAutoAdvance();
   }, [clearAutoAdvance]);
 
+  if (cardWidth <= 0) {
+    return null;
+  }
+
   return (
-    <View
-      style={[styles.carouselColumn, { gap: 8 * scale, paddingHorizontal: 16 * scale }]}
-      onLayout={handleLayout}>
-      {cardWidth > 0 ? (
-        <>
-          <ScrollView
-            ref={scrollRef}
-            horizontal
-            pagingEnabled
-            decelerationRate="fast"
-            showsHorizontalScrollIndicator={false}
-            onScrollBeginDrag={handleScrollBeginDrag}
-            onMomentumScrollEnd={handleMomentumScrollEnd}
-            onScrollEndDrag={handleMomentumScrollEnd}
-            style={{ width: cardWidth }}
-            contentContainerStyle={{ alignItems: 'stretch' }}>
-            <View style={{ width: cardWidth }}>
-              <BulkWeightEstimateCard scale={scale} />
-            </View>
-            <View style={{ width: cardWidth }}>
-              <BulkPriceEstimateCard scale={scale} ratePerKg={ratePerKg} />
-            </View>
-          </ScrollView>
-          <InfoCarouselPagination activeIndex={activeIndex} scale={scale} />
-        </>
-      ) : (
-        <BulkWeightEstimateCard scale={scale} />
-      )}
+    <View style={[styles.carouselColumn, { gap: 8 * scale, paddingHorizontal: 16 * scale }]}>
+      <ScrollView
+        ref={scrollRef}
+        horizontal
+        pagingEnabled
+        decelerationRate="fast"
+        snapToInterval={cardWidth}
+        snapToAlignment="start"
+        disableIntervalMomentum
+        showsHorizontalScrollIndicator={false}
+        onScrollBeginDrag={handleScrollBeginDrag}
+        onMomentumScrollEnd={handleMomentumScrollEnd}
+        onScrollEndDrag={handleMomentumScrollEnd}
+        style={[
+          { width: cardWidth },
+          Platform.OS === 'web' ? styles.scrollWeb : null,
+        ]}
+        contentContainerStyle={{ alignItems: 'stretch' }}>
+        <View style={{ width: cardWidth, flexShrink: 0 }}>
+          <BulkWeightEstimateCard scale={scale} />
+        </View>
+        <View style={{ width: cardWidth, flexShrink: 0 }}>
+          <BulkPriceEstimateCard scale={scale} ratePerKg={ratePerKg} />
+        </View>
+      </ScrollView>
+      <InfoCarouselPagination activeIndex={activeIndex} scale={scale} />
     </View>
   );
 }
@@ -278,4 +275,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   paginationDot: {},
+  scrollWeb: {
+    overflowX: 'auto',
+  },
 });
