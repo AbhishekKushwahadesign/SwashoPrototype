@@ -14,7 +14,7 @@ import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 import { getBulkServiceRatePerKg } from '@/lib/bulk-load-tiers';
 
-import { BULK_LOAD_WEIGHING_SCALE_XML } from './bulk-load-icons';
+import { BULK_LOAD_PRICE_ASTERISK_XML, BULK_LOAD_WEIGHING_SCALE_XML } from './bulk-load-icons';
 
 const AUTO_ADVANCE_MS = 5000;
 const CARD_COUNT = 2;
@@ -82,20 +82,7 @@ function BulkPriceEstimateCard({ scale, ratePerKg }: { scale: number; ratePerKg:
   return (
     <BulkInfoCardShell scale={scale}>
       <View style={[styles.cardRow, { gap: 8 * scale }]}>
-        <View style={[styles.asteriskWrap, { width: 33 * scale, height: 33 * scale }]}>
-          <Text
-            style={[
-              searchFont('medium'),
-              styles.asterisk,
-              {
-                fontSize: 36 * scale,
-                lineHeight: 36 * scale,
-                letterSpacing: 0.5 * scale,
-              },
-            ]}>
-            *
-          </Text>
-        </View>
+        <SvgXml xml={BULK_LOAD_PRICE_ASTERISK_XML} width={33 * scale} height={33 * scale} />
         <View style={[styles.infoCopy, { gap: 4 * scale, flex: 1 }]}>
           <Text
             style={[
@@ -332,17 +319,6 @@ const styles = StyleSheet.create({
   },
   infoBody: {
     color: SwashoColors.info700,
-  },
-  asteriskWrap: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'visible',
-  },
-  asterisk: {
-    color: SwashoColors.info700,
-    textAlign: 'center',
-    includeFontPadding: false,
-    textAlignVertical: 'center',
   },
   paginationRow: {
     flexDirection: 'row',

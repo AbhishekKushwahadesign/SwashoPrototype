@@ -51,3 +51,8 @@ export const BULK_LOAD_WEIGHING_SCALE_XML = `<svg width="33" height="33" viewBox
 </linearGradient>
 </defs>
 </svg>`;
+
+/** Price-estimate card asterisk (Figma 58936:2532), info700. */
+export const BULK_LOAD_PRICE_ASTERISK_XML = `<svg width="33" height="33" viewBox="0 0 33 33" fill="none" xmlns="http://www.w3.org/2000/svg">
+<text x="16.5" y="17.5" text-anchor="middle" dominant-baseline="middle" font-family="Poppins, Public Sans, sans-serif" font-weight="500" font-size="36" fill="#1d64d8">*</text>
+</svg>`;
