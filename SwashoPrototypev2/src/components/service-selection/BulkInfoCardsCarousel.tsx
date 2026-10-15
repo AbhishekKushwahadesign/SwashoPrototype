@@ -82,14 +82,14 @@ function BulkPriceEstimateCard({ scale, ratePerKg }: { scale: number; ratePerKg:
   return (
     <BulkInfoCardShell scale={scale}>
       <View style={[styles.cardRow, { gap: 8 * scale }]}>
-        <View style={[styles.asteriskWrap, { width: 32 * scale, height: 34 * scale }]}>
+        <View style={[styles.asteriskWrap, { width: 33 * scale, height: 33 * scale }]}>
           <Text
             style={[
               searchFont('medium'),
               styles.asterisk,
               {
                 fontSize: 36 * scale,
-                lineHeight: 16 * scale,
+                lineHeight: 36 * scale,
                 letterSpacing: 0.5 * scale,
               },
             ]}>
@@ -336,10 +336,13 @@ const styles = StyleSheet.create({
   asteriskWrap: {
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'visible',
   },
   asterisk: {
     color: SwashoColors.info700,
     textAlign: 'center',
+    includeFontPadding: false,
+    textAlignVertical: 'center',
   },
   paginationRow: {
     flexDirection: 'row',
