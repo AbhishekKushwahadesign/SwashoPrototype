@@ -152,9 +152,10 @@ export function BulkInfoCardsCarousel({ serviceId, scale, contentWidth }: BulkIn
 
   const inset = MODAL_HORIZONTAL_INSET_PX * scale;
   const gap = CARD_GAP_PX * scale;
-  const viewportWidth = Math.max(0, Math.round(contentWidth));
-  const cardWidth = Math.max(0, Math.round(viewportWidth - inset * 2));
-  const scrollStride = cardWidth + gap;
+  const pageWidth = Math.max(0, Math.round(contentWidth));
+  const cardWidth = Math.max(0, Math.round(pageWidth - inset * 2));
+  /** One full page plus inter-card gap (second snap position). */
+  const scrollStride = pageWidth + gap;
   const snapOffsets = [0, scrollStride];
 
   const clearAutoAdvance = useCallback(() => {
@@ -191,6 +192,12 @@ export function BulkInfoCardsCarousel({ serviceId, scale, contentWidth }: BulkIn
     scheduleAutoAdvance();
     return clearAutoAdvance;
   }, [scrollStride, scheduleAutoAdvance, clearAutoAdvance]);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ x: 0, animated: false });
+    activeIndexRef.current = 0;
+    setActiveIndex(0);
+  }, [pageWidth, gap]);
 
   const syncIndexFromOffset = useCallback(
     (offsetX: number) => {
@@ -248,12 +255,12 @@ export function BulkInfoCardsCarousel({ serviceId, scale, contentWidth }: BulkIn
     clearAutoAdvance();
   }, [clearAutoAdvance]);
 
-  if (viewportWidth <= 0 || cardWidth <= 0) {
+  if (pageWidth <= 0 || cardWidth <= 0) {
     return null;
   }
 
   return (
-    <View style={[styles.carouselColumn, { gap: 8 * scale, width: viewportWidth }]}>
+    <View style={[styles.carouselColumn, { gap: 8 * scale, width: pageWidth }]}>
       <ScrollView
         ref={scrollRef}
         horizontal
@@ -268,27 +275,30 @@ export function BulkInfoCardsCarousel({ serviceId, scale, contentWidth }: BulkIn
         onMomentumScrollEnd={handleScrollSettled}
         onScrollEndDrag={handleScrollSettled}
         style={[
-          { width: viewportWidth },
+          { width: pageWidth },
           Platform.OS === 'web' ? styles.scrollWeb : null,
         ]}
-        contentContainerStyle={{
-          alignItems: 'stretch',
-          paddingHorizontal: inset,
-          ...(Platform.OS === 'web' ? styles.scrollContentWeb : null),
-        }}>
+        contentContainerStyle={Platform.OS === 'web' ? styles.scrollContentWeb : undefined}>
         <View
           style={[
-            { width: cardWidth, marginRight: gap, flexShrink: 0 },
+            styles.carouselPage,
+            { width: pageWidth, paddingHorizontal: inset },
             Platform.OS === 'web' ? styles.scrollSnapPageWeb : null,
           ]}>
-          <BulkWeightEstimateCard scale={scale} />
+          <View style={{ width: cardWidth, flexShrink: 0 }}>
+            <BulkWeightEstimateCard scale={scale} />
+          </View>
         </View>
+        <View style={{ width: gap, flexShrink: 0 }} />
         <View
           style={[
-            { width: cardWidth, flexShrink: 0 },
+            styles.carouselPage,
+            { width: pageWidth, paddingHorizontal: inset },
             Platform.OS === 'web' ? styles.scrollSnapPageWeb : null,
           ]}>
-          <BulkPriceEstimateCard scale={scale} ratePerKg={ratePerKg} />
+          <View style={{ width: cardWidth, flexShrink: 0 }}>
+            <BulkPriceEstimateCard scale={scale} ratePerKg={ratePerKg} />
+          </View>
         </View>
       </ScrollView>
       <InfoCarouselPagination activeIndex={activeIndex} scale={scale} />
@@ -300,6 +310,9 @@ const styles = StyleSheet.create({
   carouselColumn: {
     width: '100%',
     alignItems: 'center',
+  },
+  carouselPage: {
+    flexShrink: 0,
   },
   infoCard: {
     backgroundColor: SwashoColors.info100,
