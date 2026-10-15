@@ -192,20 +192,36 @@ export function BulkInfoCardsCarousel({ serviceId, scale, contentWidth }: BulkIn
     return clearAutoAdvance;
   }, [scrollStride, scheduleAutoAdvance, clearAutoAdvance]);
 
-  const handleMomentumScrollEnd = useCallback(
-    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+  const syncIndexFromOffset = useCallback(
+    (offsetX: number) => {
       if (scrollStride <= 0) {
         return;
       }
-      const offsetX = event.nativeEvent.contentOffset.x;
-      const index =
-        offsetX >= scrollStride * 0.5 ? 1 : 0;
-      const clamped = Math.min(Math.max(index, 0), CARD_COUNT - 1);
-      activeIndexRef.current = clamped;
-      setActiveIndex(clamped);
+      const index = Math.min(
+        CARD_COUNT - 1,
+        Math.max(0, Math.round(offsetX / scrollStride)),
+      );
+      if (activeIndexRef.current !== index) {
+        activeIndexRef.current = index;
+        setActiveIndex(index);
+      }
+    },
+    [scrollStride],
+  );
+
+  const handleScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      syncIndexFromOffset(event.nativeEvent.contentOffset.x);
+    },
+    [syncIndexFromOffset],
+  );
+
+  const handleScrollSettled = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      syncIndexFromOffset(event.nativeEvent.contentOffset.x);
       scheduleAutoAdvance();
     },
-    [scrollStride, scheduleAutoAdvance],
+    [syncIndexFromOffset, scheduleAutoAdvance],
   );
 
   const handleScrollBeginDrag = useCallback(() => {
@@ -226,9 +242,11 @@ export function BulkInfoCardsCarousel({ serviceId, scale, contentWidth }: BulkIn
         snapToAlignment="start"
         disableIntervalMomentum
         showsHorizontalScrollIndicator={false}
+        scrollEventThrottle={16}
+        onScroll={handleScroll}
         onScrollBeginDrag={handleScrollBeginDrag}
-        onMomentumScrollEnd={handleMomentumScrollEnd}
-        onScrollEndDrag={handleMomentumScrollEnd}
+        onMomentumScrollEnd={handleScrollSettled}
+        onScrollEndDrag={handleScrollSettled}
         style={[
           { width: viewportWidth },
           Platform.OS === 'web' ? styles.scrollWeb : null,
