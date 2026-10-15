@@ -30,8 +30,8 @@ import type { ProviderGarmentCartSelection } from '@/lib/provider-cart-selection
 import {
   BULK_LOAD_RADIO_SELECTED_XML,
   BULK_LOAD_RADIO_UNSELECTED_XML,
-  BULK_LOAD_WEIGHING_SCALE_XML,
 } from './bulk-load-icons';
+import { BulkInfoCardsCarousel } from './BulkInfoCardsCarousel';
 import { BulkLoadPileIllustration } from './BulkLoadPileIllustration';
 import { ServiceSelectionButton } from './ServiceSelectionButton';
 import { ServiceSheetTitle } from './ServiceSheetTitle';
@@ -47,42 +47,6 @@ type BulkServiceSelectionScreenProps = {
   onConfirm: (selection: ProviderGarmentCartSelection) => void;
   onClose: () => void;
 };
-
-function BulkWeightAssurancePanel({ scale }: { scale: number }) {
-  return (
-    <View
-      style={[
-        styles.infoPanel,
-        {
-          borderTopLeftRadius: SwashoRadii.xl * scale,
-          borderTopRightRadius: SwashoRadii.xl * scale,
-          paddingHorizontal: 16 * scale,
-          paddingVertical: 10 * scale,
-          gap: 8 * scale,
-        },
-      ]}>
-      <SvgXml xml={BULK_LOAD_WEIGHING_SCALE_XML} width={33 * scale} height={33 * scale} />
-      <View style={[styles.infoCopy, { gap: 4 * scale, flex: 1 }]}>
-        <Text
-          style={[
-            searchFont('medium'),
-            styles.infoTitle,
-            { fontSize: 13 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
-          ]}>
-          These sizes are estimates
-        </Text>
-        <Text
-          style={[
-            searchFont('medium'),
-            styles.infoBody,
-            { fontSize: 13 * scale, lineHeight: 18 * scale },
-          ]}>
-          We&apos;ll confirm the actual weight and price at pickup
-        </Text>
-      </View>
-    </View>
-  );
-}
 
 function BulkLoadOptionRow({
   tierId,
@@ -163,7 +127,7 @@ function BulkLoadStickyFooter({
 }) {
   const tier = tierId ? getBulkLoadTierById(tierId) : null;
   const confirmLabel =
-    totalPrice != null ? `₹${totalPrice} | Confirm` : 'Confirm';
+    totalPrice != null ? `₹${totalPrice}* | Confirm` : 'Confirm';
 
   return (
     <View
@@ -312,7 +276,7 @@ export function BulkServiceSelectionScreen({
           </ScrollView>
 
           <View style={[styles.sheetFooter, { paddingBottom: 20 * scale }]}>
-            <BulkWeightAssurancePanel scale={scale} />
+            <BulkInfoCardsCarousel serviceId={serviceId} scale={scale} />
             <BulkLoadStickyFooter
               tierId={selectedTier}
               totalPrice={totalPrice}
@@ -376,24 +340,6 @@ const styles = StyleSheet.create({
   },
   optionGarments: {
     color: SwashoColors.neutral600,
-  },
-  infoPanel: {
-    backgroundColor: SwashoColors.info100,
-    borderWidth: 1,
-    borderColor: SwashoColors.info300,
-    borderBottomWidth: 0,
-    flexDirection: 'row',
-    alignItems: 'center',
-    width: '100%',
-  },
-  infoCopy: {
-    alignItems: 'flex-start',
-  },
-  infoTitle: {
-    color: SwashoColors.info700,
-  },
-  infoBody: {
-    color: SwashoColors.info700,
   },
   stickyFooter: {
     backgroundColor: SwashoColors.surface,
