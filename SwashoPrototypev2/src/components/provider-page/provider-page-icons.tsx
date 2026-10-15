@@ -2,6 +2,7 @@ import { Image } from 'expo-image';
 import type { StyleProp, ViewStyle } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
+import GridToggleArt from '@/assets/images/provider-page/grid-toggle.svg';
 import type { ProviderBulkService, ProviderListService } from '@/data/providers';
 
 import { WashFoldBulkIconXml, WashIronBulkIconXml } from './bulk-wash-icon-xml';
@@ -60,13 +61,9 @@ export function ListIcon({ width, height, style }: IconProps) {
   return <SvgXml xml={ListIconXml} width={width} height={height} style={style} />;
 }
 
-const GridToggleIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="39.7861" height="27.9375" viewBox="0 0 39.7861 27.9375" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M10.7861 11.9375C10.7861 7.93344 14.0321 4.6875 18.0361 4.6875H32.5361C36.5402 4.6875 39.7861 7.93344 39.7861 11.9375C39.7861 15.9416 36.5402 19.1875 32.5361 19.1875H18.0361C14.0321 19.1875 10.7861 15.9416 10.7861 11.9375Z" fill="#DCDCDC"/>
-<circle cx="15.9688" cy="11.9688" r="9.96875" fill="#656565"/>
-</svg>`;
-
+/** Figma 3346:8890 — 43×23 frame; art keeps native aspect ratio (no non-uniform stretch). */
 export function GridToggleIcon({ width, height, style }: IconProps) {
-  return <SvgXml xml={GridToggleIconXml} width={width} height={height} style={style} />;
+  return <GridToggleArt width={width} height={height} style={style} />;
 }
 
 const ListDividerIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="362" height="1" viewBox="0 0 362 1" fill="none" xmlns="http://www.w3.org/2000/svg">
