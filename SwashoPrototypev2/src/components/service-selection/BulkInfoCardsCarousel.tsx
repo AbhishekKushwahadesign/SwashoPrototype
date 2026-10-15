@@ -216,12 +216,32 @@ export function BulkInfoCardsCarousel({ serviceId, scale, contentWidth }: BulkIn
     [syncIndexFromOffset],
   );
 
+  const snapToNearestCard = useCallback(
+    (offsetX: number, animated = true) => {
+      if (scrollStride <= 0) {
+        return;
+      }
+      const index = offsetX >= scrollStride * 0.5 ? 1 : 0;
+      const targetX = index * scrollStride;
+      if (Math.abs(offsetX - targetX) > 0.5) {
+        scrollRef.current?.scrollTo({ x: targetX, animated });
+      }
+      activeIndexRef.current = index;
+      setActiveIndex(index);
+    },
+    [scrollStride],
+  );
+
   const handleScrollSettled = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      syncIndexFromOffset(event.nativeEvent.contentOffset.x);
+      const offsetX = event.nativeEvent.contentOffset.x;
+      snapToNearestCard(offsetX, true);
+      if (Platform.OS === 'web') {
+        requestAnimationFrame(() => snapToNearestCard(offsetX, true));
+      }
       scheduleAutoAdvance();
     },
-    [syncIndexFromOffset, scheduleAutoAdvance],
+    [snapToNearestCard, scheduleAutoAdvance],
   );
 
   const handleScrollBeginDrag = useCallback(() => {
@@ -254,11 +274,20 @@ export function BulkInfoCardsCarousel({ serviceId, scale, contentWidth }: BulkIn
         contentContainerStyle={{
           alignItems: 'stretch',
           paddingHorizontal: inset,
+          ...(Platform.OS === 'web' ? styles.scrollContentWeb : null),
         }}>
-        <View style={{ width: cardWidth, marginRight: gap, flexShrink: 0 }}>
+        <View
+          style={[
+            { width: cardWidth, marginRight: gap, flexShrink: 0 },
+            Platform.OS === 'web' ? styles.scrollSnapPageWeb : null,
+          ]}>
           <BulkWeightEstimateCard scale={scale} />
         </View>
-        <View style={{ width: cardWidth, flexShrink: 0 }}>
+        <View
+          style={[
+            { width: cardWidth, flexShrink: 0 },
+            Platform.OS === 'web' ? styles.scrollSnapPageWeb : null,
+          ]}>
           <BulkPriceEstimateCard scale={scale} ratePerKg={ratePerKg} />
         </View>
       </ScrollView>
@@ -307,5 +336,13 @@ const styles = StyleSheet.create({
   paginationDot: {},
   scrollWeb: {
     overflowX: 'auto',
+    scrollSnapType: 'x mandatory',
+  },
+  scrollContentWeb: {
+    scrollSnapType: 'x mandatory',
+  },
+  scrollSnapPageWeb: {
+    scrollSnapAlign: 'start',
+    scrollSnapStop: 'always',
   },
 });
