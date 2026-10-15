@@ -18,12 +18,14 @@ import { BULK_LOAD_WEIGHING_SCALE_XML } from './bulk-load-icons';
 
 const AUTO_ADVANCE_MS = 5000;
 const CARD_COUNT = 2;
+const CARD_GAP_PX = 12;
+const MODAL_HORIZONTAL_INSET_PX = 16;
 
-/** Width of one carousel page (sheet content inset; Figma 16px side padding). */
 type BulkInfoCardsCarouselProps = {
   serviceId: string;
   scale: number;
-  pageWidth: number;
+  /** Full modal sheet width (412 at design scale). */
+  contentWidth: number;
 };
 
 function BulkInfoCardShell({
@@ -141,13 +143,19 @@ function InfoCarouselPagination({ activeIndex, scale }: { activeIndex: number; s
   );
 }
 
-export function BulkInfoCardsCarousel({ serviceId, scale, pageWidth }: BulkInfoCardsCarouselProps) {
+export function BulkInfoCardsCarousel({ serviceId, scale, contentWidth }: BulkInfoCardsCarouselProps) {
   const ratePerKg = getBulkServiceRatePerKg(serviceId);
   const scrollRef = useRef<ScrollView>(null);
   const activeIndexRef = useRef(0);
   const autoAdvanceTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const cardWidth = Math.max(0, Math.round(pageWidth));
+
+  const inset = MODAL_HORIZONTAL_INSET_PX * scale;
+  const gap = CARD_GAP_PX * scale;
+  const viewportWidth = Math.max(0, Math.round(contentWidth));
+  const cardWidth = Math.max(0, Math.round(viewportWidth - inset * 2));
+  const scrollStride = cardWidth + gap;
+  const snapOffsets = [0, scrollStride];
 
   const clearAutoAdvance = useCallback(() => {
     if (autoAdvanceTimerRef.current) {
@@ -158,62 +166,63 @@ export function BulkInfoCardsCarousel({ serviceId, scale, pageWidth }: BulkInfoC
 
   const scrollToIndex = useCallback(
     (index: number, animated = true) => {
-      if (cardWidth <= 0) {
+      if (scrollStride <= 0) {
         return;
       }
       const clamped = ((index % CARD_COUNT) + CARD_COUNT) % CARD_COUNT;
-      scrollRef.current?.scrollTo({ x: clamped * cardWidth, animated });
+      scrollRef.current?.scrollTo({ x: clamped * scrollStride, animated });
       activeIndexRef.current = clamped;
       setActiveIndex(clamped);
     },
-    [cardWidth],
+    [scrollStride],
   );
 
   const scheduleAutoAdvance = useCallback(() => {
     clearAutoAdvance();
-    if (cardWidth <= 0) {
+    if (scrollStride <= 0) {
       return;
     }
     autoAdvanceTimerRef.current = setInterval(() => {
       scrollToIndex(activeIndexRef.current + 1);
     }, AUTO_ADVANCE_MS);
-  }, [cardWidth, clearAutoAdvance, scrollToIndex]);
+  }, [scrollStride, clearAutoAdvance, scrollToIndex]);
 
   useEffect(() => {
     scheduleAutoAdvance();
     return clearAutoAdvance;
-  }, [cardWidth, scheduleAutoAdvance, clearAutoAdvance]);
+  }, [scrollStride, scheduleAutoAdvance, clearAutoAdvance]);
 
   const handleMomentumScrollEnd = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      if (cardWidth <= 0) {
+      if (scrollStride <= 0) {
         return;
       }
-      const index = Math.round(event.nativeEvent.contentOffset.x / cardWidth);
+      const offsetX = event.nativeEvent.contentOffset.x;
+      const index =
+        offsetX >= scrollStride * 0.5 ? 1 : 0;
       const clamped = Math.min(Math.max(index, 0), CARD_COUNT - 1);
       activeIndexRef.current = clamped;
       setActiveIndex(clamped);
       scheduleAutoAdvance();
     },
-    [cardWidth, scheduleAutoAdvance],
+    [scrollStride, scheduleAutoAdvance],
   );
 
   const handleScrollBeginDrag = useCallback(() => {
     clearAutoAdvance();
   }, [clearAutoAdvance]);
 
-  if (cardWidth <= 0) {
+  if (viewportWidth <= 0 || cardWidth <= 0) {
     return null;
   }
 
   return (
-    <View style={[styles.carouselColumn, { gap: 8 * scale, paddingHorizontal: 16 * scale }]}>
+    <View style={[styles.carouselColumn, { gap: 8 * scale, width: viewportWidth }]}>
       <ScrollView
         ref={scrollRef}
         horizontal
-        pagingEnabled
         decelerationRate="fast"
-        snapToInterval={cardWidth}
+        snapToOffsets={snapOffsets}
         snapToAlignment="start"
         disableIntervalMomentum
         showsHorizontalScrollIndicator={false}
@@ -221,11 +230,14 @@ export function BulkInfoCardsCarousel({ serviceId, scale, pageWidth }: BulkInfoC
         onMomentumScrollEnd={handleMomentumScrollEnd}
         onScrollEndDrag={handleMomentumScrollEnd}
         style={[
-          { width: cardWidth },
+          { width: viewportWidth },
           Platform.OS === 'web' ? styles.scrollWeb : null,
         ]}
-        contentContainerStyle={{ alignItems: 'stretch' }}>
-        <View style={{ width: cardWidth, flexShrink: 0 }}>
+        contentContainerStyle={{
+          alignItems: 'stretch',
+          paddingHorizontal: inset,
+        }}>
+        <View style={{ width: cardWidth, marginRight: gap, flexShrink: 0 }}>
           <BulkWeightEstimateCard scale={scale} />
         </View>
         <View style={{ width: cardWidth, flexShrink: 0 }}>

@@ -276,11 +276,7 @@ export function BulkServiceSelectionScreen({
           </ScrollView>
 
           <View style={[styles.sheetFooter, { paddingBottom: 20 * scale }]}>
-            <BulkInfoCardsCarousel
-              serviceId={serviceId}
-              scale={scale}
-              pageWidth={contentWidth - 32 * scale}
-            />
+            <BulkInfoCardsCarousel serviceId={serviceId} scale={scale} contentWidth={contentWidth} />
             <BulkLoadStickyFooter
               tierId={selectedTier}
               totalPrice={totalPrice}
