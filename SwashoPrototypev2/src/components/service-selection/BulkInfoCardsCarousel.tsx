@@ -18,7 +18,7 @@ import { BULK_LOAD_WEIGHING_SCALE_XML } from './bulk-load-icons';
 
 const AUTO_ADVANCE_MS = 5000;
 const CARD_COUNT = 2;
-const CARD_GAP_PX = 12;
+const CARD_GAP_PX = 20;
 const MODAL_HORIZONTAL_INSET_PX = 16;
 
 type BulkInfoCardsCarouselProps = {
