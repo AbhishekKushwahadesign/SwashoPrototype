@@ -80,7 +80,7 @@ export function ProviderCartBottomBar({
             searchFont('medium'),
             { fontSize: 16 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
           ]}>
-          Proceed
+          Continue
         </Text>
         <ArrowRightIcon width={24 * scale} height={24 * scale} color={SwashoColors.neutral50} />
       </Pressable>
