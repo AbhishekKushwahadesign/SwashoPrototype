@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { StyleSheet, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 
 import type { BulkLoadTierId } from '@/lib/bulk-load-tiers';
 
@@ -54,17 +54,22 @@ export function BulkLoadPileIllustration({ tier, scale }: BulkLoadPileIllustrati
   const imageLeft = frameWidth * (crop.imageLeftPercent / 100);
   const imageTop = frameHeight * (crop.imageTopPercent / 100);
 
+  const imageStyle = [
+    styles.sprite,
+    {
+      width: imageWidth,
+      height: imageHeight,
+      left: imageLeft,
+      top: imageTop,
+    },
+    Platform.OS === 'web' ? styles.spriteWeb : null,
+  ];
+
   return (
     <View style={[styles.frame, { width: frameWidth, height: frameHeight }]}>
       <Image
         source={PASTEL_FOLDED_CLOTHING_STACKS}
-        style={{
-          position: 'absolute',
-          width: imageWidth,
-          height: imageHeight,
-          left: imageLeft,
-          top: imageTop,
-        }}
+        style={imageStyle}
         contentFit="fill"
         accessibilityIgnoresInvertColors
       />
@@ -76,5 +81,14 @@ const styles = StyleSheet.create({
   frame: {
     overflow: 'hidden',
     flexShrink: 0,
+    position: 'relative',
+  },
+  sprite: {
+    position: 'absolute',
+  },
+  // RN Web defaults img to max-width:100%, which collapses sprite crops to an empty sliver.
+  spriteWeb: {
+    maxWidth: 'none',
+    maxHeight: 'none',
   },
 });
