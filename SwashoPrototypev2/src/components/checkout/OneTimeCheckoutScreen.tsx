@@ -1,4 +1,4 @@
-import { useFocusEffect, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
@@ -58,13 +58,6 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
 
   const confirmLockRef = useRef(false);
   const navigateLockRef = useRef(false);
-  const [subscribeBannerAnimSession, setSubscribeBannerAnimSession] = useState(0);
-
-  useFocusEffect(
-    useCallback(() => {
-      setSubscribeBannerAnimSession((session) => session + 1);
-    }, []),
-  );
 
   useEffect(() => {
     setFulfillmentMode(providerId, 'one-time');
@@ -186,10 +179,7 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
         }} scale={scale} />
 
         <View style={[styles.subscribeBannerSlot, { marginBottom: -4 * scale }]}>
-          <CheckoutSwitchToSubscribeBanner
-            scale={scale}
-            accentAnimationSession={subscribeBannerAnimSession}
-          />
+          <CheckoutSwitchToSubscribeBanner scale={scale} />
         </View>
 
         <View
