@@ -9,6 +9,7 @@ type CheckoutScheduleChipProps = {
   onPress: () => void;
   scale: number;
   minWidth?: number;
+  width?: number;
   height?: number;
 };
 
@@ -18,6 +19,7 @@ export function CheckoutScheduleChip({
   onPress,
   scale,
   minWidth = 65,
+  width,
   height,
 }: CheckoutScheduleChipProps) {
   return (
@@ -29,7 +31,8 @@ export function CheckoutScheduleChip({
         styles.chip,
         selected && styles.chipSelected,
         {
-          minWidth: minWidth * scale,
+          minWidth: width != null ? undefined : minWidth * scale,
+          width: width != null ? width : undefined,
           paddingHorizontal: 16 * scale,
           paddingVertical: 10 * scale,
           borderRadius: SwashoRadii.sm * scale,

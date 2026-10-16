@@ -115,6 +115,12 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
     setOneTimeSchedule(providerId, { pickupTimeSlot: id });
   };
 
+  const pickupTimeColumnGap = 12 * scale;
+  const pickupTimeChipWidth = useMemo(() => {
+    const gridWidth = contentWidth - 64 * scale;
+    return (gridWidth - 2 * pickupTimeColumnGap) / 3;
+  }, [contentWidth, scale, pickupTimeColumnGap]);
+
   const stepOneProgress = useMemo(() => {
     let completed = 0;
     if (weekday != null) {
@@ -204,7 +210,15 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
               ]}>
               Choose Pickup Time
             </Text>
-            <View style={[styles.chipGrid, { gap: 12 * scale, rowGap: 16 * scale, paddingVertical: 8 * scale }]}>
+            <View
+              style={[
+                styles.chipGrid,
+                {
+                  columnGap: pickupTimeColumnGap,
+                  rowGap: 16 * scale,
+                  paddingVertical: 8 * scale,
+                },
+              ]}>
               {CHECKOUT_PICKUP_TIME_SLOTS.map((slot) => (
                 <CheckoutScheduleChip
                   key={slot.id}
@@ -212,7 +226,7 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
                   selected={pickupSlot === slot.id}
                   onPress={() => handleSlotSelect(slot.id)}
                   scale={scale}
-                  minWidth={110}
+                  width={pickupTimeChipWidth}
                   height={35}
                 />
               ))}
