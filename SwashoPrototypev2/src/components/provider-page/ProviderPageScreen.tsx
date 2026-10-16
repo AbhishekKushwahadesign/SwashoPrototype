@@ -902,7 +902,7 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
                 <View
                   style={[
                     styles.gridToggleRow,
-                    { gap: 4 * scale, width: 93 * scale },
+                    { gap: 4 * scale, minWidth: 93 * scale },
                   ]}>
                   <GridToggleIcon width={43 * scale} height={23 * scale} />
                   <Text
@@ -915,7 +915,7 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
                         fontSize: 12 * scale,
                         lineHeight: 14 * scale,
                         letterSpacing: 0.5 * scale,
-                        flexShrink: 1,
+                        flexShrink: 0,
                       },
                     ]}>
                     Grid View
