@@ -11,7 +11,11 @@ import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors } from '@/constants/swasho-tokens';
 
 const STATUS_BAR_HEIGHT = 32;
-const HEADER_HEIGHT = 58;
+/** Figma 3346:13547 — back + title row */
+const HEADER_ROW_TOP = 56.58;
+const HEADER_ROW_HEIGHT = 26.036;
+/** Figma 3346:13545 — white header card */
+const HEADER_CARD_HEIGHT = 90.123;
 const HOME_INDICATOR_HEIGHT = 24;
 
 type CheckoutScreenShellProps = {
