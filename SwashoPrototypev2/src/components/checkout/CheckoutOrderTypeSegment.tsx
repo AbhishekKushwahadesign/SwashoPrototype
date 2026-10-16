@@ -127,7 +127,7 @@ export function CheckoutOrderTypeSegment({
             </Text>
             <Text
               style={[
-                searchFont('semibold'),
+                searchFont('regular'),
                 isOneTime ? styles.subOnGradient : styles.subMuted,
                 { fontSize: 12 * scale, lineHeight: 17 * scale, letterSpacing: 0.5 * scale },
               ]}>
@@ -161,7 +161,7 @@ export function CheckoutOrderTypeSegment({
           <View style={[styles.copy, { gap: 7 * scale, paddingVertical: 10 * scale }]}>
             <Text
               style={[
-                searchFont('semibold'),
+                searchFont('medium'),
                 isSubscribe ? styles.titleOnGradient : styles.titleDark,
                 { fontSize: 16 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
               ]}>
@@ -169,7 +169,7 @@ export function CheckoutOrderTypeSegment({
             </Text>
             <Text
               style={[
-                isSubscribe ? searchFont('semibold') : searchFont('regular'),
+                searchFont('regular'),
                 isSubscribe ? styles.subOnGradient : styles.subDark,
                 {
                   fontSize: 12 * scale,

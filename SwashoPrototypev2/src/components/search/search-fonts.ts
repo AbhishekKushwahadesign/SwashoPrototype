@@ -1,16 +1,23 @@
 import { Platform, type TextStyle } from 'react-native';
 
-type SearchFontWeight = 'medium' | 'semibold';
+type SearchFontWeight = 'regular' | 'medium' | 'semibold';
 
 export function searchFont(weight: SearchFontWeight): TextStyle {
   if (Platform.OS === 'web') {
+    const fontWeight =
+      weight === 'regular' ? '400' : weight === 'medium' ? '500' : '600';
     return {
       fontFamily: 'Poppins',
-      fontWeight: weight === 'medium' ? '500' : '600',
+      fontWeight,
     };
   }
 
-  return {
-    fontFamily: weight === 'medium' ? 'Poppins_500Medium' : 'Poppins_600SemiBold',
-  };
+  const fontFamily =
+    weight === 'regular'
+      ? 'Poppins_400Regular'
+      : weight === 'medium'
+        ? 'Poppins_500Medium'
+        : 'Poppins_600SemiBold';
+
+  return { fontFamily };
 }
