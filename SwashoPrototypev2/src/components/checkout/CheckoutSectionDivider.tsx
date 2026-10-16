@@ -2,7 +2,7 @@ import Svg, { Line } from 'react-native-svg';
 
 import { SwashoColors } from '@/constants/swasho-tokens';
 
-/** Figma one-time checkout Line 22 / Line 23 — full card width (~376.5px at 1×). */
+/** Figma one-time checkout Line 22 / Line 23 — solid #dcdcdc, full card width (~376.5px at 1×). */
 const DESIGN_WIDTH = 377;
 
 type CheckoutSectionDividerProps = {
@@ -26,7 +26,6 @@ export function CheckoutSectionDivider({ width, scale }: CheckoutSectionDividerP
         y2={0.5}
         stroke={SwashoColors.neutral200}
         strokeWidth={1}
-        strokeDasharray="6 6"
         strokeLinecap="round"
       />
     </Svg>
