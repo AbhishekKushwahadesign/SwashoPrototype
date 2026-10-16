@@ -7,6 +7,7 @@ import { figmaShadow, FigmaShadows } from '@/components/home/figma-shadows';
 import { ServiceSelectionButton } from '@/components/service-selection/ServiceSelectionButton';
 import { useProviderCart } from '@/context/provider-cart-context';
 import {
+  checkoutPlaceholderHref,
   SUBSCRIPTION_FREQUENCY_OPTIONS,
   type SubscriptionFrequencyOption,
 } from '@/lib/checkout-flow';
@@ -111,10 +112,9 @@ export function SubscriptionFrequencyScreen({ providerId, query }: SubscriptionF
     }
     confirmLockRef.current = true;
     setSubscriptionFrequency(providerId, selectedFrequency);
-    router.push({
-      pathname: '/checkout',
-      params: { providerId, q: query, subscription: '1' },
-    } as never);
+    router.replace(
+      checkoutPlaceholderHref(providerId, query, { subscription: true }),
+    );
     setTimeout(() => {
       confirmLockRef.current = false;
     }, 600);

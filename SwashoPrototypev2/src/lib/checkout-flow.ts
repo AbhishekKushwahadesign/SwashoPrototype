@@ -1,3 +1,5 @@
+import type { Href } from 'expo-router';
+
 export type ProviderOrderFulfillmentMode = 'one-time' | 'subscribe';
 
 export type SubscriptionFrequencyOption = 'twice-weekly' | 'once-weekly';
@@ -57,6 +59,44 @@ export const ORDER_TYPE_OPTIONS: {
     description: 'Unlock exclusive pricing',
   },
 ];
+
+function checkoutQueryString(providerId: string, query: string, extra?: Record<string, string>): string {
+  const params = new URLSearchParams({ providerId, q: query });
+  if (extra) {
+    for (const [key, value] of Object.entries(extra)) {
+      params.set(key, value);
+    }
+  }
+  return params.toString();
+}
+
+/** Stable hrefs for nested checkout stack (object pathname + push often no-ops on web). */
+export function checkoutOrderTypeHref(providerId: string, query: string): Href {
+  return `/checkout/order-type?${checkoutQueryString(providerId, query)}` as Href;
+}
+
+export function oneTimeCheckoutHref(providerId: string, query: string): Href {
+  return `/checkout?${checkoutQueryString(providerId, query)}` as Href;
+}
+
+export function subscriptionFrequencyHref(providerId: string, query: string): Href {
+  return `/checkout/subscription-frequency?${checkoutQueryString(providerId, query)}` as Href;
+}
+
+export function checkoutPlaceholderHref(
+  providerId: string,
+  query: string,
+  options: { subscription?: boolean; scheduleConfirmed?: boolean },
+): Href {
+  const extra: Record<string, string> = {};
+  if (options.subscription) {
+    extra.subscription = '1';
+  }
+  if (options.scheduleConfirmed) {
+    extra.scheduleConfirmed = '1';
+  }
+  return `/checkout?${checkoutQueryString(providerId, query, extra)}` as Href;
+}
 
 export const SUBSCRIPTION_FREQUENCY_OPTIONS: {
   id: SubscriptionFrequencyOption;

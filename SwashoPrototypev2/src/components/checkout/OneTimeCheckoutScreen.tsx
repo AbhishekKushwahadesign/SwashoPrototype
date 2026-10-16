@@ -9,8 +9,10 @@ import { ServiceSelectionButton } from '@/components/service-selection/ServiceSe
 import { ServiceCheckbox } from '@/components/service-selection/ServiceCheckbox';
 import { useProviderCart } from '@/context/provider-cart-context';
 import {
+  checkoutPlaceholderHref,
   CHECKOUT_PICKUP_TIME_SLOTS,
   CHECKOUT_WEEKDAY_OPTIONS,
+  subscriptionFrequencyHref,
   type CheckoutPickupTimeSlotId,
   type CheckoutWeekdayId,
 } from '@/lib/checkout-flow';
@@ -77,10 +79,7 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
     }
     navigateLockRef.current = true;
     setFulfillmentMode(providerId, 'subscribe');
-    router.replace({
-      pathname: '/checkout/subscription-frequency',
-      params: { providerId, q: query },
-    } as never);
+    router.replace(subscriptionFrequencyHref(providerId, query));
     setTimeout(() => {
       navigateLockRef.current = false;
     }, 600);
@@ -96,10 +95,7 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
       pickupTimeSlot: pickupSlot,
       deliverySameAsPickup,
     });
-    router.replace({
-      pathname: '/checkout',
-      params: { providerId, q: query, scheduleConfirmed: '1' },
-    } as never);
+    router.replace(checkoutPlaceholderHref(providerId, query, { scheduleConfirmed: true }));
     setTimeout(() => {
       confirmLockRef.current = false;
     }, 600);

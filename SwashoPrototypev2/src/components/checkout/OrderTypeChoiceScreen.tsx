@@ -5,7 +5,12 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useScreenScale } from '@/components/home/scale';
 import { ServiceSelectionButton } from '@/components/service-selection/ServiceSelectionButton';
 import { useProviderCart } from '@/context/provider-cart-context';
-import { ORDER_TYPE_OPTIONS, type ProviderOrderFulfillmentMode } from '@/lib/checkout-flow';
+import {
+  oneTimeCheckoutHref,
+  ORDER_TYPE_OPTIONS,
+  subscriptionFrequencyHref,
+  type ProviderOrderFulfillmentMode,
+} from '@/lib/checkout-flow';
 import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors } from '@/constants/swasho-tokens';
 
@@ -40,15 +45,9 @@ export function OrderTypeChoiceScreen({ providerId, query }: OrderTypeChoiceScre
     setFulfillmentMode(providerId, selectedMode);
 
     if (selectedMode === 'one-time') {
-      router.push({
-        pathname: '/checkout',
-        params: { providerId, q: query },
-      } as never);
+      router.replace(oneTimeCheckoutHref(providerId, query));
     } else {
-      router.push({
-        pathname: '/checkout/subscription-frequency',
-        params: { providerId, q: query },
-      } as never);
+      router.replace(subscriptionFrequencyHref(providerId, query));
     }
 
     setTimeout(() => {

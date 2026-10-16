@@ -40,6 +40,8 @@ import {
   ListServiceIcon,
   PhoneIcon,
 } from './provider-page-icons';
+import { checkoutOrderTypeHref } from '@/lib/checkout-flow';
+
 import { ProviderCartBottomBar } from './ProviderCartBottomBar';
 
 const STATUS_BAR_HEIGHT = 32;
@@ -645,10 +647,7 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
       return;
     }
     cartProceedLockRef.current = true;
-    router.push({
-      pathname: '/checkout/order-type',
-      params: { providerId: provider.id, q: displayQuery },
-    } as never);
+    router.push(checkoutOrderTypeHref(provider.id, displayQuery));
     setTimeout(() => {
       cartProceedLockRef.current = false;
     }, 600);
@@ -1017,7 +1016,14 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
         </Pressable>
 
         {showCartBar ? (
-          <View style={{ bottom: HOME_INDICATOR_HEIGHT * scale, position: 'absolute', left: 0, right: 0 }}>
+          <View
+            style={{
+              bottom: HOME_INDICATOR_HEIGHT * scale,
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              zIndex: 30,
+            }}>
             <ProviderCartBottomBar
               itemCount={cartTotals.itemCount}
               scale={scale}
