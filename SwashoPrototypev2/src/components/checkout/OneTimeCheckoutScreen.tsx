@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Line13Icon } from '@/components/home/figma-icons';
+import { CheckoutSectionDivider } from '@/components/checkout/CheckoutSectionDivider';
 import { useScreenScale } from '@/components/home/scale';
 import { figmaShadow, FigmaShadows } from '@/components/home/figma-shadows';
 import { ServiceSelectionButton } from '@/components/service-selection/ServiceSelectionButton';
@@ -126,8 +126,6 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
     />
   );
 
-  const dividerWidth = 376 * scale;
-
   return (
     <CheckoutScreenShell title="Choose Subscription Type" onBackPress={handleBackPress} footer={footer}>
       <ScrollView
@@ -184,7 +182,7 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
             </View>
           </View>
 
-          <Line13Icon width={dividerWidth} height={2 * scale} style={{ alignSelf: 'center' }} />
+          <CheckoutSectionDivider width={376 * scale} scale={scale} />
 
           <View style={{ width: '100%', paddingHorizontal: 16 * scale, gap: 16 * scale }}>
             <Text
@@ -210,7 +208,7 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
             </View>
           </View>
 
-          <Line13Icon width={dividerWidth} height={2 * scale} style={{ alignSelf: 'center' }} />
+          <CheckoutSectionDivider width={376 * scale} scale={scale} />
 
           <View
             style={{
