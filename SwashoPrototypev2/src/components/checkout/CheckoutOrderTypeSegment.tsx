@@ -1,10 +1,14 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import type { ReactNode } from 'react';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { figmaShadow, FigmaShadows } from '@/components/home/figma-shadows';
+import { figmaDropShadow, figmaShadow, FigmaShadows } from '@/components/home/figma-shadows';
 import { searchFont } from '@/components/search/search-fonts';
 import type { ProviderOrderFulfillmentMode } from '@/lib/checkout-flow';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
+
+/** Figma 3346:13477 — segment gradient stops */
+const ONE_TIME_GRADIENT = ['#7e77ff', '#7056ff', '#6234ff'] as const;
 
 type CheckoutOrderTypeSegmentProps = {
   activeMode: ProviderOrderFulfillmentMode;
@@ -18,16 +22,45 @@ export function CheckoutOrderTypeSegment({
   scale,
 }: CheckoutOrderTypeSegmentProps) {
   const isOneTime = activeMode === 'one-time';
+  const isSubscribe = activeMode === 'subscribe';
+  const outerRadius = SwashoRadii.lg * scale;
+  const trackInset = 2 * scale;
+  const pillRadius = (SwashoRadii.lg - 2) * scale;
+  const pillCorners = {
+    borderTopLeftRadius: pillRadius,
+    borderBottomLeftRadius: pillRadius,
+    borderTopRightRadius: pillRadius,
+    borderBottomRightRadius: pillRadius,
+  };
+
+  const pillShadow = figmaDropShadow(FigmaShadows.checkoutSegmentActive, scale);
+  const pillInset = figmaShadow(FigmaShadows.checkoutSegmentActiveInset, scale);
+
+  const activePillShell = (child: ReactNode) => (
+    <View
+      style={[
+        StyleSheet.absoluteFill,
+        pillCorners,
+        { overflow: 'hidden', borderWidth: 1 * scale, borderColor: '#ffffff' },
+        pillShadow,
+      ]}>
+      {child}
+      {Platform.OS === 'web' ? (
+        <View pointerEvents="none" style={[StyleSheet.absoluteFill, pillCorners, pillInset]} />
+      ) : null}
+    </View>
+  );
 
   return (
     <View
       style={[
         styles.outer,
         {
-          borderRadius: SwashoRadii.lg * scale,
+          borderRadius: outerRadius,
           borderWidth: 1 * scale,
           minHeight: 61 * scale,
-          ...figmaShadow(FigmaShadows.providerCard, scale),
+          padding: trackInset,
+          ...figmaShadow(FigmaShadows.checkoutSegmentTrack, scale),
         },
       ]}>
       <View style={styles.row}>
@@ -37,19 +70,22 @@ export function CheckoutOrderTypeSegment({
           onPress={() => onSelectMode('one-time')}
           style={({ pressed }) => [
             styles.half,
-            styles.halfLeft,
+            pillCorners,
             { opacity: pressed ? 0.95 : 1 },
           ]}>
-          {isOneTime ? (
-            <LinearGradient
-              colors={['#7e77ff', '#7056ff', '#6234ff']}
-              start={{ x: 1, y: 0 }}
-              end={{ x: 0, y: 1 }}
-              style={[StyleSheet.absoluteFill, { borderRadius: SwashoRadii.lg * scale }]} />
-          ) : (
-            <View style={[StyleSheet.absoluteFill, styles.inactiveFill, { borderRadius: SwashoRadii.lg * scale }]} />
-          )}
-          <View style={[styles.copy, { gap: 6 * scale, paddingVertical: 12 * scale }]}>
+          {isOneTime
+            ? activePillShell(
+                <LinearGradient
+                  colors={[...ONE_TIME_GRADIENT]}
+                  start={{ x: 0.92, y: 0.08 }}
+                  end={{ x: 0.08, y: 0.92 }}
+                  style={StyleSheet.absoluteFill}
+                />,
+              )
+            : (
+              <View style={[StyleSheet.absoluteFill, styles.inactiveFill, pillCorners]} />
+            )}
+          <View style={[styles.copy, { gap: 6 * scale, paddingVertical: 10 * scale }]}>
             <Text
               style={[
                 searchFont('semibold'),
@@ -67,39 +103,53 @@ export function CheckoutOrderTypeSegment({
               Pay Standard Pricing
             </Text>
           </View>
-          {isOneTime ? <View style={styles.insetShadow} pointerEvents="none" /> : null}
         </Pressable>
 
         <Pressable
           accessibilityRole="button"
-          accessibilityState={{ selected: !isOneTime }}
+          accessibilityState={{ selected: isSubscribe }}
           onPress={() => onSelectMode('subscribe')}
           style={({ pressed }) => [
             styles.half,
-            styles.halfRight,
+            pillCorners,
             { opacity: pressed ? 0.95 : 1 },
           ]}>
-          <View style={[styles.copy, { gap: 7 * scale, paddingVertical: 12 * scale }]}>
+          {isSubscribe
+            ? activePillShell(
+                <LinearGradient
+                  colors={[...ONE_TIME_GRADIENT]}
+                  start={{ x: 0.92, y: 0.08 }}
+                  end={{ x: 0.08, y: 0.92 }}
+                  style={StyleSheet.absoluteFill}
+                />,
+              )
+            : (
+              <View style={[StyleSheet.absoluteFill, styles.halfRight, pillCorners]} />
+            )}
+          <View style={[styles.copy, { gap: 7 * scale, paddingVertical: 10 * scale }]}>
             <Text
               style={[
                 searchFont('semibold'),
-                styles.titleDark,
+                isSubscribe ? styles.titleOnGradient : styles.titleDark,
                 { fontSize: 16 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
               ]}>
               Subscribe
             </Text>
             <Text
               style={[
-                searchFont('regular'),
-                styles.subDark,
-                { fontSize: 12 * scale, lineHeight: 14 * scale },
+                isSubscribe ? searchFont('semibold') : searchFont('regular'),
+                isSubscribe ? styles.subOnGradient : styles.subDark,
+                {
+                  fontSize: 12 * scale,
+                  lineHeight: isSubscribe ? 17 * scale : 14 * scale,
+                  letterSpacing: isSubscribe ? 0.5 * scale : 0,
+                },
               ]}>
               Unlock Exclusive Pricing
             </Text>
           </View>
         </Pressable>
       </View>
-      <View style={styles.outerInset} pointerEvents="none" />
     </View>
   );
 }
@@ -114,6 +164,7 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     flex: 1,
+    alignItems: 'stretch',
   },
   half: {
     flex: 1,
@@ -121,12 +172,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  halfLeft: {
-    zIndex: 2,
-  },
   halfRight: {
     backgroundColor: SwashoColors.surface,
-    zIndex: 1,
   },
   inactiveFill: {
     backgroundColor: SwashoColors.neutral50,
@@ -152,22 +199,5 @@ const styles = StyleSheet.create({
   },
   subDark: {
     color: SwashoColors.neutral800,
-  },
-  insetShadow: {
-    ...StyleSheet.absoluteFillObject,
-    borderRadius: SwashoRadii.lg,
-    shadowColor: '#000',
-    shadowOffset: { width: -6, height: 6 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-  },
-  outerInset: {
-    ...StyleSheet.absoluteFillObject,
-    borderRadius: SwashoRadii.lg,
-    borderWidth: 0,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
   },
 });

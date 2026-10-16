@@ -85,6 +85,19 @@ export const FigmaShadows = {
   providerStickyNav: { offsetX: 0, offsetY: 2, blur: 4, color: '#000000', opacity: 0.12 },
   /** Figma 3346:8891 — grid toggle thumb drop shadow (-2, 2, blur 2 @ 19%). */
   gridToggleThumb: { offsetX: -2, offsetY: 2, blur: 2, color: '#000000', opacity: 0.19 },
+  /** Figma 3346:13477 — checkout one-time / subscribe segment track */
+  checkoutSegmentTrack: { offsetX: 0, offsetY: 2, blur: 4, color: '#000000', opacity: 0.15, inset: true },
+  /** Active segment pill drop shadow (Figma 3346:13477 — -4.19, 4.19, blur 4.19 @ 25%) */
+  checkoutSegmentActive: { offsetX: -4, offsetY: 4, blur: 4, color: '#000000', opacity: 0.25 },
+  /** Active one-time pill inner shadow */
+  checkoutSegmentActiveInset: {
+    offsetX: -6,
+    offsetY: 6,
+    blur: 4,
+    color: '#000000',
+    opacity: 0.25,
+    inset: true,
+  },
 } as const satisfies Record<string, ShadowSpec>;
 
 /** CSS drop-shadow (Figma effect on clipped rounded headers). Falls back to box shadow on native. */
