@@ -126,10 +126,11 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
 
   const scheduleInset = 9.513 * scale;
   const pickupTimeColumnGap = 12 * scale;
+  /** Figma 3346:13522 — 371.507px grid, 110.15px chips, 3 columns */
+  const timeSlotGridWidth = 371.507 * scale;
   const pickupTimeChipWidth = useMemo(() => {
-    const gridWidth = contentWidth - 32 * scale - scheduleInset * 2;
-    return (gridWidth - 2 * pickupTimeColumnGap) / 3;
-  }, [contentWidth, scale, pickupTimeColumnGap, scheduleInset]);
+    return (timeSlotGridWidth - 2 * pickupTimeColumnGap) / 3;
+  }, [pickupTimeColumnGap, timeSlotGridWidth]);
 
   const stepOneProgress = useMemo(() => {
     let completed = 0;
@@ -230,6 +231,7 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
                 style={[
                   styles.chipGrid,
                   {
+                    width: timeSlotGridWidth,
                     columnGap: pickupTimeColumnGap,
                     rowGap: 16.022 * scale,
                     paddingVertical: 8.011 * scale,
@@ -296,8 +298,9 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
                 style={[
                   styles.chipGrid,
                   {
+                    width: timeSlotGridWidth,
                     columnGap: pickupTimeColumnGap,
-                    rowGap: 16 * scale,
+                    rowGap: 16.022 * scale,
                     paddingTop: 7 * scale,
                   },
                 ]}>
@@ -309,7 +312,7 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
                     onPress={() => handleDeliverySlotSelect(slot.id)}
                     scale={scale}
                     width={pickupTimeChipWidth}
-                    height={35}
+                    height={35.048}
                   />
                 ))}
               </View>
