@@ -3,21 +3,24 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CheckoutPlaceholderScreen } from '@/components/checkout/CheckoutPlaceholderScreen';
+import { OneTimeCheckoutScreen } from '@/components/checkout/OneTimeCheckoutScreen';
 import { useSafeTopInset } from '@/components/home/scale';
 import { SwashoFonts } from '@/constants/swasho-tokens';
 
 export default function CheckoutRoute() {
   const router = useRouter();
-  const { providerId, q, subscription } = useLocalSearchParams<{
+  const { providerId, q, subscription, scheduleConfirmed } = useLocalSearchParams<{
     providerId?: string;
     q?: string;
     subscription?: string;
+    scheduleConfirmed?: string;
   }>();
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
   const id = typeof providerId === 'string' ? providerId : '';
   const query = typeof q === 'string' ? q : '';
   const isSubscription = subscription === '1';
+  const isScheduleConfirmed = scheduleConfirmed === '1';
 
   if (!id) {
     const handleBackPress = () => {
@@ -38,7 +41,11 @@ export default function CheckoutRoute() {
     );
   }
 
-  return <CheckoutPlaceholderScreen providerId={id} query={query} isSubscription={isSubscription} />;
+  if (isSubscription || isScheduleConfirmed) {
+    return <CheckoutPlaceholderScreen providerId={id} query={query} isSubscription={isSubscription} />;
+  }
+
+  return <OneTimeCheckoutScreen providerId={id} query={query} />;
 }
 
 const styles = StyleSheet.create({

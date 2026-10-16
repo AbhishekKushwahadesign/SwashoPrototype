@@ -2,10 +2,44 @@ export type ProviderOrderFulfillmentMode = 'one-time' | 'subscribe';
 
 export type SubscriptionFrequencyOption = 'twice-weekly' | 'once-weekly';
 
+export type CheckoutWeekdayId = 'mon' | 'tue' | 'wed' | 'thu' | 'fri' | 'sat' | 'sun';
+
+export type CheckoutPickupTimeSlotId =
+  | '6-8am'
+  | '8-10am'
+  | '10-12pm'
+  | '12-2pm'
+  | '2-4pm'
+  | '4-6pm'
+  | '6-8pm';
+
 export type ProviderCheckoutState = {
   fulfillmentMode?: ProviderOrderFulfillmentMode;
   subscriptionFrequency?: SubscriptionFrequencyOption;
+  pickupWeekday?: CheckoutWeekdayId;
+  pickupTimeSlot?: CheckoutPickupTimeSlotId;
+  deliverySameAsPickup?: boolean;
 };
+
+export const CHECKOUT_WEEKDAY_OPTIONS: { id: CheckoutWeekdayId; label: string }[] = [
+  { id: 'mon', label: 'Mon' },
+  { id: 'tue', label: 'Tue' },
+  { id: 'wed', label: 'Wed' },
+  { id: 'thu', label: 'Thur' },
+  { id: 'fri', label: 'Fri' },
+  { id: 'sat', label: 'Sat' },
+  { id: 'sun', label: 'Sun' },
+];
+
+export const CHECKOUT_PICKUP_TIME_SLOTS: { id: CheckoutPickupTimeSlotId; label: string }[] = [
+  { id: '6-8am', label: '6 - 8am' },
+  { id: '8-10am', label: '8 - 10am' },
+  { id: '10-12pm', label: '10 - 12am' },
+  { id: '12-2pm', label: '12 - 2pm' },
+  { id: '2-4pm', label: '2 - 4pm' },
+  { id: '4-6pm', label: '4 - 6pm' },
+  { id: '6-8pm', label: '6 - 8pm' },
+];
 
 export const ORDER_TYPE_OPTIONS: {
   id: ProviderOrderFulfillmentMode;

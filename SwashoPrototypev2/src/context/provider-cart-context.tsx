@@ -1,6 +1,10 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 
-import type { ProviderCheckoutState, ProviderOrderFulfillmentMode, SubscriptionFrequencyOption } from '@/lib/checkout-flow';
+import type {
+  ProviderCheckoutState,
+  ProviderOrderFulfillmentMode,
+  SubscriptionFrequencyOption,
+} from '@/lib/checkout-flow';
 import {
   computeSelectionStickyMetrics,
   garmentAssignmentItemCount,
@@ -19,6 +23,12 @@ type ProviderCartContextValue = {
   getCheckoutState: (providerId: string) => ProviderCheckoutState;
   setFulfillmentMode: (providerId: string, mode: ProviderOrderFulfillmentMode) => void;
   setSubscriptionFrequency: (providerId: string, frequency: SubscriptionFrequencyOption) => void;
+  setOneTimeSchedule: (
+    providerId: string,
+    patch: Partial<
+      Pick<ProviderCheckoutState, 'pickupWeekday' | 'pickupTimeSlot' | 'deliverySameAsPickup'>
+    >,
+  ) => void;
 };
 
 const ProviderCartContext = createContext<ProviderCartContextValue | null>(null);
@@ -75,6 +85,24 @@ export function ProviderCartProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
+  const setOneTimeSchedule = useCallback(
+    (
+      providerId: string,
+      patch: Partial<
+        Pick<ProviderCheckoutState, 'pickupWeekday' | 'pickupTimeSlot' | 'deliverySameAsPickup'>
+      >,
+    ) => {
+      setCheckoutStore((prev) => ({
+        ...prev,
+        [providerId]: {
+          ...prev[providerId],
+          ...patch,
+        },
+      }));
+    },
+    [],
+  );
+
   const getProviderCartTotals = useCallback(
     (providerId: string) => {
       let itemCount = 0;
@@ -107,6 +135,7 @@ export function ProviderCartProvider({ children }: { children: ReactNode }) {
       getProviderCartTotals,
       getCheckoutState,
       setFulfillmentMode,
+      setOneTimeSchedule,
       setSubscriptionFrequency,
     }),
     [
@@ -115,6 +144,7 @@ export function ProviderCartProvider({ children }: { children: ReactNode }) {
       getProviderCartTotals,
       getSelection,
       setFulfillmentMode,
+      setOneTimeSchedule,
       setSelection,
       setSubscriptionFrequency,
     ],
