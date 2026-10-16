@@ -1,15 +1,5 @@
 import { useEffect, useState } from 'react';
 import { AccessibilityInfo, Platform } from 'react-native';
-import {
-  cancelAnimation,
-  Easing,
-  runOnJS,
-  useAnimatedReaction,
-  useSharedValue,
-  withDelay,
-  withSequence,
-  withTiming,
-} from 'react-native-reanimated';
 
 export const SUBSCRIBE_BANNER_ACCENT_CYCLE_MS = 1000;
 export const SUBSCRIBE_BANNER_ACCENT_PAUSE_MS = 750;
@@ -22,6 +12,37 @@ function readWebReducedMotion(): boolean {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+function easeInOutCubic(t: number): number {
+  if (t <= 0) {
+    return 0;
+  }
+  if (t >= 1) {
+    return 1;
+  }
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+
+function accentProgressForElapsed(elapsedMs: number): { value: number; finished: boolean } {
+  let remaining = elapsedMs;
+
+  for (let cycle = 0; cycle < SUBSCRIBE_BANNER_ACCENT_CYCLES; cycle += 1) {
+    if (remaining < SUBSCRIBE_BANNER_ACCENT_CYCLE_MS) {
+      return {
+        value: easeInOutCubic(remaining / SUBSCRIBE_BANNER_ACCENT_CYCLE_MS),
+        finished: false,
+      };
+    }
+    remaining -= SUBSCRIBE_BANNER_ACCENT_CYCLE_MS;
+
+    if (remaining < SUBSCRIBE_BANNER_ACCENT_PAUSE_MS) {
+      return { value: 1, finished: false };
+    }
+    remaining -= SUBSCRIBE_BANNER_ACCENT_PAUSE_MS;
+  }
+
+  return { value: 1, finished: true };
+}
+
 type UseSubscribeBannerAccentAnimationResult = {
   accentProgress: number;
   isStaticAccent: boolean;
@@ -30,9 +51,8 @@ type UseSubscribeBannerAccentAnimationResult = {
 export function useSubscribeBannerAccentAnimation(
   sessionId: number,
 ): UseSubscribeBannerAccentAnimationResult {
-  const progress = useSharedValue(0);
   const [accentProgress, setAccentProgress] = useState(0);
-  const [isStaticAccent, setIsStaticAccent] = useState(false);
+  const [completedSessionId, setCompletedSessionId] = useState(0);
   const [reduceMotion, setReduceMotion] = useState(readWebReducedMotion);
 
   useEffect(() => {
@@ -59,55 +79,36 @@ export function useSubscribeBannerAccentAnimation(
     };
   }, []);
 
-  useAnimatedReaction(
-    () => progress.value,
-    (value) => {
-      runOnJS(setAccentProgress)(value);
-    },
-    [sessionId],
-  );
+  const shouldRunAnimation = !reduceMotion && sessionId > 0;
+  const isStaticAccent = reduceMotion || sessionId < 1 || completedSessionId === sessionId;
 
   useEffect(() => {
-    if (reduceMotion || sessionId < 1) {
-      cancelAnimation(progress);
-      progress.value = 0;
-      setAccentProgress(0);
-      setIsStaticAccent(true);
+    if (!shouldRunAnimation) {
       return;
     }
 
-    setIsStaticAccent(false);
-    setAccentProgress(0);
-    progress.value = 0;
+    const sessionAtStart = sessionId;
+    const startTime = performance.now();
+    let frameId = 0;
 
-    const markStatic = () => {
-      setIsStaticAccent(true);
+    const tick = (now: number) => {
+      const { value, finished } = accentProgressForElapsed(now - startTime);
+      setAccentProgress(value);
+
+      if (finished) {
+        setCompletedSessionId(sessionAtStart);
+        return;
+      }
+
+      frameId = requestAnimationFrame(tick);
     };
 
-    const easing = Easing.inOut(Easing.cubic);
-    const animateIn = withTiming(1, { duration: SUBSCRIBE_BANNER_ACCENT_CYCLE_MS, easing });
-    const pauseThenReset = withDelay(
-      SUBSCRIBE_BANNER_ACCENT_PAUSE_MS,
-      withTiming(0, { duration: 0 }),
-    );
-    const pauseThenHold = withDelay(
-      SUBSCRIBE_BANNER_ACCENT_PAUSE_MS,
-      withTiming(1, { duration: 0 }, (finished) => {
-        if (finished) {
-          runOnJS(markStatic)();
-        }
-      }),
-    );
-
-    const cycleWithReset = withSequence(animateIn, pauseThenReset);
-    const finalCycle = withSequence(animateIn, pauseThenHold);
-
-    progress.value = withSequence(cycleWithReset, cycleWithReset, finalCycle);
+    frameId = requestAnimationFrame(tick);
 
     return () => {
-      cancelAnimation(progress);
+      cancelAnimationFrame(frameId);
     };
-  }, [progress, reduceMotion, sessionId]);
+  }, [shouldRunAnimation, sessionId]);
 
   if (reduceMotion) {
     return { accentProgress: 0, isStaticAccent: true };
