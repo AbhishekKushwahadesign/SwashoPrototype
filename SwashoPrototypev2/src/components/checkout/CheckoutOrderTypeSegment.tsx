@@ -87,6 +87,7 @@ export function CheckoutOrderTypeSegment({
                   end={{ x: 0.08, y: 0.92 }}
                   style={StyleSheet.absoluteFill}
                 />,
+                'left',
               )
             : (
               <View style={[StyleSheet.absoluteFill, styles.inactiveFill, pillCorners]} />
@@ -128,6 +129,7 @@ export function CheckoutOrderTypeSegment({
                   end={{ x: 0.08, y: 0.92 }}
                   style={StyleSheet.absoluteFill}
                 />,
+                'right',
               )
             : (
               <View style={[StyleSheet.absoluteFill, styles.halfRight, pillCorners]} />
