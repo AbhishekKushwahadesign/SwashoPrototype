@@ -125,7 +125,7 @@ export function GridToggleIcon({ width, height, style }: IconProps) {
   const thumbShadowStyle = figmaDropShadow(FigmaShadows.gridToggleThumb, artScale);
 
   return (
-    <View style={[{ width, height, overflow: 'visible' }, style]}>
+    <View style={[{ width, height, overflow: 'hidden' }, style]}>
       <GridToggleArt
         width={artWidth}
         height={artHeight}

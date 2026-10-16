@@ -902,19 +902,20 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
                 <View
                   style={[
                     styles.gridToggleRow,
-                    { gap: 2 * scale, minWidth: 91 * scale, flex: 1, justifyContent: 'flex-end' },
+                    { gap: 4 * scale, width: 93 * scale },
                   ]}>
                   <GridToggleIcon width={43 * scale} height={23 * scale} />
                   <Text
                     numberOfLines={1}
+                    selectable={false}
                     style={[
                       styles.gridToggleLabel,
                       searchFont('medium'),
                       {
                         fontSize: 12 * scale,
-                        lineHeight: 10 * scale,
+                        lineHeight: 14 * scale,
                         letterSpacing: 0.5 * scale,
-                        flexShrink: 0,
+                        flexShrink: 1,
                       },
                     ]}>
                     Grid View
@@ -1219,6 +1220,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flexShrink: 0,
+    marginLeft: 'auto',
   },
   gridToggleLabel: {
     color: SwashoColors.darkText,
