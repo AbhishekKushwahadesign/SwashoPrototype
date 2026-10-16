@@ -12,7 +12,6 @@ import {
   buildUpcomingCheckoutDays,
   checkoutPlaceholderHref,
   CHECKOUT_PICKUP_TIME_SLOTS,
-  providerPageHref,
   subscriptionFrequencyHref,
   type CheckoutDayOption,
   type CheckoutPickupTimeSlotId,
@@ -72,8 +71,8 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
   }, [providerId, setFulfillmentMode]);
 
   const handleBackPress = useCallback(() => {
-    router.replace(providerPageHref(providerId, query));
-  }, [providerId, query, router]);
+    router.back();
+  }, [router]);
 
   const goSubscribePath = useCallback(() => {
     if (navigateLockRef.current) {
