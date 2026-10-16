@@ -85,6 +85,12 @@ function checkoutQueryString(providerId: string, query: string, extra?: Record<s
   return params.toString();
 }
 
+/** Provider details with search query preserved (cart lives in context). */
+export function providerPageHref(providerId: string, query: string): Href {
+  const params = new URLSearchParams({ q: query });
+  return `/provider/${providerId}?${params.toString()}` as Href;
+}
+
 /** Stable hrefs for nested checkout stack (object pathname + push often no-ops on web). */
 export function oneTimeCheckoutHref(providerId: string, query: string): Href {
   return `/checkout?${checkoutQueryString(providerId, query)}` as Href;

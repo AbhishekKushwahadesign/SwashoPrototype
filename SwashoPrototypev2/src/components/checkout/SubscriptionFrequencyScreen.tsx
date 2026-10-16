@@ -8,6 +8,7 @@ import { ServiceSelectionButton } from '@/components/service-selection/ServiceSe
 import { useProviderCart } from '@/context/provider-cart-context';
 import {
   checkoutPlaceholderHref,
+  providerPageHref,
   SUBSCRIPTION_FREQUENCY_OPTIONS,
   type SubscriptionFrequencyOption,
 } from '@/lib/checkout-flow';
@@ -103,8 +104,8 @@ export function SubscriptionFrequencyScreen({ providerId, query }: SubscriptionF
   const confirmLockRef = useRef(false);
 
   const handleBackPress = useCallback(() => {
-    router.back();
-  }, [router]);
+    router.replace(providerPageHref(providerId, query));
+  }, [providerId, query, router]);
 
   const handleConfirm = useCallback(() => {
     if (!selectedFrequency || confirmLockRef.current) {
