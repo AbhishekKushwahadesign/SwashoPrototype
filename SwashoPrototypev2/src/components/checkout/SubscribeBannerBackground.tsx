@@ -10,11 +10,10 @@ const STROKE_PATH =
 const DESIGN_VIEW_W = 372.311;
 const DESIGN_VIEW_H = 42.3836;
 const DESIGN_STROKE = 2.7865;
-const PURPLE = '#5D30F7';
 const LAVENDER = '#E4DDFE';
-/** Top-notch center in design coordinates (Figma 3346:13492). */
+const MASK_LAVENDER = '#ECE7FE';
+/** Top-notch tip X in design coordinates (Figma 3346:13492). */
 const NOTCH_CENTER_X = 290.656 / DESIGN_VIEW_W;
-const EDGE_SPREAD = 0.22;
 
 type SubscribeBannerBackgroundProps = {
   width: number;
@@ -24,12 +23,12 @@ type SubscribeBannerBackgroundProps = {
   isStaticAccent: boolean;
 };
 
-function convergenceBounds(progress: number) {
-  const left = EDGE_SPREAD * (1 - progress) + NOTCH_CENTER_X * progress;
-  const right = (1 - EDGE_SPREAD) * (1 - progress) + NOTCH_CENTER_X * progress;
-  const leftOffset = Math.max(0, Math.min(1, left));
-  const rightOffset = Math.max(0, Math.min(1, right));
-  return { leftOffset, rightOffset };
+/** Lavender mask grows from both ends toward the notch, revealing static purple only at the center. */
+function convergenceMaskBounds(progress: number) {
+  const p = Math.max(0, Math.min(1, progress));
+  const leftBound = p * NOTCH_CENTER_X;
+  const rightBound = 1 - p * (1 - NOTCH_CENTER_X);
+  return { leftBound, rightBound };
 }
 
 /** Figma 3346:13492 — speech-bubble banner fill + radial gradient stroke. */
@@ -43,9 +42,11 @@ export function SubscribeBannerBackground({
   const strokeWidth = DESIGN_STROKE * scale;
   const instanceId = useId().replace(/:/g, '');
   const radialId = `checkoutSubscribeBannerStroke-${instanceId}`;
-  const accentId = `checkoutSubscribeBannerAccent-${instanceId}`;
+  const maskId = `checkoutSubscribeBannerMask-${instanceId}`;
 
-  const { leftOffset, rightOffset } = convergenceBounds(accentProgress);
+  const showConvergenceMask =
+    !isStaticAccent && accentProgress > 0 && accentProgress < 1;
+  const { leftBound, rightBound } = convergenceMaskBounds(accentProgress);
   const epsilon = 0.0001;
 
   return (
@@ -62,44 +63,30 @@ export function SubscribeBannerBackground({
           <Stop offset="1" stopColor={LAVENDER} />
         </RadialGradient>
         <LinearGradient
-          id={accentId}
+          id={maskId}
           x1={0}
           y1={0}
           x2={DESIGN_VIEW_W}
           y2={0}
           gradientUnits="userSpaceOnUse">
-          <Stop offset="0" stopColor={PURPLE} />
-          <Stop offset={String(leftOffset)} stopColor={PURPLE} />
-          <Stop offset={String(Math.min(1, leftOffset + epsilon))} stopColor={LAVENDER} />
-          <Stop offset={String(Math.max(0, rightOffset - epsilon))} stopColor={LAVENDER} />
-          <Stop offset={String(rightOffset)} stopColor={PURPLE} />
-          <Stop offset="1" stopColor={PURPLE} />
+          <Stop offset="0" stopColor={MASK_LAVENDER} />
+          <Stop offset={String(leftBound)} stopColor={MASK_LAVENDER} />
+          <Stop offset={String(Math.min(1, leftBound + epsilon))} stopColor={MASK_LAVENDER} stopOpacity={0} />
+          <Stop offset={String(Math.max(0, rightBound - epsilon))} stopColor={MASK_LAVENDER} stopOpacity={0} />
+          <Stop offset={String(rightBound)} stopColor={MASK_LAVENDER} />
+          <Stop offset="1" stopColor={MASK_LAVENDER} />
         </LinearGradient>
       </Defs>
-      <Path d={FILL_PATH} fill="#ECE7FE" />
-      {isStaticAccent ? (
+      <Path d={FILL_PATH} fill={MASK_LAVENDER} />
+      <Path d={STROKE_PATH} fill="none" stroke={`url(#${radialId})`} strokeWidth={strokeWidth} />
+      {showConvergenceMask ? (
         <Path
           d={STROKE_PATH}
           fill="none"
-          stroke={`url(#${radialId})`}
+          stroke={`url(#${maskId})`}
           strokeWidth={strokeWidth}
         />
-      ) : (
-        <>
-          <Path
-            d={STROKE_PATH}
-            fill="none"
-            stroke={LAVENDER}
-            strokeWidth={strokeWidth}
-          />
-          <Path
-            d={STROKE_PATH}
-            fill="none"
-            stroke={`url(#${accentId})`}
-            strokeWidth={strokeWidth}
-          />
-        </>
-      )}
+      ) : null}
     </Svg>
   );
 }
