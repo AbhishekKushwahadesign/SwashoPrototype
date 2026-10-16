@@ -87,8 +87,8 @@ export const FigmaShadows = {
   gridToggleThumb: { offsetX: -2, offsetY: 2, blur: 2, color: '#000000', opacity: 0.19 },
   /** Figma 3346:13477 — checkout one-time / subscribe segment track */
   checkoutSegmentTrack: { offsetX: 0, offsetY: 2, blur: 4, color: '#000000', opacity: 0.15, inset: true },
-  /** Active segment pill drop shadow (Figma 3346:13477 — -4.19, 4.19, blur 4.19 @ 25%) */
-  checkoutSegmentActive: { offsetX: -4, offsetY: 4, blur: 4, color: '#000000', opacity: 0.25 },
+  /** Active segment pill drop shadow (Figma 3346:13477 box shadow) */
+  checkoutSegmentActive: { offsetX: -4.191, offsetY: 4.191, blur: 4.191, color: '#000000', opacity: 0.25 },
   /** Active one-time pill inner shadow */
   checkoutSegmentActiveInset: {
     offsetX: -6,

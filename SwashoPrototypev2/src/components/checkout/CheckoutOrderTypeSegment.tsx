@@ -2,7 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import type { ReactNode } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { figmaDropShadow, figmaShadow, FigmaShadows } from '@/components/home/figma-shadows';
+import { figmaShadow, FigmaShadows } from '@/components/home/figma-shadows';
 import { searchFont } from '@/components/search/search-fonts';
 import type { ProviderOrderFulfillmentMode } from '@/lib/checkout-flow';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
@@ -33,27 +33,49 @@ export function CheckoutOrderTypeSegment({
     borderBottomRightRadius: pillRadius,
   };
 
-  const pillShadow = figmaDropShadow(FigmaShadows.checkoutSegmentActive, scale);
+  const pillDrop = figmaShadow(FigmaShadows.checkoutSegmentActive, scale);
   const pillInset = figmaShadow(FigmaShadows.checkoutSegmentActiveInset, scale);
+  const pillBorderWidth = 1.048 * scale;
 
   const activePillShell = (child: ReactNode, side: 'left' | 'right') => (
     <View
+      pointerEvents="none"
       style={[
         StyleSheet.absoluteFill,
         pillCorners,
         side === 'left' ? { right: -1 * scale } : { left: -1 * scale },
-        {
-          overflow: 'hidden',
-          borderWidth: 1.048 * scale,
-          borderColor: SwashoColors.surface,
-          zIndex: 2,
-        },
-        pillShadow,
+        { zIndex: 2, overflow: 'visible' },
+        pillDrop,
       ]}>
-      {child}
-      {Platform.OS === 'web' ? (
-        <View pointerEvents="none" style={[StyleSheet.absoluteFill, pillCorners, pillInset]} />
-      ) : null}
+      <View
+        style={[
+          StyleSheet.absoluteFill,
+          pillCorners,
+          {
+            overflow: 'hidden',
+            borderWidth: pillBorderWidth,
+            borderColor: '#FFFFFF',
+            borderStyle: 'solid',
+          },
+        ]}>
+        {child}
+        {Platform.OS === 'web' ? (
+          <View
+            pointerEvents="none"
+            style={[
+              StyleSheet.absoluteFill,
+              pillCorners,
+              {
+                top: -0.524 * scale,
+                left: -0.524 * scale,
+                right: -0.524 * scale,
+                bottom: -0.524 * scale,
+              },
+              pillInset,
+            ]}
+          />
+        ) : null}
+      </View>
     </View>
   );
 
@@ -167,7 +189,7 @@ const styles = StyleSheet.create({
     width: '100%',
     borderColor: '#d7d7d7',
     backgroundColor: '#e0e0e0',
-    overflow: 'hidden',
+    overflow: 'visible',
   },
   row: {
     flexDirection: 'row',
@@ -176,7 +198,7 @@ const styles = StyleSheet.create({
   },
   half: {
     flex: 1,
-    overflow: 'hidden',
+    overflow: 'visible',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -188,7 +210,7 @@ const styles = StyleSheet.create({
   },
   copy: {
     alignItems: 'center',
-    zIndex: 1,
+    zIndex: 3,
   },
   titleOnGradient: {
     color: SwashoColors.primary100,
