@@ -165,7 +165,9 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
           }
         }} scale={scale} />
 
-        <CheckoutSwitchToSubscribeBanner onPress={goSubscribePath} scale={scale} />
+        <View style={styles.subscribeBannerSlot}>
+          <CheckoutSwitchToSubscribeBanner onPress={goSubscribePath} scale={scale} />
+        </View>
 
         <View
           style={[
@@ -306,6 +308,11 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
 const styles = StyleSheet.create({
   scrollContent: {
     alignItems: 'center',
+  },
+  subscribeBannerSlot: {
+    width: '100%',
+    overflow: 'visible',
+    zIndex: 2,
   },
   scheduleCard: {
     backgroundColor: SwashoColors.surface,

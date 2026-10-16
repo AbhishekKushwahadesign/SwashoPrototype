@@ -9,6 +9,8 @@ import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
 /** Figma 3346:13477 — segment gradient stops */
 const ONE_TIME_GRADIENT = ['#7e77ff', '#7056ff', '#6234ff'] as const;
+/** Active pill stroke (design / web computed edge) */
+const ACTIVE_PILL_BORDER = '#352a55';
 
 type CheckoutOrderTypeSegmentProps = {
   activeMode: ProviderOrderFulfillmentMode;
@@ -54,7 +56,7 @@ export function CheckoutOrderTypeSegment({
           {
             overflow: 'hidden',
             borderWidth: pillBorderWidth,
-            borderColor: '#FFFFFF',
+            borderColor: ACTIVE_PILL_BORDER,
             borderStyle: 'solid',
           },
         ]}>
@@ -63,14 +65,14 @@ export function CheckoutOrderTypeSegment({
           <View
             pointerEvents="none"
             style={[
-              StyleSheet.absoluteFill,
-              pillCorners,
               {
+                position: 'absolute',
                 top: -0.524 * scale,
                 left: -0.524 * scale,
                 right: -0.524 * scale,
                 bottom: -0.524 * scale,
               },
+              pillCorners,
               pillInset,
             ]}
           />
@@ -99,7 +101,7 @@ export function CheckoutOrderTypeSegment({
           style={({ pressed }) => [
             styles.half,
             pillCorners,
-            { opacity: pressed ? 0.95 : 1 },
+            { opacity: pressed ? 0.95 : 1, borderWidth: 0 },
           ]}>
           {isOneTime
             ? activePillShell(
@@ -141,7 +143,7 @@ export function CheckoutOrderTypeSegment({
           style={({ pressed }) => [
             styles.half,
             pillCorners,
-            { opacity: pressed ? 0.95 : 1 },
+            { opacity: pressed ? 0.95 : 1, borderWidth: 0 },
           ]}>
           {isSubscribe
             ? activePillShell(

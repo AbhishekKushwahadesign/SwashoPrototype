@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors } from '@/constants/swasho-tokens';
@@ -11,6 +11,8 @@ import { SubscribeBannerBackground } from './SubscribeBannerBackground';
 const FRAME_HEIGHT = 32;
 const BUBBLE_TOP = -11.102;
 const BUBBLE_HEIGHT = 43.617;
+/** Figma: ~20px from segment to banner row, notch rises into gap above the 32px row */
+const GAP_COMPENSATION = 20 - FRAME_HEIGHT + BUBBLE_HEIGHT + BUBBLE_TOP;
 
 type CheckoutSwitchToSubscribeBannerProps = {
   onPress: () => void;
@@ -24,9 +26,18 @@ export function CheckoutSwitchToSubscribeBanner({ onPress, scale }: CheckoutSwit
   const bubbleHeight = BUBBLE_HEIGHT * scale;
   const notchLift = -BUBBLE_TOP * scale;
   const [layoutWidth, setLayoutWidth] = useState(0);
+  const overflowVisible = Platform.OS === 'web' ? ('visible' as const) : undefined;
 
   return (
-    <View style={[styles.outer, { marginTop: -notchLift }]}>
+    <View
+      style={[
+        styles.outer,
+        {
+          marginTop: -notchLift,
+          marginBottom: GAP_COMPENSATION * scale,
+          overflow: overflowVisible,
+        },
+      ]}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Switch to Subscribe and Save with Exclusive Pricing"
@@ -42,6 +53,8 @@ export function CheckoutSwitchToSubscribeBanner({ onPress, scale }: CheckoutSwit
           {
             height: frameHeight,
             opacity: pressed ? 0.92 : 1,
+            overflow: overflowVisible,
+            borderWidth: 0,
           },
         ]}>
         {layoutWidth > 0 ? (
@@ -52,6 +65,7 @@ export function CheckoutSwitchToSubscribeBanner({ onPress, scale }: CheckoutSwit
               {
                 top: bubbleTop,
                 height: bubbleHeight,
+                overflow: overflowVisible,
               },
             ]}>
             <SubscribeBannerBackground width={layoutWidth} height={bubbleHeight} />
@@ -90,12 +104,11 @@ export function CheckoutSwitchToSubscribeBanner({ onPress, scale }: CheckoutSwit
 const styles = StyleSheet.create({
   outer: {
     width: '100%',
-    overflow: 'visible',
+    zIndex: 2,
   },
   pressable: {
     width: '100%',
     justifyContent: 'center',
-    overflow: 'visible',
   },
   bannerBg: {
     position: 'absolute',
