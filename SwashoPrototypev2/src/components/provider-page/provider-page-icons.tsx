@@ -101,26 +101,30 @@ const GridToggleThumbShadowSvg = `<svg preserveAspectRatio="xMidYMid meet" overf
 </defs>
 </svg>`;
 
-export function GridToggleIcon({ width, height, style }: IconProps) {
-  const frameW = width;
+export function GridToggleIcon({ width: _frameWidth, height, style }: IconProps) {
   const frameH = height;
-  /** Scale full Figma art to frame height, center horizontally in 43×23 (slot-based scale left empty space on the right). */
+  /** Scale full Figma art to frame height (23px @ scale 1); width hugs art, not 43px frame. */
   const artScale = frameH / GRID_TOGGLE_ART_H;
   const artWidth = GRID_TOGGLE_ART_W * artScale;
   const artHeight = frameH;
-  const artLeft = (frameW - artWidth) / 2;
+  const artLeft = 0;
   const artTop = 0;
   const thumbSize = GRID_TOGGLE_THUMB_R * 2 * artScale;
   const thumbLeft = artLeft + (GRID_TOGGLE_THUMB_CX - GRID_TOGGLE_THUMB_R) * artScale;
   const thumbTop = artTop + (GRID_TOGGLE_THUMB_CY - GRID_TOGGLE_THUMB_R) * artScale;
   const thumbShadowStyle = figmaDropShadow(FigmaShadows.gridToggleThumb, artScale);
 
+  const artBoxStyle = { width: artWidth, height: frameH, overflow: 'hidden' as const, position: 'relative' as const };
+
   return (
     <View
       style={[
-        { width, height, overflow: 'hidden', justifyContent: 'center', alignItems: 'center' },
+        Platform.OS === 'web'
+          ? { width: 'fit-content', height: frameH }
+          : { width: artWidth, height: frameH },
         style,
       ]}>
+      <View style={artBoxStyle}>
       <GridToggleArt
         width={artWidth}
         height={artHeight}
@@ -174,6 +178,7 @@ export function GridToggleIcon({ width, height, style }: IconProps) {
           zIndex: 2,
         }}
       />
+      </View>
     </View>
   );
 }
