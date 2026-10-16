@@ -6,19 +6,22 @@ const FILL_PATH =
 const STROKE_PATH =
   'M307.981 8.16533L294.478 0.979814C291.896 -0.394193 288.783 -0.318763 286.271 1.17871L274.938 7.93329C273.428 8.8333 271.703 9.30844 269.945 9.30844H8C3.58172 9.30844 0 12.8902 0 17.3084V34.3836C0 38.8018 3.58171 42.3836 7.99999 42.3836H364.311C368.729 42.3836 372.311 38.8018 372.311 34.3836V17.3084C372.311 12.8902 368.729 9.30844 364.311 9.30844H312.562C310.965 9.30844 309.391 8.9159 307.981 8.16533Z';
 
+const DESIGN_VIEW_W = 372.311;
+const DESIGN_VIEW_H = 42.3836;
+const DESIGN_STROKE = 2.7865;
+
 type SubscribeBannerBackgroundProps = {
   width: number;
   height: number;
+  scale: number;
 };
 
 /** Figma 3346:13492 — speech-bubble banner fill + radial gradient stroke. */
-export function SubscribeBannerBackground({ width, height }: SubscribeBannerBackgroundProps) {
+export function SubscribeBannerBackground({ width, height, scale }: SubscribeBannerBackgroundProps) {
+  const strokeWidth = DESIGN_STROKE * scale;
+
   return (
-    <Svg
-      width={width}
-      height={height}
-      viewBox="0 0 372.311 42.3836"
-      preserveAspectRatio="none">
+    <Svg width={width} height={height} viewBox={`0 0 ${DESIGN_VIEW_W} ${DESIGN_VIEW_H}`}>
       <Defs>
         <RadialGradient
           id="checkoutSubscribeBannerStroke"
@@ -36,7 +39,7 @@ export function SubscribeBannerBackground({ width, height }: SubscribeBannerBack
         d={STROKE_PATH}
         fill="none"
         stroke="url(#checkoutSubscribeBannerStroke)"
-        strokeWidth={2.7865}
+        strokeWidth={strokeWidth}
       />
     </Svg>
   );

@@ -9,10 +9,13 @@ import { SubscribeBannerBackground } from './SubscribeBannerBackground';
 
 /** Figma 3346:13491 layout frame + 3346:13492 bubble art. */
 const FRAME_HEIGHT = 32;
+const FRAME_PADDING_Y = 2.229;
+const BUBBLE_LEFT = 8.469;
 const BUBBLE_TOP = -11.102;
+const BUBBLE_WIDTH = 372.311;
 const BUBBLE_HEIGHT = 43.617;
-/** Figma: ~20px from segment to banner row, notch rises into gap above the 32px row */
-const GAP_COMPENSATION = 20 - FRAME_HEIGHT + BUBBLE_HEIGHT + BUBBLE_TOP;
+const ICON_LEFT = 15.761;
+const CONTENT_GAP = 5.573;
 
 type CheckoutSwitchToSubscribeBannerProps = {
   onPress: () => void;
@@ -23,21 +26,14 @@ type CheckoutSwitchToSubscribeBannerProps = {
 export function CheckoutSwitchToSubscribeBanner({ onPress, scale }: CheckoutSwitchToSubscribeBannerProps) {
   const frameHeight = FRAME_HEIGHT * scale;
   const bubbleTop = BUBBLE_TOP * scale;
+  const bubbleWidth = BUBBLE_WIDTH * scale;
   const bubbleHeight = BUBBLE_HEIGHT * scale;
-  const notchLift = -BUBBLE_TOP * scale;
+  const bubbleLeft = BUBBLE_LEFT * scale;
   const [layoutWidth, setLayoutWidth] = useState(0);
   const overflowVisible = Platform.OS === 'web' ? ('visible' as const) : undefined;
 
   return (
-    <View
-      style={[
-        styles.outer,
-        {
-          marginTop: -notchLift,
-          marginBottom: GAP_COMPENSATION * scale,
-          overflow: overflowVisible,
-        },
-      ]}>
+    <View style={[styles.outer, { overflow: overflowVisible }]}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Switch to Subscribe and Save with Exclusive Pricing"
@@ -51,7 +47,8 @@ export function CheckoutSwitchToSubscribeBanner({ onPress, scale }: CheckoutSwit
         style={({ pressed }) => [
           styles.pressable,
           {
-            height: frameHeight,
+            minHeight: frameHeight,
+            paddingVertical: FRAME_PADDING_Y * scale,
             opacity: pressed ? 0.92 : 1,
             overflow: overflowVisible,
             borderWidth: 0,
@@ -64,20 +61,22 @@ export function CheckoutSwitchToSubscribeBanner({ onPress, scale }: CheckoutSwit
               styles.bannerBg,
               {
                 top: bubbleTop,
+                left: bubbleLeft,
+                width: bubbleWidth,
                 height: bubbleHeight,
                 overflow: overflowVisible,
               },
             ]}>
-            <SubscribeBannerBackground width={layoutWidth} height={bubbleHeight} />
+            <SubscribeBannerBackground width={bubbleWidth} height={bubbleHeight} scale={scale} />
           </View>
         ) : null}
         <View
           style={[
             styles.content,
             {
-              height: frameHeight,
-              gap: 5.573 * scale,
-              paddingLeft: 11.76 * scale,
+              minHeight: frameHeight - FRAME_PADDING_Y * 2 * scale,
+              gap: CONTENT_GAP * scale,
+              paddingLeft: ICON_LEFT * scale,
               paddingRight: 8 * scale,
             },
           ]}>
@@ -112,9 +111,6 @@ const styles = StyleSheet.create({
   },
   bannerBg: {
     position: 'absolute',
-    left: 0,
-    right: 0,
-    width: '100%',
   },
   content: {
     flexDirection: 'row',
