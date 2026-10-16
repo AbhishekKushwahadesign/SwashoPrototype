@@ -4,12 +4,12 @@ import { searchFont } from '@/components/search/search-fonts';
 import type { CheckoutDayOption } from '@/lib/checkout-flow';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
-/** Figma 58965:2680 — horizontal scroll day picker */
+/** Figma 58965:2680 / 3346:13499 — horizontal scroll day picker */
 const CHIP_WIDTH = 65.089;
 const CHIP_GAP = 12;
 const CHIP_PADDING_X = 16.022;
 const CHIP_PADDING_Y = 10.014;
-const CHIP_INNER_GAP = 10.014;
+const CHIP_INNER_GAP = 8;
 
 type CheckoutWeekdayScrollRowProps = {
   days: CheckoutDayOption[];
@@ -51,24 +51,12 @@ export function CheckoutWeekdayScrollRow({
                 width: CHIP_WIDTH * scale,
                 paddingHorizontal: CHIP_PADDING_X * scale,
                 paddingVertical: CHIP_PADDING_Y * scale,
-                borderRadius: SwashoRadii.sm * scale,
+                borderRadius: SwashoRadii.md * scale,
                 borderWidth: (selected ? 1.502 : 1.001) * scale,
                 gap: CHIP_INNER_GAP * scale,
                 opacity: pressed ? 0.92 : 1,
               },
             ]}>
-            <Text
-              style={[
-                searchFont(selected ? 'semibold' : 'medium'),
-                selected ? styles.daySelected : styles.day,
-                {
-                  fontSize: 15 * scale,
-                  lineHeight: 14 * scale,
-                  letterSpacing: 0.3 * scale,
-                },
-              ]}>
-              {day.label}
-            </Text>
             <Text
               style={[
                 searchFont('semibold'),
@@ -80,6 +68,18 @@ export function CheckoutWeekdayScrollRow({
                 },
               ]}>
               {day.dayOfMonth}
+            </Text>
+            <Text
+              style={[
+                searchFont(selected ? 'semibold' : 'medium'),
+                selected ? styles.daySelected : styles.day,
+                {
+                  fontSize: 15 * scale,
+                  lineHeight: 14 * scale,
+                  letterSpacing: 0.3 * scale,
+                },
+              ]}>
+              {day.label}
             </Text>
           </Pressable>
         );

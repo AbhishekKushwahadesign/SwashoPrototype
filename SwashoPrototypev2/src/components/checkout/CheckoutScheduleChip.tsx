@@ -33,17 +33,17 @@ export function CheckoutScheduleChip({
         {
           minWidth: width != null ? undefined : minWidth * scale,
           width: width != null ? width : undefined,
-          paddingHorizontal: 16 * scale,
-          paddingVertical: 10 * scale,
-          borderRadius: SwashoRadii.sm * scale,
-          borderWidth: (selected ? 1.5 : 1) * scale,
+          paddingHorizontal: 16.022 * scale,
+          paddingVertical: 8.011 * scale,
+          borderRadius: SwashoRadii.md * scale,
+          borderWidth: (selected ? 1.502 : 1.001) * scale,
           height: height != null ? height * scale : undefined,
           opacity: pressed ? 0.9 : 1,
         },
       ]}>
       <Text
         style={[
-          searchFont(selected ? 'semibold' : 'medium'),
+          searchFont('semibold'),
           selected ? styles.labelSelected : styles.label,
           { fontSize: 15 * scale, lineHeight: 14 * scale, letterSpacing: 0.3 * scale },
         ]}>

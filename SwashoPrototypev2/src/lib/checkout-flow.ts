@@ -66,13 +66,13 @@ export function buildUpcomingCheckoutDays(count = 14): CheckoutDayOption[] {
 }
 
 export const CHECKOUT_PICKUP_TIME_SLOTS: { id: CheckoutPickupTimeSlotId; label: string }[] = [
-  { id: '6-8am', label: '6 - 8am' },
-  { id: '8-10am', label: '8 - 10am' },
-  { id: '10-12pm', label: '10 - 12am' },
-  { id: '12-2pm', label: '12 - 2pm' },
-  { id: '2-4pm', label: '2 - 4pm' },
-  { id: '4-6pm', label: '4 - 6pm' },
-  { id: '6-8pm', label: '6 - 8pm' },
+  { id: '6-8am', label: '6 - 8AM' },
+  { id: '8-10am', label: '8 - 10AM' },
+  { id: '10-12pm', label: '10 - 12AM' },
+  { id: '12-2pm', label: '12 - 2PM' },
+  { id: '2-4pm', label: '2 - 4PM' },
+  { id: '4-6pm', label: '4 - 6PM' },
+  { id: '6-8pm', label: '6 - 8PM' },
 ];
 
 function checkoutQueryString(providerId: string, query: string, extra?: Record<string, string>): string {

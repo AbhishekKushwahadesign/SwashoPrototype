@@ -124,11 +124,12 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
     setOneTimeSchedule(providerId, { deliveryTimeSlot: id });
   };
 
+  const scheduleInset = 9.513 * scale;
   const pickupTimeColumnGap = 12 * scale;
   const pickupTimeChipWidth = useMemo(() => {
-    const gridWidth = contentWidth - 64 * scale;
+    const gridWidth = contentWidth - 32 * scale - scheduleInset * 2;
     return (gridWidth - 2 * pickupTimeColumnGap) / 3;
-  }, [contentWidth, scale, pickupTimeColumnGap]);
+  }, [contentWidth, scale, pickupTimeColumnGap, scheduleInset]);
 
   const stepOneProgress = useMemo(() => {
     let completed = 0;
@@ -185,70 +186,78 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
             styles.scheduleCard,
             {
               borderRadius: SwashoRadii.lg * scale,
-              paddingVertical: 16 * scale,
-              gap: 16 * scale,
-              ...figmaShadow(FigmaShadows.providerCard, scale),
+              paddingVertical: 16.022 * scale,
+              gap: 16.022 * scale,
+              ...figmaShadow(FigmaShadows.checkoutScheduleCard, scale),
             },
           ]}>
-          <View style={{ width: '100%', paddingHorizontal: 16 * scale, gap: 16 * scale }}>
-            <Text
-              style={[
-                searchFont('medium'),
-                styles.sectionTitle,
-                { fontSize: 16 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
-              ]}>
-              Choose Day & Time
-            </Text>
-            <CheckoutWeekdayScrollRow
-              days={upcomingDays}
-              selectedKey={selectedDayKey}
-              onSelectDay={handleWeekdaySelect}
-              scale={scale}
-            />
-          </View>
+          <View
+            style={{
+              width: '100%',
+              paddingHorizontal: scheduleInset,
+              gap: 16.022 * scale,
+              alignItems: 'center',
+            }}>
+            <View style={{ width: '100%', gap: 16.022 * scale }}>
+              <Text
+                style={[
+                  searchFont('medium'),
+                  styles.sectionTitle,
+                  { fontSize: 16 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
+                ]}>
+                Choose Pickup Day
+              </Text>
+              <CheckoutWeekdayScrollRow
+                days={upcomingDays}
+                selectedKey={selectedDayKey}
+                onSelectDay={handleWeekdaySelect}
+                scale={scale}
+              />
+            </View>
 
-          <CheckoutSectionDivider width={376 * scale} scale={scale} />
+            <CheckoutSectionDivider width={376.514 * scale} scale={scale} />
 
-          <View style={{ width: '100%', paddingHorizontal: 16 * scale, gap: 16 * scale }}>
-            <Text
-              style={[
-                searchFont('medium'),
-                styles.sectionTitle,
-                { fontSize: 16 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
-              ]}>
-              Choose Pickup Time
-            </Text>
-            <View
-              style={[
-                styles.chipGrid,
-                {
-                  columnGap: pickupTimeColumnGap,
-                  rowGap: 16 * scale,
-                  paddingVertical: 8 * scale,
-                },
-              ]}>
-              {CHECKOUT_PICKUP_TIME_SLOTS.map((slot) => (
-                <CheckoutScheduleChip
-                  key={slot.id}
-                  label={slot.label}
-                  selected={pickupSlot === slot.id}
-                  onPress={() => handleSlotSelect(slot.id)}
-                  scale={scale}
-                  width={pickupTimeChipWidth}
-                  height={35}
-                />
-              ))}
+            <View style={{ width: '100%', gap: 16.022 * scale }}>
+              <Text
+                style={[
+                  searchFont('medium'),
+                  styles.sectionTitle,
+                  { fontSize: 16 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
+                ]}>
+                Choose Pickup Time
+              </Text>
+              <View
+                style={[
+                  styles.chipGrid,
+                  {
+                    columnGap: pickupTimeColumnGap,
+                    rowGap: 16.022 * scale,
+                    paddingVertical: 8.011 * scale,
+                  },
+                ]}>
+                {CHECKOUT_PICKUP_TIME_SLOTS.map((slot) => (
+                  <CheckoutScheduleChip
+                    key={slot.id}
+                    label={slot.label}
+                    selected={pickupSlot === slot.id}
+                    onPress={() => handleSlotSelect(slot.id)}
+                    scale={scale}
+                    width={pickupTimeChipWidth}
+                    height={35.048}
+                  />
+                ))}
+              </View>
             </View>
           </View>
 
-          <CheckoutSectionDivider width={376 * scale} scale={scale} />
+          <CheckoutSectionDivider width={376.514 * scale} scale={scale} />
 
           <View
             style={{
               width: '100%',
-              paddingHorizontal: 16 * scale,
-              gap: 9 * scale,
-              paddingVertical: 8 * scale,
+              paddingHorizontal: 11.516 * scale,
+              gap: 9.012 * scale,
+              paddingVertical: 8.011 * scale,
             }}>
             <Text
               style={[
