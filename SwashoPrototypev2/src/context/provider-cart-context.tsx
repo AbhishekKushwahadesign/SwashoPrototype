@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 
+import type { ProviderCheckoutState, ProviderOrderFulfillmentMode, SubscriptionFrequencyOption } from '@/lib/checkout-flow';
 import {
   computeSelectionStickyMetrics,
   garmentAssignmentItemCount,
@@ -8,18 +9,23 @@ import {
 } from '@/lib/provider-cart-selection';
 
 type ProviderCartStore = Record<string, ProviderGarmentCartSelection>;
+type ProviderCheckoutStore = Record<string, ProviderCheckoutState>;
 
 type ProviderCartContextValue = {
   getSelection: (providerId: string, serviceId: string) => ProviderGarmentCartSelection | undefined;
   setSelection: (providerId: string, serviceId: string, selection: ProviderGarmentCartSelection) => void;
   clearSelection: (providerId: string, serviceId: string) => void;
   getProviderCartTotals: (providerId: string) => { itemCount: number; totalPrice: number };
+  getCheckoutState: (providerId: string) => ProviderCheckoutState;
+  setFulfillmentMode: (providerId: string, mode: ProviderOrderFulfillmentMode) => void;
+  setSubscriptionFrequency: (providerId: string, frequency: SubscriptionFrequencyOption) => void;
 };
 
 const ProviderCartContext = createContext<ProviderCartContextValue | null>(null);
 
 export function ProviderCartProvider({ children }: { children: ReactNode }) {
   const [store, setStore] = useState<ProviderCartStore>({});
+  const [checkoutStore, setCheckoutStore] = useState<ProviderCheckoutStore>({});
 
   const getSelection = useCallback(
     (providerId: string, serviceId: string) => store[providerCartKey(providerId, serviceId)],
@@ -42,6 +48,31 @@ export function ProviderCartProvider({ children }: { children: ReactNode }) {
       const { [key]: _removed, ...rest } = prev;
       return rest;
     });
+  }, []);
+
+  const getCheckoutState = useCallback(
+    (providerId: string) => checkoutStore[providerId] ?? {},
+    [checkoutStore],
+  );
+
+  const setFulfillmentMode = useCallback((providerId: string, mode: ProviderOrderFulfillmentMode) => {
+    setCheckoutStore((prev) => ({
+      ...prev,
+      [providerId]: {
+        ...prev[providerId],
+        fulfillmentMode: mode,
+      },
+    }));
+  }, []);
+
+  const setSubscriptionFrequency = useCallback((providerId: string, frequency: SubscriptionFrequencyOption) => {
+    setCheckoutStore((prev) => ({
+      ...prev,
+      [providerId]: {
+        ...prev[providerId],
+        subscriptionFrequency: frequency,
+      },
+    }));
   }, []);
 
   const getProviderCartTotals = useCallback(
@@ -74,8 +105,19 @@ export function ProviderCartProvider({ children }: { children: ReactNode }) {
       setSelection,
       clearSelection,
       getProviderCartTotals,
+      getCheckoutState,
+      setFulfillmentMode,
+      setSubscriptionFrequency,
     }),
-    [clearSelection, getProviderCartTotals, getSelection, setSelection],
+    [
+      clearSelection,
+      getCheckoutState,
+      getProviderCartTotals,
+      getSelection,
+      setFulfillmentMode,
+      setSelection,
+      setSubscriptionFrequency,
+    ],
   );
 
   return <ProviderCartContext.Provider value={value}>{children}</ProviderCartContext.Provider>;

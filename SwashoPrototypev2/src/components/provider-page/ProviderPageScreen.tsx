@@ -639,6 +639,21 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
     scrollRef.current?.scrollToEnd({ animated: true });
   }, []);
 
+  const cartProceedLockRef = useRef(false);
+  const handleCartProceed = useCallback(() => {
+    if (cartProceedLockRef.current || cartTotals.itemCount <= 0) {
+      return;
+    }
+    cartProceedLockRef.current = true;
+    router.push({
+      pathname: '/checkout/order-type',
+      params: { providerId: provider.id, q: displayQuery },
+    } as never);
+    setTimeout(() => {
+      cartProceedLockRef.current = false;
+    }, 600);
+  }, [cartTotals.itemCount, displayQuery, provider.id, router]);
+
   const updateCompactProviderName = useCallback(() => {
     const nameEl = providerNameRef.current;
     const headerEl = backHeaderRef.current;
@@ -1007,6 +1022,7 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
               itemCount={cartTotals.itemCount}
               scale={scale}
               contentWidth={contentWidth}
+              onProceed={handleCartProceed}
               onItemCountPress={scrollToCartSummary}
             />
           </View>

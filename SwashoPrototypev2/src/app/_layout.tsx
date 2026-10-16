@@ -56,6 +56,7 @@ export default function RootLayout() {
             cardStyle: { backgroundColor: 'transparent' },
           }}
         />
+        <Stack.Screen name="checkout" />
       </Stack>
     </ProviderCartProvider>
   );
