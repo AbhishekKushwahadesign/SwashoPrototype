@@ -83,6 +83,10 @@ function OfferText({ provider, scale }: { provider: ProviderResult; scale: numbe
   );
 }
 
+/** Figma 3346:10697 — Top Quality Tag gradient (full-width horizontal wash). */
+const TOP_PICKS_GRADIENT_COLORS = ['#FFFFFF', '#E9E8FF', '#FFFFFF'] as const;
+const TOP_PICKS_GRADIENT_LOCATIONS = [0.096687, 0.5, 1] as const;
+
 function TopPicksTag({ scale }: { scale: number }) {
   const tagStyle = [
     styles.topPicksTag,
@@ -115,16 +119,7 @@ function TopPicksTag({ scale }: { scale: number }) {
     </>
   );
 
-  return (
-    <LinearGradient
-      colors={[...TOP_PICKS_GRADIENT_COLORS]}
-      locations={[...TOP_PICKS_GRADIENT_LOCATIONS]}
-      start={{ x: 0, y: 0.5 }}
-      end={{ x: 1, y: 0.5 }}
-      style={tagStyle}>
-      {content}
-    </LinearGradient>
-  );
+  return <View style={tagStyle}>{content}</View>;
 }
 
 function SpecialistTag({
