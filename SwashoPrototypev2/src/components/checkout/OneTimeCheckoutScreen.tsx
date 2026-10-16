@@ -58,9 +58,9 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
   const { getCheckoutState, setFulfillmentMode, setOneTimeSchedule } = useProviderCart();
   const persisted = getCheckoutState(providerId);
 
-  const [weekday, setWeekday] = useState<CheckoutWeekdayId | null>(persisted.pickupWeekday ?? 'sun');
+  const [weekday, setWeekday] = useState<CheckoutWeekdayId | null>(persisted.pickupWeekday ?? null);
   const [pickupSlot, setPickupSlot] = useState<CheckoutPickupTimeSlotId | null>(
-    persisted.pickupTimeSlot ?? '4-6pm',
+    persisted.pickupTimeSlot ?? null,
   );
   const [deliverySameAsPickup, setDeliverySameAsPickup] = useState(
     persisted.deliverySameAsPickup ?? true,
