@@ -36,12 +36,18 @@ export function CheckoutOrderTypeSegment({
   const pillShadow = figmaDropShadow(FigmaShadows.checkoutSegmentActive, scale);
   const pillInset = figmaShadow(FigmaShadows.checkoutSegmentActiveInset, scale);
 
-  const activePillShell = (child: ReactNode) => (
+  const activePillShell = (child: ReactNode, side: 'left' | 'right') => (
     <View
       style={[
         StyleSheet.absoluteFill,
         pillCorners,
-        { overflow: 'hidden', borderWidth: 1 * scale, borderColor: '#ffffff' },
+        side === 'left' ? { right: -1 * scale } : { left: -1 * scale },
+        {
+          overflow: 'hidden',
+          borderWidth: 1.048 * scale,
+          borderColor: SwashoColors.surface,
+          zIndex: 2,
+        },
         pillShadow,
       ]}>
       {child}
