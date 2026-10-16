@@ -1,20 +1,97 @@
 import { StyleSheet, Text, View } from 'react-native';
+import Svg, { Line } from 'react-native-svg';
 
 import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors } from '@/constants/swasho-tokens';
 
+/** Figma 3346:13457 — connector geometry at 1× (196px row). */
+const STEPS_ROW_WIDTH = 196;
+const TRACK_LEFT = 23.82;
+const TRACK_WIDTH = 151.476;
+const TRACK_DESIGN_HEIGHT = 2.004;
+
 type CheckoutProgressStepperProps = {
   scale: number;
   activeStep: 1 | 2;
+  /**
+   * Fill along the dotted track (0–1) while on step 1.
+   * Step 2 always renders a full brand line.
+   */
+  stepOneProgress?: number;
 };
 
-export function CheckoutProgressStepper({ scale, activeStep }: CheckoutProgressStepperProps) {
+export function CheckoutProgressStepper({
+  scale,
+  activeStep,
+  stepOneProgress = 97.896 / TRACK_WIDTH,
+}: CheckoutProgressStepperProps) {
   const stepSize = 25 * scale;
-  const connectorWidth = 98 * scale;
+  const rowWidth = STEPS_ROW_WIDTH * scale;
+  const trackLeft = TRACK_LEFT * scale;
+  const trackWidth = TRACK_WIDTH * scale;
+  const trackHeight = Math.max(1, TRACK_DESIGN_HEIGHT * scale);
+  const fillRatio = activeStep === 2 ? 1 : Math.min(1, Math.max(0, stepOneProgress));
+  const progressWidth = trackWidth * fillRatio;
 
   return (
     <View style={[styles.wrap, { gap: 4 * scale, width: 263 * scale }]}>
-      <View style={[styles.stepsRow, { width: 196 * scale, height: 25 * scale }]}>
+      <View style={[styles.stepsRow, { width: rowWidth, height: 25 * scale }]}>
+        <View
+          pointerEvents="none"
+          style={[
+            styles.trackLayer,
+            {
+              left: trackLeft,
+              width: trackWidth,
+              height: trackHeight,
+              top: (25 * scale - trackHeight) / 2,
+            },
+          ]}>
+          <Svg
+            width={trackWidth}
+            height={trackHeight}
+            viewBox={`0 0 ${TRACK_WIDTH} ${TRACK_DESIGN_HEIGHT}`}
+            preserveAspectRatio="none">
+            <Line
+              x1={0}
+              y1={TRACK_DESIGN_HEIGHT / 2}
+              x2={TRACK_WIDTH}
+              y2={TRACK_DESIGN_HEIGHT / 2}
+              stroke={SwashoColors.neutral600}
+              strokeOpacity={0.5}
+              strokeWidth={TRACK_DESIGN_HEIGHT}
+              strokeDasharray="2.5 7"
+              strokeLinecap="round"
+            />
+          </Svg>
+          {progressWidth > 0 ? (
+            <View
+              style={[
+                styles.progressClip,
+                {
+                  width: progressWidth,
+                  height: trackHeight,
+                },
+              ]}>
+              <Svg
+                width={trackWidth}
+                height={trackHeight}
+                viewBox={`0 0 ${TRACK_WIDTH} ${TRACK_DESIGN_HEIGHT}`}
+                preserveAspectRatio="none">
+                <Line
+                  x1={0}
+                  y1={TRACK_DESIGN_HEIGHT / 2}
+                  x2={TRACK_WIDTH}
+                  y2={TRACK_DESIGN_HEIGHT / 2}
+                  stroke={SwashoColors.primary600}
+                  strokeWidth={2.505}
+                  strokeLinecap="round"
+                />
+              </Svg>
+            </View>
+          ) : null}
+        </View>
+
         <View
           style={[
             styles.stepCircle,
@@ -35,13 +112,6 @@ export function CheckoutProgressStepper({ scale, activeStep }: CheckoutProgressS
             1
           </Text>
         </View>
-        <View
-          style={[
-            styles.connector,
-            activeStep === 1 ? styles.connectorActive : styles.connectorInactive,
-            { width: connectorWidth, height: 2 * scale, marginHorizontal: 8 * scale },
-          ]}
-        />
         <View
           style={[
             styles.stepCircle,
@@ -91,13 +161,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   stepsRow: {
+    position: 'relative',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
+  trackLayer: {
+    position: 'absolute',
+  },
+  progressClip: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    overflow: 'hidden',
+  },
   stepCircle: {
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 1,
   },
   stepCircleActive: {
     backgroundColor: SwashoColors.primary600,
@@ -112,15 +193,6 @@ const styles = StyleSheet.create({
   },
   stepLabelInactive: {
     color: SwashoColors.neutral600,
-  },
-  connector: {
-    borderRadius: 1,
-  },
-  connectorActive: {
-    backgroundColor: SwashoColors.primary600,
-  },
-  connectorInactive: {
-    backgroundColor: SwashoColors.neutral300,
   },
   labelsRow: {
     flexDirection: 'row',

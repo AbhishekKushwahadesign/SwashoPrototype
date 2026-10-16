@@ -145,7 +145,11 @@ export function SubscriptionFrequencyScreen({ providerId, query }: SubscriptionF
           },
         ]}
         showsVerticalScrollIndicator={false}>
-        <CheckoutProgressStepper scale={scale} activeStep={1} />
+        <CheckoutProgressStepper
+          scale={scale}
+          activeStep={1}
+          stepOneProgress={selectedFrequency ? 0.85 : 0.35}
+        />
 
         <View
           style={[

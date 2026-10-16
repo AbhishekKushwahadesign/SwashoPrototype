@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { CheckoutSectionDivider } from '@/components/checkout/CheckoutSectionDivider';
@@ -115,6 +115,17 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
     setOneTimeSchedule(providerId, { pickupTimeSlot: id });
   };
 
+  const stepOneProgress = useMemo(() => {
+    let completed = 0;
+    if (weekday != null) {
+      completed += 1;
+    }
+    if (pickupSlot != null) {
+      completed += 1;
+    }
+    return completed / 2;
+  }, [pickupSlot, weekday]);
+
   const footer = (
     <ServiceSelectionButton
       label="Confirm"
@@ -140,7 +151,7 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
           },
         ]}
         showsVerticalScrollIndicator={false}>
-        <CheckoutProgressStepper scale={scale} activeStep={1} />
+        <CheckoutProgressStepper scale={scale} activeStep={1} stepOneProgress={stepOneProgress} />
 
         <CheckoutOrderTypeSegment activeMode="one-time" onSelectMode={(mode) => {
           if (mode === 'subscribe') {
