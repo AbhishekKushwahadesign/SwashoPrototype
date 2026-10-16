@@ -10,6 +10,7 @@ const STROKE_PATH =
 const DESIGN_VIEW_W = 372.311;
 const DESIGN_VIEW_H = 42.3836;
 const DESIGN_STROKE = 2.7865;
+const PURPLE = '#5D30F7';
 const LAVENDER = '#E4DDFE';
 const MASK_LAVENDER = '#ECE7FE';
 /** Top-notch tip X in design coordinates (Figma 3346:13492). */
@@ -44,8 +45,7 @@ export function SubscribeBannerBackground({
   const radialId = `checkoutSubscribeBannerStroke-${instanceId}`;
   const maskId = `checkoutSubscribeBannerMask-${instanceId}`;
 
-  const showConvergenceMask =
-    !isStaticAccent && accentProgress > 0 && accentProgress < 1;
+  const showConvergenceMask = !isStaticAccent && accentProgress > 0;
   const { leftBound, rightBound } = convergenceMaskBounds(accentProgress);
   const epsilon = 0.0001;
 
