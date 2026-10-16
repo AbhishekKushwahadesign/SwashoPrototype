@@ -75,7 +75,7 @@ export function CheckoutScreenShell({ title, onBackPress, children, footer }: Ch
         <View
           style={{
             flex: 1,
-            marginTop: headerTop + HEADER_HEIGHT * scale,
+            marginTop: headerTop + (HEADER_CARD_HEIGHT - STATUS_BAR_HEIGHT) * scale,
             paddingBottom: footer ? 72 * scale + HOME_INDICATOR_HEIGHT * scale : HOME_INDICATOR_HEIGHT * scale,
           }}>
           {children}
