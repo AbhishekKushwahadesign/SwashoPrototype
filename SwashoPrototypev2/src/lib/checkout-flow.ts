@@ -43,23 +43,6 @@ export const CHECKOUT_PICKUP_TIME_SLOTS: { id: CheckoutPickupTimeSlotId; label: 
   { id: '6-8pm', label: '6 - 8pm' },
 ];
 
-export const ORDER_TYPE_OPTIONS: {
-  id: ProviderOrderFulfillmentMode;
-  title: string;
-  description: string;
-}[] = [
-  {
-    id: 'one-time',
-    title: 'One-time order',
-    description: 'Pay standard pricing',
-  },
-  {
-    id: 'subscribe',
-    title: 'Subscribe & save',
-    description: 'Unlock exclusive pricing',
-  },
-];
-
 function checkoutQueryString(providerId: string, query: string, extra?: Record<string, string>): string {
   const params = new URLSearchParams({ providerId, q: query });
   if (extra) {
@@ -71,10 +54,6 @@ function checkoutQueryString(providerId: string, query: string, extra?: Record<s
 }
 
 /** Stable hrefs for nested checkout stack (object pathname + push often no-ops on web). */
-export function checkoutOrderTypeHref(providerId: string, query: string): Href {
-  return `/checkout/order-type?${checkoutQueryString(providerId, query)}` as Href;
-}
-
 export function oneTimeCheckoutHref(providerId: string, query: string): Href {
   return `/checkout?${checkoutQueryString(providerId, query)}` as Href;
 }

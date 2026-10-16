@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Line13Icon } from '@/components/home/figma-icons';
@@ -68,6 +68,10 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
 
   const confirmLockRef = useRef(false);
   const navigateLockRef = useRef(false);
+
+  useEffect(() => {
+    setFulfillmentMode(providerId, 'one-time');
+  }, [providerId, setFulfillmentMode]);
 
   const handleBackPress = useCallback(() => {
     router.back();

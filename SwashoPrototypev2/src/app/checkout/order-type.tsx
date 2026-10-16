@@ -1,11 +1,12 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { OrderTypeChoiceScreen } from '@/components/checkout/OrderTypeChoiceScreen';
 import { useSafeTopInset } from '@/components/home/scale';
+import { oneTimeCheckoutHref } from '@/lib/checkout-flow';
 import { SwashoFonts } from '@/constants/swasho-tokens';
 
+/** Legacy route: deep links to `/checkout/order-type` land on one-time schedule UI. */
 export default function CheckoutOrderTypeRoute() {
   const router = useRouter();
   const { providerId, q } = useLocalSearchParams<{ providerId?: string; q?: string }>();
@@ -33,7 +34,7 @@ export default function CheckoutOrderTypeRoute() {
     );
   }
 
-  return <OrderTypeChoiceScreen providerId={id} query={query} />;
+  return <Redirect href={oneTimeCheckoutHref(id, query)} />;
 }
 
 const styles = StyleSheet.create({

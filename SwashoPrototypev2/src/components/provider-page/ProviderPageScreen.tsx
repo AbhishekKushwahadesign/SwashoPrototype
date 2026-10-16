@@ -40,7 +40,7 @@ import {
   ListServiceIcon,
   PhoneIcon,
 } from './provider-page-icons';
-import { checkoutOrderTypeHref } from '@/lib/checkout-flow';
+import { oneTimeCheckoutHref } from '@/lib/checkout-flow';
 
 import { ProviderCartBottomBar } from './ProviderCartBottomBar';
 
@@ -596,7 +596,7 @@ function ServiceSection({
 
 export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps) {
   const router = useRouter();
-  const { getSelection, getProviderCartTotals } = useProviderCart();
+  const { getSelection, getProviderCartTotals, setFulfillmentMode } = useProviderCart();
   const { scale, contentWidth } = useScreenScale();
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
@@ -647,11 +647,12 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
       return;
     }
     cartProceedLockRef.current = true;
-    router.push(checkoutOrderTypeHref(provider.id, displayQuery));
+    setFulfillmentMode(provider.id, 'one-time');
+    router.push(oneTimeCheckoutHref(provider.id, displayQuery));
     setTimeout(() => {
       cartProceedLockRef.current = false;
     }, 600);
-  }, [cartTotals.itemCount, displayQuery, provider.id, router]);
+  }, [cartTotals.itemCount, displayQuery, provider.id, router, setFulfillmentMode]);
 
   const updateCompactProviderName = useCallback(() => {
     const nameEl = providerNameRef.current;
