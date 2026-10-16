@@ -9,10 +9,11 @@ import { ServiceSelectionButton } from '@/components/service-selection/ServiceSe
 import { ServiceCheckbox } from '@/components/service-selection/ServiceCheckbox';
 import { useProviderCart } from '@/context/provider-cart-context';
 import {
+  buildUpcomingCheckoutDays,
   checkoutPlaceholderHref,
   CHECKOUT_PICKUP_TIME_SLOTS,
-  CHECKOUT_WEEKDAY_OPTIONS,
   subscriptionFrequencyHref,
+  type CheckoutDayOption,
   type CheckoutPickupTimeSlotId,
   type CheckoutWeekdayId,
 } from '@/lib/checkout-flow';
@@ -24,6 +25,7 @@ import { CheckoutProgressStepper } from './CheckoutProgressStepper';
 import { CheckoutScheduleChip } from './CheckoutScheduleChip';
 import { CheckoutScreenShell } from './CheckoutScreenShell';
 import { CheckoutSwitchToSubscribeBanner } from './CheckoutSwitchToSubscribeBanner';
+import { CheckoutWeekdayScrollRow } from './CheckoutWeekdayScrollRow';
 
 type OneTimeCheckoutScreenProps = {
   providerId: string;
@@ -36,7 +38,14 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
   const { getCheckoutState, setFulfillmentMode, setOneTimeSchedule } = useProviderCart();
   const persisted = getCheckoutState(providerId);
 
+  const upcomingDays = useMemo(() => buildUpcomingCheckoutDays(14), []);
   const [weekday, setWeekday] = useState<CheckoutWeekdayId | null>(persisted.pickupWeekday ?? null);
+  const [selectedDayKey, setSelectedDayKey] = useState<string | null>(() => {
+    if (!persisted.pickupWeekday) {
+      return null;
+    }
+    return upcomingDays.find((day) => day.weekdayId === persisted.pickupWeekday)?.key ?? null;
+  });
   const [pickupSlot, setPickupSlot] = useState<CheckoutPickupTimeSlotId | null>(
     persisted.pickupTimeSlot ?? null,
   );
@@ -83,9 +92,10 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
     }, 600);
   }, [deliverySameAsPickup, pickupSlot, providerId, query, router, setOneTimeSchedule, weekday]);
 
-  const handleWeekdaySelect = (id: CheckoutWeekdayId) => {
-    setWeekday(id);
-    setOneTimeSchedule(providerId, { pickupWeekday: id });
+  const handleWeekdaySelect = (day: CheckoutDayOption) => {
+    setSelectedDayKey(day.key);
+    setWeekday(day.weekdayId);
+    setOneTimeSchedule(providerId, { pickupWeekday: day.weekdayId });
   };
 
   const handleSlotSelect = (id: CheckoutPickupTimeSlotId) => {
@@ -166,17 +176,12 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
               ]}>
               Choose Day & Time
             </Text>
-            <View style={[styles.chipGrid, { gap: 12 * scale, rowGap: 16 * scale, paddingVertical: 8 * scale }]}>
-              {CHECKOUT_WEEKDAY_OPTIONS.map((day) => (
-                <CheckoutScheduleChip
-                  key={day.id}
-                  label={day.label}
-                  selected={weekday === day.id}
-                  onPress={() => handleWeekdaySelect(day.id)}
-                  scale={scale}
-                />
-              ))}
-            </View>
+            <CheckoutWeekdayScrollRow
+              days={upcomingDays}
+              selectedKey={selectedDayKey}
+              onSelectDay={handleWeekdaySelect}
+              scale={scale}
+            />
           </View>
 
           <CheckoutSectionDivider width={376 * scale} scale={scale} />
@@ -250,34 +255,6 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
             </View>
           </View>
         </View>
-
-        <View
-          style={[
-            styles.startDateCard,
-            {
-              borderRadius: SwashoRadii.lg * scale,
-              padding: 16 * scale,
-              minHeight: 92 * scale,
-              ...figmaShadow(FigmaShadows.providerCard, scale),
-            },
-          ]}>
-          <Text
-            style={[
-              searchFont('medium'),
-              styles.sectionTitle,
-              { fontSize: 16 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
-            ]}>
-            Start Date
-          </Text>
-          <Text
-            style={[
-              searchFont('medium'),
-              styles.startDateValue,
-              { fontSize: 14 * scale, lineHeight: 20 * scale, marginTop: 8 * scale },
-            ]}>
-            {formatStartDateLabel(weekday ?? undefined)}
-          </Text>
-        </View>
       </ScrollView>
     </CheckoutScreenShell>
   );
@@ -311,12 +288,5 @@ const styles = StyleSheet.create({
   },
   deliveryLabel: {
     color: SwashoColors.neutral900,
-  },
-  startDateCard: {
-    backgroundColor: SwashoColors.surface,
-    width: '100%',
-  },
-  startDateValue: {
-    color: SwashoColors.neutral600,
   },
 });

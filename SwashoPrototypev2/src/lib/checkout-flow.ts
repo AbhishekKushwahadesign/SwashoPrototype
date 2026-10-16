@@ -33,6 +33,37 @@ export const CHECKOUT_WEEKDAY_OPTIONS: { id: CheckoutWeekdayId; label: string }[
   { id: 'sun', label: 'Sun' },
 ];
 
+const WEEKDAY_ID_BY_JS_DAY: CheckoutWeekdayId[] = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+
+export type CheckoutDayOption = {
+  key: string;
+  weekdayId: CheckoutWeekdayId;
+  label: string;
+  dayOfMonth: number;
+};
+
+/** Upcoming calendar days for Figma 58965:2680 scroll row (starts today). */
+export function buildUpcomingCheckoutDays(count = 14): CheckoutDayOption[] {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  const options: CheckoutDayOption[] = [];
+
+  for (let offset = 0; offset < count; offset += 1) {
+    const date = new Date(start);
+    date.setDate(start.getDate() + offset);
+    const weekdayId = WEEKDAY_ID_BY_JS_DAY[date.getDay()];
+    const label = CHECKOUT_WEEKDAY_OPTIONS.find((day) => day.id === weekdayId)?.label ?? weekdayId;
+    options.push({
+      key: date.toISOString().slice(0, 10),
+      weekdayId,
+      label,
+      dayOfMonth: date.getDate(),
+    });
+  }
+
+  return options;
+}
+
 export const CHECKOUT_PICKUP_TIME_SLOTS: { id: CheckoutPickupTimeSlotId; label: string }[] = [
   { id: '6-8am', label: '6 - 8am' },
   { id: '8-10am', label: '8 - 10am' },
