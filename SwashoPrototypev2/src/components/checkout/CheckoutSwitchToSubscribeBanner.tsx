@@ -6,6 +6,7 @@ import { SwashoColors } from '@/constants/swasho-tokens';
 
 import { TransferHorizontalIcon } from './checkout-banner-icons';
 import { SubscribeBannerBackground } from './SubscribeBannerBackground';
+import { useSubscribeBannerAccentAnimation } from './useSubscribeBannerAccentAnimation';
 
 /** Figma 3346:13491 layout frame + 3346:13492 bubble art. */
 const FRAME_HEIGHT = 32;
@@ -18,10 +19,16 @@ const CONTENT_GAP = 5.573;
 
 type CheckoutSwitchToSubscribeBannerProps = {
   scale: number;
+  /** Bumps when the checkout screen regains focus so accent animation can replay once. */
+  accentAnimationSession: number;
 };
 
 /** Figma 3346:13491 — informational nudge (not tappable; use segment to switch). */
-export function CheckoutSwitchToSubscribeBanner({ scale }: CheckoutSwitchToSubscribeBannerProps) {
+export function CheckoutSwitchToSubscribeBanner({
+  scale,
+  accentAnimationSession,
+}: CheckoutSwitchToSubscribeBannerProps) {
+  const { accentProgress, isStaticAccent } = useSubscribeBannerAccentAnimation(accentAnimationSession);
   const frameHeight = FRAME_HEIGHT * scale;
   const bubbleTop = BUBBLE_TOP * scale;
   const bubbleWidth = BUBBLE_WIDTH * scale;
@@ -60,7 +67,13 @@ export function CheckoutSwitchToSubscribeBanner({ scale }: CheckoutSwitchToSubsc
               overflow: overflowVisible,
             },
           ]}>
-          <SubscribeBannerBackground width={bubbleWidth} height={bubbleHeight} scale={scale} />
+          <SubscribeBannerBackground
+            width={bubbleWidth}
+            height={bubbleHeight}
+            scale={scale}
+            accentProgress={accentProgress}
+            isStaticAccent={isStaticAccent}
+          />
         </View>
       ) : null}
       <View
