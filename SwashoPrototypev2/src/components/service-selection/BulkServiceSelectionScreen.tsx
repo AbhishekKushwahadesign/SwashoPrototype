@@ -125,9 +125,10 @@ function BulkLoadStickyFooter({
   onConfirm: () => void;
   scale: number;
 }) {
-  const tier = tierId ? getBulkLoadTierById(tierId) : null;
   const confirmLabel =
     totalPrice != null ? `₹${totalPrice}* | Confirm` : 'Confirm';
+  const sizeLine = tierId ? getBulkLoadTierById(tierId).title : 'Size';
+  const weightLine = tierId ? formatBulkStickySubtitle(tierId) : 'Est. Weight';
 
   return (
     <View
@@ -141,26 +142,22 @@ function BulkLoadStickyFooter({
         },
       ]}>
       <View style={[styles.stickySummary, { gap: 4 * scale, width: 156 * scale }]}>
-        {tier ? (
-          <>
-            <Text
-              style={[
-                searchFont('semibold'),
-                styles.stickyTitle,
-                { fontSize: 15 * scale, lineHeight: 14 * scale, letterSpacing: 0.3 * scale },
-              ]}>
-              {tier.title}
-            </Text>
-            <Text
-              style={[
-                searchFont('semibold'),
-                styles.stickySubtitle,
-                { fontSize: 14 * scale, lineHeight: 20 * scale },
-              ]}>
-              {formatBulkStickySubtitle(tier.id)}
-            </Text>
-          </>
-        ) : null}
+        <Text
+          style={[
+            searchFont('semibold'),
+            styles.stickyTitle,
+            { fontSize: 15 * scale, lineHeight: 14 * scale, letterSpacing: 0.3 * scale },
+          ]}>
+          {sizeLine}
+        </Text>
+        <Text
+          style={[
+            searchFont('semibold'),
+            styles.stickySubtitle,
+            { fontSize: 14 * scale, lineHeight: 20 * scale },
+          ]}>
+          {weightLine}
+        </Text>
       </View>
       <ServiceSelectionButton
         label={confirmLabel}
