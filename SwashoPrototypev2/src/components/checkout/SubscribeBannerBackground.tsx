@@ -14,7 +14,11 @@ type SubscribeBannerBackgroundProps = {
 /** Figma 3346:13492 — speech-bubble banner fill + radial gradient stroke. */
 export function SubscribeBannerBackground({ width, height }: SubscribeBannerBackgroundProps) {
   return (
-    <Svg width={width} height={height} viewBox="0 0 372.311 42.3836" preserveAspectRatio="none">
+    <Svg
+      width={width}
+      height={height}
+      viewBox="0 0 372.311 42.3836"
+      preserveAspectRatio="none">
       <Defs>
         <RadialGradient
           id="checkoutSubscribeBannerStroke"

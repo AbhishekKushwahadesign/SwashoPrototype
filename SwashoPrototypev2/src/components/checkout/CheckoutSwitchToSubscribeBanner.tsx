@@ -1,11 +1,15 @@
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors } from '@/constants/swasho-tokens';
 
 import { TransferHorizontalIcon } from './checkout-banner-icons';
 import { SubscribeBannerBackground } from './SubscribeBannerBackground';
+
+/** Figma 3346:13492 artboard height; notch extends above the 32px text row. */
+const BANNER_ART_HEIGHT = 43.618;
+const NOTCH_OVERFLOW_TOP = 11;
 
 type CheckoutSwitchToSubscribeBannerProps = {
   onPress: () => void;
@@ -14,35 +18,54 @@ type CheckoutSwitchToSubscribeBannerProps = {
 
 /** Figma 3346:13491 — switch to subscribe callout above schedule card. */
 export function CheckoutSwitchToSubscribeBanner({ onPress, scale }: CheckoutSwitchToSubscribeBannerProps) {
-  const bannerHeight = 43.618 * scale;
-  const borderRadius = 5.573 * scale;
+  const artHeight = BANNER_ART_HEIGHT * scale;
+  const notchOverflow = NOTCH_OVERFLOW_TOP * scale;
+  const [layoutWidth, setLayoutWidth] = useState(0);
 
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel="Switch to Subscribe and Save with Exclusive Pricing"
       onPress={onPress}
+      onLayout={(event) => {
+        const { width } = event.nativeEvent.layout;
+        if (width > 0 && width !== layoutWidth) {
+          setLayoutWidth(width);
+        }
+      }}
       style={({ pressed }) => [
         styles.wrap,
         {
-          minHeight: bannerHeight,
-          borderRadius,
+          marginTop: -notchOverflow,
+          paddingTop: notchOverflow,
+          minHeight: artHeight - notchOverflow,
           paddingHorizontal: 4.458 * scale,
-          paddingVertical: 2.229 * scale,
+          paddingBottom: 2.229 * scale,
           opacity: pressed ? 0.92 : 1,
+          ...(Platform.OS === 'web' ? ({ overflow: 'visible' } as const) : null),
         },
       ]}>
-      <View pointerEvents="none" style={[styles.bannerBg, { height: bannerHeight }]}>
-        <SubscribeBannerBackground width="100%" height={bannerHeight} />
-      </View>
+      {layoutWidth > 0 ? (
+        <View
+          pointerEvents="none"
+          style={[
+            styles.bannerBg,
+            {
+              top: -notchOverflow,
+              height: artHeight,
+            },
+          ]}>
+          <SubscribeBannerBackground width={layoutWidth} height={artHeight} />
+        </View>
+      ) : null}
       <View
         style={[
           styles.content,
           {
             gap: 5.573 * scale,
             paddingHorizontal: 8 * scale,
-            paddingTop: 6 * scale,
-            minHeight: bannerHeight - 4.458 * scale,
+            paddingTop: 4 * scale,
+            minHeight: 32 * scale,
           },
         ]}>
         <TransferHorizontalIcon width={24 * scale} height={24 * scale} />
@@ -71,7 +94,9 @@ const styles = StyleSheet.create({
     overflow: 'visible',
   },
   bannerBg: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    left: 0,
+    right: 0,
     width: '100%',
   },
   content: {
