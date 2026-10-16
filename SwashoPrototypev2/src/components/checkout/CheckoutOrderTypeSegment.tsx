@@ -119,7 +119,7 @@ export function CheckoutOrderTypeSegment({
           <View style={[styles.copy, { gap: 6 * scale, paddingVertical: 10 * scale }]}>
             <Text
               style={[
-                searchFont('semibold'),
+                searchFont('medium'),
                 isOneTime ? styles.titleOnGradient : styles.titleMuted,
                 { fontSize: 16 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
               ]}>
