@@ -62,18 +62,9 @@ export function ListIcon({ width, height, style }: IconProps) {
   return <SvgXml xml={ListIconXml} width={width} height={height} style={style} />;
 }
 
-/** Figma 3346:8890 — Frame 176 (43×23); Frame 175 slot 29×14.5 @ (3, 3.25) with shadow overflow. */
-const GRID_TOGGLE_FRAME_W = 43;
-const GRID_TOGGLE_FRAME_H = 23;
-const GRID_TOGGLE_SLOT_X = 3;
-const GRID_TOGGLE_SLOT_Y = 3.25;
-const GRID_TOGGLE_SLOT_W = 29;
-const GRID_TOGGLE_SLOT_H = 14.5;
+/** Figma 3346:8890 — Frame 176 (43×23); full art 39.786×27.937 scaled to frame height, centered. */
 const GRID_TOGGLE_ART_W = 39.7861;
 const GRID_TOGGLE_ART_H = 27.9375;
-/** Track pill origin in art coords (matches 29×14.5 slot). */
-const GRID_TOGGLE_TRACK_X = 10.7861;
-const GRID_TOGGLE_TRACK_Y = 4.6875;
 const GRID_TOGGLE_THUMB_CX = 15.9688;
 const GRID_TOGGLE_THUMB_CY = 11.9688;
 const GRID_TOGGLE_THUMB_R = 9.96875;
@@ -111,21 +102,25 @@ const GridToggleThumbShadowSvg = `<svg preserveAspectRatio="xMidYMid meet" overf
 </svg>`;
 
 export function GridToggleIcon({ width, height, style }: IconProps) {
-  const frameScale = width / GRID_TOGGLE_FRAME_W;
-  const artWidth = GRID_TOGGLE_SLOT_W * frameScale;
-  const artHeight = (GRID_TOGGLE_ART_H / GRID_TOGGLE_ART_W) * artWidth;
-  const artScale = artWidth / GRID_TOGGLE_ART_W;
-  const slotLeft = GRID_TOGGLE_SLOT_X * frameScale;
-  const slotTop = GRID_TOGGLE_SLOT_Y * frameScale;
-  const artLeft = slotLeft - GRID_TOGGLE_TRACK_X * artScale;
-  const artTop = slotTop - GRID_TOGGLE_TRACK_Y * artScale;
+  const frameW = width;
+  const frameH = height;
+  /** Scale full Figma art to frame height, center horizontally in 43×23 (slot-based scale left empty space on the right). */
+  const artScale = frameH / GRID_TOGGLE_ART_H;
+  const artWidth = GRID_TOGGLE_ART_W * artScale;
+  const artHeight = frameH;
+  const artLeft = (frameW - artWidth) / 2;
+  const artTop = 0;
   const thumbSize = GRID_TOGGLE_THUMB_R * 2 * artScale;
   const thumbLeft = artLeft + (GRID_TOGGLE_THUMB_CX - GRID_TOGGLE_THUMB_R) * artScale;
   const thumbTop = artTop + (GRID_TOGGLE_THUMB_CY - GRID_TOGGLE_THUMB_R) * artScale;
   const thumbShadowStyle = figmaDropShadow(FigmaShadows.gridToggleThumb, artScale);
 
   return (
-    <View style={[{ width, height, overflow: 'hidden' }, style]}>
+    <View
+      style={[
+        { width, height, overflow: 'hidden', justifyContent: 'center', alignItems: 'center' },
+        style,
+      ]}>
       <GridToggleArt
         width={artWidth}
         height={artHeight}
