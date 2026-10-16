@@ -1,4 +1,5 @@
-import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useEffect } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -6,7 +7,7 @@ import { useSafeTopInset } from '@/components/home/scale';
 import { oneTimeCheckoutHref } from '@/lib/checkout-flow';
 import { SwashoFonts } from '@/constants/swasho-tokens';
 
-/** Legacy route: deep links to `/checkout/order-type` land on one-time schedule UI. */
+/** Legacy route: `/checkout/order-type` always forwards to one-time schedule UI. */
 export default function CheckoutOrderTypeRoute() {
   const router = useRouter();
   const { providerId, q } = useLocalSearchParams<{ providerId?: string; q?: string }>();
@@ -14,6 +15,13 @@ export default function CheckoutOrderTypeRoute() {
   const safeTop = useSafeTopInset(insets.top);
   const id = typeof providerId === 'string' ? providerId : '';
   const query = typeof q === 'string' ? q : '';
+
+  useEffect(() => {
+    if (!id) {
+      return;
+    }
+    router.replace(oneTimeCheckoutHref(id, query));
+  }, [id, query, router]);
 
   if (!id) {
     const handleBackPress = () => {
@@ -34,10 +42,14 @@ export default function CheckoutOrderTypeRoute() {
     );
   }
 
-  return <Redirect href={oneTimeCheckoutHref(id, query)} />;
+  return <View style={styles.redirecting} />;
 }
 
 const styles = StyleSheet.create({
+  redirecting: {
+    flex: 1,
+    backgroundColor: '#f2f2f2',
+  },
   notFoundRoot: {
     flex: 1,
     alignItems: 'center',
