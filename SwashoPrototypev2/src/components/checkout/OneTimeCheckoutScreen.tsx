@@ -30,28 +30,6 @@ type OneTimeCheckoutScreenProps = {
   query: string;
 };
 
-function formatStartDateLabel(weekday?: CheckoutWeekdayId): string {
-  const labels: Record<CheckoutWeekdayId, number> = {
-    sun: 0,
-    mon: 1,
-    tue: 2,
-    wed: 3,
-    thu: 4,
-    fri: 5,
-    sat: 6,
-  };
-  const now = new Date();
-  const target = weekday ? labels[weekday] : now.getDay();
-  const day = now.getDay();
-  let delta = target - day;
-  if (delta <= 0) {
-    delta += 7;
-  }
-  const next = new Date(now);
-  next.setDate(now.getDate() + delta);
-  return next.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
-}
-
 export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScreenProps) {
   const router = useRouter();
   const { scale, contentWidth } = useScreenScale();
