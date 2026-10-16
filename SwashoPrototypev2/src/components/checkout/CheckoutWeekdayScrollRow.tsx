@@ -62,9 +62,9 @@ export function CheckoutWeekdayScrollRow({
                 searchFont('semibold'),
                 selected ? styles.dateSelected : styles.date,
                 {
-                  fontSize: 15 * scale,
-                  lineHeight: 14 * scale,
-                  letterSpacing: 0.3 * scale,
+                  fontSize: 20 * scale,
+                  lineHeight: 20 * scale,
+                  letterSpacing: 0.4 * scale,
                 },
               ]}>
               {day.dayOfMonth}
