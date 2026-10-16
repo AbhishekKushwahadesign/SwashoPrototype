@@ -7,6 +7,7 @@ import { useProviderCart } from '@/context/provider-cart-context';
 import {
   CHECKOUT_PICKUP_TIME_SLOTS,
   CHECKOUT_WEEKDAY_OPTIONS,
+  providerPageHref,
 } from '@/lib/checkout-flow';
 import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors } from '@/constants/swasho-tokens';
@@ -28,8 +29,8 @@ export function CheckoutPlaceholderScreen({ providerId, query, isSubscription }:
   const checkout = getCheckoutState(providerId);
 
   const handleBackPress = useCallback(() => {
-    router.back();
-  }, [router]);
+    router.replace(providerPageHref(providerId, query));
+  }, [providerId, query, router]);
 
   const modeLabel =
     checkout.fulfillmentMode === 'subscribe'

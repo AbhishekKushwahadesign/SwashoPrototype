@@ -648,7 +648,7 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
     }
     cartProceedLockRef.current = true;
     setFulfillmentMode(provider.id, 'one-time');
-    router.replace(oneTimeCheckoutHref(provider.id, displayQuery));
+    router.push(oneTimeCheckoutHref(provider.id, displayQuery));
     setTimeout(() => {
       cartProceedLockRef.current = false;
     }, 600);
