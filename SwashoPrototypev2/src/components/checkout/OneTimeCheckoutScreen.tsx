@@ -166,7 +166,7 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
         }} scale={scale} />
 
         <View style={[styles.subscribeBannerSlot, { marginBottom: -4 * scale }]}>
-          <CheckoutSwitchToSubscribeBanner onPress={goSubscribePath} scale={scale} />
+          <CheckoutSwitchToSubscribeBanner scale={scale} />
         </View>
 
         <View
