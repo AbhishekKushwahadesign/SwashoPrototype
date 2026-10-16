@@ -62,7 +62,11 @@ export function CheckoutPlaceholderScreen({ providerId, query, isSubscription }:
               ,{' '}
               {CHECKOUT_PICKUP_TIME_SLOTS.find((s) => s.id === checkout.pickupTimeSlot)?.label ??
                 checkout.pickupTimeSlot}
-              {checkout.deliverySameAsPickup ? ' · delivery same as pickup' : ''}
+              {checkout.deliverySameAsPickup
+                ? ' · delivery same as pickup'
+                : checkout.deliveryTimeSlot
+                  ? ` · delivery ${CHECKOUT_PICKUP_TIME_SLOTS.find((s) => s.id === checkout.deliveryTimeSlot)?.label ?? checkout.deliveryTimeSlot}`
+                  : ''}
             </Text>
           ) : null}
           {query ? (

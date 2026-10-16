@@ -52,6 +52,9 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
   const [deliverySameAsPickup, setDeliverySameAsPickup] = useState(
     persisted.deliverySameAsPickup ?? true,
   );
+  const [deliverySlot, setDeliverySlot] = useState<CheckoutPickupTimeSlotId | null>(
+    persisted.deliveryTimeSlot ?? null,
+  );
 
   const confirmLockRef = useRef(false);
   const navigateLockRef = useRef(false);
@@ -80,17 +83,30 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
     if (!weekday || !pickupSlot || confirmLockRef.current) {
       return;
     }
+    if (!deliverySameAsPickup && !deliverySlot) {
+      return;
+    }
     confirmLockRef.current = true;
     setOneTimeSchedule(providerId, {
       pickupWeekday: weekday,
       pickupTimeSlot: pickupSlot,
       deliverySameAsPickup,
+      deliveryTimeSlot: deliverySameAsPickup ? undefined : deliverySlot ?? undefined,
     });
     router.replace(checkoutPlaceholderHref(providerId, query, { scheduleConfirmed: true }));
     setTimeout(() => {
       confirmLockRef.current = false;
     }, 600);
-  }, [deliverySameAsPickup, pickupSlot, providerId, query, router, setOneTimeSchedule, weekday]);
+  }, [
+    deliverySameAsPickup,
+    deliverySlot,
+    pickupSlot,
+    providerId,
+    query,
+    router,
+    setOneTimeSchedule,
+    weekday,
+  ]);
 
   const handleWeekdaySelect = (day: CheckoutDayOption) => {
     setSelectedDayKey(day.key);
@@ -101,6 +117,11 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
   const handleSlotSelect = (id: CheckoutPickupTimeSlotId) => {
     setPickupSlot(id);
     setOneTimeSchedule(providerId, { pickupTimeSlot: id });
+  };
+
+  const handleDeliverySlotSelect = (id: CheckoutPickupTimeSlotId) => {
+    setDeliverySlot(id);
+    setOneTimeSchedule(providerId, { deliveryTimeSlot: id });
   };
 
   const pickupTimeColumnGap = 12 * scale;
@@ -124,7 +145,9 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
     <ServiceSelectionButton
       label="Confirm"
       variant="primary"
-      disabled={weekday == null || pickupSlot == null}
+      disabled={
+        weekday == null || pickupSlot == null || (!deliverySameAsPickup && deliverySlot == null)
+      }
       onPress={handleConfirm}
       scale={scale}
       style={{ width: '100%' }}
@@ -240,7 +263,13 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
                 checked={deliverySameAsPickup}
                 onChange={(next) => {
                   setDeliverySameAsPickup(next);
-                  setOneTimeSchedule(providerId, { deliverySameAsPickup: next });
+                  setOneTimeSchedule(providerId, {
+                    deliverySameAsPickup: next,
+                    ...(next ? { deliveryTimeSlot: undefined } : {}),
+                  });
+                  if (next) {
+                    setDeliverySlot(null);
+                  }
                 }}
                 scale={scale}
               />
@@ -253,6 +282,29 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
                 Same as Pickup time
               </Text>
             </View>
+            {!deliverySameAsPickup ? (
+              <View
+                style={[
+                  styles.chipGrid,
+                  {
+                    columnGap: pickupTimeColumnGap,
+                    rowGap: 16 * scale,
+                    paddingTop: 7 * scale,
+                  },
+                ]}>
+                {CHECKOUT_PICKUP_TIME_SLOTS.map((slot) => (
+                  <CheckoutScheduleChip
+                    key={`delivery-${slot.id}`}
+                    label={slot.label}
+                    selected={deliverySlot === slot.id}
+                    onPress={() => handleDeliverySlotSelect(slot.id)}
+                    scale={scale}
+                    width={pickupTimeChipWidth}
+                    height={35}
+                  />
+                ))}
+              </View>
+            ) : null}
           </View>
         </View>
       </ScrollView>

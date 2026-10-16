@@ -21,6 +21,7 @@ export type ProviderCheckoutState = {
   pickupWeekday?: CheckoutWeekdayId;
   pickupTimeSlot?: CheckoutPickupTimeSlotId;
   deliverySameAsPickup?: boolean;
+  deliveryTimeSlot?: CheckoutPickupTimeSlotId;
 };
 
 export const CHECKOUT_WEEKDAY_OPTIONS: { id: CheckoutWeekdayId; label: string }[] = [

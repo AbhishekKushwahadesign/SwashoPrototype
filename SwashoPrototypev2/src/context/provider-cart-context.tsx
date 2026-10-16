@@ -26,7 +26,10 @@ type ProviderCartContextValue = {
   setOneTimeSchedule: (
     providerId: string,
     patch: Partial<
-      Pick<ProviderCheckoutState, 'pickupWeekday' | 'pickupTimeSlot' | 'deliverySameAsPickup'>
+      Pick<
+        ProviderCheckoutState,
+        'pickupWeekday' | 'pickupTimeSlot' | 'deliverySameAsPickup' | 'deliveryTimeSlot'
+      >
     >,
   ) => void;
 };
@@ -89,7 +92,10 @@ export function ProviderCartProvider({ children }: { children: ReactNode }) {
     (
       providerId: string,
       patch: Partial<
-        Pick<ProviderCheckoutState, 'pickupWeekday' | 'pickupTimeSlot' | 'deliverySameAsPickup'>
+        Pick<
+        ProviderCheckoutState,
+        'pickupWeekday' | 'pickupTimeSlot' | 'deliverySameAsPickup' | 'deliveryTimeSlot'
+      >
       >,
     ) => {
       setCheckoutStore((prev) => ({
