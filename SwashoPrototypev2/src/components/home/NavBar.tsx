@@ -38,10 +38,8 @@ const ICON_SIZE = 20.884;
 const CAPSULE_RADIUS = 12.531;
 const CAPSULE_BORDER = 2;
 
-const FADE_COLORS = ['rgba(255,255,255,0.05)', SwashoColors.surface] as const;
-const FADE_LOCATIONS = [0, 0.75] as const;
-const ORDERS_TINT_COLORS = ['rgba(0,0,0,0)', 'rgba(0,0,0,0.01)'] as const;
-const ORDERS_TINT_LOCATIONS = [0.19232, 0.87445] as const;
+/** Figma home bar — solid white fill (no frosted gradient). */
+const NAV_BAR_FILL = '#ffffff';
 
 const CAPSULE_GEOMETRY = {
   Home: {
@@ -62,12 +60,10 @@ function capsuleGradientXml(width: number, height: number, transform: string) {
   return `<svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><defs><radialGradient id="navCapsuleGrad" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="10" gradientTransform="${transform}"><stop stop-color="#7e77ff" offset="0"/><stop stop-color="#7056ff" offset="0.5"/><stop stop-color="#6234ff" offset="1"/></radialGradient></defs><rect x="0" y="0" width="100%" height="100%" fill="url(#navCapsuleGrad)"/></svg>`;
 }
 
-function NavBackdrop({ variant, scale }: { variant: NavBarVariant; scale: number }) {
+function NavBackdrop({ scale }: { variant: NavBarVariant; scale: number }) {
   const height = NAV_HEIGHT * scale;
 
   if (Platform.OS === 'web') {
-    const fade = `linear-gradient(180deg, ${FADE_COLORS[0]} 0%, ${FADE_COLORS[1]} 75%)`;
-    const tint = 'linear-gradient(180deg, rgba(0,0,0,0) 19.232%, rgba(0,0,0,0.01) 87.445%)';
     return createElement('div', {
       'data-testid': 'nav-backdrop',
       style: {
@@ -77,24 +73,13 @@ function NavBackdrop({ variant, scale }: { variant: NavBarVariant; scale: number
         top: 0,
         height,
         pointerEvents: 'none',
-        backdropFilter: `blur(${NAV_BACKDROP_BLUR * scale}px)`,
-        WebkitBackdropFilter: `blur(${NAV_BACKDROP_BLUR * scale}px)`,
-        backgroundImage: variant === 'Orders' ? `${fade}, ${tint}` : fade,
+        backgroundColor: NAV_BAR_FILL,
       },
     });
   }
 
   return (
-    <View pointerEvents="none" style={[styles.backdrop, { height }]}>
-      <LinearGradient colors={FADE_COLORS} locations={FADE_LOCATIONS} style={StyleSheet.absoluteFill} />
-      {variant === 'Orders' && (
-        <LinearGradient
-          colors={ORDERS_TINT_COLORS}
-          locations={ORDERS_TINT_LOCATIONS}
-          style={StyleSheet.absoluteFill}
-        />
-      )}
-    </View>
+    <View pointerEvents="none" style={[styles.backdrop, { height, backgroundColor: NAV_BAR_FILL }]} />
   );
 }
 

@@ -519,8 +519,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 8,
+    backgroundColor: '#ffffff',
   },
   homeIndicatorWrap: {
-    backgroundColor: SwashoColors.surface,
+    backgroundColor: '#ffffff',
   },
 });
