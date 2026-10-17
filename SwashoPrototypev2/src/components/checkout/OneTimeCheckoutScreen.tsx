@@ -1,5 +1,5 @@
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { CheckoutSectionDivider } from '@/components/checkout/CheckoutSectionDivider';
@@ -13,10 +13,11 @@ import {
   checkoutPlaceholderHref,
   CHECKOUT_PICKUP_TIME_SLOTS,
   providerPageHref,
-  subscriptionFrequencyHref,
   type CheckoutDayOption,
   type CheckoutPickupTimeSlotId,
   type CheckoutWeekdayId,
+  type ProviderOrderFulfillmentMode,
+  type SubscriptionFrequencyOption,
 } from '@/lib/checkout-flow';
 import {
   CHECKOUT_ORDER_TYPE_SEGMENT_WIDTH,
@@ -29,19 +30,37 @@ import { CheckoutOrderTypeSegment } from './CheckoutOrderTypeSegment';
 import { CheckoutProgressStepper } from './CheckoutProgressStepper';
 import { CheckoutScheduleChip } from './CheckoutScheduleChip';
 import { CheckoutScreenShell } from './CheckoutScreenShell';
+import { CheckoutSubscriptionPanel } from './CheckoutSubscriptionPanel';
 import { CheckoutSwitchToSubscribeBanner } from './CheckoutSwitchToSubscribeBanner';
 import { CheckoutWeekdayScrollRow } from './CheckoutWeekdayScrollRow';
 
 type OneTimeCheckoutScreenProps = {
   providerId: string;
   query: string;
+  initialFulfillmentMode?: ProviderOrderFulfillmentMode;
 };
 
-export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScreenProps) {
+export function OneTimeCheckoutScreen({
+  providerId,
+  query,
+  initialFulfillmentMode,
+}: OneTimeCheckoutScreenProps) {
   const router = useRouter();
   const { scale, contentWidth } = useScreenScale();
-  const { getCheckoutState, setFulfillmentMode, setOneTimeSchedule } = useProviderCart();
+  const {
+    getCheckoutState,
+    setFulfillmentMode,
+    setOneTimeSchedule,
+    setSubscriptionFrequency,
+  } = useProviderCart();
   const persisted = getCheckoutState(providerId);
+
+  const [orderMode, setOrderMode] = useState<ProviderOrderFulfillmentMode>(() => {
+    return initialFulfillmentMode ?? persisted.fulfillmentMode ?? 'one-time';
+  });
+  const [selectedFrequency, setSelectedFrequency] = useState<SubscriptionFrequencyOption | null>(
+    persisted.subscriptionFrequency ?? null,
+  );
 
   const upcomingDays = useMemo(() => buildUpcomingCheckoutDays(14), []);
   const [weekday, setWeekday] = useState<CheckoutWeekdayId | null>(persisted.pickupWeekday ?? null);
@@ -62,7 +81,6 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
   );
 
   const confirmLockRef = useRef(false);
-  const navigateLockRef = useRef(false);
   const [subscribeBannerAnimSession, setSubscribeBannerAnimSession] = useState(0);
 
   useFocusEffect(
@@ -71,27 +89,34 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
     }, []),
   );
 
-  useEffect(() => {
-    setFulfillmentMode(providerId, 'one-time');
-  }, [providerId, setFulfillmentMode]);
-
   const handleBackPress = useCallback(() => {
     router.replace(providerPageHref(providerId, query));
   }, [providerId, query, router]);
 
-  const goSubscribePath = useCallback(() => {
-    if (navigateLockRef.current) {
+  const handleSelectOrderMode = useCallback(
+    (mode: ProviderOrderFulfillmentMode) => {
+      if (mode === orderMode) {
+        return;
+      }
+      setOrderMode(mode);
+      setFulfillmentMode(providerId, mode);
+    },
+    [orderMode, providerId, setFulfillmentMode],
+  );
+
+  const handleSubscribeConfirm = useCallback(() => {
+    if (!selectedFrequency || confirmLockRef.current) {
       return;
     }
-    navigateLockRef.current = true;
-    setFulfillmentMode(providerId, 'subscribe');
-    router.replace(subscriptionFrequencyHref(providerId, query));
+    confirmLockRef.current = true;
+    setSubscriptionFrequency(providerId, selectedFrequency);
+    router.replace(checkoutPlaceholderHref(providerId, query, { subscription: true }));
     setTimeout(() => {
-      navigateLockRef.current = false;
+      confirmLockRef.current = false;
     }, 600);
-  }, [providerId, query, router, setFulfillmentMode]);
+  }, [providerId, query, router, selectedFrequency, setSubscriptionFrequency]);
 
-  const handleConfirm = useCallback(() => {
+  const handleOneTimeConfirm = useCallback(() => {
     if (!weekday || !pickupSlot || confirmLockRef.current) {
       return;
     }
@@ -151,6 +176,9 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
   };
 
   const stepOneProgress = useMemo(() => {
+    if (orderMode === 'subscribe') {
+      return selectedFrequency ? 0.85 : 0.35;
+    }
     let completed = 0;
     if (weekday != null) {
       completed += 1;
@@ -159,16 +187,22 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
       completed += 1;
     }
     return completed / 2;
-  }, [pickupSlot, weekday]);
+  }, [orderMode, pickupSlot, selectedFrequency, weekday]);
+
+  const isSubscribe = orderMode === 'subscribe';
 
   const footer = (
     <ServiceSelectionButton
       label="Confirm"
       variant="primary"
       disabled={
-        weekday == null || pickupSlot == null || (!deliverySameAsPickup && deliverySlot == null)
+        isSubscribe
+          ? selectedFrequency == null
+          : weekday == null ||
+            pickupSlot == null ||
+            (!deliverySameAsPickup && deliverySlot == null)
       }
-      onPress={handleConfirm}
+      onPress={isSubscribe ? handleSubscribeConfirm : handleOneTimeConfirm}
       scale={scale}
       style={{ width: '100%' }}
     />
@@ -190,15 +224,22 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
           <CheckoutProgressStepper scale={scale} activeStep={1} stepOneProgress={stepOneProgress} />
 
           <CheckoutOrderTypeSegment
-            activeMode="one-time"
-            onSelectMode={(mode) => {
-              if (mode === 'subscribe') {
-                goSubscribePath();
-              }
-            }}
+            activeMode={orderMode}
+            onSelectMode={handleSelectOrderMode}
             scale={scale}
           />
 
+          {isSubscribe ? (
+            <CheckoutSubscriptionPanel
+              scale={scale}
+              selectedFrequency={selectedFrequency}
+              onSelectFrequency={(id) => {
+                setSelectedFrequency(id);
+                setSubscriptionFrequency(providerId, id);
+              }}
+            />
+          ) : (
+            <>
           <View style={[styles.subscribeBannerSlot, { marginBottom: -4 * scale }]}>
             <CheckoutSwitchToSubscribeBanner
               scale={scale}
@@ -356,6 +397,8 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
             ) : null}
           </View>
         </View>
+            </>
+          )}
         </View>
       </ScrollView>
     </CheckoutScreenShell>
