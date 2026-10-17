@@ -15,6 +15,9 @@ const LAVENDER = '#E4DDFE';
 const MASK_LAVENDER = '#ECE7FE';
 /** Top-notch tip X in design coordinates (Figma 3346:13492). */
 const NOTCH_CENTER_X = 290.656 / DESIGN_VIEW_W;
+/** Mirror of Figma radial center (263.805) — extends purple on the right of the notch to match the left. */
+const RADIAL_CENTER_LEFT = 263.805;
+const RADIAL_CENTER_RIGHT = DESIGN_VIEW_W - RADIAL_CENTER_LEFT;
 
 type SubscribeBannerBackgroundProps = {
   width: number;
@@ -42,7 +45,8 @@ export function SubscribeBannerBackground({
 }: SubscribeBannerBackgroundProps) {
   const strokeWidth = DESIGN_STROKE * scale;
   const instanceId = useId().replace(/:/g, '');
-  const radialId = `checkoutSubscribeBannerStroke-${instanceId}`;
+  const radialLeftId = `checkoutSubscribeBannerStrokeLeft-${instanceId}`;
+  const radialRightId = `checkoutSubscribeBannerStrokeRight-${instanceId}`;
   const maskId = `checkoutSubscribeBannerMask-${instanceId}`;
 
   const showConvergenceMask = !isStaticAccent && accentProgress > 0;
@@ -53,12 +57,22 @@ export function SubscribeBannerBackground({
     <Svg width={width} height={height} viewBox={`0 0 ${DESIGN_VIEW_W} ${DESIGN_VIEW_H}`}>
       <Defs>
         <RadialGradient
-          id={radialId}
+          id={radialLeftId}
           cx={0}
           cy={0}
           r={1}
           gradientUnits="userSpaceOnUse"
-          gradientTransform="matrix(-0.246747 16.0233 -94.3191 -1.10381 263.805 0.758485)">
+          gradientTransform={`matrix(-0.246747 16.0233 -94.3191 -1.10381 ${RADIAL_CENTER_LEFT} 0.758485)`}>
+          <Stop offset="0.197903" stopColor={PURPLE} />
+          <Stop offset="1" stopColor={LAVENDER} />
+        </RadialGradient>
+        <RadialGradient
+          id={radialRightId}
+          cx={0}
+          cy={0}
+          r={1}
+          gradientUnits="userSpaceOnUse"
+          gradientTransform={`matrix(0.246747 16.0233 94.3191 -1.10381 ${RADIAL_CENTER_RIGHT} 0.758485)`}>
           <Stop offset="0.197903" stopColor={PURPLE} />
           <Stop offset="1" stopColor={LAVENDER} />
         </RadialGradient>
@@ -78,7 +92,18 @@ export function SubscribeBannerBackground({
         </LinearGradient>
       </Defs>
       <Path d={FILL_PATH} fill={MASK_LAVENDER} />
-      <Path d={STROKE_PATH} fill="none" stroke={`url(#${radialId})`} strokeWidth={strokeWidth} />
+      <Path
+        d={STROKE_PATH}
+        fill="none"
+        stroke={`url(#${radialLeftId})`}
+        strokeWidth={strokeWidth}
+      />
+      <Path
+        d={STROKE_PATH}
+        fill="none"
+        stroke={`url(#${radialRightId})`}
+        strokeWidth={strokeWidth}
+      />
       {showConvergenceMask ? (
         <Path
           d={STROKE_PATH}
