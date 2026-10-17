@@ -165,7 +165,7 @@ export function CheckoutOrderTypeSegment({
             : (
               <View style={[StyleSheet.absoluteFill, styles.inactiveHalf, pillCorners]} />
             )}
-          <View style={[styles.copy, { gap: 7 * scale, paddingVertical: 10 * scale }]}>
+          <View style={[styles.copy, { gap: 5 * scale, paddingVertical: 10 * scale }]}>
             <Text
               style={[
                 searchFont('medium'),
