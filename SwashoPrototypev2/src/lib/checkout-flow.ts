@@ -184,7 +184,7 @@ export function checkoutPlaceholderHref(
   if (options.scheduleConfirmed) {
     extra.scheduleConfirmed = '1';
   }
-  return `/checkout?${checkoutQueryString(providerId, query, extra)}` as Href;
+  return `/checkout/review?${checkoutQueryString(providerId, query, extra)}` as Href;
 }
 
 export const SUBSCRIPTION_FREQUENCY_OPTIONS: {

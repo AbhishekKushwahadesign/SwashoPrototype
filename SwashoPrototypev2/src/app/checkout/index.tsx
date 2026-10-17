@@ -1,12 +1,11 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { CheckoutReviewScreen } from '@/components/checkout/CheckoutReviewScreen';
 import { OneTimeCheckoutScreen } from '@/components/checkout/OneTimeCheckoutScreen';
 import { useSafeTopInset } from '@/components/home/scale';
 import { useProviderCart } from '@/context/provider-cart-context';
-import type { ProviderOrderFulfillmentMode } from '@/lib/checkout-flow';
+import { checkoutPlaceholderHref, type ProviderOrderFulfillmentMode } from '@/lib/checkout-flow';
 import { SwashoFonts } from '@/constants/swasho-tokens';
 
 export default function CheckoutRoute() {
@@ -46,7 +45,14 @@ export default function CheckoutRoute() {
   }
 
   if (isSubscription || isScheduleConfirmed) {
-    return <CheckoutReviewScreen providerId={id} query={query} isSubscription={isSubscription} />;
+    return (
+      <Redirect
+        href={checkoutPlaceholderHref(id, query, {
+          subscription: isSubscription,
+          scheduleConfirmed: isScheduleConfirmed,
+        })}
+      />
+    );
   }
 
   const modeFromUrl: ProviderOrderFulfillmentMode | undefined =
