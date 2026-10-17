@@ -70,6 +70,28 @@ export function buildUpcomingCheckoutDays(count = 14): CheckoutDayOption[] {
   return options;
 }
 
+export function checkoutDayOptionFromKey(key: string): CheckoutDayOption {
+  const [year, month, day] = key.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+  const weekdayId = WEEKDAY_ID_BY_JS_DAY[date.getDay()];
+  const label = CHECKOUT_WEEKDAY_OPTIONS.find((option) => option.id === weekdayId)?.label ?? weekdayId;
+  return {
+    key,
+    weekdayId,
+    label,
+    dayOfMonth: date.getDate(),
+  };
+}
+
+/** Puts the chosen day first in the scroll row (calendar pick); drops duplicates by key. */
+export function moveCheckoutDayToFront(
+  days: CheckoutDayOption[],
+  day: CheckoutDayOption,
+): CheckoutDayOption[] {
+  const rest = days.filter((option) => option.key !== day.key);
+  return [day, ...rest];
+}
+
 export const CHECKOUT_PICKUP_TIME_SLOTS: { id: CheckoutPickupTimeSlotId; label: string }[] = [
   { id: '6-8am', label: '6 - 8 AM' },
   { id: '8-10am', label: '8 - 10 AM' },

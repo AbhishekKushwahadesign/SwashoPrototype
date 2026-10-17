@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { CalendarLinearIcon } from '@/components/home/figma-icons';
 import { searchFont } from '@/components/search/search-fonts';
-import type { CheckoutDayOption } from '@/lib/checkout-flow';
+import { moveCheckoutDayToFront, type CheckoutDayOption } from '@/lib/checkout-flow';
 import { SwashoColors } from '@/constants/swasho-tokens';
 
 import { CheckoutStartDateCalendarModal } from './CheckoutStartDateCalendarModal';
@@ -25,6 +25,16 @@ export function CheckoutStartDateSection({
   cardWidth,
 }: CheckoutStartDateSectionProps) {
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [displayDays, setDisplayDays] = useState(days);
+
+  useEffect(() => {
+    setDisplayDays(days);
+  }, [days]);
+
+  const handleCalendarSelect = (day: CheckoutDayOption) => {
+    setDisplayDays((current) => moveCheckoutDayToFront(current, day));
+    onSelectDay(day);
+  };
 
   return (
     <>
@@ -72,7 +82,7 @@ export function CheckoutStartDateSection({
         </View>
         <View style={[styles.scrollClip, { width: cardWidth, maxWidth: cardWidth }]}>
           <CheckoutWeekdayScrollRow
-            days={days}
+            days={displayDays}
             selectedKey={selectedKey}
             onSelectDay={onSelectDay}
             scale={scale}
@@ -86,9 +96,9 @@ export function CheckoutStartDateSection({
           key={selectedKey ?? days[0]?.key ?? 'start'}
           visible
           onClose={() => setCalendarOpen(false)}
-          days={days}
+          days={displayDays}
           selectedKey={selectedKey}
-          onSelectDay={onSelectDay}
+          onSelectDay={handleCalendarSelect}
           scale={scale}
         />
       ) : null}

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { searchFont } from '@/components/search/search-fonts';
-import type { CheckoutDayOption } from '@/lib/checkout-flow';
+import { checkoutDayOptionFromKey, type CheckoutDayOption } from '@/lib/checkout-flow';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
 const WEEKDAY_HEADERS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -32,7 +32,23 @@ function formatMonthYear(date: Date): string {
   return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 }
 
-function buildMonthCells(month: Date, dayByKey: Map<string, CheckoutDayOption>): CalendarCell[] {
+function localDateKey(year: number, monthIndex: number, day: number): string {
+  const month = String(monthIndex + 1).padStart(2, '0');
+  const dayPart = String(day).padStart(2, '0');
+  return `${year}-${month}-${dayPart}`;
+}
+
+function startOfToday(): Date {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
+}
+
+function buildMonthCells(
+  month: Date,
+  dayByKey: Map<string, CheckoutDayOption>,
+  minSelectable: Date,
+): CalendarCell[] {
   const year = month.getFullYear();
   const monthIndex = month.getMonth();
   const firstWeekday = new Date(year, monthIndex, 1).getDay();
@@ -44,13 +60,11 @@ function buildMonthCells(month: Date, dayByKey: Map<string, CheckoutDayOption>):
   }
 
   for (let day = 1; day <= daysInMonth; day += 1) {
-    const key = new Date(year, monthIndex, day).toISOString().slice(0, 10);
-    const option = dayByKey.get(key);
-    if (option) {
-      cells.push({ kind: 'day', option, disabled: false });
-    } else {
-      cells.push({ kind: 'empty' });
-    }
+    const key = localDateKey(year, monthIndex, day);
+    const date = new Date(year, monthIndex, day);
+    const option = dayByKey.get(key) ?? checkoutDayOptionFromKey(key);
+    const disabled = date < minSelectable;
+    cells.push({ kind: 'day', option, disabled });
   }
 
   while (cells.length % 7 !== 0) {
@@ -69,6 +83,8 @@ export function CheckoutStartDateCalendarModal({
   scale,
 }: CheckoutStartDateCalendarModalProps) {
   const dayByKey = useMemo(() => new Map(days.map((day) => [day.key, day])), [days]);
+  const minSelectable = useMemo(() => startOfToday(), []);
+  const maxSelectableMonth = useMemo(() => addMonths(monthStart(minSelectable), 12), [minSelectable]);
 
   const initialMonth = useMemo(() => {
     if (selectedKey && dayByKey.has(selectedKey)) {
@@ -83,28 +99,19 @@ export function CheckoutStartDateCalendarModal({
 
   const [visibleMonth, setVisibleMonth] = useState(initialMonth);
 
-  const monthKeys = useMemo(() => {
-    const keys = new Set<string>();
-    for (const day of days) {
-      const date = new Date(day.key);
-      keys.add(`${date.getFullYear()}-${date.getMonth()}`);
-    }
-    return keys;
-  }, [days]);
-
   const cells = useMemo(
-    () => buildMonthCells(visibleMonth, dayByKey),
-    [dayByKey, visibleMonth],
+    () => buildMonthCells(visibleMonth, dayByKey, minSelectable),
+    [dayByKey, minSelectable, visibleMonth],
   );
 
-  const canGoPrev = [...monthKeys].some((key) => {
-    const [y, m] = key.split('-').map(Number);
-    return y < visibleMonth.getFullYear() || (y === visibleMonth.getFullYear() && m < visibleMonth.getMonth());
-  });
-  const canGoNext = [...monthKeys].some((key) => {
-    const [y, m] = key.split('-').map(Number);
-    return y > visibleMonth.getFullYear() || (y === visibleMonth.getFullYear() && m > visibleMonth.getMonth());
-  });
+  const canGoPrev =
+    visibleMonth.getFullYear() > minSelectable.getFullYear() ||
+    (visibleMonth.getFullYear() === minSelectable.getFullYear() &&
+      visibleMonth.getMonth() > minSelectable.getMonth());
+  const canGoNext =
+    visibleMonth.getFullYear() < maxSelectableMonth.getFullYear() ||
+    (visibleMonth.getFullYear() === maxSelectableMonth.getFullYear() &&
+      visibleMonth.getMonth() < maxSelectableMonth.getMonth());
 
   const cardWidth = 340 * scale;
   const cellSize = 40 * scale;
@@ -178,11 +185,13 @@ export function CheckoutStartDateCalendarModal({
                   return <View key={`empty-${index}`} style={{ width: cellSize, height: cellSize }} />;
                 }
                 const selected = selectedKey === cell.option.key;
+                const { disabled } = cell;
                 return (
                   <Pressable
                     key={cell.option.key}
                     accessibilityRole="button"
-                    accessibilityState={{ selected }}
+                    accessibilityState={{ selected, disabled }}
+                    disabled={disabled}
                     onPress={() => {
                       onSelectDay(cell.option);
                       onClose();
@@ -190,11 +199,12 @@ export function CheckoutStartDateCalendarModal({
                     style={({ pressed }) => [
                       styles.dayCell,
                       selected && styles.dayCellSelected,
+                      disabled && styles.dayCellDisabled,
                       {
                         width: cellSize,
                         height: cellSize,
                         borderRadius: SwashoRadii.md * scale,
-                        opacity: pressed ? 0.9 : 1,
+                        opacity: disabled ? 0.35 : pressed ? 0.9 : 1,
                       },
                     ]}>
                     <Text
@@ -269,6 +279,9 @@ const styles = StyleSheet.create({
     backgroundColor: SwashoColors.primary100,
     borderWidth: 1,
     borderColor: SwashoColors.primary600,
+  },
+  dayCellDisabled: {
+    opacity: 0.35,
   },
   dayLabel: {
     color: SwashoColors.darkHeaderText,
