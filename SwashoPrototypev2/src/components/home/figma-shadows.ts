@@ -58,6 +58,8 @@ export const FigmaShadows = {
   providerCard: { offsetX: 0, offsetY: 0, blur: 2, color: '#000000', opacity: 0.2 },
   /** Figma 3346:13495 schedule card */
   checkoutScheduleCard: { offsetX: 0, offsetY: 0, blur: 4.005, color: '#000000', opacity: 0.1 },
+  /** Figma 3346:13274 — selected frequency summary row */
+  checkoutFrequencySummary: { offsetX: 0, offsetY: 2.003, blur: 4.005, color: '#000000', opacity: 0.1 },
   providerCardBody: { offsetX: 0, offsetY: -1, blur: 4, color: '#000000', opacity: 0.25 },
   recommendationCard: { offsetX: 0, offsetY: 0, blur: 2.976, color: '#000000', opacity: 0.19 },
   serviceTile: { offsetX: 0, offsetY: 2, blur: 1.862, color: '#000000', opacity: 0.19 },

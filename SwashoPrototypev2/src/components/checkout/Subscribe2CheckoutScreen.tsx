@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { useScreenScale } from '@/components/home/scale';
-import { figmaShadow, FigmaShadows } from '@/components/home/figma-shadows';
+import { figmaDropShadow, figmaShadow, FigmaShadows } from '@/components/home/figma-shadows';
 import { ServiceSelectionButton } from '@/components/service-selection/ServiceSelectionButton';
 import { ServiceCheckbox } from '@/components/service-selection/ServiceCheckbox';
 import { useProviderCart } from '@/context/provider-cart-context';
@@ -287,15 +287,28 @@ export function Subscribe2CheckoutScreen({ providerId, query }: Subscribe2Checko
               </Text>
               <View
                 style={[
-                  styles.frequencySummary,
+                  styles.frequencySummaryOuter,
                   {
+                    width: 372.508 * scale,
+                    maxWidth: 372.508 * scale,
+                    minHeight: 72.060 * scale,
+                    marginHorizontal: -4.507 * scale,
                     borderRadius: 8.011 * scale,
                     paddingHorizontal: 11.015 * scale,
                     paddingVertical: 4.005 * scale,
-                    ...figmaShadow(FigmaShadows.checkoutScheduleCard, scale),
+                    ...figmaDropShadow(FigmaShadows.checkoutFrequencySummary, scale),
                   },
                 ]}>
-                <View style={{ paddingHorizontal: 8.011 * scale, paddingVertical: 12.016 * scale, flex: 1 }}>
+                <View
+                  style={[
+                    styles.frequencySummary,
+                    {
+                      paddingLeft: 17.688 * scale,
+                      paddingTop: 12.016 * scale,
+                      paddingBottom: 12.016 * scale,
+                      paddingRight: 84 * scale,
+                    },
+                  ]}>
                   <Text
                     style={[
                       searchFont('semibold'),
@@ -318,7 +331,12 @@ export function Subscribe2CheckoutScreen({ providerId, query }: Subscribe2Checko
                       style={[
                         searchFont('medium'),
                         styles.hintText,
-                        { fontSize: 14.019 * scale, lineHeight: 13.318 * scale, letterSpacing: 0.4756 * scale },
+                        {
+                          fontSize: 14.019 * scale,
+                          lineHeight: 13.318 * scale,
+                          letterSpacing: 0.4756 * scale,
+                          flexShrink: 1,
+                        },
                       ]}>
                       {pickupHint}
                     </Text>
@@ -330,6 +348,9 @@ export function Subscribe2CheckoutScreen({ providerId, query }: Subscribe2Checko
                   style={({ pressed }) => [
                     styles.changeButton,
                     {
+                      top: 22.541 * scale,
+                      right: 11.015 * scale,
+                      minWidth: 76.022 * scale,
                       borderRadius: SwashoRadii.sm * scale,
                       borderWidth: 1.001 * scale,
                       paddingHorizontal: 8.011 * scale,
@@ -536,13 +557,14 @@ const styles = StyleSheet.create({
     color: SwashoColors.darkHeaderText,
     textAlign: 'left',
   },
-  frequencySummary: {
+  frequencySummaryOuter: {
+    alignSelf: 'center',
     backgroundColor: SwashoColors.surface,
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'stretch',
-    marginHorizontal: 16,
     position: 'relative',
+    overflow: 'visible',
+  },
+  frequencySummary: {
+    alignSelf: 'stretch',
   },
   frequencyTitle: {
     color: SwashoColors.neutral950,
@@ -559,10 +581,11 @@ const styles = StyleSheet.create({
   },
   changeButton: {
     position: 'absolute',
-    right: 11,
     borderColor: SwashoColors.primary200,
     backgroundColor: SwashoColors.surface,
     minWidth: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   changeLabel: {
     color: SwashoColors.primary600,
