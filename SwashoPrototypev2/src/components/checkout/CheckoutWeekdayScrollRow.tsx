@@ -76,6 +76,9 @@ export function CheckoutWeekdayScrollRow({
               },
             ]}>
             <Text
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.85}
               style={[
                 searchFont('semibold'),
                 selected ? styles.dateSelected : styles.date,
@@ -83,9 +86,11 @@ export function CheckoutWeekdayScrollRow({
                   fontSize: 15 * scale,
                   lineHeight: 14 * scale,
                   letterSpacing: 0.3 * scale,
+                  textAlign: 'center',
+                  width: '100%',
                 },
               ]}>
-              {day.dateLine}
+              {day.dateLine ?? `${day.dayOfMonth}`}
             </Text>
             <Text
               style={[
