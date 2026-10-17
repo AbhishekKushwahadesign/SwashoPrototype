@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { AccessibilityInfo, Platform } from 'react-native';
 
 export const SUBSCRIBE_BANNER_ACCENT_CYCLE_MS = 1000;
-export const SUBSCRIBE_BANNER_ACCENT_PAUSE_MS = 750;
+export const SUBSCRIBE_BANNER_ACCENT_PAUSE_MS = 500;
 export const SUBSCRIBE_BANNER_ACCENT_CYCLES = 3;
 
 function readWebReducedMotion(): boolean {
