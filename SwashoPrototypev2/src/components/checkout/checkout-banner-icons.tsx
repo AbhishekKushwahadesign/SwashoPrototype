@@ -16,3 +16,12 @@ type IconProps = {
 export function TransferHorizontalIcon({ width, height, style }: IconProps) {
   return <SvgXml xml={transferHorizontalXml} width={width} height={height} style={style} />;
 }
+
+const frequencySummaryCheckXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="14.1211" height="10.5598" viewBox="0 0 14.1211 10.5598" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path id="Vector 30" d="M1.50205 6.32583L3.94049 8.7644C4.33154 9.15547 4.96559 9.15548 5.35665 8.76442L12.619 1.50205" strokeWidth="3.0041" strokeLinecap="round" stroke="#5D30F7"/>
+</svg>`;
+
+/** Figma 3346:13280 — Vector 30 (Subscribe 2 frequency summary hint checkmark) */
+export function FrequencySummaryCheckIcon({ width, height, style }: IconProps) {
+  return <SvgXml xml={frequencySummaryCheckXml} width={width} height={height} style={style} />;
+}

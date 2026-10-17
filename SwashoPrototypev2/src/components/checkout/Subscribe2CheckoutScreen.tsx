@@ -35,6 +35,7 @@ import { CheckoutScreenShell } from './CheckoutScreenShell';
 import { CheckoutSectionDivider } from './CheckoutSectionDivider';
 import { CheckoutWeekdayNameGrid } from './CheckoutWeekdayNameGrid';
 import { CheckoutStartDateSection } from './CheckoutStartDateSection';
+import { FrequencySummaryCheckIcon } from './checkout-banner-icons';
 
 type Subscribe2CheckoutScreenProps = {
   providerId: string;
@@ -319,14 +320,7 @@ export function Subscribe2CheckoutScreen({ providerId, query }: Subscribe2Checko
                     <Text style={searchFont('regular')}> (selected)</Text>
                   </Text>
                   <View style={[styles.hintRow, { gap: 8.011 * scale, marginTop: 12.016 * scale }]}>
-                    <Text
-                      style={[
-                        searchFont('medium'),
-                        styles.hintCheck,
-                        { fontSize: 14 * scale, lineHeight: 13.318 * scale },
-                      ]}>
-                      ✓
-                    </Text>
+                    <FrequencySummaryCheckIcon width={11.117 * scale} height={7.97 * scale} />
                     <Text
                       style={[
                         searchFont('medium'),
@@ -572,9 +566,6 @@ const styles = StyleSheet.create({
   hintRow: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  hintCheck: {
-    color: SwashoColors.primary600,
   },
   hintText: {
     color: SwashoColors.primary600,
