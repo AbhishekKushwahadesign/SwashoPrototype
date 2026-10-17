@@ -18,7 +18,10 @@ import {
   type CheckoutPickupTimeSlotId,
   type CheckoutWeekdayId,
 } from '@/lib/checkout-flow';
-import { CHECKOUT_SCHEDULE_CARD_WIDTH } from '@/lib/checkout-figma-layout';
+import {
+  CHECKOUT_ORDER_TYPE_SEGMENT_WIDTH,
+  CHECKOUT_SCHEDULE_CARD_WIDTH,
+} from '@/lib/checkout-figma-layout';
 import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
@@ -133,6 +136,8 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
     setOneTimeSchedule(providerId, { deliveryTimeSlot: id });
   };
 
+  const checkoutColumnWidth = CHECKOUT_ORDER_TYPE_SEGMENT_WIDTH * scale;
+  const scheduleCardWidth = CHECKOUT_SCHEDULE_CARD_WIDTH * scale;
   const scheduleInset = 9.513 * scale;
   /** Figma 3346:13522 — 371.507px grid, 110.15px chips, 12px column gap */
   const timeSlotGridWidth = 371.507 * scale;
@@ -175,39 +180,45 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
         contentContainerStyle={[
           styles.scrollContent,
           {
-            paddingHorizontal: 16 * scale,
             paddingTop: 12 * scale,
             paddingBottom: 24 * scale,
             width: contentWidth,
-            gap: 20 * scale,
           },
         ]}
         showsVerticalScrollIndicator={false}>
-        <CheckoutProgressStepper scale={scale} activeStep={1} stepOneProgress={stepOneProgress} />
+        <View style={[styles.checkoutColumn, { width: checkoutColumnWidth, gap: 20 * scale }]}>
+          <CheckoutProgressStepper scale={scale} activeStep={1} stepOneProgress={stepOneProgress} />
 
-        <CheckoutOrderTypeSegment activeMode="one-time" onSelectMode={(mode) => {
-          if (mode === 'subscribe') {
-            goSubscribePath();
-          }
-        }} scale={scale} />
-
-        <View style={[styles.subscribeBannerSlot, { marginBottom: -4 * scale }]}>
-          <CheckoutSwitchToSubscribeBanner
+          <CheckoutOrderTypeSegment
+            activeMode="one-time"
+            onSelectMode={(mode) => {
+              if (mode === 'subscribe') {
+                goSubscribePath();
+              }
+            }}
             scale={scale}
-            accentAnimationSession={subscribeBannerAnimSession}
           />
-        </View>
 
-        <View
-          style={[
-            styles.scheduleCard,
-            {
-              borderRadius: SwashoRadii.lg * scale,
-              paddingVertical: 16.022 * scale,
-              gap: 16.022 * scale,
-              ...figmaShadow(FigmaShadows.checkoutScheduleCard, scale),
-            },
-          ]}>
+          <View style={[styles.subscribeBannerSlot, { marginBottom: -4 * scale }]}>
+            <CheckoutSwitchToSubscribeBanner
+              scale={scale}
+              accentAnimationSession={subscribeBannerAnimSession}
+            />
+          </View>
+
+          <View
+            style={[
+              styles.scheduleCard,
+              {
+                width: scheduleCardWidth,
+                maxWidth: scheduleCardWidth,
+                flexShrink: 0,
+                borderRadius: 12.016 * scale,
+                paddingVertical: 16.022 * scale,
+                gap: 16.022 * scale,
+                ...figmaShadow(FigmaShadows.checkoutScheduleCard, scale),
+              },
+            ]}>
           <View
             style={{
               width: '100%',
@@ -345,6 +356,7 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
             ) : null}
           </View>
         </View>
+        </View>
       </ScrollView>
     </CheckoutScreenShell>
   );
@@ -354,14 +366,18 @@ const styles = StyleSheet.create({
   scrollContent: {
     alignItems: 'center',
   },
+  checkoutColumn: {
+    alignSelf: 'center',
+    alignItems: 'center',
+  },
   subscribeBannerSlot: {
-    width: '100%',
+    alignSelf: 'stretch',
     overflow: 'visible',
     zIndex: 2,
   },
   scheduleCard: {
     backgroundColor: SwashoColors.surface,
-    width: '100%',
+    alignSelf: 'center',
     alignItems: 'center',
   },
   sectionTitle: {
