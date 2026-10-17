@@ -82,6 +82,7 @@ export function OneTimeCheckoutScreen({
   );
 
   const confirmLockRef = useRef(false);
+  const subscribeNavigateLockRef = useRef(false);
   const [subscribeBannerAnimSession, setSubscribeBannerAnimSession] = useState(0);
 
   useFocusEffect(
