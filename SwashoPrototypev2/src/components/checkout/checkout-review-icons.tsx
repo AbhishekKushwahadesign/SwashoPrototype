@@ -3,7 +3,12 @@ import { SvgXml } from 'react-native-svg';
 
 import AddSquareArt from '@/assets/checkout/add-square.svg';
 import CheckSquareArt from '@/assets/checkout/check-square.svg';
+import ConfettiArt from '@/assets/checkout/confetti.svg';
 import ContactlessArt from '@/assets/checkout/contactless.svg';
+import EditPenSquareArt from '@/assets/checkout/edit-pen-square.svg';
+import GarmentBulkArt from '@/assets/checkout/garment-bulk.svg';
+import GarmentShirtArt from '@/assets/checkout/garment-shirt.svg';
+import GarmentTopArt from '@/assets/checkout/garment-top.svg';
 import InfoBoldArt from '@/assets/checkout/info-bold.svg';
 import InstructionDoorstepArt from '@/assets/checkout/instruction-doorstep.svg';
 import MoneyTagArt from '@/assets/checkout/money-tag.svg';
@@ -47,14 +52,26 @@ export function CheckoutInfoIcon({ width, height, color = '#656565', style }: Ic
   return <SvgXml xml={infoXml(color)} width={width} height={height} style={style} />;
 }
 
-const confettiXml = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M10 2L11.2 6.8L16 8L11.2 9.2L10 14L8.8 9.2L4 8L8.8 6.8L10 2Z" fill="#5D30F7"/>
-<path d="M4 3L4.6 5.2L6.8 5.8L4.6 6.4L4 8.6L3.4 6.4L1.2 5.8L3.4 5.2L4 3Z" fill="#8781FF"/>
-<path d="M16 12L16.6 14.2L18.8 14.8L16.6 15.4L16 17.6L15.4 15.4L13.2 14.8L15.4 14.2L16 12Z" fill="#8781FF"/>
-</svg>`;
-
 export function CheckoutConfettiIcon({ width, height, style }: IconProps) {
-  return <SvgXml xml={confettiXml} width={width} height={height} style={style} />;
+  return <ConfettiArt width={width} height={height} style={style} />;
+}
+
+export function CheckoutEditPenSquareIcon({ width, height, style }: IconProps) {
+  return <EditPenSquareArt width={width} height={height} style={style} />;
+}
+
+export type CheckoutGarmentThumbIconProps = IconProps & {
+  variant: 'bulk' | 'tshirt' | 'top';
+};
+
+export function CheckoutGarmentThumbIcon({ variant, width, height, style }: CheckoutGarmentThumbIconProps) {
+  if (variant === 'bulk') {
+    return <GarmentBulkArt width={width} height={height} style={style} />;
+  }
+  if (variant === 'tshirt') {
+    return <GarmentShirtArt width={width} height={height} style={style} />;
+  }
+  return <GarmentTopArt width={width} height={height} style={style} />;
 }
 
 export function CheckoutContactlessIcon({ width, height, style }: IconProps) {

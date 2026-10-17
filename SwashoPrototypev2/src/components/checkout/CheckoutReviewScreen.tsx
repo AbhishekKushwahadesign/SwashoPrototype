@@ -15,7 +15,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AltArrowDownIcon, AltArrowRightIcon, ArrowLeftIcon, CalendarLinearIcon } from '@/components/home/figma-icons';
 import { ChevronDownIcon } from '@/components/provider-page/provider-page-icons';
-import { PenEditIcon } from '@/components/service-selection/service-selection-icons';
 import { figmaShadow, FigmaShadows } from '@/components/home/figma-shadows';
 import { HomeIndicator } from '@/components/home/HomeIndicator';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
@@ -24,6 +23,7 @@ import { searchFont } from '@/components/search/search-fonts';
 import { ServiceSelectionButton } from '@/components/service-selection/ServiceSelectionButton';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 import { useProviderCart } from '@/context/provider-cart-context';
+import { garmentCatalogIdFromServiceId } from '@/data/garment-pricing';
 import { getProviderResultById } from '@/data/providers';
 import {
   buildCheckoutBasketGroups,
@@ -41,6 +41,7 @@ import {
   type CheckoutWeekdayId,
 } from '@/lib/checkout-flow';
 import { CHECKOUT_SCHEDULE_CARD_WIDTH } from '@/lib/checkout-figma-layout';
+import { isBulkServiceId } from '@/lib/provider-cart-selection';
 
 import { CheckoutSectionDivider } from './CheckoutSectionDivider';
 import {
@@ -50,6 +51,8 @@ import {
   CheckoutCheckSquareIcon,
   CheckoutConfettiIcon,
   CheckoutContactlessIcon,
+  CheckoutEditPenSquareIcon,
+  CheckoutGarmentThumbIcon,
   CheckoutInfoIcon,
   CheckoutInstructionDoorstepIcon,
   CheckoutInstructionPenIcon,
@@ -101,6 +104,18 @@ const INSTRUCTION_OPTIONS: {
 const SUBSCRIBER_REGULAR_RATIO = 1057.5 / 900;
 const SUBSCRIBER_PAY_RATIO = 704.5 / 1062;
 const GST_RATE = 0.18;
+const SUBSCRIBER_BANNER_HEIGHT = 46;
+
+function basketGarmentThumbVariant(serviceId: string): 'bulk' | 'tshirt' | 'top' {
+  if (isBulkServiceId(serviceId)) {
+    return 'bulk';
+  }
+  const catalogId = garmentCatalogIdFromServiceId(serviceId);
+  if (catalogId === 'tshirt') {
+    return 'tshirt';
+  }
+  return 'top';
+}
 
 function buildPaymentSummaryDisplay(serviceTotal: number, isSubscription: boolean) {
   const serviceValue = serviceTotal;
@@ -259,7 +274,7 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
   const footer = (
     <View style={styles.footerStack}>
       <LinearGradient
-        colors={[SwashoColors.info100, '#eff5ff']}
+        colors={['#eff5ff', SwashoColors.info100]}
         start={{ x: 1, y: 0.5 }}
         end={{ x: 0, y: 0.5 }}
         style={[
@@ -388,7 +403,7 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
                 styles.subscriberBanner,
                 {
                   width: contentWidth,
-                  height: 49 * scale,
+                  height: SUBSCRIBER_BANNER_HEIGHT * scale,
                   paddingBottom: 15 * scale,
                   gap: 6 * scale,
                 },
@@ -509,16 +524,47 @@ function ScheduleCard({
         },
       ]}>
       {isSubscription ? (
-        <View style={{ paddingHorizontal: 4 * scale }}>
-          <Text style={[searchFont('medium'), styles.cardHeading, { fontSize: 14 * scale, lineHeight: 14 * scale }]}>
-            Subscription:{' '}
-            <Text style={searchFont('semibold')}>{subscriptionFrequencyTitle}</Text>
-            {startLabel ? <Text style={searchFont('semibold')}> (Start {startLabel})</Text> : null}
-          </Text>
+        <View
+          style={{
+            height: 18 * scale,
+            justifyContent: 'center',
+            paddingHorizontal: 4 * scale,
+            width: '100%',
+          }}>
+          <View style={[styles.row, { gap: 4 * scale, flexWrap: 'wrap', alignItems: 'center' }]}>
+            <View style={[styles.row, { gap: 7 * scale, paddingHorizontal: 2 * scale, alignItems: 'center' }]}>
+              <Text
+                style={[
+                  searchFont('medium'),
+                  styles.cardHeading,
+                  { fontSize: 14 * scale, lineHeight: 13.3 * scale, letterSpacing: 0.475 * scale },
+                ]}>
+                Subscription:
+              </Text>
+              <Text
+                style={[
+                  searchFont('semibold'),
+                  styles.cardHeading,
+                  { fontSize: 14 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
+                ]}>
+                {subscriptionFrequencyTitle}
+              </Text>
+            </View>
+            {startLabel ? (
+              <Text
+                style={[
+                  searchFont('semibold'),
+                  styles.cardHeading,
+                  { fontSize: 14 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
+                ]}>
+                (Start {startLabel})
+              </Text>
+            ) : null}
+          </View>
         </View>
       ) : null}
       {isSubscription ? <CheckoutSectionDivider width={376.514 * scale} scale={scale} /> : null}
-      <View style={[styles.scheduleRow, { gap: 8 * scale }]}>
+      <View style={[styles.scheduleRow, { gap: 8 * scale, paddingLeft: 2 * scale }]}>
         <IconTile scale={scale}>
           <CalendarLinearIcon width={24 * scale} height={24 * scale} stroke={SwashoColors.neutral950} />
         </IconTile>
@@ -533,7 +579,14 @@ function ScheduleCard({
           />
         </View>
         <Pressable accessibilityRole="button" onPress={onChangePress} hitSlop={8}>
-          <Text style={[searchFont('medium'), styles.changeLink, { fontSize: 14 * scale, lineHeight: 12 * scale }]}>Change</Text>
+          <Text
+            style={[
+              searchFont('medium'),
+              styles.changeLink,
+              { fontSize: 14 * scale, lineHeight: 12 * scale, letterSpacing: 0.5 * scale },
+            ]}>
+            Change
+          </Text>
         </Pressable>
       </View>
     </View>
@@ -649,13 +702,13 @@ function BasketCard({
           ...figmaShadow(FigmaShadows.providerCard, scale),
         },
       ]}>
-      <View style={[styles.row, { gap: 8 * scale, paddingLeft: 6 * scale }]}>
+      <View style={[styles.row, { gap: 8 * scale, paddingLeft: 6 * scale, width: '100%', alignItems: 'center' }]}>
         <IconTile scale={scale}>
           <CheckoutCartIcon width={24 * scale} height={24 * scale} />
         </IconTile>
-        <Text style={[searchFont('semibold'), styles.basketTitle, { fontSize: 15 * scale, flex: 1 }]}>
+        <Text style={[searchFont('semibold'), styles.basketTitle, { fontSize: 15 * scale, flex: 1, letterSpacing: 0.3 * scale }]}>
           Your Basket{' '}
-          <Text style={[searchFont('medium'), styles.muted, { fontSize: 13 * scale }]}>
+          <Text style={[searchFont('medium'), styles.muted, { fontSize: 13 * scale, letterSpacing: 0.5 * scale, lineHeight: 20 * scale }]}>
             ({basketCount} {basketCount === 1 ? 'Item' : 'Items'})
           </Text>
         </Text>
@@ -664,15 +717,24 @@ function BasketCard({
             styles.instructionChip,
             styles.row,
             {
+              marginLeft: 'auto',
               borderRadius: SwashoRadii.md * scale,
               paddingHorizontal: 4 * scale,
               minHeight: 29 * scale,
+              minWidth: 60 * scale,
               borderWidth: 1,
               gap: 4 * scale,
             },
           ]}>
           <CheckoutAddSquareIcon width={20 * scale} height={20 * scale} />
-          <Text style={[searchFont('semibold'), styles.instructionChipLabel, { fontSize: 12 * scale }]}>Instruction</Text>
+          <Text
+            style={[
+              searchFont('semibold'),
+              styles.instructionChipLabel,
+              { fontSize: 12 * scale, lineHeight: 20 * scale, letterSpacing: 0.5 * scale },
+            ]}>
+            Instruction
+          </Text>
         </View>
       </View>
       <CheckoutSectionDivider width={376.514 * scale} scale={scale} />
@@ -729,9 +791,16 @@ function BasketLineRow({
                   height: 40 * scale,
                   borderRadius: 3.5 * scale,
                   borderWidth: 0.438 * scale,
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 },
-              ]}
-            />
+              ]}>
+              <CheckoutGarmentThumbIcon
+                variant={basketGarmentThumbVariant(line.serviceId)}
+                width={28 * scale}
+                height={25 * scale}
+              />
+            </View>
             <View style={{ flex: 1, gap: 8 * scale }}>
               <View style={[styles.row, { gap: 8 * scale, alignItems: 'center', flexWrap: 'wrap' }]}>
                 <Text style={[searchFont('semibold'), styles.sectionLabel, { fontSize: 14 * scale, lineHeight: 14 * scale }]}>
@@ -800,26 +869,39 @@ function BasketLineRow({
               </Text>
             </View>
           </View>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={`Edit ${line.title}`}
-            onPress={onEdit}
-            style={[
-              styles.editButton,
-              styles.row,
-              {
-                gap: 5.5 * scale,
-                paddingHorizontal: 14.5 * scale,
-                paddingVertical: 7.3 * scale,
-                borderRadius: 7.5 * scale,
-                borderWidth: 0.459 * scale,
-                minHeight: 29.4 * scale,
-                ...figmaShadow(FigmaShadows.providerCard, scale),
-              },
-            ]}>
-            <Text style={[searchFont('medium'), styles.changeLink, { fontSize: 11.8 * scale, lineHeight: 10 * scale }]}>Edit</Text>
-            <PenEditIcon width={16.5 * scale} height={16.5 * scale} color={SwashoColors.primary600} />
-          </Pressable>
+          <View
+            style={{
+              borderRadius: 8.16 * scale,
+              ...figmaShadow(FigmaShadows.providerCard, scale),
+            }}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`Edit ${line.title}`}
+              onPress={onEdit}
+              style={[
+                styles.editButton,
+                styles.row,
+                {
+                  gap: 5.5 * scale,
+                  paddingHorizontal: 14.5 * scale,
+                  paddingVertical: 7.3 * scale,
+                  borderRadius: 7.5 * scale,
+                  borderWidth: 0.459 * scale,
+                  minHeight: 29.4 * scale,
+                  minWidth: 78.9 * scale,
+                },
+              ]}>
+              <Text
+                style={[
+                  searchFont('medium'),
+                  styles.changeLink,
+                  { fontSize: 11.8 * scale, lineHeight: 10.1 * scale, letterSpacing: 0.459 * scale },
+                ]}>
+                Edit
+              </Text>
+              <CheckoutEditPenSquareIcon width={16.5 * scale} height={16.5 * scale} />
+            </Pressable>
+          </View>
         </View>
       </View>
     </View>
@@ -935,7 +1017,12 @@ function InstructionsCard({
                 style={[
                   searchFont(selected ? 'medium' : 'regular'),
                   styles.instructionOptionLabel,
-                  { fontSize: 11.4 * scale, lineHeight: 15 * scale, paddingHorizontal: 4 * scale },
+                  {
+                    fontSize: 11.4 * scale,
+                    lineHeight: (selected ? 15 : 15.2) * scale,
+                    letterSpacing: 0.475 * scale,
+                    paddingHorizontal: 4 * scale,
+                  },
                 ]}>
                 {option.label}
               </Text>
