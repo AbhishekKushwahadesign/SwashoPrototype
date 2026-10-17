@@ -89,14 +89,6 @@ export function OneTimeCheckoutScreen({
     }, []),
   );
 
-  useEffect(() => {
-    if (!initialFulfillmentMode) {
-      return;
-    }
-    setOrderMode(initialFulfillmentMode);
-    setFulfillmentMode(providerId, initialFulfillmentMode);
-  }, [initialFulfillmentMode, providerId, setFulfillmentMode]);
-
   const handleBackPress = useCallback(() => {
     router.replace(providerPageHref(providerId, query));
   }, [providerId, query, router]);

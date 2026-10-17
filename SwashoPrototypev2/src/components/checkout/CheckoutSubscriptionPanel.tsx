@@ -45,6 +45,7 @@ function FrequencyOptionRow({
           paddingHorizontal: 16 * scale,
           paddingVertical: 12 * scale,
           opacity: pressed ? 0.92 : 1,
+          overflow: 'visible',
         },
       ]}>
       {option.popular ? (
@@ -55,12 +56,13 @@ function FrequencyOptionRow({
           style={[
             styles.popularBadge,
             {
-              top: -12.6 * scale,
+              top: 0,
               right: 12 * scale,
               paddingHorizontal: 12 * scale,
               paddingVertical: 4 * scale,
               borderBottomLeftRadius: SwashoRadii.md * scale,
               borderBottomRightRadius: SwashoRadii.md * scale,
+              transform: [{ translateY: -14 * scale }],
               ...figmaShadow(FigmaShadows.providerCard, scale),
             },
           ]}>
@@ -130,7 +132,11 @@ function CollapsedAccordionRow({ label, scale }: { label: string; scale: number 
         ]}>
         {label}
       </Text>
-      <AltArrowDownIcon width={24 * scale} height={24 * scale} />
+      <AltArrowDownIcon
+        width={24 * scale}
+        height={24 * scale}
+        stroke={SwashoColors.neutral950}
+      />
     </View>
   );
 }
@@ -152,7 +158,9 @@ export function CheckoutSubscriptionPanel({
             maxWidth: cardWidth,
             borderRadius: SwashoRadii.lg * scale,
             paddingVertical: 16 * scale,
+            paddingHorizontal: 16 * scale,
             gap: 16 * scale,
+            overflow: 'visible',
             ...figmaShadow(FigmaShadows.checkoutScheduleCard, scale),
           },
         ]}>
@@ -164,12 +172,19 @@ export function CheckoutSubscriptionPanel({
               fontSize: 16 * scale,
               lineHeight: 14 * scale,
               letterSpacing: 0.5 * scale,
-              maxWidth: 362 * scale,
+              alignSelf: 'stretch',
             },
           ]}>
           Choose your laundry frequency
         </Text>
-        <View style={{ gap: 16 * scale, width: '100%', maxWidth: 366 * scale, alignSelf: 'center' }}>
+        <View
+          style={{
+            gap: 16 * scale,
+            width: '100%',
+            maxWidth: 366 * scale,
+            alignSelf: 'center',
+            overflow: 'visible',
+          }}>
           {SUBSCRIPTION_FREQUENCY_OPTIONS.map((option) => (
             <FrequencyOptionRow
               key={option.id}
@@ -195,12 +210,11 @@ const styles = StyleSheet.create({
   },
   frequencyCard: {
     backgroundColor: SwashoColors.surface,
-    alignItems: 'center',
+    alignItems: 'stretch',
   },
   panelTitle: {
     color: SwashoColors.darkHeaderText,
-    textAlign: 'center',
-    alignSelf: 'center',
+    textAlign: 'left',
   },
   frequencyRow: {
     backgroundColor: SwashoColors.surface,

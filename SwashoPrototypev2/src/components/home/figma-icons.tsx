@@ -15,14 +15,20 @@ export function AiAIcon({ width, height, style }: IconProps) {
   return <SvgXml xml={AiAIconXml} width={width} height={height} style={style} />;
 }
 
-const AltArrowDownIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+const altArrowDownIconXml = (stroke: string) =>
+  `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g id="Linear / Arrows / Alt Arrow Down">
-<path id="Vector" d="M15.8333 7.5L10 12.5L4.16667 7.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+<path id="Vector" d="M15.8333 7.5L10 12.5L4.16667 7.5" stroke="${stroke}" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
 </g>
 </svg>`;
 
-export function AltArrowDownIcon({ width, height, style }: IconProps) {
-  return <SvgXml xml={AltArrowDownIconXml} width={width} height={height} style={style} />;
+export function AltArrowDownIcon({
+  width,
+  height,
+  style,
+  stroke = 'white',
+}: IconProps & { stroke?: string }) {
+  return <SvgXml xml={altArrowDownIconXml(stroke)} width={width} height={height} style={style} />;
 }
 
 const AltArrowRightIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">

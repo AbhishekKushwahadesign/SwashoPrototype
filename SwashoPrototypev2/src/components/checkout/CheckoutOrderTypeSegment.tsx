@@ -121,7 +121,7 @@ export function CheckoutOrderTypeSegment({
                 'left',
               )
             : (
-              <View style={[StyleSheet.absoluteFill, styles.inactiveFill, pillCorners]} />
+              <View style={[StyleSheet.absoluteFill, styles.inactiveHalf, pillCorners]} />
             )}
           <View style={[styles.copy, { gap: 6 * scale, paddingVertical: 10 * scale }]}>
             <Text
@@ -163,7 +163,7 @@ export function CheckoutOrderTypeSegment({
                 'right',
               )
             : (
-              <View style={[StyleSheet.absoluteFill, styles.halfRight, pillCorners]} />
+              <View style={[StyleSheet.absoluteFill, styles.inactiveHalf, pillCorners]} />
             )}
           <View style={[styles.copy, { gap: 7 * scale, paddingVertical: 10 * scale }]}>
             <Text
@@ -211,11 +211,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  halfRight: {
+  /** Figma 3346:13468 — inactive segment shows white on grey track */
+  inactiveHalf: {
     backgroundColor: SwashoColors.surface,
-  },
-  inactiveFill: {
-    backgroundColor: SwashoColors.neutral50,
   },
   copy: {
     alignItems: 'center',
