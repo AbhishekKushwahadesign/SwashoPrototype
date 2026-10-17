@@ -92,12 +92,19 @@ export function providerPageHref(providerId: string, query: string): Href {
 }
 
 /** Stable hrefs for nested checkout stack (object pathname + push often no-ops on web). */
-export function oneTimeCheckoutHref(providerId: string, query: string): Href {
-  return `/checkout?${checkoutQueryString(providerId, query)}` as Href;
+export function oneTimeCheckoutHref(
+  providerId: string,
+  query: string,
+  mode?: ProviderOrderFulfillmentMode,
+): Href {
+  const extra =
+    mode === 'subscribe' ? { mode: 'subscribe' } : mode === 'one-time' ? { mode: 'one-time' } : undefined;
+  return `/checkout?${checkoutQueryString(providerId, query, extra)}` as Href;
 }
 
+/** Same unified checkout screen as one-time; Subscribe tab selected (Figma segment always visible). */
 export function subscriptionFrequencyHref(providerId: string, query: string): Href {
-  return `/checkout/subscription-frequency?${checkoutQueryString(providerId, query)}` as Href;
+  return oneTimeCheckoutHref(providerId, query, 'subscribe');
 }
 
 export function checkoutPlaceholderHref(

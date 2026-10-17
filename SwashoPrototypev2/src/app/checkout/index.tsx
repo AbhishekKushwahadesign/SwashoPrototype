@@ -5,16 +5,20 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CheckoutPlaceholderScreen } from '@/components/checkout/CheckoutPlaceholderScreen';
 import { OneTimeCheckoutScreen } from '@/components/checkout/OneTimeCheckoutScreen';
 import { useSafeTopInset } from '@/components/home/scale';
+import { useProviderCart } from '@/context/provider-cart-context';
+import type { ProviderOrderFulfillmentMode } from '@/lib/checkout-flow';
 import { SwashoFonts } from '@/constants/swasho-tokens';
 
 export default function CheckoutRoute() {
   const router = useRouter();
-  const { providerId, q, subscription, scheduleConfirmed } = useLocalSearchParams<{
+  const { providerId, q, subscription, scheduleConfirmed, mode } = useLocalSearchParams<{
     providerId?: string;
     q?: string;
     subscription?: string;
     scheduleConfirmed?: string;
+    mode?: string;
   }>();
+  const { getCheckoutState } = useProviderCart();
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
   const id = typeof providerId === 'string' ? providerId : '';
@@ -45,7 +49,18 @@ export default function CheckoutRoute() {
     return <CheckoutPlaceholderScreen providerId={id} query={query} isSubscription={isSubscription} />;
   }
 
-  return <OneTimeCheckoutScreen providerId={id} query={query} />;
+  const modeFromUrl: ProviderOrderFulfillmentMode | undefined =
+    mode === 'subscribe' ? 'subscribe' : mode === 'one-time' ? 'one-time' : undefined;
+  const modeFromCart = getCheckoutState(id).fulfillmentMode;
+  const initialFulfillmentMode = modeFromUrl ?? modeFromCart;
+
+  return (
+    <OneTimeCheckoutScreen
+      providerId={id}
+      query={query}
+      initialFulfillmentMode={initialFulfillmentMode}
+    />
+  );
 }
 
 const styles = StyleSheet.create({

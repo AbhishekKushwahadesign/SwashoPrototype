@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors } from '@/constants/swasho-tokens';
@@ -21,12 +21,14 @@ type CheckoutSwitchToSubscribeBannerProps = {
   scale: number;
   /** Bumps when the checkout screen regains focus so accent animation can replay once. */
   accentAnimationSession: number;
+  onSwitchToSubscribe?: () => void;
 };
 
-/** Figma 3346:13491 — informational nudge (not tappable; use segment to switch). */
+/** Figma 3346:13491 — nudge toward Subscribe tab (segment remains primary control). */
 export function CheckoutSwitchToSubscribeBanner({
   scale,
   accentAnimationSession,
+  onSwitchToSubscribe,
 }: CheckoutSwitchToSubscribeBannerProps) {
   const { accentProgress, isStaticAccent } = useSubscribeBannerAccentAnimation(accentAnimationSession);
   const frameHeight = FRAME_HEIGHT * scale;
@@ -37,9 +39,8 @@ export function CheckoutSwitchToSubscribeBanner({
   const [layoutWidth, setLayoutWidth] = useState(0);
   const overflowVisible = Platform.OS === 'web' ? ('visible' as const) : undefined;
 
-  return (
+  const root = (
     <View
-      accessibilityRole="text"
       importantForAccessibility="yes"
       onLayout={(event) => {
         const { width } = event.nativeEvent.layout;
@@ -77,7 +78,7 @@ export function CheckoutSwitchToSubscribeBanner({
         </View>
       ) : null}
       <View
-        pointerEvents="none"
+        pointerEvents={onSwitchToSubscribe ? 'auto' : 'none'}
         style={[
           styles.content,
           {
@@ -103,6 +104,20 @@ export function CheckoutSwitchToSubscribeBanner({
         </Text>
       </View>
     </View>
+  );
+
+  if (!onSwitchToSubscribe) {
+    return root;
+  }
+
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel="Switch to Subscribe and save with exclusive pricing"
+      onPress={onSwitchToSubscribe}
+      style={({ pressed }) => [{ opacity: pressed ? 0.92 : 1 }]}>
+      {root}
+    </Pressable>
   );
 }
 
