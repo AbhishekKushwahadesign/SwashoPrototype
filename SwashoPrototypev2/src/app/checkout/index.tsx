@@ -2,7 +2,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { CheckoutPlaceholderScreen } from '@/components/checkout/CheckoutPlaceholderScreen';
+import { CheckoutReviewScreen } from '@/components/checkout/CheckoutReviewScreen';
 import { OneTimeCheckoutScreen } from '@/components/checkout/OneTimeCheckoutScreen';
 import { useSafeTopInset } from '@/components/home/scale';
 import { useProviderCart } from '@/context/provider-cart-context';
@@ -46,7 +46,7 @@ export default function CheckoutRoute() {
   }
 
   if (isSubscription || isScheduleConfirmed) {
-    return <CheckoutPlaceholderScreen providerId={id} query={query} isSubscription={isSubscription} />;
+    return <CheckoutReviewScreen providerId={id} query={query} isSubscription={isSubscription} />;
   }
 
   const modeFromUrl: ProviderOrderFulfillmentMode | undefined =

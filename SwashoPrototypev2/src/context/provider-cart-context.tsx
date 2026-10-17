@@ -15,8 +15,11 @@ import {
 type ProviderCartStore = Record<string, ProviderGarmentCartSelection>;
 type ProviderCheckoutStore = Record<string, ProviderCheckoutState>;
 
+type ProviderCartEntry = { serviceId: string; selection: ProviderGarmentCartSelection };
+
 type ProviderCartContextValue = {
   getSelection: (providerId: string, serviceId: string) => ProviderGarmentCartSelection | undefined;
+  getProviderCartEntries: (providerId: string) => ProviderCartEntry[];
   setSelection: (providerId: string, serviceId: string, selection: ProviderGarmentCartSelection) => void;
   clearSelection: (providerId: string, serviceId: string) => void;
   getProviderCartTotals: (providerId: string) => { itemCount: number; totalPrice: number };
@@ -55,6 +58,21 @@ export function ProviderCartProvider({ children }: { children: ReactNode }) {
 
   const getSelection = useCallback(
     (providerId: string, serviceId: string) => store[providerCartKey(providerId, serviceId)],
+    [store],
+  );
+
+  const getProviderCartEntries = useCallback(
+    (providerId: string): ProviderCartEntry[] => {
+      const prefix = `${providerId}::`;
+      const entries: ProviderCartEntry[] = [];
+      for (const [key, selection] of Object.entries(store)) {
+        if (!key.startsWith(prefix)) {
+          continue;
+        }
+        entries.push({ serviceId: key.slice(prefix.length), selection });
+      }
+      return entries;
+    },
     [store],
   );
 
@@ -174,6 +192,7 @@ export function ProviderCartProvider({ children }: { children: ReactNode }) {
   const value = useMemo(
     () => ({
       getSelection,
+      getProviderCartEntries,
       setSelection,
       clearSelection,
       getProviderCartTotals,
@@ -187,6 +206,7 @@ export function ProviderCartProvider({ children }: { children: ReactNode }) {
       clearSelection,
       getCheckoutState,
       getProviderCartTotals,
+      getProviderCartEntries,
       getSelection,
       setFulfillmentMode,
       setOneTimeSchedule,

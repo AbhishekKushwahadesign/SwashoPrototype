@@ -171,6 +171,7 @@ export function subscriptionPickupWeekdayLimit(
   return frequency === 'twice-weekly' ? 2 : 1;
 }
 
+/** Post-scheduling checkout review (Figma 3353:13604) — same `/checkout` route with query flags. */
 export function checkoutPlaceholderHref(
   providerId: string,
   query: string,
