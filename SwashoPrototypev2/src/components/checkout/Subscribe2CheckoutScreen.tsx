@@ -303,7 +303,7 @@ export function Subscribe2CheckoutScreen({ providerId, query }: Subscribe2Checko
                   style={[
                     styles.frequencySummary,
                     {
-                      paddingLeft: 17.688 * scale,
+                      paddingLeft: (8.011 * 16 / 7.46656) * scale,
                       paddingTop: 12.016 * scale,
                       paddingBottom: 12.016 * scale,
                       paddingRight: 84 * scale,
