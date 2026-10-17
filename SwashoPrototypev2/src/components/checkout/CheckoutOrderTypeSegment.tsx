@@ -9,7 +9,7 @@ import {
   CHECKOUT_ORDER_TYPE_SEGMENT_WIDTH,
 } from '@/lib/checkout-figma-layout';
 import type { ProviderOrderFulfillmentMode } from '@/lib/checkout-flow';
-import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
+import { SwashoColors } from '@/constants/swasho-tokens';
 
 /** Figma 3346:13477 — segment gradient stops */
 const ONE_TIME_GRADIENT = ['#7e77ff', '#7056ff', '#6234ff'] as const;
