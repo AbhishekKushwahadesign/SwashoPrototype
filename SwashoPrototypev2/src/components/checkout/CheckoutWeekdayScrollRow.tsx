@@ -5,9 +5,10 @@ import type { CheckoutDayOption } from '@/lib/checkout-flow';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
 /** Figma 58965:2680 / 3346:13499 — horizontal scroll day picker */
-const CHIP_WIDTH = 65.089;
+/** Wide enough for top line `31 Dec` at 15px (was 65 — month was clipped). */
+const CHIP_WIDTH = 82;
 const CHIP_GAP = 12;
-const CHIP_PADDING_X = 16.022;
+const CHIP_PADDING_X = 10.014;
 const CHIP_PADDING_Y = 10.014;
 const CHIP_INNER_GAP = 8;
 
