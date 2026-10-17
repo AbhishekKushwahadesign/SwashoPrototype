@@ -13,8 +13,8 @@ const DESIGN_STROKE = 2.7865;
 const PURPLE = '#5D30F7';
 const LAVENDER = '#E4DDFE';
 const MASK_LAVENDER = '#ECE7FE';
-/** Top-notch tip X in design coordinates (Figma 3346:13492). */
-const NOTCH_CENTER_X = 290.656 / DESIGN_VIEW_W;
+/** Top-notch tip X in design coordinates (Figma 3346:13492 export). */
+const NOTCH_CENTER_X = 290.466 / DESIGN_VIEW_W;
 
 type SubscribeBannerBackgroundProps = {
   width: number;
@@ -58,8 +58,8 @@ export function SubscribeBannerBackground({
           cy={0}
           r={1}
           gradientUnits="userSpaceOnUse"
-          gradientTransform="matrix(-0.246747 16.0233 -94.3191 -1.10381 263.805 0.758485)">
-          <Stop offset="0.197903" stopColor={PURPLE} />
+          gradientTransform="matrix(0.0134731 20.0673 -118.116 0.515821 290.466 0.507697)">
+          <Stop offset="0.261408" stopColor={PURPLE} />
           <Stop offset="1" stopColor={LAVENDER} />
         </RadialGradient>
         <LinearGradient
