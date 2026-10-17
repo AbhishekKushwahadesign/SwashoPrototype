@@ -41,11 +41,22 @@ export const CHECKOUT_WEEKDAY_OPTIONS: { id: CheckoutWeekdayId; label: string }[
 
 const WEEKDAY_ID_BY_JS_DAY: CheckoutWeekdayId[] = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
+const CHECKOUT_MONTH_ABBREV = new Intl.DateTimeFormat('en-US', { month: 'short' });
+
+/** Top line on horizontal date chips, e.g. `17 Oct`. */
+export function formatCheckoutDateLine(date: Date): string {
+  return `${date.getDate()} ${CHECKOUT_MONTH_ABBREV.format(date)}`;
+}
+
 export type CheckoutDayOption = {
   key: string;
   weekdayId: CheckoutWeekdayId;
+  /** Weekday short label (Mon, Sat, …) — bottom line on scroll chips. */
   label: string;
+  /** Calendar day number (modal grid). */
   dayOfMonth: number;
+  /** Day + short month for scroll chips, e.g. `17 Oct`. */
+  dateLine: string;
 };
 
 /** Upcoming calendar days for Figma 58965:2680 scroll row (starts today). */
@@ -64,6 +75,7 @@ export function buildUpcomingCheckoutDays(count = 14): CheckoutDayOption[] {
       weekdayId,
       label,
       dayOfMonth: date.getDate(),
+      dateLine: formatCheckoutDateLine(date),
     });
   }
 
@@ -80,6 +92,7 @@ export function checkoutDayOptionFromKey(key: string): CheckoutDayOption {
     weekdayId,
     label,
     dayOfMonth: date.getDate(),
+    dateLine: formatCheckoutDateLine(date),
   };
 }
 

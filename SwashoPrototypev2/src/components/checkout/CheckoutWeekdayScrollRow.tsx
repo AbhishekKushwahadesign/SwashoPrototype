@@ -57,7 +57,7 @@ export function CheckoutWeekdayScrollRow({
             key={day.key}
             accessibilityRole="button"
             accessibilityState={{ selected }}
-            accessibilityLabel={`${day.label} ${day.dayOfMonth}`}
+            accessibilityLabel={`${day.dateLine} ${day.label}`}
             onPress={() => onSelectDay(day)}
             style={({ pressed }) => [
               styles.chip,
@@ -84,7 +84,7 @@ export function CheckoutWeekdayScrollRow({
                   letterSpacing: 0.3 * scale,
                 },
               ]}>
-              {day.dayOfMonth}
+              {day.dateLine}
             </Text>
             <Text
               style={[
