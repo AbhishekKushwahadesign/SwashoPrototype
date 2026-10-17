@@ -34,7 +34,7 @@ import { CheckoutScheduleChip } from './CheckoutScheduleChip';
 import { CheckoutScreenShell } from './CheckoutScreenShell';
 import { CheckoutSectionDivider } from './CheckoutSectionDivider';
 import { CheckoutWeekdayNameGrid } from './CheckoutWeekdayNameGrid';
-import { CheckoutWeekdayScrollRow } from './CheckoutWeekdayScrollRow';
+import { CheckoutStartDateSection } from './CheckoutStartDateSection';
 
 type Subscribe2CheckoutScreenProps = {
   providerId: string;
@@ -56,7 +56,7 @@ export function Subscribe2CheckoutScreen({ providerId, query }: Subscribe2Checko
   const persisted = getCheckoutState(providerId);
   const frequency = persisted.subscriptionFrequency;
 
-  const upcomingDays = useMemo(() => buildUpcomingCheckoutDays(14), []);
+  const upcomingDays = useMemo(() => buildUpcomingCheckoutDays(45), []);
   const weekdayLimit = subscriptionPickupWeekdayLimit(frequency);
 
   const [pickupWeekdays, setPickupWeekdays] = useState<CheckoutWeekdayId[]>(
@@ -499,29 +499,13 @@ export function Subscribe2CheckoutScreen({ providerId, query }: Subscribe2Checko
                   ...figmaShadow(FigmaShadows.checkoutScheduleCard, scale),
                 },
               ]}>
-              <View style={{ width: '100%', gap: 16.022 * scale }}>
-                <Text
-                  style={[
-                    searchFont('medium'),
-                    styles.sectionTitle,
-                    {
-                      fontSize: 16.022 * scale,
-                      lineHeight: 14.019 * scale,
-                      letterSpacing: 0.5007 * scale,
-                      alignSelf: 'flex-start',
-                      marginLeft: 16.022 * scale,
-                    },
-                  ]}>
-                  Start from
-                </Text>
-                <CheckoutWeekdayScrollRow
-                  days={upcomingDays}
-                  selectedKey={startDateKey}
-                  onSelectDay={handleStartDateSelect}
-                  scale={scale}
-                  viewportWidth={scheduleCardWidth}
-                />
-              </View>
+              <CheckoutStartDateSection
+                days={upcomingDays}
+                selectedKey={startDateKey}
+                onSelectDay={handleStartDateSelect}
+                scale={scale}
+                cardWidth={scheduleCardWidth}
+              />
             </View>
           </View>
         </View>
