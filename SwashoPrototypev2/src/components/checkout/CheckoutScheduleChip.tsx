@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text } from 'react-native';
 
 import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
@@ -38,7 +38,9 @@ export function CheckoutScheduleChip({
           borderRadius: SwashoRadii.md * scale,
           borderWidth: (selected ? 1.502 : 1.001) * scale,
           height: height != null ? height * scale : undefined,
+          flexShrink: 0,
           opacity: pressed ? 0.9 : 1,
+          ...(Platform.OS === 'web' ? { boxSizing: 'border-box' as const } : null),
         },
       ]}>
       <Text

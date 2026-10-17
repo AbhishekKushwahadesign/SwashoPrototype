@@ -133,12 +133,16 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
   };
 
   const scheduleInset = 9.513 * scale;
-  const pickupTimeColumnGap = 12 * scale;
-  /** Figma 3346:13522 — 371.507px grid, 110.15px chips, 3 columns */
+  /** Figma 3346:13522 — 371.507px grid, 110.15px chips, 12px column gap */
   const timeSlotGridWidth = 371.507 * scale;
-  const pickupTimeChipWidth = useMemo(() => {
-    return (timeSlotGridWidth - 2 * pickupTimeColumnGap) / 3;
-  }, [pickupTimeColumnGap, timeSlotGridWidth]);
+  const pickupTimeColumnGap = 12 * scale;
+  const pickupTimeChipWidth = 110.15 * scale;
+  const timeSlotGridStyle = {
+    width: timeSlotGridWidth,
+    columnGap: pickupTimeColumnGap,
+    rowGap: 16.022 * scale,
+    alignSelf: 'center' as const,
+  };
 
   const stepOneProgress = useMemo(() => {
     let completed = 0;
@@ -238,19 +242,19 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
                 style={[
                   searchFont('medium'),
                   styles.sectionTitle,
-                  { fontSize: 16 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
+                  {
+                    fontSize: 16.022 * scale,
+                    lineHeight: 14.019 * scale,
+                    letterSpacing: 0.5007 * scale,
+                  },
                 ]}>
                 Choose Pickup Time
               </Text>
               <View
                 style={[
                   styles.chipGrid,
-                  {
-                    width: timeSlotGridWidth,
-                    columnGap: pickupTimeColumnGap,
-                    rowGap: 16.022 * scale,
-                    paddingVertical: 8.011 * scale,
-                  },
+                  timeSlotGridStyle,
+                  { paddingVertical: 8.011 * scale },
                 ]}>
                 {CHECKOUT_PICKUP_TIME_SLOTS.map((slot) => (
                   <CheckoutScheduleChip
@@ -275,16 +279,22 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
               paddingHorizontal: 11.516 * scale,
               gap: 9.012 * scale,
               paddingVertical: 8.011 * scale,
+              alignItems: 'center',
             }}>
             <Text
               style={[
                 searchFont('medium'),
                 styles.sectionTitle,
-                { fontSize: 16 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
+                styles.deliverySectionTitle,
+                {
+                  fontSize: 16.022 * scale,
+                  lineHeight: 14.019 * scale,
+                  letterSpacing: 0.5007 * scale,
+                },
               ]}>
               Choose Delivery Time
             </Text>
-            <View style={[styles.deliveryRow, { gap: 8 * scale }]}>
+            <View style={[styles.deliveryRow, styles.deliveryRowFullWidth, { gap: 8 * scale }]}>
               <ServiceCheckbox
                 checked={deliverySameAsPickup}
                 onChange={(next) => {
@@ -303,7 +313,11 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
                 style={[
                   searchFont('semibold'),
                   styles.deliveryLabel,
-                  { fontSize: 12 * scale, lineHeight: 20 * scale, letterSpacing: 0.5 * scale },
+                  {
+                    fontSize: 12.016 * scale,
+                    lineHeight: 20.027 * scale,
+                    letterSpacing: 0.5007 * scale,
+                  },
                 ]}>
                 Same as Pickup time
               </Text>
@@ -312,12 +326,8 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
               <View
                 style={[
                   styles.chipGrid,
-                  {
-                    width: timeSlotGridWidth,
-                    columnGap: pickupTimeColumnGap,
-                    rowGap: 16.022 * scale,
-                    paddingTop: 7 * scale,
-                  },
+                  timeSlotGridStyle,
+                  { paddingTop: 8.011 * scale, paddingBottom: 8.011 * scale },
                 ]}>
                 {CHECKOUT_PICKUP_TIME_SLOTS.map((slot) => (
                   <CheckoutScheduleChip
@@ -359,11 +369,18 @@ const styles = StyleSheet.create({
   chipGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    width: '100%',
+    justifyContent: 'flex-start',
   },
   deliveryRow: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  deliveryRowFullWidth: {
+    alignSelf: 'stretch',
+  },
+  deliverySectionTitle: {
+    alignSelf: 'flex-start',
+    width: '100%',
   },
   deliveryLabel: {
     color: SwashoColors.neutral900,
