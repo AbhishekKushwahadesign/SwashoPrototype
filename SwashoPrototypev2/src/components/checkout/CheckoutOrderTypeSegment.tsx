@@ -4,6 +4,10 @@ import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { figmaShadow, FigmaShadows } from '@/components/home/figma-shadows';
 import { searchFont } from '@/components/search/search-fonts';
+import {
+  CHECKOUT_ORDER_TYPE_SEGMENT_HEIGHT,
+  CHECKOUT_ORDER_TYPE_SEGMENT_WIDTH,
+} from '@/lib/checkout-figma-layout';
 import type { ProviderOrderFulfillmentMode } from '@/lib/checkout-flow';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
@@ -25,9 +29,11 @@ export function CheckoutOrderTypeSegment({
 }: CheckoutOrderTypeSegmentProps) {
   const isOneTime = activeMode === 'one-time';
   const isSubscribe = activeMode === 'subscribe';
-  const outerRadius = SwashoRadii.lg * scale;
+  const segmentWidth = CHECKOUT_ORDER_TYPE_SEGMENT_WIDTH * scale;
+  const segmentHeight = CHECKOUT_ORDER_TYPE_SEGMENT_HEIGHT * scale;
+  const outerRadius = 12.572 * scale;
   const trackInset = 2 * scale;
-  const pillRadius = (SwashoRadii.lg - 2) * scale;
+  const pillRadius = (12.572 - 1.048) * scale;
   const pillCorners = {
     borderTopLeftRadius: pillRadius,
     borderBottomLeftRadius: pillRadius,
@@ -86,9 +92,10 @@ export function CheckoutOrderTypeSegment({
       style={[
         styles.outer,
         {
+          width: segmentWidth,
           borderRadius: outerRadius,
-          borderWidth: 1 * scale,
-          minHeight: 61 * scale,
+          borderWidth: 1.048 * scale,
+          height: segmentHeight,
           padding: trackInset,
           ...figmaShadow(FigmaShadows.checkoutSegmentTrack, scale),
         },
@@ -188,7 +195,7 @@ export function CheckoutOrderTypeSegment({
 
 const styles = StyleSheet.create({
   outer: {
-    width: '100%',
+    alignSelf: 'center',
     borderColor: '#d7d7d7',
     backgroundColor: '#e0e0e0',
     overflow: 'visible',

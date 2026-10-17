@@ -18,6 +18,7 @@ import {
   type CheckoutPickupTimeSlotId,
   type CheckoutWeekdayId,
 } from '@/lib/checkout-flow';
+import { CHECKOUT_SCHEDULE_CARD_WIDTH } from '@/lib/checkout-figma-layout';
 import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
