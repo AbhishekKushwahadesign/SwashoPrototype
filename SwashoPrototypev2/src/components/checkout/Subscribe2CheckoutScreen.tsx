@@ -2,7 +2,6 @@ import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { CalendarBoldIcon } from '@/components/home/figma-icons';
 import { useScreenScale } from '@/components/home/scale';
 import { figmaShadow, FigmaShadows } from '@/components/home/figma-shadows';
 import { ServiceSelectionButton } from '@/components/service-selection/ServiceSelectionButton';
@@ -496,19 +495,11 @@ export function Subscribe2CheckoutScreen({ providerId, query }: Subscribe2Checko
                   width: scheduleCardWidth,
                   borderRadius: 12.016 * scale,
                   paddingVertical: 16.022 * scale,
-                  gap: 16 * scale,
+                  gap: 16.022 * scale,
                   ...figmaShadow(FigmaShadows.checkoutScheduleCard, scale),
                 },
               ]}>
-              <View
-                style={[
-                  styles.startHeader,
-                  {
-                    width: 362 * scale,
-                    gap: 10 * scale,
-                    paddingHorizontal: 16 * scale,
-                  },
-                ]}>
+              <View style={{ width: '100%', gap: 16.022 * scale }}>
                 <Text
                   style={[
                     searchFont('medium'),
@@ -517,19 +508,20 @@ export function Subscribe2CheckoutScreen({ providerId, query }: Subscribe2Checko
                       fontSize: 16.022 * scale,
                       lineHeight: 14.019 * scale,
                       letterSpacing: 0.5007 * scale,
-                      flex: 1,
+                      alignSelf: 'flex-start',
+                      marginLeft: 16.022 * scale,
                     },
                   ]}>
                   Start from
                 </Text>
-                <CalendarBoldIcon width={24 * scale} height={24 * scale} />
+                <CheckoutWeekdayScrollRow
+                  days={upcomingDays}
+                  selectedKey={startDateKey}
+                  onSelectDay={handleStartDateSelect}
+                  scale={scale}
+                  viewportWidth={scheduleCardWidth}
+                />
               </View>
-              <CheckoutWeekdayScrollRow
-                days={upcomingDays}
-                selectedKey={startDateKey}
-                onSelectDay={handleStartDateSelect}
-                scale={scale}
-              />
             </View>
           </View>
         </View>
@@ -619,10 +611,5 @@ const styles = StyleSheet.create({
   },
   deliveryLabel: {
     color: SwashoColors.neutral900,
-  },
-  startHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'center',
   },
 });

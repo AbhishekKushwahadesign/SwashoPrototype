@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
 import { searchFont } from '@/components/search/search-fonts';
 import type { CheckoutDayOption } from '@/lib/checkout-flow';
@@ -16,6 +16,8 @@ type CheckoutWeekdayScrollRowProps = {
   selectedKey: string | null;
   onSelectDay: (day: CheckoutDayOption) => void;
   scale: number;
+  /** Width of the scroll viewport (card inner width). Prevents chips wrapping into one row on web. */
+  viewportWidth?: number;
 };
 
 export function CheckoutWeekdayScrollRow({
@@ -23,16 +25,29 @@ export function CheckoutWeekdayScrollRow({
   selectedKey,
   onSelectDay,
   scale,
+  viewportWidth,
 }: CheckoutWeekdayScrollRowProps) {
+  const edgeInset = 16.022 * scale;
+
   return (
     <ScrollView
       horizontal
+      nestedScrollEnabled
       showsHorizontalScrollIndicator={false}
+      style={[
+        styles.scroll,
+        viewportWidth != null
+          ? { width: viewportWidth, maxWidth: viewportWidth, alignSelf: 'center' }
+          : { width: '100%', alignSelf: 'stretch' },
+        Platform.OS === 'web' ? { overflowX: 'scroll' as const } : null,
+      ]}
       contentContainerStyle={[
         styles.row,
         {
           gap: CHIP_GAP * scale,
           paddingVertical: 8.011 * scale,
+          paddingHorizontal: edgeInset,
+          flexWrap: 'nowrap',
         },
       ]}>
       {days.map((day) => {
@@ -49,12 +64,14 @@ export function CheckoutWeekdayScrollRow({
               selected && styles.chipSelected,
               {
                 width: CHIP_WIDTH * scale,
+                flexShrink: 0,
                 paddingHorizontal: CHIP_PADDING_X * scale,
                 paddingVertical: CHIP_PADDING_Y * scale,
                 borderRadius: SwashoRadii.md * scale,
                 borderWidth: (selected ? 1.502 : 1.001) * scale,
                 gap: CHIP_INNER_GAP * scale,
                 opacity: pressed ? 0.92 : 1,
+                ...(Platform.OS === 'web' ? { boxSizing: 'border-box' as const } : null),
               },
             ]}>
             <Text
@@ -89,6 +106,9 @@ export function CheckoutWeekdayScrollRow({
 }
 
 const styles = StyleSheet.create({
+  scroll: {
+    flexGrow: 0,
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'flex-start',

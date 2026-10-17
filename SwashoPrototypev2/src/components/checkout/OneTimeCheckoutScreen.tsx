@@ -106,17 +106,21 @@ export function OneTimeCheckoutScreen({
     [orderMode, providerId, setFulfillmentMode],
   );
 
-  const handleSubscribeConfirm = useCallback(() => {
-    if (!selectedFrequency || confirmLockRef.current) {
-      return;
-    }
-    confirmLockRef.current = true;
-    setSubscriptionFrequency(providerId, selectedFrequency);
-    router.push(subscriptionSubscribe2Href(providerId, query));
-    setTimeout(() => {
-      confirmLockRef.current = false;
-    }, 600);
-  }, [providerId, query, router, selectedFrequency, setSubscriptionFrequency]);
+  const handleFrequencySelect = useCallback(
+    (id: SubscriptionFrequencyOption) => {
+      if (subscribeNavigateLockRef.current) {
+        return;
+      }
+      subscribeNavigateLockRef.current = true;
+      setSelectedFrequency(id);
+      setSubscriptionFrequency(providerId, id);
+      router.push(subscriptionSubscribe2Href(providerId, query));
+      setTimeout(() => {
+        subscribeNavigateLockRef.current = false;
+      }, 600);
+    },
+    [providerId, query, router, setSubscriptionFrequency],
+  );
 
   const handleOneTimeConfirm = useCallback(() => {
     if (!weekday || !pickupSlot || confirmLockRef.current) {
@@ -193,18 +197,16 @@ export function OneTimeCheckoutScreen({
 
   const isSubscribe = orderMode === 'subscribe';
 
-  const footer = (
+  const footer = isSubscribe ? undefined : (
     <ServiceSelectionButton
       label="Confirm"
       variant="primary"
       disabled={
-        isSubscribe
-          ? selectedFrequency == null
-          : weekday == null ||
-            pickupSlot == null ||
-            (!deliverySameAsPickup && deliverySlot == null)
+        weekday == null ||
+        pickupSlot == null ||
+        (!deliverySameAsPickup && deliverySlot == null)
       }
-      onPress={isSubscribe ? handleSubscribeConfirm : handleOneTimeConfirm}
+      onPress={handleOneTimeConfirm}
       scale={scale}
       style={{ width: '100%' }}
     />
@@ -235,10 +237,7 @@ export function OneTimeCheckoutScreen({
             <CheckoutSubscriptionPanel
               scale={scale}
               selectedFrequency={selectedFrequency}
-              onSelectFrequency={(id) => {
-                setSelectedFrequency(id);
-                setSubscriptionFrequency(providerId, id);
-              }}
+              onSelectFrequency={handleFrequencySelect}
             />
           ) : (
             <>
@@ -288,6 +287,7 @@ export function OneTimeCheckoutScreen({
                 selectedKey={selectedDayKey}
                 onSelectDay={handleWeekdaySelect}
                 scale={scale}
+                viewportWidth={scheduleCardWidth}
               />
             </View>
 
