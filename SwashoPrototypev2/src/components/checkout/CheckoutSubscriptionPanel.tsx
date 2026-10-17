@@ -12,6 +12,12 @@ import { CHECKOUT_SCHEDULE_CARD_WIDTH } from '@/lib/checkout-figma-layout';
 import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
+/** Figma 3346:13424 — Popular badge on Frame 860 (once-weekly row) */
+const POPULAR_BADGE_TOP = -12.6015625;
+const POPULAR_BADGE_RIGHT = 12;
+const POPULAR_BADGE_WIDTH = 74;
+const POPULAR_BADGE_MIN_HEIGHT = 22;
+
 type CheckoutSubscriptionPanelProps = {
   scale: number;
   selectedFrequency: SubscriptionFrequencyOption | null;
@@ -56,13 +62,16 @@ function FrequencyOptionRow({
           style={[
             styles.popularBadge,
             {
-              top: 0,
-              right: 12 * scale,
+              top: POPULAR_BADGE_TOP * scale,
+              right: POPULAR_BADGE_RIGHT * scale,
+              minWidth: POPULAR_BADGE_WIDTH * scale,
+              minHeight: POPULAR_BADGE_MIN_HEIGHT * scale,
               paddingHorizontal: 12 * scale,
               paddingVertical: 4 * scale,
               borderBottomLeftRadius: SwashoRadii.md * scale,
               borderBottomRightRadius: SwashoRadii.md * scale,
-              transform: [{ translateY: -14 * scale }],
+              borderTopLeftRadius: 0,
+              borderTopRightRadius: 0,
               ...figmaShadow(FigmaShadows.providerCard, scale),
             },
           ]}>
