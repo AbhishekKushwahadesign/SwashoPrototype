@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { searchFont } from '@/components/search/search-fonts';
@@ -82,12 +82,6 @@ export function CheckoutStartDateCalendarModal({
   }, [dayByKey, days, selectedKey]);
 
   const [visibleMonth, setVisibleMonth] = useState(initialMonth);
-
-  useEffect(() => {
-    if (visible) {
-      setVisibleMonth(initialMonth);
-    }
-  }, [initialMonth, visible]);
 
   const monthKeys = useMemo(() => {
     const keys = new Set<string>();

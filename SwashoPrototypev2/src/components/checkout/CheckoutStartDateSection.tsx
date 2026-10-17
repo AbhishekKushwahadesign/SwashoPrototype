@@ -70,14 +70,17 @@ export function CheckoutStartDateSection({
         </View>
       </View>
 
-      <CheckoutStartDateCalendarModal
-        visible={calendarOpen}
-        onClose={() => setCalendarOpen(false)}
-        days={days}
-        selectedKey={selectedKey}
-        onSelectDay={onSelectDay}
-        scale={scale}
-      />
+      {calendarOpen ? (
+        <CheckoutStartDateCalendarModal
+          key={selectedKey ?? days[0]?.key ?? 'start'}
+          visible
+          onClose={() => setCalendarOpen(false)}
+          days={days}
+          selectedKey={selectedKey}
+          onSelectDay={onSelectDay}
+          scale={scale}
+        />
+      ) : null}
     </>
   );
 }
