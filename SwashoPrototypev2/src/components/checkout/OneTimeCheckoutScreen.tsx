@@ -215,7 +215,11 @@ export function OneTimeCheckoutScreen({ providerId, query }: OneTimeCheckoutScre
                 style={[
                   searchFont('medium'),
                   styles.sectionTitle,
-                  { fontSize: 16 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
+                  {
+                    fontSize: 16.022 * scale,
+                    lineHeight: 14.019 * scale,
+                    letterSpacing: 0.5007 * scale,
+                  },
                 ]}>
                 Choose Pickup Day
               </Text>
