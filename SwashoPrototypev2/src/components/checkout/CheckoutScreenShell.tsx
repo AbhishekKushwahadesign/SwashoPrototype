@@ -29,7 +29,11 @@ export function CheckoutScreenShell({ title, onBackPress, children, footer }: Ch
   const { scale, contentWidth } = useScreenScale();
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
-  const headerTop = safeTop + STATUS_BAR_HEIGHT * scale;
+  const headerCardTop = safeTop;
+  const headerCardHeight = HEADER_CARD_HEIGHT * scale;
+  const titleRowPaddingTop = HEADER_ROW_TOP * scale;
+  const headerCardPaddingBottom =
+    (HEADER_CARD_HEIGHT - HEADER_ROW_TOP - HEADER_ROW_HEIGHT) * scale;
 
   return (
     <View style={[styles.root, { paddingTop: safeTop }]}>
@@ -42,9 +46,11 @@ export function CheckoutScreenShell({ title, onBackPress, children, footer }: Ch
           style={[
             styles.header,
             {
-              top: headerTop,
+              top: headerCardTop,
+              height: headerCardHeight,
+              paddingTop: titleRowPaddingTop,
               paddingHorizontal: 17 * scale,
-              paddingBottom: 8 * scale,
+              paddingBottom: headerCardPaddingBottom,
               ...figmaShadow(FigmaShadows.providerCard, scale),
             },
           ]}>
@@ -53,8 +59,8 @@ export function CheckoutScreenShell({ title, onBackPress, children, footer }: Ch
             accessibilityLabel="Go back"
             hitSlop={8}
             onPress={onBackPress}
-            style={[styles.backHit, { width: 26 * scale, height: 26 * scale }]}>
-            <ArrowLeftIcon width={20 * scale} height={20 * scale} />
+            style={[styles.backHit, { width: 26.036 * scale, height: 26.036 * scale }]}>
+            <ArrowLeftIcon width={20.027 * scale} height={20.027 * scale} />
           </Pressable>
           <Text
             numberOfLines={1}
@@ -62,10 +68,10 @@ export function CheckoutScreenShell({ title, onBackPress, children, footer }: Ch
               styles.headerTitle,
               searchFont('medium'),
               {
-                fontSize: 18 * scale,
-                lineHeight: 16 * scale,
-                letterSpacing: 0.5 * scale,
-                marginLeft: 12 * scale,
+                fontSize: 18.025 * scale,
+                lineHeight: 16.022 * scale,
+                letterSpacing: 0.5007 * scale,
+                marginLeft: 12.016 * scale,
               },
             ]}>
             {title}
@@ -75,7 +81,7 @@ export function CheckoutScreenShell({ title, onBackPress, children, footer }: Ch
         <View
           style={{
             flex: 1,
-            marginTop: headerTop + (HEADER_CARD_HEIGHT - STATUS_BAR_HEIGHT) * scale,
+            marginTop: headerCardTop + headerCardHeight,
             paddingBottom: footer ? 72 * scale + HOME_INDICATOR_HEIGHT * scale : HOME_INDICATOR_HEIGHT * scale,
           }}>
           {children}
