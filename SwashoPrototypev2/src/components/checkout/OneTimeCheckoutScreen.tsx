@@ -11,6 +11,7 @@ import { useProviderCart } from '@/context/provider-cart-context';
 import {
   buildUpcomingCheckoutDays,
   checkoutPlaceholderHref,
+  subscriptionSubscribe2Href,
   CHECKOUT_PICKUP_TIME_SLOTS,
   providerPageHref,
   type CheckoutDayOption,
@@ -110,7 +111,7 @@ export function OneTimeCheckoutScreen({
     }
     confirmLockRef.current = true;
     setSubscriptionFrequency(providerId, selectedFrequency);
-    router.replace(checkoutPlaceholderHref(providerId, query, { subscription: true }));
+    router.push(subscriptionSubscribe2Href(providerId, query));
     setTimeout(() => {
       confirmLockRef.current = false;
     }, 600);

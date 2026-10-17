@@ -56,6 +56,23 @@ export function CheckoutPlaceholderScreen({ providerId, query, isSubscription }:
             Provider cart preserved — {totals.itemCount} items, ₹{totals.totalPrice} estimated.
           </Text>
           <Text style={[searchFont('medium'), styles.cardLine, { fontSize: 14 * scale }]}>Mode: {modeLabel}</Text>
+          {checkout.subscriptionPickupWeekdays?.length && checkout.subscriptionPickupTimeSlot ? (
+            <Text style={[searchFont('medium'), styles.cardLine, { fontSize: 14 * scale }]}>
+              Subscription pickup:{' '}
+              {checkout.subscriptionPickupWeekdays
+                .map((id) => CHECKOUT_WEEKDAY_OPTIONS.find((d) => d.id === id)?.label ?? id)
+                .join(', ')}
+              ,{' '}
+              {CHECKOUT_PICKUP_TIME_SLOTS.find((s) => s.id === checkout.subscriptionPickupTimeSlot)?.label ??
+                checkout.subscriptionPickupTimeSlot}
+              {checkout.subscriptionStartDateKey ? ` · starts ${checkout.subscriptionStartDateKey}` : ''}
+              {checkout.subscriptionDeliverySameAsPickup
+                ? ' · delivery same as pickup'
+                : checkout.subscriptionDeliveryTimeSlot
+                  ? ` · delivery ${CHECKOUT_PICKUP_TIME_SLOTS.find((s) => s.id === checkout.subscriptionDeliveryTimeSlot)?.label ?? checkout.subscriptionDeliveryTimeSlot}`
+                  : ''}
+            </Text>
+          ) : null}
           {checkout.pickupWeekday && checkout.pickupTimeSlot ? (
             <Text style={[searchFont('medium'), styles.cardLine, { fontSize: 14 * scale }]}>
               Pickup:{' '}

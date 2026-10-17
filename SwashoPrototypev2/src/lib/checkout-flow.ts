@@ -18,6 +18,11 @@ export type CheckoutPickupTimeSlotId =
 export type ProviderCheckoutState = {
   fulfillmentMode?: ProviderOrderFulfillmentMode;
   subscriptionFrequency?: SubscriptionFrequencyOption;
+  subscriptionPickupWeekdays?: CheckoutWeekdayId[];
+  subscriptionPickupTimeSlot?: CheckoutPickupTimeSlotId;
+  subscriptionDeliverySameAsPickup?: boolean;
+  subscriptionDeliveryTimeSlot?: CheckoutPickupTimeSlotId;
+  subscriptionStartDateKey?: string;
   pickupWeekday?: CheckoutWeekdayId;
   pickupTimeSlot?: CheckoutPickupTimeSlotId;
   deliverySameAsPickup?: boolean;
@@ -105,6 +110,22 @@ export function oneTimeCheckoutHref(
 /** Same unified checkout screen as one-time; Subscribe tab selected (Figma segment always visible). */
 export function subscriptionFrequencyHref(providerId: string, query: string): Href {
   return oneTimeCheckoutHref(providerId, query, 'subscribe');
+}
+
+/** Subscribe step 2 — day/time/start date (Figma 3346:13243). */
+export function subscriptionSubscribe2Href(providerId: string, query: string): Href {
+  return `/checkout/subscribe-2?${checkoutQueryString(providerId, query)}` as Href;
+}
+
+export const SUBSCRIPTION_FREQUENCY_PICKUP_HINT: Record<SubscriptionFrequencyOption, string> = {
+  'once-weekly': 'Pickup once every week',
+  'twice-weekly': 'Pickup twice every week',
+};
+
+export function subscriptionPickupWeekdayLimit(
+  frequency: SubscriptionFrequencyOption | undefined,
+): number {
+  return frequency === 'twice-weekly' ? 2 : 1;
 }
 
 export function checkoutPlaceholderHref(

@@ -32,6 +32,19 @@ type ProviderCartContextValue = {
       >
     >,
   ) => void;
+  setSubscriptionSchedule: (
+    providerId: string,
+    patch: Partial<
+      Pick<
+        ProviderCheckoutState,
+        | 'subscriptionPickupWeekdays'
+        | 'subscriptionPickupTimeSlot'
+        | 'subscriptionDeliverySameAsPickup'
+        | 'subscriptionDeliveryTimeSlot'
+        | 'subscriptionStartDateKey'
+      >
+    >,
+  ) => void;
 };
 
 const ProviderCartContext = createContext<ProviderCartContextValue | null>(null);
@@ -109,6 +122,31 @@ export function ProviderCartProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const setSubscriptionSchedule = useCallback(
+    (
+      providerId: string,
+      patch: Partial<
+        Pick<
+          ProviderCheckoutState,
+          | 'subscriptionPickupWeekdays'
+          | 'subscriptionPickupTimeSlot'
+          | 'subscriptionDeliverySameAsPickup'
+          | 'subscriptionDeliveryTimeSlot'
+          | 'subscriptionStartDateKey'
+        >
+      >,
+    ) => {
+      setCheckoutStore((prev) => ({
+        ...prev,
+        [providerId]: {
+          ...prev[providerId],
+          ...patch,
+        },
+      }));
+    },
+    [],
+  );
+
   const getProviderCartTotals = useCallback(
     (providerId: string) => {
       let itemCount = 0;
@@ -143,6 +181,7 @@ export function ProviderCartProvider({ children }: { children: ReactNode }) {
       setFulfillmentMode,
       setOneTimeSchedule,
       setSubscriptionFrequency,
+      setSubscriptionSchedule,
     }),
     [
       clearSelection,
@@ -153,6 +192,7 @@ export function ProviderCartProvider({ children }: { children: ReactNode }) {
       setOneTimeSchedule,
       setSelection,
       setSubscriptionFrequency,
+      setSubscriptionSchedule,
     ],
   );
 
