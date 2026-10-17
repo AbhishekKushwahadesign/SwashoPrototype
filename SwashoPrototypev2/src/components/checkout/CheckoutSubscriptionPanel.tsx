@@ -11,12 +11,6 @@ import { CHECKOUT_SCHEDULE_CARD_WIDTH } from '@/lib/checkout-figma-layout';
 import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
-/** Figma 3346:13424 — Popular badge on Frame 860 (once-weekly row) */
-const POPULAR_BADGE_TOP = -12.6015625;
-const POPULAR_BADGE_RIGHT = 12;
-const POPULAR_BADGE_WIDTH = 74;
-const POPULAR_BADGE_MIN_HEIGHT = 22;
-
 type CheckoutSubscriptionPanelProps = {
   scale: number;
   selectedFrequency: SubscriptionFrequencyOption | null;
@@ -50,40 +44,8 @@ function FrequencyOptionRow({
           paddingHorizontal: 16 * scale,
           paddingVertical: 12 * scale,
           opacity: pressed ? 0.92 : 1,
-          overflow: 'visible',
         },
       ]}>
-      {option.popular ? (
-        <LinearGradient
-          colors={['#14532b', '#16a34a']}
-          start={{ x: 0.5, y: 1 }}
-          end={{ x: 0.5, y: 0 }}
-          style={[
-            styles.popularBadge,
-            {
-              top: POPULAR_BADGE_TOP * scale,
-              right: POPULAR_BADGE_RIGHT * scale,
-              minWidth: POPULAR_BADGE_WIDTH * scale,
-              minHeight: POPULAR_BADGE_MIN_HEIGHT * scale,
-              paddingHorizontal: 12 * scale,
-              paddingVertical: 4 * scale,
-              borderBottomLeftRadius: SwashoRadii.md * scale,
-              borderBottomRightRadius: SwashoRadii.md * scale,
-              borderTopLeftRadius: 0,
-              borderTopRightRadius: 0,
-              ...figmaShadow(FigmaShadows.providerCard, scale),
-            },
-          ]}>
-          <Text
-            style={[
-              searchFont('medium'),
-              styles.popularLabel,
-              { fontSize: 12 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
-            ]}>
-            Popular
-          </Text>
-        </LinearGradient>
-      ) : null}
       <View style={{ gap: 8 * scale, flex: 1 }}>
         <View style={[styles.titleRow, { gap: 8 * scale }]}>
           <Text
@@ -238,13 +200,6 @@ const styles = StyleSheet.create({
   },
   frequencyDescription: {
     color: SwashoColors.neutral600,
-  },
-  popularBadge: {
-    position: 'absolute',
-    zIndex: 1,
-  },
-  popularLabel: {
-    color: '#f0fdf5',
   },
   collapsedRow: {
     backgroundColor: SwashoColors.surface,
