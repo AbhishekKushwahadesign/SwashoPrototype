@@ -267,6 +267,7 @@ export function Subscribe2CheckoutScreen({ providerId, query }: Subscribe2Checko
                   width: scheduleCardWidth,
                   borderRadius: 12.016 * scale,
                   paddingVertical: 16.022 * scale,
+                  paddingHorizontal: 16.022 * scale,
                   gap: 16.022 * scale,
                   ...figmaShadow(FigmaShadows.checkoutScheduleCard, scale),
                 },
@@ -279,6 +280,7 @@ export function Subscribe2CheckoutScreen({ providerId, query }: Subscribe2Checko
                     fontSize: 16 * scale,
                     lineHeight: 14 * scale,
                     letterSpacing: 0.5 * scale,
+                    alignSelf: 'stretch',
                   },
                 ]}>
                 Choose your laundry frequency
@@ -528,14 +530,11 @@ const styles = StyleSheet.create({
   },
   frequencyCard: {
     backgroundColor: SwashoColors.surface,
-    alignItems: 'center',
-    paddingHorizontal: 16 * 0,
+    alignItems: 'stretch',
   },
   panelTitle: {
     color: SwashoColors.darkHeaderText,
-    textAlign: 'center',
-    alignSelf: 'stretch',
-    paddingHorizontal: 16,
+    textAlign: 'left',
   },
   frequencySummary: {
     backgroundColor: SwashoColors.surface,
