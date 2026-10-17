@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { CalendarLinearIcon } from '@/components/home/figma-icons';
 import { searchFont } from '@/components/search/search-fonts';
-import { moveCheckoutDayToFront, type CheckoutDayOption } from '@/lib/checkout-flow';
+import { checkoutDaysForCalendarPick, type CheckoutDayOption } from '@/lib/checkout-flow';
 import { SwashoColors } from '@/constants/swasho-tokens';
 
 import { CheckoutStartDateCalendarModal } from './CheckoutStartDateCalendarModal';
@@ -32,7 +32,15 @@ export function CheckoutStartDateSection({
   }, [days]);
 
   const handleCalendarSelect = (day: CheckoutDayOption) => {
-    setDisplayDays((current) => moveCheckoutDayToFront(current, day));
+    setDisplayDays(checkoutDaysForCalendarPick(days, day));
+    onSelectDay(day);
+  };
+
+  const handleChipSelect = (day: CheckoutDayOption) => {
+    const inBaseline = days.some((option) => option.key === day.key);
+    if (inBaseline) {
+      setDisplayDays(days);
+    }
     onSelectDay(day);
   };
 
@@ -84,7 +92,7 @@ export function CheckoutStartDateSection({
           <CheckoutWeekdayScrollRow
             days={displayDays}
             selectedKey={selectedKey}
-            onSelectDay={onSelectDay}
+            onSelectDay={handleChipSelect}
             scale={scale}
             viewportWidth={cardWidth}
           />

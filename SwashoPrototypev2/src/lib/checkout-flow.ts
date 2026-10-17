@@ -105,6 +105,14 @@ export function moveCheckoutDayToFront(
   return [day, ...rest];
 }
 
+/** Calendar pick: one leading chip from baseline — drops prior calendar prepends. */
+export function checkoutDaysForCalendarPick(
+  baselineDays: CheckoutDayOption[],
+  picked: CheckoutDayOption,
+): CheckoutDayOption[] {
+  return moveCheckoutDayToFront(baselineDays, picked);
+}
+
 export const CHECKOUT_PICKUP_TIME_SLOTS: { id: CheckoutPickupTimeSlotId; label: string }[] = [
   { id: '6-8am', label: '6 - 8 AM' },
   { id: '8-10am', label: '8 - 10 AM' },
