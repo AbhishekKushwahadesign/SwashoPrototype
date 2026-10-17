@@ -69,7 +69,8 @@ export function CheckoutScreenShell({ title, onBackPress, children, footer }: Ch
               searchFont('medium'),
               {
                 fontSize: 18.025 * scale,
-                lineHeight: 16.022 * scale,
+                // Figma lists 16.022 leading; use ≥ font size so web does not clip glyphs.
+                lineHeight: 20.027 * scale,
                 letterSpacing: 0.5007 * scale,
                 marginLeft: 12.016 * scale,
               },
