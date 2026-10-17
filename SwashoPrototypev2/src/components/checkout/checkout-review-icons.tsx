@@ -1,5 +1,15 @@
-import { SvgXml } from 'react-native-svg';
 import type { StyleProp, ViewStyle } from 'react-native';
+import { SvgXml } from 'react-native-svg';
+
+import AddSquareArt from '@/assets/checkout/add-square.svg';
+import CheckSquareArt from '@/assets/checkout/check-square.svg';
+import ContactlessArt from '@/assets/checkout/contactless.svg';
+import InfoBoldArt from '@/assets/checkout/info-bold.svg';
+import InstructionDoorstepArt from '@/assets/checkout/instruction-doorstep.svg';
+import MoneyTagArt from '@/assets/checkout/money-tag.svg';
+import PenArt from '@/assets/checkout/pen.svg';
+import PhoneArt from '@/assets/checkout/phone.svg';
+import ShieldArt from '@/assets/checkout/shield.svg';
 
 type IconProps = {
   width: number;
@@ -45,4 +55,40 @@ const confettiXml = `<svg width="20" height="20" viewBox="0 0 20 20" fill="none"
 
 export function CheckoutConfettiIcon({ width, height, style }: IconProps) {
   return <SvgXml xml={confettiXml} width={width} height={height} style={style} />;
+}
+
+export function CheckoutContactlessIcon({ width, height, style }: IconProps) {
+  return <ContactlessArt width={width} height={height} style={style} />;
+}
+
+export function CheckoutInstructionsHeaderIcon({ width, height, style }: IconProps) {
+  return <InfoBoldArt width={width} height={height} style={style} />;
+}
+
+export function CheckoutAddSquareIcon({ width, height, style }: IconProps) {
+  return <AddSquareArt width={width} height={height} style={style} />;
+}
+
+export function CheckoutInstructionPhoneIcon({ width, height, style }: IconProps) {
+  return <PhoneArt width={width} height={height} style={style} />;
+}
+
+export function CheckoutInstructionShieldIcon({ width, height, style }: IconProps) {
+  return <ShieldArt width={width} height={height} style={style} />;
+}
+
+export function CheckoutInstructionDoorstepIcon({ width, height, style }: IconProps) {
+  return <InstructionDoorstepArt width={width} height={height} style={style} />;
+}
+
+export function CheckoutInstructionPenIcon({ width, height, style }: IconProps) {
+  return <PenArt width={width} height={height} style={style} />;
+}
+
+export function CheckoutMoneyTagIcon({ width, height, style }: IconProps) {
+  return <MoneyTagArt width={width} height={height} style={style} />;
+}
+
+export function CheckoutCheckSquareIcon({ width, height, style }: IconProps) {
+  return <CheckSquareArt width={width} height={height} style={style} />;
 }

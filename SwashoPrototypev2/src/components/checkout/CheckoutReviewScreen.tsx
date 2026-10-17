@@ -3,16 +3,19 @@ import { useRouter } from 'expo-router';
 import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   Alert,
+  Image,
+  ImageBackground,
   Pressable,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { AltArrowDownIcon, ArrowLeftIcon, CalendarLinearIcon } from '@/components/home/figma-icons';
+import { AltArrowDownIcon, AltArrowRightIcon, ArrowLeftIcon, CalendarLinearIcon } from '@/components/home/figma-icons';
+import { ChevronDownIcon } from '@/components/provider-page/provider-page-icons';
+import { PenEditIcon } from '@/components/service-selection/service-selection-icons';
 import { figmaShadow, FigmaShadows } from '@/components/home/figma-shadows';
 import { HomeIndicator } from '@/components/home/HomeIndicator';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
@@ -40,7 +43,24 @@ import {
 import { CHECKOUT_SCHEDULE_CARD_WIDTH } from '@/lib/checkout-figma-layout';
 
 import { CheckoutSectionDivider } from './CheckoutSectionDivider';
-import { CheckoutBillIcon, CheckoutCartIcon, CheckoutConfettiIcon, CheckoutInfoIcon } from './checkout-review-icons';
+import {
+  CheckoutAddSquareIcon,
+  CheckoutBillIcon,
+  CheckoutCartIcon,
+  CheckoutCheckSquareIcon,
+  CheckoutConfettiIcon,
+  CheckoutContactlessIcon,
+  CheckoutInfoIcon,
+  CheckoutInstructionDoorstepIcon,
+  CheckoutInstructionPenIcon,
+  CheckoutInstructionPhoneIcon,
+  CheckoutInstructionShieldIcon,
+  CheckoutInstructionsHeaderIcon,
+  CheckoutMoneyTagIcon,
+} from './checkout-review-icons';
+
+const subscriberBannerBg = require('@/assets/checkout/subscriber-banner-bg.png');
+const compensationShieldImage = require('@/assets/checkout/compensation-shield.png');
 const STATUS_BAR_HEIGHT = 32;
 const HEADER_BLOCK_HEIGHT = 114;
 const HOME_INDICATOR_HEIGHT = 24;
@@ -67,12 +87,56 @@ type CheckoutReviewScreenProps = {
 
 type InstructionId = 'call' | 'guard' | 'doorstep' | 'custom';
 
-const INSTRUCTION_OPTIONS: { id: InstructionId; label: string }[] = [
-  { id: 'call', label: 'Call before Pickup' },
-  { id: 'guard', label: 'Collect from Guard' },
-  { id: 'doorstep', label: 'Clothes at Doorstep' },
-  { id: 'custom', label: 'Custom Instruction' },
+const INSTRUCTION_OPTIONS: {
+  id: InstructionId;
+  label: string;
+  Icon: typeof CheckoutInstructionPhoneIcon;
+}[] = [
+  { id: 'call', label: 'Call before Pickup', Icon: CheckoutInstructionPhoneIcon },
+  { id: 'guard', label: 'Collect from Guard', Icon: CheckoutInstructionShieldIcon },
+  { id: 'doorstep', label: 'Clothes at Doorstep', Icon: CheckoutInstructionDoorstepIcon },
+  { id: 'custom', label: 'Custom Instruction', Icon: CheckoutInstructionPenIcon },
 ];
+
+const SUBSCRIBER_REGULAR_RATIO = 1057.5 / 900;
+const SUBSCRIBER_PAY_RATIO = 704.5 / 1062;
+const GST_RATE = 0.18;
+
+function buildPaymentSummaryDisplay(serviceTotal: number, isSubscription: boolean) {
+  const serviceValue = serviceTotal;
+  const gst = Math.round(serviceValue * GST_RATE);
+  const weeklyBill = serviceValue + gst;
+
+  if (!isSubscription || serviceTotal <= 0) {
+    return {
+      showSubscriberRows: false,
+      regularServiceValue: 0,
+      subscriberSaving: 0,
+      serviceValue,
+      gst,
+      weeklyBill,
+      payLabelAmount: weeklyBill,
+    };
+  }
+
+  const regularServiceValue = Math.round(serviceValue * SUBSCRIBER_REGULAR_RATIO * 10) / 10;
+  const subscriberSaving = Math.round((regularServiceValue - serviceValue) * 10) / 10;
+  const payLabelAmount = Math.round(weeklyBill * SUBSCRIBER_PAY_RATIO * 10) / 10;
+
+  return {
+    showSubscriberRows: true,
+    regularServiceValue,
+    subscriberSaving,
+    serviceValue,
+    gst,
+    weeklyBill,
+    payLabelAmount,
+  };
+}
+
+function compareAtPrice(price: number): number {
+  return Math.round(price * SUBSCRIBER_REGULAR_RATIO);
+}
 
 function formatSlotCompact(slotId: string | undefined): string {
   if (!slotId) {
@@ -107,6 +171,10 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
   );
   const basketCount = checkoutBasketItemCount(cartEntries);
   const totals = getProviderCartTotals(providerId);
+  const paymentDisplay = useMemo(
+    () => buildPaymentSummaryDisplay(totals.totalPrice, isSubscription),
+    [isSubscription, totals.totalPrice],
+  );
 
   const [contactless, setContactless] = useState(false);
   const [instructionTab, setInstructionTab] = useState<'pickup' | 'delivery'>('pickup');
@@ -204,7 +272,12 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
             gap: 8 * scale,
           },
         ]}>
-        <View style={[styles.compensationIcon, { width: 33 * scale, height: 33 * scale, borderRadius: 16 * scale }]} />
+        <Image
+          source={compensationShieldImage}
+          style={{ width: 33 * scale, height: 33 * scale }}
+          resizeMode="contain"
+          accessibilityIgnoresInvertColors
+        />
         <View style={{ flex: 1, gap: 6 * scale }}>
           <Text style={[searchFont('medium'), styles.compensationTitle, { fontSize: 13 * scale, lineHeight: 14 * scale }]}>
             We&apos;ve Got You Covered
@@ -223,19 +296,25 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
             paddingHorizontal: 20 * scale,
             paddingVertical: 12 * scale,
             gap: 12 * scale,
-            ...figmaShadow(FigmaShadows.providerCard, scale),
+            ...figmaShadow(FigmaShadows.sheet, scale),
           },
         ]}>
-        <View style={{ flex: 1, justifyContent: 'center' }}>
-          <Text style={[searchFont('medium'), styles.payMeta, { fontSize: 14 * scale, lineHeight: 20 * scale }]}>
-            Estimated total
-          </Text>
-          <Text style={[searchFont('semibold'), styles.payAmountLabel, { fontSize: 14 * scale, lineHeight: 20 * scale }]}>
-            {formatCheckoutInr(totals.totalPrice)}
-          </Text>
-        </View>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Change payment method"
+          style={[styles.payMethodCol, { width: 156 * scale, paddingHorizontal: 4 * scale, gap: 6 * scale }]}>
+          <View style={{ gap: 0 }}>
+            <Text style={[searchFont('medium'), styles.payMeta, { fontSize: 14 * scale, lineHeight: 20 * scale }]}>
+              by Card
+            </Text>
+            <Text style={[searchFont('semibold'), styles.payAmountLabel, { fontSize: 14 * scale, lineHeight: 20 * scale }]}>
+              Abhi&apos;s Hdfc <Text style={searchFont('medium')}>XX81</Text>
+            </Text>
+          </View>
+          <AltArrowRightIcon width={20 * scale} height={20 * scale} />
+        </Pressable>
         <ServiceSelectionButton
-          label={`Pay ${formatCheckoutInr(totals.totalPrice)}`}
+          label={`Pay ${formatCheckoutInr(paymentDisplay.payLabelAmount)}`}
           variant="primary"
           disabled={totals.itemCount <= 0}
           onPress={handlePayPress}
@@ -302,10 +381,9 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
           }}
           showsVerticalScrollIndicator={false}>
           {isSubscription ? (
-            <LinearGradient
-              colors={['#ffffff', SwashoColors.primary50, '#ffffff']}
-              start={{ x: 0, y: 0.5 }}
-              end={{ x: 1, y: 0.5 }}
+            <ImageBackground
+              source={subscriberBannerBg}
+              resizeMode="cover"
               style={[
                 styles.subscriberBanner,
                 {
@@ -319,7 +397,7 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
               <Text style={[searchFont('medium'), styles.subscriberBannerText, { fontSize: 13 * scale, lineHeight: 20 * scale }]}>
                 You&apos;re enjoying subscriber exclusive pricing
               </Text>
-            </LinearGradient>
+            </ImageBackground>
           ) : null}
 
           <ScheduleCard
@@ -342,6 +420,7 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
             cardWidth={cardWidth}
             basketCount={basketCount}
             groups={basketGroups}
+            showCompareAt={isSubscription}
             onEditLine={handleEditService}
           />
 
@@ -361,7 +440,7 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
             cardWidth={cardWidth}
             expanded={paymentExpanded}
             onToggleExpanded={() => setPaymentExpanded((value) => !value)}
-            serviceTotal={totals.totalPrice}
+            paymentDisplay={paymentDisplay}
             isSubscription={isSubscription}
           />
         </ScrollView>
@@ -445,11 +524,11 @@ function ScheduleCard({
         </IconTile>
         <View style={{ flex: 1, gap: 12 * scale }}>
           {pickupLine ? (
-            <ScheduleLine label="Pickup:" value={`${pickupLine} • ${pickupSlot}`} scale={scale} />
+            <ScheduleTimingRow label="Pickup:" parts={[pickupLine, pickupSlot].filter(Boolean)} scale={scale} />
           ) : null}
-          <ScheduleLine
+          <ScheduleTimingRow
             label="Delivery:"
-            value={deliverySame ? `Next day • ${pickupSlot || deliverySlot}` : deliverySlot}
+            parts={deliverySame ? ['Next day', pickupSlot || deliverySlot].filter(Boolean) : [deliverySlot].filter(Boolean)}
             scale={scale}
           />
         </View>
@@ -461,11 +540,38 @@ function ScheduleCard({
   );
 }
 
-function ScheduleLine({ label, value, scale }: { label: string; value: string; scale: number }) {
+function ScheduleTimingRow({
+  label,
+  parts,
+  scale,
+}: {
+  label: string;
+  parts: string[];
+  scale: number;
+}) {
   return (
-    <Text style={[searchFont('medium'), styles.cardHeading, { fontSize: 14 * scale, lineHeight: 14 * scale }]}>
-      {label} <Text style={searchFont('semibold')}>{value}</Text>
-    </Text>
+    <View style={[styles.row, { flexWrap: 'wrap', gap: 4 * scale, alignItems: 'center' }]}>
+      <Text style={[searchFont('medium'), styles.cardHeading, { fontSize: 14 * scale, lineHeight: 14 * scale }]}>
+        {label}
+      </Text>
+      {parts.map((part, index) => (
+        <View key={`${part}-${index}`} style={[styles.row, { gap: 4 * scale, alignItems: 'center' }]}>
+          {index > 0 ? (
+            <View
+              style={{
+                width: 4 * scale,
+                height: 4 * scale,
+                borderRadius: 2 * scale,
+                backgroundColor: SwashoColors.neutral950,
+              }}
+            />
+          ) : null}
+          <Text style={[searchFont('semibold'), styles.cardHeading, { fontSize: 14 * scale, lineHeight: 14 * scale }]}>
+            {part}
+          </Text>
+        </View>
+      ))}
+    </View>
   );
 }
 
@@ -494,7 +600,7 @@ function ContactlessCard({
       ]}>
       <View style={[styles.row, { gap: 12 * scale }]}>
         <IconTile scale={scale}>
-          <Text style={{ fontSize: 18 * scale }}>🚫</Text>
+          <CheckoutContactlessIcon width={24 * scale} height={24 * scale} />
         </IconTile>
         <View style={{ flex: 1, gap: 8 * scale }}>
           <Text style={[searchFont('semibold'), styles.cardHeading, { fontSize: 15 * scale, lineHeight: 14 * scale }]}>
@@ -504,12 +610,7 @@ function ContactlessCard({
             upload/capture image required
           </Text>
         </View>
-        <Switch
-          value={value}
-          onValueChange={onValueChange}
-          trackColor={{ false: SwashoColors.neutral400, true: SwashoColors.primary600 }}
-          thumbColor={SwashoColors.neutral100}
-        />
+        <ContactlessToggle scale={scale} value={value} onValueChange={onValueChange} />
       </View>
       <Pressable style={{ paddingHorizontal: 8 * scale, marginTop: 12 * scale }}>
         <Text style={[searchFont('medium'), styles.dottedLink, { fontSize: 13 * scale, lineHeight: 20 * scale }]}>
@@ -525,12 +626,14 @@ function BasketCard({
   cardWidth,
   basketCount,
   groups,
+  showCompareAt,
   onEditLine,
 }: {
   scale: number;
   cardWidth: number;
   basketCount: number;
   groups: ReturnType<typeof buildCheckoutBasketGroups>;
+  showCompareAt: boolean;
   onEditLine: (serviceId: string) => void;
 }) {
   return (
@@ -559,23 +662,38 @@ function BasketCard({
         <View
           style={[
             styles.instructionChip,
+            styles.row,
             {
               borderRadius: SwashoRadii.md * scale,
               paddingHorizontal: 4 * scale,
               minHeight: 29 * scale,
               borderWidth: 1,
+              gap: 4 * scale,
             },
           ]}>
+          <CheckoutAddSquareIcon width={20 * scale} height={20 * scale} />
           <Text style={[searchFont('semibold'), styles.instructionChipLabel, { fontSize: 12 * scale }]}>Instruction</Text>
         </View>
       </View>
       <CheckoutSectionDivider width={376.514 * scale} scale={scale} />
       {groups.map((group) => (
         <View key={group.sectionId} style={{ width: '100%', gap: 12 * scale }}>
-          <Text style={[searchFont('semibold'), styles.sectionLabel, { fontSize: 14 * scale }]}>{group.sectionTitle}</Text>
+          <View style={[styles.row, { height: 24 * scale, justifyContent: 'space-between' }]}>
+            <Text style={[searchFont('semibold'), styles.sectionLabel, { fontSize: 15 * scale, lineHeight: 14 * scale, letterSpacing: 0.3 * scale }]}>
+              {group.sectionTitle}
+            </Text>
+            <ChevronDownIcon width={24 * scale} height={24 * scale} />
+          </View>
           {group.lines.map((line, index) => (
-            <BasketLineRow key={`${line.serviceId}-${index}`} line={line} scale={scale} onEdit={() => onEditLine(line.serviceId)} />
+            <BasketLineRow
+              key={`${line.serviceId}-${index}`}
+              line={line}
+              scale={scale}
+              showCompareAt={showCompareAt}
+              onEdit={() => onEditLine(line.serviceId)}
+            />
           ))}
+          <CheckoutSectionDivider width={362 * scale} scale={scale} />
         </View>
       ))}
     </View>
@@ -585,39 +703,122 @@ function BasketCard({
 function BasketLineRow({
   line,
   scale,
+  showCompareAt,
   onEdit,
 }: {
   line: CheckoutBasketLine;
   scale: number;
+  showCompareAt: boolean;
   onEdit: () => void;
 }) {
+  const compareAt = showCompareAt && line.price > 0 ? compareAtPrice(line.price) : null;
+  const qtyLabel = line.quantityLabel?.trim() ?? '';
+  const showQtySuffix = qtyLabel.toLowerCase().startsWith('x');
+  const qtySuffix = showQtySuffix ? qtyLabel.replace(/^x\s*/i, '') : '';
+
   return (
-    <View style={{ gap: 8 * scale }}>
-      <View style={[styles.row, { justifyContent: 'space-between', alignItems: 'flex-start' }]}>
-        <View style={{ flex: 1, gap: 4 * scale }}>
-          <Text style={[searchFont('semibold'), styles.cardHeading, { fontSize: 14 * scale }]}>
-            {line.title}
-            {line.quantityLabel ? ` ${line.quantityLabel}` : ''}
-          </Text>
-          {line.detailLines.map((detail) => (
-            <Text key={detail} style={[searchFont('medium'), styles.muted, { fontSize: 12 * scale, lineHeight: 16 * scale }]}>
-              {detail}
+    <View style={{ gap: 16 * scale, paddingHorizontal: 12 * scale, paddingTop: 4 * scale, paddingBottom: 8 * scale }}>
+      <View style={[styles.row, { alignItems: 'flex-start', gap: 16 * scale }]}>
+        <View style={{ flex: 1, gap: 16 * scale }}>
+          <View style={[styles.row, { gap: 8 * scale, alignItems: 'center' }]}>
+            <View
+              style={[
+                styles.garmentThumb,
+                {
+                  width: 40 * scale,
+                  height: 40 * scale,
+                  borderRadius: 3.5 * scale,
+                  borderWidth: 0.438 * scale,
+                },
+              ]}
+            />
+            <View style={{ flex: 1, gap: 8 * scale }}>
+              <View style={[styles.row, { gap: 8 * scale, alignItems: 'center', flexWrap: 'wrap' }]}>
+                <Text style={[searchFont('semibold'), styles.sectionLabel, { fontSize: 14 * scale, lineHeight: 14 * scale }]}>
+                  {line.title}
+                </Text>
+                {showQtySuffix ? (
+                  <Text style={[searchFont('semibold'), styles.sectionLabel, { fontSize: 14 * scale, lineHeight: 14 * scale }]}>
+                    x {qtySuffix}
+                  </Text>
+                ) : null}
+              </View>
+              <Pressable accessibilityRole="button" style={[styles.row, { gap: 4 * scale, alignItems: 'center' }]}>
+                <Text style={[searchFont('medium'), styles.sectionLabel, { fontSize: 13 * scale, lineHeight: 20 * scale }]}>
+                  Services
+                </Text>
+                <ChevronDownIcon width={18 * scale} height={18 * scale} />
+              </Pressable>
+            </View>
+          </View>
+          {line.quantityLabel && !line.detailLines.length && !showQtySuffix ? (
+            <Text
+              style={[
+                searchFont('semibold'),
+                styles.cardHeading,
+                { fontSize: 14 * scale, lineHeight: 14 * scale, paddingLeft: 45 * scale },
+              ]}>
+              {line.quantityLabel}
             </Text>
-          ))}
-          {line.quantityLabel && !line.detailLines.length ? (
-            <Text style={[searchFont('medium'), styles.muted, { fontSize: 12 * scale }]}>{line.quantityLabel}</Text>
+          ) : null}
+          {line.detailLines.length > 0 ? (
+            <View style={{ gap: 20 * scale, paddingLeft: 32 * scale }}>
+              {line.detailLines.map((detail, detailIndex) => (
+                <View key={detail}>
+                  <Text style={[searchFont('semibold'), styles.cardHeading, { fontSize: 14 * scale, lineHeight: 14 * scale, paddingHorizontal: 14 * scale }]}>
+                    {detail}
+                  </Text>
+                  {detailIndex < line.detailLines.length - 1 ? (
+                    <View style={{ marginTop: 20 * scale }}>
+                      <CheckoutSectionDivider width={349 * scale} scale={scale} />
+                    </View>
+                  ) : null}
+                </View>
+              ))}
+            </View>
           ) : null}
         </View>
-        <View style={{ alignItems: 'flex-end', gap: 4 * scale }}>
-          <Text style={[searchFont('semibold'), styles.price, { fontSize: 14 * scale }]}>
-            {formatCheckoutInr(line.price)}
-            {line.estimated ? '*' : ''}
-            {line.priceSuffix ? (
-              <Text style={[searchFont('medium'), styles.muted, { fontSize: 12 * scale }]}> {line.priceSuffix}</Text>
-            ) : null}
-          </Text>
-          <Pressable onPress={onEdit} accessibilityRole="button">
-            <Text style={[searchFont('medium'), styles.changeLink, { fontSize: 12 * scale }]}>Edit</Text>
+        <View style={{ alignItems: 'flex-end', gap: 10 * scale }}>
+          <View style={{ alignItems: 'flex-end', gap: 4 * scale }}>
+            <View style={[styles.row, { gap: 8 * scale, alignItems: 'flex-end' }]}>
+              {compareAt ? (
+                <Text
+                  style={[
+                    searchFont('medium'),
+                    styles.strikePrice,
+                    { fontSize: 12 * scale, lineHeight: 10 * scale },
+                  ]}>
+                  {formatCheckoutInr(compareAt)}
+                </Text>
+              ) : null}
+              <Text style={[searchFont('semibold'), styles.price, { fontSize: 14 * scale, lineHeight: 14 * scale }]}>
+                {formatCheckoutInr(line.price)}
+                {line.priceSuffix ? (
+                  <Text style={[searchFont('semibold'), styles.price, { fontSize: 14 * scale }]}>{line.priceSuffix}</Text>
+                ) : null}
+                {line.estimated ? '*' : ''}
+              </Text>
+            </View>
+          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={`Edit ${line.title}`}
+            onPress={onEdit}
+            style={[
+              styles.editButton,
+              styles.row,
+              {
+                gap: 5.5 * scale,
+                paddingHorizontal: 14.5 * scale,
+                paddingVertical: 7.3 * scale,
+                borderRadius: 7.5 * scale,
+                borderWidth: 0.459 * scale,
+                minHeight: 29.4 * scale,
+                ...figmaShadow(FigmaShadows.providerCard, scale),
+              },
+            ]}>
+            <Text style={[searchFont('medium'), styles.changeLink, { fontSize: 11.8 * scale, lineHeight: 10 * scale }]}>Edit</Text>
+            <PenEditIcon width={16.5 * scale} height={16.5 * scale} color={SwashoColors.primary600} />
           </Pressable>
         </View>
       </View>
@@ -660,7 +861,7 @@ function InstructionsCard({
       <View style={{ gap: 12 * scale, width: '100%' }}>
         <View style={[styles.row, { gap: 12 * scale, paddingLeft: 6 * scale }]}>
           <IconTile scale={scale}>
-            <CheckoutInfoIcon width={24 * scale} height={24 * scale} color={SwashoColors.neutral950} />
+            <CheckoutInstructionsHeaderIcon width={24 * scale} height={24 * scale} />
           </IconTile>
           <Text style={[searchFont('semibold'), styles.basketTitle, { fontSize: 15 * scale }]}>Instructions</Text>
         </View>
@@ -706,9 +907,10 @@ function InstructionsCard({
           );
         })}
       </View>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 15 * scale, paddingLeft: 3 * scale }}>
+      <View style={[styles.instructionGrid, { gap: 15.2 * scale, paddingLeft: 3 * scale }]}>
         {INSTRUCTION_OPTIONS.map((option) => {
           const selected = activeInstruction === option.id;
+          const { Icon } = option;
           return (
             <Pressable
               key={option.id}
@@ -724,8 +926,11 @@ function InstructionsCard({
                   borderWidth: selected ? 1.5 : 0.475,
                   borderColor: selected ? SwashoColors.primary300 : SwashoColors.neutral400,
                   backgroundColor: selected ? SwashoColors.primary50 : SwashoColors.surface,
+                  paddingTop: 13.5 * scale,
+                  gap: 8 * scale,
                 },
               ]}>
+              <Icon width={20.9 * scale} height={20.9 * scale} />
               <Text
                 style={[
                   searchFont(selected ? 'medium' : 'regular'),
@@ -737,24 +942,29 @@ function InstructionsCard({
             </Pressable>
           );
         })}
-      </ScrollView>
+      </View>
       <Pressable
         accessibilityRole="checkbox"
         accessibilityState={{ checked: rememberInstructions }}
         onPress={onToggleRemember}
         style={[styles.row, { gap: 8 * scale, paddingHorizontal: 4 * scale }]}>
-        <View
-          style={[
-            styles.checkbox,
-            {
-              width: 20 * scale,
-              height: 20 * scale,
-              borderRadius: SwashoRadii.sm * scale,
-              backgroundColor: rememberInstructions ? SwashoColors.primary400 : SwashoColors.surface,
-            },
-          ]}>
-          {rememberInstructions ? <Text style={{ color: SwashoColors.surface, fontSize: 14 * scale }}>✓</Text> : null}
-        </View>
+        {rememberInstructions ? (
+          <CheckoutCheckSquareIcon width={20 * scale} height={20 * scale} />
+        ) : (
+          <View
+            style={[
+              styles.checkbox,
+              {
+                width: 20 * scale,
+                height: 20 * scale,
+                borderRadius: SwashoRadii.sm * scale,
+                borderWidth: 1,
+                borderColor: SwashoColors.neutral400,
+                backgroundColor: SwashoColors.surface,
+              },
+            ]}
+          />
+        )}
         <Text style={[searchFont('regular'), styles.rememberLabel, { fontSize: 12 * scale, lineHeight: 16 * scale, flex: 1 }]}>
           Remember instructions for all future orders on this address.
         </Text>
@@ -768,14 +978,14 @@ function PaymentSummaryCard({
   cardWidth,
   expanded,
   onToggleExpanded,
-  serviceTotal,
+  paymentDisplay,
   isSubscription,
 }: {
   scale: number;
   cardWidth: number;
   expanded: boolean;
   onToggleExpanded: () => void;
-  serviceTotal: number;
+  paymentDisplay: ReturnType<typeof buildPaymentSummaryDisplay>;
   isSubscription: boolean;
 }) {
   const totalLabel = isSubscription ? 'Weekly bill' : 'Total';
@@ -800,13 +1010,36 @@ function PaymentSummaryCard({
             </IconTile>
             <Text style={[searchFont('semibold'), styles.basketTitle, { fontSize: 15 * scale }]}>Payment Summary</Text>
           </View>
-          <Text style={{ fontSize: 18 * scale, color: SwashoColors.neutral600 }}>{expanded ? '▾' : '▸'}</Text>
+          <AltArrowDownIcon
+            width={24 * scale}
+            height={24 * scale}
+            stroke={SwashoColors.neutral600}
+            style={{ transform: [{ rotate: expanded ? '0deg' : '-90deg' }] }}
+          />
         </View>
         <CheckoutSectionDivider width={376.514 * scale} scale={scale} />
       </Pressable>
       {expanded ? (
         <View style={{ gap: 16 * scale, width: '100%' }}>
-          <SummaryRow scale={scale} label="Service Value" value={formatCheckoutInr(serviceTotal)} />
+          {paymentDisplay.showSubscriberRows ? (
+            <>
+              <SummaryRow
+                scale={scale}
+                label="Regular Service Value"
+                value={formatCheckoutInr(paymentDisplay.regularServiceValue)}
+              />
+              <SubscriberSavingRow scale={scale} value={formatCheckoutInr(-paymentDisplay.subscriberSaving)} />
+              <SummaryRow scale={scale} label="Service Value" value={formatCheckoutInr(paymentDisplay.serviceValue)} />
+            </>
+          ) : (
+            <SummaryRow scale={scale} label="Service Value" value={formatCheckoutInr(paymentDisplay.serviceValue)} />
+          )}
+          <SummaryRow
+            scale={scale}
+            label="GST"
+            value={formatCheckoutInr(paymentDisplay.gst)}
+            labelAccessory={<CheckoutInfoIcon width={16 * scale} height={16 * scale} />}
+          />
           <SummaryRow scale={scale} label="Pickup and Delivery" value="Free" valueColor="#16a34a" />
           <CheckoutSectionDivider width={376.514 * scale} scale={scale} />
           <View style={[styles.row, { justifyContent: 'space-between' }]}>
@@ -814,7 +1047,7 @@ function PaymentSummaryCard({
               {totalLabel}
             </Text>
             <Text style={[searchFont('semibold'), styles.totalLabel, { fontSize: 16 * scale, lineHeight: 14 * scale }]}>
-              {formatCheckoutInr(serviceTotal)}
+              {formatCheckoutInr(paymentDisplay.weeklyBill)}
             </Text>
           </View>
           {isSubscription ? (
@@ -836,17 +1069,22 @@ function SummaryRow({
   label,
   value,
   valueColor,
+  labelAccessory,
 }: {
   scale: number;
   label: string;
   value: string;
   valueColor?: string;
+  labelAccessory?: ReactNode;
 }) {
   return (
-    <View style={[styles.row, { justifyContent: 'space-between', gap: 24 * scale }]}>
-      <Text style={[searchFont('medium'), styles.cardHeading, { fontSize: 14 * scale, lineHeight: 18 * scale, flex: 1 }]}>
-        {label}
-      </Text>
+    <View style={[styles.row, { justifyContent: 'space-between', gap: 24 * scale, alignItems: 'flex-start' }]}>
+      <View style={[styles.row, { gap: 6 * scale, flex: 1, alignItems: 'center' }]}>
+        <Text style={[searchFont('medium'), styles.summaryLabel, { fontSize: 14 * scale, lineHeight: 18 * scale }]}>
+          {label}
+        </Text>
+        {labelAccessory}
+      </View>
       <Text
         style={[
           searchFont('semibold'),
@@ -855,6 +1093,60 @@ function SummaryRow({
         {value}
       </Text>
     </View>
+  );
+}
+
+function SubscriberSavingRow({ scale, value }: { scale: number; value: string }) {
+  return (
+    <View style={[styles.row, { justifyContent: 'space-between', gap: 24 * scale, alignItems: 'flex-start' }]}>
+      <View style={[styles.row, { gap: 6 * scale, flex: 1, alignItems: 'center' }]}>
+        <CheckoutMoneyTagIcon width={20 * scale} height={20 * scale} />
+        <Text style={[searchFont('medium'), styles.subscriberSavingLabel, { fontSize: 14 * scale, lineHeight: 18 * scale }]}>
+          Subscriber Saving
+        </Text>
+      </View>
+      <Text style={[searchFont('semibold'), styles.subscriberSavingLabel, { fontSize: 14 * scale, lineHeight: 18 * scale }]}>
+        {value}
+      </Text>
+    </View>
+  );
+}
+
+function ContactlessToggle({
+  scale,
+  value,
+  onValueChange,
+}: {
+  scale: number;
+  value: boolean;
+  onValueChange: (next: boolean) => void;
+}) {
+  return (
+    <Pressable
+      accessibilityRole="switch"
+      accessibilityState={{ checked: value }}
+      onPress={() => onValueChange(!value)}
+      style={[
+        styles.contactlessTrack,
+        {
+          width: 41 * scale,
+          height: 25 * scale,
+          borderRadius: 6451 * scale,
+          padding: 2.58 * scale,
+          backgroundColor: value ? SwashoColors.primary600 : SwashoColors.neutral400,
+          ...figmaShadow(FigmaShadows.providerCard, scale),
+        },
+      ]}>
+      <View
+        style={{
+          width: 20 * scale,
+          height: 20 * scale,
+          borderRadius: 10 * scale,
+          backgroundColor: '#d9d9d9',
+          marginLeft: value ? 17 * scale : 0,
+        }}
+      />
+    </Pressable>
   );
 }
 
@@ -912,8 +1204,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   subscriberBannerText: {
-    color: SwashoColors.primary800,
+    color: '#4f1ee3',
     letterSpacing: 0.5,
+  },
+  payMethodCol: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
   },
   card: {
     backgroundColor: SwashoColors.surface,
@@ -975,8 +1271,38 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  instructionGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    width: '100%',
+  },
   instructionOption: {
     alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
+  garmentThumb: {
+    borderColor: '#dbdbdb',
+    backgroundColor: SwashoColors.neutral50,
+  },
+  editButton: {
+    backgroundColor: SwashoColors.surface,
+    borderColor: SwashoColors.primary600,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  strikePrice: {
+    color: SwashoColors.neutral950,
+    textDecorationLine: 'line-through',
+  },
+  summaryLabel: {
+    color: SwashoColors.neutral800,
+  },
+  subscriberSavingLabel: {
+    color: SwashoColors.primary600,
+    textDecorationLine: 'underline',
+    textDecorationStyle: 'dotted',
+  },
+  contactlessTrack: {
     justifyContent: 'center',
   },
   instructionOptionLabel: {
