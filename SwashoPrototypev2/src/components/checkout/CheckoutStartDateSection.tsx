@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { CalendarBoldIcon } from '@/components/home/figma-icons';
+import { CalendarLinearIcon } from '@/components/home/figma-icons';
 import { searchFont } from '@/components/search/search-fonts';
 import type { CheckoutDayOption } from '@/lib/checkout-flow';
 import { SwashoColors } from '@/constants/swasho-tokens';
@@ -55,8 +55,19 @@ export function CheckoutStartDateSection({
             accessibilityLabel="Open calendar to choose start date"
             onPress={() => setCalendarOpen(true)}
             hitSlop={8}
-            style={({ pressed }) => [{ opacity: pressed ? 0.85 : 1 }]}>
-            <CalendarBoldIcon width={24 * scale} height={24 * scale} />
+            style={({ pressed }) => [
+              styles.calendarButton,
+              {
+                width: 24 * scale,
+                height: 24 * scale,
+                opacity: pressed ? 0.85 : 1,
+              },
+            ]}>
+            <CalendarLinearIcon
+              width={24 * scale}
+              height={24 * scale}
+              stroke={SwashoColors.primary600}
+            />
           </Pressable>
         </View>
         <View style={[styles.scrollClip, { width: cardWidth, maxWidth: cardWidth }]}>
@@ -98,5 +109,9 @@ const styles = StyleSheet.create({
   scrollClip: {
     alignSelf: 'center',
     overflow: 'hidden',
+  },
+  calendarButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

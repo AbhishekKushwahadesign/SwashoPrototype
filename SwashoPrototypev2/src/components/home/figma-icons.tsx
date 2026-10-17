@@ -104,18 +104,24 @@ export function CalendarBoldIcon({ width, height, style }: IconProps) {
   return <SvgXml xml={CalendarBoldIconXml} width={width} height={height} style={style} />;
 }
 
-const CalendarLinearIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20.8844" height="20.8844" viewBox="0 0 20.8844 20.8844" fill="none" xmlns="http://www.w3.org/2000/svg">
+const calendarLinearIconXml = (stroke: string) =>
+  `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20.8844" height="20.8844" viewBox="0 0 20.8844 20.8844" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g id="Linear / Time / Calendar Add">
-<path id="Vector" d="M1.74037 10.4422C1.74037 7.16054 1.74037 5.5197 2.75985 4.50022C3.77934 3.48074 5.42017 3.48074 8.70184 3.48074H12.1826C15.4642 3.48074 17.1051 3.48074 18.1246 4.50022C19.144 5.5197 19.144 7.16054 19.144 10.4422V12.1826C19.144 15.4642 19.144 17.1051 18.1246 18.1246C17.1051 19.144 15.4642 19.144 12.1826 19.144H8.70184C5.42017 19.144 3.77934 19.144 2.75985 18.1246C1.74037 17.1051 1.74037 15.4642 1.74037 12.1826V10.4422Z" stroke="#7C7C7C" strokeWidth="1.30528"/>
-<path id="Vector_2" d="M15.6633 13.923L13.9229 13.923M13.9229 13.923L12.1826 13.923M13.9229 13.923L13.9229 12.1826M13.9229 13.923L13.9229 15.6633" stroke="#7C7C7C" strokeWidth="1.30528" strokeLinecap="round"/>
-<path id="Vector_3" d="M6.09129 3.48074V2.17546" stroke="#7C7C7C" strokeWidth="1.30528" strokeLinecap="round"/>
-<path id="Vector_4" d="M14.7931 3.48074V2.17546" stroke="#7C7C7C" strokeWidth="1.30528" strokeLinecap="round"/>
-<path id="Vector_5" d="M2.17546 7.83165H18.709" stroke="#7C7C7C" strokeWidth="1.30528" strokeLinecap="round"/>
+<path id="Vector" d="M1.74037 10.4422C1.74037 7.16054 1.74037 5.5197 2.75985 4.50022C3.77934 3.48074 5.42017 3.48074 8.70184 3.48074H12.1826C15.4642 3.48074 17.1051 3.48074 18.1246 4.50022C19.144 5.5197 19.144 7.16054 19.144 10.4422V12.1826C19.144 15.4642 19.144 17.1051 18.1246 18.1246C17.1051 19.144 15.4642 19.144 12.1826 19.144H8.70184C5.42017 19.144 3.77934 19.144 2.75985 18.1246C1.74037 17.1051 1.74037 15.4642 1.74037 12.1826V10.4422Z" stroke="${stroke}" strokeWidth="1.30528"/>
+<path id="Vector_2" d="M15.6633 13.923L13.9229 13.923M13.9229 13.923L12.1826 13.923M13.9229 13.923L13.9229 12.1826M13.9229 13.923L13.9229 15.6633" stroke="${stroke}" strokeWidth="1.30528" strokeLinecap="round"/>
+<path id="Vector_3" d="M6.09129 3.48074V2.17546" stroke="${stroke}" strokeWidth="1.30528" strokeLinecap="round"/>
+<path id="Vector_4" d="M14.7931 3.48074V2.17546" stroke="${stroke}" strokeWidth="1.30528" strokeLinecap="round"/>
+<path id="Vector_5" d="M2.17546 7.83165H18.709" stroke="${stroke}" strokeWidth="1.30528" strokeLinecap="round"/>
 </g>
 </svg>`;
 
-export function CalendarLinearIcon({ width, height, style }: IconProps) {
-  return <SvgXml xml={CalendarLinearIconXml} width={width} height={height} style={style} />;
+export function CalendarLinearIcon({
+  width,
+  height,
+  style,
+  stroke = '#7C7C7C',
+}: IconProps & { stroke?: string }) {
+  return <SvgXml xml={calendarLinearIconXml(stroke)} width={width} height={height} style={style} />;
 }
 
 const CheckSquareIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="43.2" height="43.2" viewBox="0 0 43.2 43.2" fill="none" xmlns="http://www.w3.org/2000/svg">
