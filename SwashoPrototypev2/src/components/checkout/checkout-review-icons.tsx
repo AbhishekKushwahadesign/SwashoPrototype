@@ -68,6 +68,17 @@ export function CheckoutConfettiIcon({ width, height, style }: IconProps) {
   return svgIcon(confettiXml, { width, height, style });
 }
 
+/** Figma 59040:3027 — Bold / Security / Lock Keyhole (below-threshold subscriber banner). */
+const lockKeyholeXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Bold / Security / Lock Keyhole">
+<path id="Vector" d="M4.375 8.37884V6.66667C4.375 3.56006 6.8934 1.04167 10 1.04167C13.1066 1.04167 15.625 3.56006 15.625 6.66667V8.37884C16.554 8.44822 17.1589 8.62337 17.6011 9.06557C18.3333 9.7978 18.3333 10.9763 18.3333 13.3333C18.3333 15.6904 18.3333 16.8689 17.6011 17.6011C16.8689 18.3333 15.6904 18.3333 13.3333 18.3333H6.66667C4.30964 18.3333 3.13113 18.3333 2.3989 17.6011C1.66667 16.8689 1.66667 15.6904 1.66667 13.3333C1.66667 10.9763 1.66667 9.7978 2.3989 9.06557C2.84109 8.62337 3.44604 8.44822 4.375 8.37884ZM5.625 6.66667C5.625 4.25042 7.58375 2.29167 10 2.29167C12.4162 2.29167 14.375 4.25042 14.375 6.66667V8.33631C14.0558 8.33333 13.7096 8.33333 13.3333 8.33333H6.66667C6.2904 8.33333 5.94418 8.33333 5.625 8.33631V6.66667ZM11.6667 13.3333C11.6667 14.2538 10.9205 15 10 15C9.07953 15 8.33333 14.2538 8.33333 13.3333C8.33333 12.4129 9.07953 11.6667 10 11.6667C10.9205 11.6667 11.6667 12.4129 11.6667 13.3333Z" fill-rule="evenodd" clip-rule="evenodd" fill="#464646"/>
+</g>
+</svg>`;
+
+export function CheckoutLockKeyholeIcon({ width, height, style }: IconProps) {
+  return svgIcon(lockKeyholeXml, { width, height, style });
+}
+
 const contactlessXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g id="Frame 874">
 <g id="Linear / Hands / Hand Shake">

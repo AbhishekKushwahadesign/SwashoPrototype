@@ -205,3 +205,40 @@ export const SUBSCRIPTION_FREQUENCY_OPTIONS: {
     popular: true,
   },
 ];
+
+/** Minimum order total (INR) for subscriber exclusive pricing, by pickup frequency. */
+export const SUBSCRIPTION_EXCLUSIVE_PRICING_MIN_ORDER_INR: Record<SubscriptionFrequencyOption, number> = {
+  'twice-weekly': 299,
+  'once-weekly': 399,
+};
+
+export function subscriptionExclusivePricingThresholdInr(
+  frequency: SubscriptionFrequencyOption | undefined,
+): number | null {
+  if (!frequency) {
+    return null;
+  }
+  return SUBSCRIPTION_EXCLUSIVE_PRICING_MIN_ORDER_INR[frequency];
+}
+
+export function isSubscriptionExclusivePricingQualified(
+  orderTotalInr: number,
+  frequency: SubscriptionFrequencyOption | undefined,
+): boolean {
+  const threshold = subscriptionExclusivePricingThresholdInr(frequency);
+  if (threshold == null) {
+    return false;
+  }
+  return orderTotalInr >= threshold;
+}
+
+export function subscriptionExclusivePricingShortfallInr(
+  orderTotalInr: number,
+  frequency: SubscriptionFrequencyOption | undefined,
+): number {
+  const threshold = subscriptionExclusivePricingThresholdInr(frequency);
+  if (threshold == null) {
+    return 0;
+  }
+  return Math.max(0, Math.ceil(threshold - orderTotalInr));
+}

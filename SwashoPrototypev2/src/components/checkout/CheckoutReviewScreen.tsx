@@ -4,6 +4,7 @@ import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   Alert,
   Image,
+  ImageBackground,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -35,7 +36,9 @@ import {
   CHECKOUT_PICKUP_TIME_SLOTS,
   CHECKOUT_WEEKDAY_OPTIONS,
   checkoutDayOptionFromKey,
+  isSubscriptionExclusivePricingQualified,
   oneTimeCheckoutHref,
+  subscriptionExclusivePricingShortfallInr,
   subscriptionSubscribe2Href,
   SUBSCRIPTION_FREQUENCY_OPTIONS,
   type CheckoutWeekdayId,
@@ -49,6 +52,7 @@ import {
   CheckoutCartIcon,
   CheckoutCheckSquareIcon,
   CheckoutConfettiIcon,
+  CheckoutLockKeyholeIcon,
   CheckoutContactlessIcon,
   CheckoutEditPenSquareIcon,
   CheckoutGarmentThumbIcon,
@@ -129,6 +133,7 @@ const GST_RATE = 0.18;
 /** Figma 3353:13605 — vertical wash (primary/100 → primary/50). */
 const SUBSCRIBER_BANNER_GRADIENT_COLORS = [SwashoColors.primary100, SwashoColors.primary50] as const;
 const SUBSCRIBER_BANNER_HEIGHT = 49;
+const subscriberBannerBelowThresholdBg = require('@/assets/checkout/subscriber-banner-below-threshold-bg.png');
 
 function basketGarmentThumbVariant(serviceId: string): 'bulk' | 'tshirt' | 'top' {
   if (isBulkServiceId(serviceId)) {
@@ -214,6 +219,22 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
     () => buildPaymentSummaryDisplay(totals.totalPrice, isSubscription),
     [isSubscription, totals.totalPrice],
   );
+
+  const subscriberExclusiveBanner = useMemo(() => {
+    if (!isSubscription || !checkout.subscriptionFrequency) {
+      return null;
+    }
+    const qualified = isSubscriptionExclusivePricingQualified(
+      totals.totalPrice,
+      checkout.subscriptionFrequency,
+    );
+    return {
+      qualified,
+      shortfallInr: qualified
+        ? 0
+        : subscriptionExclusivePricingShortfallInr(totals.totalPrice, checkout.subscriptionFrequency),
+    };
+  }, [checkout.subscriptionFrequency, isSubscription, totals.totalPrice]);
 
   const [contactless, setContactless] = useState(false);
   const [instructionTab, setInstructionTab] = useState<'pickup' | 'delivery'>('pickup');
@@ -470,33 +491,65 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
             paddingBottom: scrollBottomPadding,
           }}
           showsVerticalScrollIndicator={false}>
-          {isSubscription ? (
-            <LinearGradient
-              colors={[...SUBSCRIBER_BANNER_GRADIENT_COLORS]}
-              start={{ x: 0.5, y: 0 }}
-              end={{ x: 0.5, y: 1 }}
-              style={[
-                styles.subscriberBanner,
-                {
-                  alignSelf: 'stretch',
-                  width: '100%',
-                  height: SUBSCRIBER_BANNER_HEIGHT * scale,
-                  paddingTop: 4 * scale,
-                  paddingBottom: 15 * scale,
-                  gap: 6 * scale,
-                  zIndex: -1,
-                },
-              ]}>
-              <CheckoutConfettiIcon width={20 * scale} height={20 * scale} />
-              <Text
+          {subscriberExclusiveBanner ? (
+            subscriberExclusiveBanner.qualified ? (
+              <LinearGradient
+                colors={[...SUBSCRIBER_BANNER_GRADIENT_COLORS]}
+                start={{ x: 0.5, y: 0 }}
+                end={{ x: 0.5, y: 1 }}
                 style={[
-                  searchFont('medium'),
-                  styles.subscriberBannerText,
-                  { fontSize: 13 * scale, lineHeight: 20 * scale },
+                  styles.subscriberBanner,
+                  {
+                    alignSelf: 'stretch',
+                    width: '100%',
+                    height: SUBSCRIBER_BANNER_HEIGHT * scale,
+                    paddingTop: 4 * scale,
+                    paddingBottom: 15 * scale,
+                    gap: 6 * scale,
+                    zIndex: -1,
+                  },
                 ]}>
-                You&apos;re enjoying subscriber exclusive pricing
-              </Text>
-            </LinearGradient>
+                <CheckoutConfettiIcon width={20 * scale} height={20 * scale} />
+                <Text
+                  style={[
+                    searchFont('medium'),
+                    styles.subscriberBannerText,
+                    { fontSize: 13 * scale, lineHeight: 20 * scale },
+                  ]}>
+                  You&apos;re enjoying subscriber exclusive pricing
+                </Text>
+              </LinearGradient>
+            ) : (
+              <ImageBackground
+                source={subscriberBannerBelowThresholdBg}
+                resizeMode="cover"
+                style={[
+                  styles.subscriberBanner,
+                  {
+                    alignSelf: 'stretch',
+                    width: '100%',
+                    height: SUBSCRIBER_BANNER_HEIGHT * scale,
+                    paddingTop: 4 * scale,
+                    paddingBottom: 15 * scale,
+                    gap: 6 * scale,
+                    zIndex: -1,
+                  },
+                ]}>
+                <CheckoutLockKeyholeIcon width={20 * scale} height={20 * scale} />
+                <Text
+                  style={[
+                    searchFont('medium'),
+                    styles.subscriberBannerBelowThresholdText,
+                    { fontSize: 13 * scale, lineHeight: 20 * scale },
+                  ]}>
+                  Add{' '}
+                  <Text style={searchFont('semibold')}>
+                    {formatCheckoutInr(subscriberExclusiveBanner.shortfallInr)} more
+                  </Text>{' '}
+                  to unlock exclusive pricing
+                </Text>
+              </ImageBackground>
+            )
           ) : null}
 
           <View
@@ -504,7 +557,7 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
               width: '100%',
               alignItems: 'center',
               gap: 12 * scale,
-              marginTop: isSubscription ? -SUBSCRIBER_SCHEDULE_STACK_OVERLAP * scale : 0,
+              marginTop: subscriberExclusiveBanner ? -SUBSCRIBER_SCHEDULE_STACK_OVERLAP * scale : 0,
             }}>
             <ScheduleCard
               scale={scale}
@@ -1563,6 +1616,10 @@ const styles = StyleSheet.create({
   },
   subscriberBannerText: {
     color: '#4f1ee3',
+    letterSpacing: 0.5,
+  },
+  subscriberBannerBelowThresholdText: {
+    color: SwashoColors.neutral800,
     letterSpacing: 0.5,
   },
   payMethodCol: {
