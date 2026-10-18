@@ -405,7 +405,6 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
                 {
                   width: contentWidth,
                   height: SUBSCRIBER_BANNER_HEIGHT * scale,
-                  paddingBottom: 15 * scale,
                   gap: 6 * scale,
                 },
               ]}>
