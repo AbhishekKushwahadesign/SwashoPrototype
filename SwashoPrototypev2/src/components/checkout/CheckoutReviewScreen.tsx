@@ -62,6 +62,7 @@ import {
   CheckoutBillIcon,
   CheckoutInstructionsHeaderIcon,
   CheckoutMoneyTagIcon,
+  CheckoutServicesChevronIcon,
 } from './checkout-review-icons';
 
 const compensationShieldImage = require('@/assets/checkout/compensation-shield.png');
@@ -1021,7 +1022,7 @@ function BasketLineRow({
                     Services
                   </Text>
                   <View style={{ transform: [{ rotate: servicesExpanded ? '0deg' : '-90deg' }] }}>
-                    <ChevronDownIcon width={18 * scale} height={18 * scale} />
+                    <CheckoutServicesChevronIcon width={18 * scale} height={18 * scale} />
                   </View>
                 </Pressable>
               ) : null}

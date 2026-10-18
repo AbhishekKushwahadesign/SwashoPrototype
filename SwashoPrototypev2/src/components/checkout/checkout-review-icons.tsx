@@ -236,6 +236,17 @@ export function CheckoutCartIcon({ width, height, style }: IconProps) {
   return svgIcon(cartXml, { width, height, style });
 }
 
+/** Figma `3353:13678` — Bold / Arrows / Alt Arrow Down (basket Services row, 18×18). */
+const servicesChevronXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Bold / Arrows / Alt Arrow Down">
+<path id="Vector" d="M9.2778 11.8764L14.1001 6.9035C14.401 6.5932 14.2186 6 13.8223 6H4.17773C3.78142 6 3.59902 6.5932 3.89992 6.9035L8.72219 11.8764C8.88205 12.0412 9.11794 12.0412 9.2778 11.8764Z" fill="#3D3D3D"/>
+</g>
+</svg>`;
+
+export function CheckoutServicesChevronIcon({ width, height, style }: IconProps) {
+  return svgIcon(servicesChevronXml, { width, height, style });
+}
+
 const billXml = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M6 3H18C19.1046 3 20 3.89543 20 5V19C20 20.1046 19.1046 21 18 21H6C4.89543 21 4 20.1046 4 19V5C4 3.89543 4.89543 3 6 3Z" stroke="#292929" stroke-width="1.5"/>
 <path d="M8 7H16M8 11H16M8 15H12" stroke="#292929" stroke-width="1.5" stroke-linecap="round"/>
