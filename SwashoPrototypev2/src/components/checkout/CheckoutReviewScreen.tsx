@@ -1051,8 +1051,12 @@ function BasketLineRow({
           </View>
           <View
             style={{
-              borderRadius: 8.16 * scale,
-              ...figmaShadow(FigmaShadows.providerCard, scale),
+              borderRadius: 8.889 * scale,
+              backgroundColor: SwashoColors.surface,
+              ...figmaShadow(
+                { offsetX: 0, offsetY: 4, blur: 4, color: '#000000', opacity: 0.1 },
+                scale,
+              ),
             }}>
             <Pressable
               accessibilityRole="button"
@@ -1062,24 +1066,28 @@ function BasketLineRow({
                 styles.editButton,
                 styles.row,
                 {
-                  gap: 5.5 * scale,
-                  paddingHorizontal: 14.5 * scale,
-                  paddingVertical: 7.3 * scale,
-                  borderRadius: 7.5 * scale,
-                  borderWidth: 0.459 * scale,
-                  minHeight: 29.4 * scale,
-                  minWidth: 78.9 * scale,
+                  gap: 6 * scale,
+                  height: 32 * scale,
+                  width: 86 * scale,
+                  paddingHorizontal: 16 * scale,
+                  paddingVertical: 8 * scale,
+                  borderRadius: 8.16 * scale,
+                  borderWidth: 0.5 * scale,
                 },
               ]}>
               <Text
                 style={[
                   searchFont('medium'),
                   styles.changeLink,
-                  { fontSize: 11.8 * scale, lineHeight: 10.1 * scale, letterSpacing: 0.459 * scale },
+                  {
+                    fontSize: 12.852 * scale,
+                    lineHeight: 11.016 * scale,
+                    letterSpacing: 0.459 * scale,
+                  },
                 ]}>
                 Edit
               </Text>
-              <CheckoutEditPenSquareIcon width={16.5 * scale} height={16.5 * scale} />
+              <CheckoutEditPenSquareIcon width={18 * scale} height={18 * scale} />
             </Pressable>
           </View>
         </View>
