@@ -52,6 +52,8 @@ import {
   CheckoutContactlessIcon,
   CheckoutEditPenSquareIcon,
   CheckoutGarmentThumbIcon,
+  CheckoutHeaderMenuDotsIcon,
+  CheckoutHeaderShareIcon,
   CheckoutInfoIcon,
   CheckoutInstructionDoorstepIcon,
   CheckoutInstructionPenIcon,
@@ -66,6 +68,10 @@ const STATUS_BAR_HEIGHT = 32;
 /** Figma 3353:13935 — back + provider/address row (Frame 255) at y=56 on screen (69 inside 3353:13934 @ y=-13). */
 const HEADER_ROW_TOP = 56.58;
 const HEADER_ROW_HEIGHT = 36;
+/** Figma 3353:13934 — gap between title row cluster and header action icons. */
+const HEADER_ACTIONS_GAP = 12;
+/** Figma 3353:13946 / 3353:13947 — share + menu dots (24×24). */
+const HEADER_ACTION_ICON_SIZE = 24;
 /** Figma 3353:13933 clip height 88; inner 3353:13934 extends to y=101 where banner 3353:13605 begins. */
 const HEADER_CARD_HEIGHT = 101;
 /** Figma 3353:13605 — scroll content / banner starts at y=101 (flush under header). */
@@ -228,6 +234,14 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
     returnToSchedule();
   }, [returnToSchedule]);
 
+  const handleSharePress = useCallback(() => {
+    Alert.alert('Share', 'Sharing is not available in this prototype yet.');
+  }, []);
+
+  const handleMenuPress = useCallback(() => {
+    Alert.alert('Menu', 'More options are not available in this prototype yet.');
+  }, []);
+
   const handleEditService = useCallback(
     (serviceId: string) => {
       router.push({
@@ -388,35 +402,57 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
               height: headerCardHeight,
               paddingTop: headerRowPaddingTop,
               paddingBottom: headerCardPaddingBottom,
-              paddingHorizontal: 20 * scale,
+              paddingLeft: 20 * scale,
+              paddingRight: 16 * scale,
+              gap: HEADER_ACTIONS_GAP * scale,
               ...figmaShadow(FigmaShadows.providerCard, scale),
             },
           ]}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Go back"
-            onPress={handleBackPress}
-            style={[styles.backHit, { width: 26 * scale, height: 26 * scale }]}>
-            <ArrowLeftIcon width={20 * scale} height={20 * scale} />
-          </Pressable>
-          <View style={[styles.headerTextCol, { gap: 4 * scale, flex: 1, marginLeft: 9 * scale }]}>
-            <Text style={[searchFont('medium'), styles.providerCategory, { fontSize: 14 * scale, lineHeight: 12 * scale }]}>
-              {provider?.category ?? 'Laundromat'}
-            </Text>
-            <View style={[styles.addressRow, { gap: 4 * scale }]}>
-              <View style={[styles.homeChip, { gap: 4 * scale }]}>
-                <Text style={[searchFont('medium'), styles.homeLabel, { fontSize: 14 * scale, lineHeight: 12 * scale }]}>
-                  Home
-                </Text>
-                <AltArrowDownIcon width={18 * scale} height={18 * scale} />
-              </View>
-              <Text
-                numberOfLines={1}
-                style={[searchFont('medium'), styles.addressLine, { fontSize: 14 * scale, lineHeight: 12 * scale, flex: 1 }]}>
-                {CHECKOUT_HOME_ADDRESS}
+          <View style={[styles.headerTitleRow, { flex: 1, gap: 9 * scale, minWidth: 0 }]}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
+              onPress={handleBackPress}
+              style={[styles.backHit, { width: 26 * scale, height: 26 * scale }]}>
+              <ArrowLeftIcon width={20 * scale} height={20 * scale} />
+            </Pressable>
+            <View style={[styles.headerTextCol, { gap: 4 * scale, flex: 1, minWidth: 0 }]}>
+              <Text style={[searchFont('medium'), styles.providerCategory, { fontSize: 14 * scale, lineHeight: 12 * scale }]}>
+                {provider?.category ?? 'Laundromat'}
               </Text>
+              <View style={[styles.addressRow, { gap: 4 * scale }]}>
+                <View style={[styles.homeChip, { gap: 4 * scale }]}>
+                  <Text style={[searchFont('medium'), styles.homeLabel, { fontSize: 14 * scale, lineHeight: 12 * scale }]}>
+                    Home
+                  </Text>
+                  <AltArrowDownIcon width={18 * scale} height={18 * scale} stroke={SwashoColors.darkHeaderText} />
+                </View>
+                <Text
+                  numberOfLines={1}
+                  style={[searchFont('medium'), styles.addressLine, { fontSize: 14 * scale, lineHeight: 12 * scale, flex: 1 }]}>
+                  {CHECKOUT_HOME_ADDRESS}
+                </Text>
+              </View>
             </View>
           </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Share order"
+            onPress={handleSharePress}
+            hitSlop={8}
+            style={[styles.headerActionHit, { width: HEADER_ACTION_ICON_SIZE * scale, height: HEADER_ACTION_ICON_SIZE * scale }]}>
+            <CheckoutHeaderShareIcon width={HEADER_ACTION_ICON_SIZE * scale} height={HEADER_ACTION_ICON_SIZE * scale} />
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="More options"
+            onPress={handleMenuPress}
+            hitSlop={8}
+            style={[styles.headerActionHit, { width: HEADER_ACTION_ICON_SIZE * scale, height: HEADER_ACTION_ICON_SIZE * scale }]}>
+            <View style={{ transform: [{ rotate: '90deg' }] }}>
+              <CheckoutHeaderMenuDotsIcon width={HEADER_ACTION_ICON_SIZE * scale} height={HEADER_ACTION_ICON_SIZE * scale} />
+            </View>
+          </Pressable>
         </View>
 
         <ScrollView
@@ -1470,6 +1506,14 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   backHit: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerActionHit: {
     alignItems: 'center',
     justifyContent: 'center',
   },

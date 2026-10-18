@@ -272,3 +272,33 @@ export function CheckoutGarmentThumbIcon({ variant, width, height, style }: Chec
 export function CheckoutInstructionsHeaderIcon({ width, height, style }: IconProps) {
   return svgIcon(instructions_headerXml, { width, height, style });
 }
+
+/** Figma 3353:13946 — Linear / Essentional, UI / Share (24×24). */
+const shareLinearXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Linear / Essentional, UI / Share">
+<path id="Vector" d="M9 12C9 13.3807 7.88071 14.5 6.5 14.5C5.11929 14.5 4 13.3807 4 12C4 10.6193 5.11929 9.5 6.5 9.5C7.88071 9.5 9 10.6193 9 12Z" stroke-width="1.5" stroke="#0D0D0D"/>
+<path id="Vector_2" d="M9 10L14 6.5" stroke-width="1.5" stroke-linecap="round" stroke="#0D0D0D"/>
+<path id="Vector_3" d="M9 14L14 17.5" stroke-width="1.5" stroke-linecap="round" stroke="#0D0D0D"/>
+<path id="Vector_4" d="M19 18.5C19 19.8807 17.8807 21 16.5 21C15.1193 21 14 19.8807 14 18.5C14 17.1193 15.1193 16 16.5 16C17.8807 16 19 17.1193 19 18.5Z" stroke-width="1.5" stroke="#0D0D0D"/>
+<path id="Vector_5" d="M19 5.5C19 6.88071 17.8807 8 16.5 8C15.1193 8 14 6.88071 14 5.5C14 4.11929 15.1193 3 16.5 3C17.8807 3 19 4.11929 19 5.5Z" stroke-width="1.5" stroke="#0D0D0D"/>
+</g>
+</svg>`;
+
+export function CheckoutHeaderShareIcon({ width, height, style }: IconProps) {
+  return svgIcon(shareLinearXml, { width, height, style });
+}
+
+/** Figma 3353:13947 — Bold / Menu Dots, rotated 90° in design for vertical kebab (24×24). */
+const menuDotsBoldXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Bold / Essentional, UI / Menu Dots ">
+<g id="Vector">
+<path d="M7 12C7 13.1046 6.10457 14 5 14C3.89543 14 3 13.1046 3 12C3 10.8954 3.89543 10 5 10C6.10457 10 7 10.8954 7 12Z" fill="#0D0D0D"/>
+<path d="M14 12C14 13.1046 13.1046 14 12 14C10.8954 14 10 13.1046 10 12C10 10.8954 10.8954 10 12 10C13.1046 10 14 10.8954 14 12Z" fill="#0D0D0D"/>
+<path d="M21 12C21 13.1046 20.1046 14 19 14C17.8954 14 17 13.1046 17 12C17 10.8954 17.8954 10 19 10C20.1046 10 21 10.8954 21 12Z" fill="#0D0D0D"/>
+</g>
+</g>
+</svg>`;
+
+export function CheckoutHeaderMenuDotsIcon({ width, height, style }: IconProps) {
+  return svgIcon(menuDotsBoldXml, { width, height, style });
+}
