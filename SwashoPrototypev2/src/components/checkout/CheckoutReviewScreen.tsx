@@ -64,6 +64,8 @@ import {
 const compensationShieldImage = require('@/assets/checkout/compensation-shield.png');
 const STATUS_BAR_HEIGHT = 32;
 const HEADER_BLOCK_HEIGHT = 114;
+/** Figma 3353:13605 — scroll content / banner starts at y=101 (flush under header). */
+const CHECKOUT_REVIEW_CONTENT_TOP = 101;
 const HOME_INDICATOR_HEIGHT = 24;
 const BOTTOM_BAR_HEIGHT = 80;
 const COMPENSATION_BAR_HEIGHT = 54;
@@ -408,7 +410,7 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
         </View>
 
         <ScrollView
-          style={{ flex: 1, marginTop: safeTop + HEADER_BLOCK_HEIGHT * scale }}
+          style={{ flex: 1, marginTop: safeTop + CHECKOUT_REVIEW_CONTENT_TOP * scale }}
           contentContainerStyle={{
             alignItems: 'center',
             paddingTop: isSubscription ? 0 : 12 * scale,
@@ -551,9 +553,9 @@ function ScheduleCard({
         styles.card,
         {
           width: cardWidth,
-          paddingHorizontal: 16.022 * scale,
-          paddingVertical: 12.016 * scale,
-          gap: 12.016 * scale,
+          paddingHorizontal: 10 * scale,
+          paddingVertical: 8 * scale,
+          gap: 8 * scale,
           borderRadius: SwashoRadii.lg * scale,
           ...figmaShadow(FigmaShadows.checkoutScheduleCard, scale),
         },
