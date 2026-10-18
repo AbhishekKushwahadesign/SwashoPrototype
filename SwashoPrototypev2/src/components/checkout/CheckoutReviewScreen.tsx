@@ -565,7 +565,16 @@ function ScheduleCard({
         </View>
       ) : null}
       {isSubscription ? <CheckoutSectionDivider width={376.514 * scale} scale={scale} /> : null}
-      <View style={[styles.scheduleRow, { gap: 8 * scale, paddingLeft: 2 * scale }]}>
+      <View
+        style={[
+          styles.scheduleRow,
+          {
+            gap: 8 * scale,
+            paddingTop: 8 * scale,
+            paddingBottom: 8 * scale,
+            paddingLeft: 2 * scale,
+          },
+        ]}>
         <IconTile scale={scale}>
           <CalendarLinearIcon width={24 * scale} height={24 * scale} stroke={SwashoColors.neutral950} />
         </IconTile>
