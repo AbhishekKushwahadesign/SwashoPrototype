@@ -67,6 +67,14 @@ const HEADER_BLOCK_HEIGHT = 114;
 const HOME_INDICATOR_HEIGHT = 24;
 const BOTTOM_BAR_HEIGHT = 80;
 const COMPENSATION_BAR_HEIGHT = 54;
+/** Figma 3353:13981 — shield frame in compensation bar (3353:13980). */
+const COMPENSATION_SHIELD_FRAME_WIDTH = 33.413;
+const COMPENSATION_SHIELD_FRAME_HEIGHT = 33.405;
+/** Figma image crop inside the frame (overflow hidden). */
+const COMPENSATION_SHIELD_IMAGE_WIDTH_RATIO = 1.141;
+const COMPENSATION_SHIELD_IMAGE_HEIGHT_RATIO = 1.7119;
+const COMPENSATION_SHIELD_IMAGE_LEFT_RATIO = -0.0705;
+const COMPENSATION_SHIELD_IMAGE_TOP_RATIO = -0.3033;
 
 const WEEKDAY_EVERY_LABEL: Record<CheckoutWeekdayId, string> = {
   mon: 'Monday',
@@ -287,12 +295,25 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
             gap: 8 * scale,
           },
         ]}>
-        <Image
-          source={compensationShieldImage}
-          style={{ width: 33 * scale, height: 33 * scale }}
-          resizeMode="contain"
-          accessibilityIgnoresInvertColors
-        />
+        <View
+          style={{
+            width: COMPENSATION_SHIELD_FRAME_WIDTH * scale,
+            height: COMPENSATION_SHIELD_FRAME_HEIGHT * scale,
+            overflow: 'hidden',
+          }}>
+          <Image
+            source={compensationShieldImage}
+            style={{
+              position: 'absolute',
+              width: COMPENSATION_SHIELD_FRAME_WIDTH * COMPENSATION_SHIELD_IMAGE_WIDTH_RATIO * scale,
+              height: COMPENSATION_SHIELD_FRAME_HEIGHT * COMPENSATION_SHIELD_IMAGE_HEIGHT_RATIO * scale,
+              left: COMPENSATION_SHIELD_FRAME_WIDTH * COMPENSATION_SHIELD_IMAGE_LEFT_RATIO * scale,
+              top: COMPENSATION_SHIELD_FRAME_HEIGHT * COMPENSATION_SHIELD_IMAGE_TOP_RATIO * scale,
+            }}
+            resizeMode="cover"
+            accessibilityIgnoresInvertColors
+          />
+        </View>
         <View style={{ flex: 1, gap: 6 * scale }}>
           <Text style={[searchFont('medium'), styles.compensationTitle, { fontSize: 13 * scale, lineHeight: 14 * scale }]}>
             We&apos;ve Got You Covered
