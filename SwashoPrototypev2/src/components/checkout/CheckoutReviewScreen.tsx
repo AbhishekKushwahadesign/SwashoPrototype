@@ -438,7 +438,7 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
                   alignSelf: 'stretch',
                   width: '100%',
                   height: SUBSCRIBER_BANNER_HEIGHT * scale,
-                  paddingTop: 8 * scale,
+                  paddingTop: 6 * scale,
                   paddingBottom: 15 * scale,
                   gap: 6 * scale,
                   zIndex: -1,
