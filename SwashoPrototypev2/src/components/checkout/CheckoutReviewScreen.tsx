@@ -46,7 +46,6 @@ import { isBulkServiceId } from '@/lib/provider-cart-selection';
 import { CheckoutSectionDivider } from './CheckoutSectionDivider';
 import {
   CheckoutAddSquareIcon,
-  CheckoutBillIcon,
   CheckoutCartIcon,
   CheckoutCheckSquareIcon,
   CheckoutConfettiIcon,
@@ -1289,7 +1288,7 @@ function PaymentSummaryCard({
         <View style={[styles.row, { justifyContent: 'space-between', paddingLeft: 6 * scale }]}>
           <View style={[styles.row, { gap: 8 * scale, flex: 1 }]}>
             <IconTile scale={scale}>
-              <CheckoutBillIcon width={24 * scale} height={24 * scale} />
+              <CheckoutMoneyTagIcon width={24 * scale} height={24 * scale} />
             </IconTile>
             <Text style={[searchFont('semibold'), styles.basketTitle, { fontSize: 15 * scale }]}>Payment Summary</Text>
           </View>

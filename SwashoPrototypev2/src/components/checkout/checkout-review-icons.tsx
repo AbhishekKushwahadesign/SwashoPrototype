@@ -220,10 +220,16 @@ export function CheckoutInstructionShieldIcon({ width, height, style }: IconProp
   return svgIcon(shieldXml, { width, height, style });
 }
 
-const cartXml = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M9 22C9.55228 22 10 21.5523 10 21C10 20.4477 9.55228 20 9 20C8.44772 20 8 20.4477 8 21C8 21.5523 8.44772 22 9 22Z" stroke="#292929" stroke-width="1.5"/>
-<path d="M20 22C20.5523 22 21 21.5523 21 21C21 20.4477 20.5523 20 20 20C19.4477 20 19 20.4477 19 21C19 21.5523 19.4477 22 20 22Z" stroke="#292929" stroke-width="1.5"/>
-<path d="M1 1H5L7.68 14.39C7.77144 14.8504 8.02191 15.264 8.38755 15.5583C8.75318 15.8526 9.2107 16.009 9.68 16H19.4C19.8693 16.009 20.3268 15.8526 20.6925 15.5583C21.0581 15.264 21.3086 14.8504 21.4 14.39L23 6H6" stroke="#292929" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+/** Figma `3353:13647` — Linear / Shopping, Ecommerce / Cart 3 (Your Basket header). */
+const cartXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Linear / Shopping, Ecommerce / Cart 3">
+<path id="Vector" d="M9.68466 21H14.3153C16.5652 21 17.6901 21 18.5039 20.3646C19.3177 19.7292 19.5905 18.6379 20.1362 16.4552C20.9941 13.0234 21.4231 11.3075 20.5223 10.1538C19.6215 9 17.8528 9 14.3153 9H9.68466C6.14725 9 4.37854 9 3.47771 10.1538C2.57688 11.3075 3.00586 13.0234 3.8638 16.4552C4.40947 18.6379 4.68231 19.7292 5.49609 20.3646C6.30988 21 7.4348 21 9.68466 21Z" stroke-width="1.5" stroke="#292929"/>
+<path id="Vector_2" d="M19.5 9.5L18.7896 6.89465C18.5157 5.89005 18.3787 5.38775 18.0978 5.00946C17.818 4.63273 17.4378 4.34234 17.0008 4.17152C16.5619 4 16.0413 4 15 4M4.5 9.5L5.2104 6.89465C5.48432 5.89005 5.62128 5.38775 5.90221 5.00946C6.18199 4.63273 6.56216 4.34234 6.99922 4.17152C7.43808 4 7.95872 4 9 4" stroke-width="1.5" stroke="#292929"/>
+<path id="Vector_3" d="M10 5H14C14.5523 5 15 4.55228 15 4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4C9 4.55228 9.44772 5 10 5Z" stroke-width="1.5" stroke="#292929"/>
+<path id="Vector_4" d="M8 13V17" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#292929"/>
+<path id="Vector_5" d="M16 13V17" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#292929"/>
+<path id="Vector_6" d="M12 13V17" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#292929"/>
+</g>
 </svg>`;
 
 export function CheckoutCartIcon({ width, height, style }: IconProps) {
