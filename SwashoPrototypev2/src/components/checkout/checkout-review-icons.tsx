@@ -149,6 +149,14 @@ export function CheckoutInfoBoldIcon({ width, height, style }: IconProps) {
   return svgIcon(info_boldXml, { width, height, style });
 }
 
+const instructions_headerXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Linear / Essentional, UI / Info Circle">
+<circle id="Vector" cx="12" cy="12" r="10" stroke="#292929" stroke-width="1.5"/>
+<path id="Vector_2" d="M12 17V11" stroke-width="1.63636" stroke-linecap="round" stroke="#292929"/>
+<circle id="Vector_3" cx="1" cy="1" r="1" transform="matrix(1 0 0 -1 11 9)" fill="#292929"/>
+</g>
+</svg>`;
+
 const instruction_doorstepXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20.9" height="20.9" viewBox="0 0 20.9 20.9" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g id="Screenshot 2025-09-15 133221 1">
 <g id="Vector">
@@ -255,6 +263,6 @@ export function CheckoutGarmentThumbIcon({ variant, width, height, style }: Chec
   return <CheckoutGarmentTopIcon width={width} height={height} style={style} />;
 }
 
-export function CheckoutInstructionsHeaderIcon(props: IconProps) {
-  return CheckoutInfoBoldIcon(props);
+export function CheckoutInstructionsHeaderIcon({ width, height, style }: IconProps) {
+  return svgIcon(instructions_headerXml, { width, height, style });
 }
