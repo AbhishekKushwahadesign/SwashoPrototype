@@ -430,10 +430,10 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
                   alignSelf: 'stretch',
                   width: '100%',
                   height: SUBSCRIBER_BANNER_HEIGHT * scale,
+                  paddingTop: 8 * scale,
                   paddingBottom: 15 * scale,
                   gap: 6 * scale,
-                  zIndex: 2,
-                  overflow: 'visible',
+                  zIndex: -1,
                 },
               ]}>
               <CheckoutConfettiIcon width={20 * scale} height={20 * scale} />
@@ -454,7 +454,6 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
               alignItems: 'center',
               gap: 12 * scale,
               marginTop: isSubscription ? -SUBSCRIBER_SCHEDULE_STACK_OVERLAP * scale : 0,
-              zIndex: 1,
             }}>
             <ScheduleCard
               scale={scale}
@@ -1450,8 +1449,7 @@ const styles = StyleSheet.create({
   subscriberBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'visible',
+    justifyContent: 'flex-start',
   },
   subscriberBannerText: {
     color: '#4f1ee3',
