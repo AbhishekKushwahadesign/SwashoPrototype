@@ -703,16 +703,30 @@ function BasketCard({
           ...figmaShadow(FigmaShadows.providerCard, scale),
         },
       ]}>
-      <View style={[styles.row, { gap: 8 * scale, paddingLeft: 6 * scale, width: '100%', alignItems: 'center' }]}>
-        <IconTile scale={scale}>
-          <CheckoutCartIcon width={24 * scale} height={24 * scale} />
-        </IconTile>
-        <Text style={[searchFont('semibold'), styles.basketTitle, { fontSize: 15 * scale, flex: 1, letterSpacing: 0.3 * scale }]}>
-          Your Basket{' '}
-          <Text style={[searchFont('medium'), styles.muted, { fontSize: 13 * scale, letterSpacing: 0.5 * scale, lineHeight: 20 * scale }]}>
-            ({basketCount} {basketCount === 1 ? 'Item' : 'Items'})
+      <View
+        style={[
+          styles.row,
+          {
+            width: '100%',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: 6 * scale,
+            gap: 8 * scale,
+          },
+        ]}>
+        <View style={[styles.row, { flex: 1, minWidth: 0, gap: 8 * scale, alignItems: 'center' }]}>
+          <IconTile scale={scale}>
+            <CheckoutCartIcon width={24 * scale} height={24 * scale} />
+          </IconTile>
+          <Text
+            numberOfLines={1}
+            style={[searchFont('semibold'), styles.basketTitle, { fontSize: 15 * scale, flexShrink: 1, letterSpacing: 0.3 * scale }]}>
+            Your Basket{' '}
+            <Text style={[searchFont('medium'), styles.muted, { fontSize: 13 * scale, letterSpacing: 0.5 * scale, lineHeight: 20 * scale }]}>
+              ({basketCount} {basketCount === 1 ? 'Item' : 'Items'})
+            </Text>
           </Text>
-        </Text>
+        </View>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Add basket instruction"
@@ -720,8 +734,8 @@ function BasketCard({
             styles.instructionChip,
             styles.row,
             {
-              marginLeft: 'auto',
               flexShrink: 0,
+              alignSelf: 'flex-end',
               borderRadius: SwashoRadii.md * scale,
               paddingHorizontal: 4 * scale,
               height: 29 * scale,
