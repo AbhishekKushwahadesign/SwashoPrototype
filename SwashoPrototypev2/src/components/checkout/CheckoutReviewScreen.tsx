@@ -66,6 +66,8 @@ const STATUS_BAR_HEIGHT = 32;
 const HEADER_BLOCK_HEIGHT = 114;
 /** Figma 3353:13605 — scroll content / banner starts at y=101 (flush under header). */
 const CHECKOUT_REVIEW_CONTENT_TOP = 101;
+/** Figma 3353:13608 at y=136 vs banner 3353:13605 bottom y=150 — schedule stack overlaps banner by 14px. */
+const SUBSCRIBER_SCHEDULE_STACK_OVERLAP = 14;
 const HOME_INDICATOR_HEIGHT = 24;
 const BOTTOM_BAR_HEIGHT = 80;
 const COMPENSATION_BAR_HEIGHT = 54;
@@ -415,42 +417,42 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
             alignItems: 'center',
             paddingTop: isSubscription ? 0 : 12 * scale,
             paddingBottom: scrollBottomPadding,
-            gap: 12 * scale,
           }}
           showsVerticalScrollIndicator={false}>
+          {isSubscription ? (
+            <LinearGradient
+              colors={[...SUBSCRIBER_BANNER_GRADIENT_COLORS]}
+              start={{ x: 0.5, y: 0 }}
+              end={{ x: 0.5, y: 1 }}
+              style={[
+                styles.subscriberBanner,
+                {
+                  alignSelf: 'stretch',
+                  width: '100%',
+                  height: SUBSCRIBER_BANNER_HEIGHT * scale,
+                  paddingBottom: 15 * scale,
+                  gap: 6 * scale,
+                },
+              ]}>
+              <CheckoutConfettiIcon width={20 * scale} height={20 * scale} />
+              <Text
+                style={[
+                  searchFont('medium'),
+                  styles.subscriberBannerText,
+                  { fontSize: 13 * scale, lineHeight: 20 * scale },
+                ]}>
+                You&apos;re enjoying subscriber exclusive pricing
+              </Text>
+            </LinearGradient>
+          ) : null}
+
           <View
             style={{
               width: '100%',
               alignItems: 'center',
-              gap: (isSubscription ? 8 : 0) * scale,
+              gap: 12 * scale,
+              marginTop: isSubscription ? -SUBSCRIBER_SCHEDULE_STACK_OVERLAP * scale : 0,
             }}>
-            {isSubscription ? (
-              <LinearGradient
-                colors={[...SUBSCRIBER_BANNER_GRADIENT_COLORS]}
-                start={{ x: 0.5, y: 0 }}
-                end={{ x: 0.5, y: 1 }}
-                style={[
-                  styles.subscriberBanner,
-                  {
-                    alignSelf: 'stretch',
-                    width: '100%',
-                    height: SUBSCRIBER_BANNER_HEIGHT * scale,
-                    paddingBottom: 15 * scale,
-                    gap: 6 * scale,
-                  },
-                ]}>
-                <CheckoutConfettiIcon width={20 * scale} height={20 * scale} />
-                <Text
-                  style={[
-                    searchFont('medium'),
-                    styles.subscriberBannerText,
-                    { fontSize: 13 * scale, lineHeight: 20 * scale },
-                  ]}>
-                  You&apos;re enjoying subscriber exclusive pricing
-                </Text>
-              </LinearGradient>
-            ) : null}
-
             <ScheduleCard
               scale={scale}
               cardWidth={cardWidth}
@@ -463,38 +465,38 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
               deliverySlot={formatSlotCompact(deliverySlot)}
               onChangePress={returnToSchedule}
             />
+
+            <ContactlessCard scale={scale} cardWidth={cardWidth} value={contactless} onValueChange={setContactless} />
+
+            <BasketCard
+              scale={scale}
+              cardWidth={cardWidth}
+              basketCount={basketCount}
+              groups={basketGroups}
+              showCompareAt={isSubscription}
+              onEditLine={handleEditService}
+            />
+
+            <InstructionsCard
+              scale={scale}
+              cardWidth={cardWidth}
+              instructionTab={instructionTab}
+              onTabChange={setInstructionTab}
+              activeInstruction={activeInstruction}
+              onSelectInstruction={setActiveInstruction}
+              rememberInstructions={rememberInstructions}
+              onToggleRemember={() => setRememberInstructions((value) => !value)}
+            />
+
+            <PaymentSummaryCard
+              scale={scale}
+              cardWidth={cardWidth}
+              expanded={paymentExpanded}
+              onToggleExpanded={() => setPaymentExpanded((value) => !value)}
+              paymentDisplay={paymentDisplay}
+              isSubscription={isSubscription}
+            />
           </View>
-
-          <ContactlessCard scale={scale} cardWidth={cardWidth} value={contactless} onValueChange={setContactless} />
-
-          <BasketCard
-            scale={scale}
-            cardWidth={cardWidth}
-            basketCount={basketCount}
-            groups={basketGroups}
-            showCompareAt={isSubscription}
-            onEditLine={handleEditService}
-          />
-
-          <InstructionsCard
-            scale={scale}
-            cardWidth={cardWidth}
-            instructionTab={instructionTab}
-            onTabChange={setInstructionTab}
-            activeInstruction={activeInstruction}
-            onSelectInstruction={setActiveInstruction}
-            rememberInstructions={rememberInstructions}
-            onToggleRemember={() => setRememberInstructions((value) => !value)}
-          />
-
-          <PaymentSummaryCard
-            scale={scale}
-            cardWidth={cardWidth}
-            expanded={paymentExpanded}
-            onToggleExpanded={() => setPaymentExpanded((value) => !value)}
-            paymentDisplay={paymentDisplay}
-            isSubscription={isSubscription}
-          />
         </ScrollView>
 
         <View style={[styles.footerWrap, { bottom: HOME_INDICATOR_HEIGHT * scale }]}>{footer}</View>
