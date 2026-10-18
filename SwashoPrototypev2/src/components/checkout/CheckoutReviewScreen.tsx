@@ -146,12 +146,16 @@ function basketGarmentThumbVariant(serviceId: string): 'bulk' | 'tshirt' | 'top'
   return 'top';
 }
 
-function buildPaymentSummaryDisplay(serviceTotal: number, isSubscription: boolean) {
+function buildPaymentSummaryDisplay(
+  serviceTotal: number,
+  isSubscription: boolean,
+  exclusivePricingQualified: boolean,
+) {
   const serviceValue = serviceTotal;
   const gst = Math.round(serviceValue * GST_RATE);
   const weeklyBill = serviceValue + gst;
 
-  if (!isSubscription || serviceTotal <= 0) {
+  if (!isSubscription || serviceTotal <= 0 || !exclusivePricingQualified) {
     return {
       showSubscriberRows: false,
       regularServiceValue: 0,
@@ -215,26 +219,30 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
   );
   const basketCount = checkoutBasketItemCount(cartEntries);
   const totals = getProviderCartTotals(providerId);
+  const exclusivePricingQualified = useMemo(
+    () =>
+      isSubscription &&
+      checkout.subscriptionFrequency != null &&
+      isSubscriptionExclusivePricingQualified(totals.totalPrice, checkout.subscriptionFrequency),
+    [checkout.subscriptionFrequency, isSubscription, totals.totalPrice],
+  );
+
   const paymentDisplay = useMemo(
-    () => buildPaymentSummaryDisplay(totals.totalPrice, isSubscription),
-    [isSubscription, totals.totalPrice],
+    () => buildPaymentSummaryDisplay(totals.totalPrice, isSubscription, exclusivePricingQualified),
+    [exclusivePricingQualified, isSubscription, totals.totalPrice],
   );
 
   const subscriberExclusiveBanner = useMemo(() => {
     if (!isSubscription || !checkout.subscriptionFrequency) {
       return null;
     }
-    const qualified = isSubscriptionExclusivePricingQualified(
-      totals.totalPrice,
-      checkout.subscriptionFrequency,
-    );
     return {
-      qualified,
-      shortfallInr: qualified
+      qualified: exclusivePricingQualified,
+      shortfallInr: exclusivePricingQualified
         ? 0
         : subscriptionExclusivePricingShortfallInr(totals.totalPrice, checkout.subscriptionFrequency),
     };
-  }, [checkout.subscriptionFrequency, isSubscription, totals.totalPrice]);
+  }, [checkout.subscriptionFrequency, exclusivePricingQualified, isSubscription, totals.totalPrice]);
 
   const [contactless, setContactless] = useState(false);
   const [instructionTab, setInstructionTab] = useState<'pickup' | 'delivery'>('pickup');
@@ -579,7 +587,7 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
               cardWidth={cardWidth}
               basketCount={basketCount}
               groups={basketGroups}
-              showCompareAt={isSubscription}
+              showCompareAt={exclusivePricingQualified}
               onEditLine={handleEditService}
             />
 
