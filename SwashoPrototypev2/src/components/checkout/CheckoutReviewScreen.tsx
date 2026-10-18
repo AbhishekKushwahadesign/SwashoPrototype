@@ -517,9 +517,9 @@ function ScheduleCard({
         styles.card,
         {
           width: cardWidth,
-          paddingHorizontal: 10 * scale,
-          paddingVertical: 8 * scale,
-          gap: 8 * scale,
+          paddingHorizontal: 16.022 * scale,
+          paddingVertical: 12.016 * scale,
+          gap: 12.016 * scale,
           borderRadius: SwashoRadii.lg * scale,
           ...figmaShadow(FigmaShadows.checkoutScheduleCard, scale),
         },
@@ -652,11 +652,11 @@ function ContactlessCard({
           ...figmaShadow(FigmaShadows.checkoutScheduleCard, scale),
         },
       ]}>
-      <View style={[styles.row, { gap: 12 * scale }]}>
+      <View style={[styles.row, { gap: 12 * scale, width: '100%', alignItems: 'center' }]}>
         <IconTile scale={scale}>
           <CheckoutContactlessIcon width={24 * scale} height={24 * scale} />
         </IconTile>
-        <View style={{ flex: 1, gap: 8 * scale }}>
+        <View style={{ flex: 1, minWidth: 0, gap: 8 * scale }}>
           <Text style={[searchFont('semibold'), styles.cardHeading, { fontSize: 15 * scale, lineHeight: 14 * scale }]}>
             Contactless Service
           </Text>
@@ -664,7 +664,7 @@ function ContactlessCard({
             upload/capture image required
           </Text>
         </View>
-        <ContactlessToggle scale={scale} value={value} onValueChange={onValueChange} />
+        <ContactlessToggle scale={scale} value={value} onValueChange={onValueChange} style={{ flexShrink: 0, marginLeft: 'auto' }} />
       </View>
       <Pressable style={{ paddingHorizontal: 8 * scale, marginTop: 12 * scale }}>
         <Text style={[searchFont('medium'), styles.dottedLink, { fontSize: 13 * scale, lineHeight: 20 * scale }]}>
@@ -1083,7 +1083,18 @@ function InstructionsCard({
           );
         })}
       </View>
-      <View style={[styles.instructionGrid, { gap: 15.2 * scale, paddingLeft: 3 * scale }]}>
+      <ScrollView
+        horizontal
+        nestedScrollEnabled
+        showsHorizontalScrollIndicator={false}
+        style={{ width: '100%', flexGrow: 0 }}
+        contentContainerStyle={{
+          flexDirection: 'row',
+          flexWrap: 'nowrap',
+          gap: 15.2 * scale,
+          paddingLeft: 3 * scale,
+          paddingRight: 3 * scale,
+        }}>
         {INSTRUCTION_OPTIONS.map((option) => {
           const selected = activeInstruction === option.id;
           const { Icon } = option;
@@ -1098,6 +1109,7 @@ function InstructionsCard({
                 {
                   width: 85.5 * scale,
                   height: 85.5 * scale,
+                  flexShrink: 0,
                   borderRadius: 11.4 * scale,
                   borderWidth: selected ? 1.5 : 0.475,
                   borderColor: selected ? SwashoColors.primary300 : SwashoColors.neutral400,
@@ -1126,7 +1138,7 @@ function InstructionsCard({
             </Pressable>
           );
         })}
-      </View>
+      </ScrollView>
       <Pressable
         accessibilityRole="checkbox"
         accessibilityState={{ checked: rememberInstructions }}
@@ -1300,10 +1312,12 @@ function ContactlessToggle({
   scale,
   value,
   onValueChange,
+  style,
 }: {
   scale: number;
   value: boolean;
   onValueChange: (next: boolean) => void;
+  style?: object;
 }) {
   return (
     <Pressable
@@ -1312,6 +1326,7 @@ function ContactlessToggle({
       onPress={() => onValueChange(!value)}
       style={[
         styles.contactlessTrack,
+        style,
         {
           width: 41 * scale,
           height: 25 * scale,
