@@ -4,7 +4,6 @@ import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   Alert,
   Image,
-  ImageBackground,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -62,7 +61,6 @@ import {
   CheckoutMoneyTagIcon,
 } from './checkout-review-icons';
 
-const subscriberBannerBg = require('@/assets/checkout/subscriber-banner-bg.png');
 const compensationShieldImage = require('@/assets/checkout/compensation-shield.png');
 const STATUS_BAR_HEIGHT = 32;
 const HEADER_BLOCK_HEIGHT = 114;
@@ -104,7 +102,9 @@ const INSTRUCTION_OPTIONS: {
 const SUBSCRIBER_REGULAR_RATIO = 1057.5 / 900;
 const SUBSCRIBER_PAY_RATIO = 704.5 / 1062;
 const GST_RATE = 0.18;
-const SUBSCRIBER_BANNER_HEIGHT = 46;
+/** Figma 3353:13605 — vertical wash (primary/100 → primary/50). */
+const SUBSCRIBER_BANNER_GRADIENT_COLORS = [SwashoColors.primary100, SwashoColors.primary50] as const;
+const SUBSCRIBER_BANNER_HEIGHT = 49;
 
 function basketGarmentThumbVariant(serviceId: string): 'bulk' | 'tshirt' | 'top' {
   if (isBulkServiceId(serviceId)) {
@@ -396,9 +396,10 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
           }}
           showsVerticalScrollIndicator={false}>
           {isSubscription ? (
-            <ImageBackground
-              source={subscriberBannerBg}
-              resizeMode="cover"
+            <LinearGradient
+              colors={[...SUBSCRIBER_BANNER_GRADIENT_COLORS]}
+              start={{ x: 0.5, y: 0 }}
+              end={{ x: 0.5, y: 1 }}
               style={[
                 styles.subscriberBanner,
                 {
@@ -412,7 +413,7 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
               <Text style={[searchFont('medium'), styles.subscriberBannerText, { fontSize: 13 * scale, lineHeight: 20 * scale }]}>
                 You&apos;re enjoying subscriber exclusive pricing
               </Text>
-            </ImageBackground>
+            </LinearGradient>
           ) : null}
 
           <ScheduleCard
