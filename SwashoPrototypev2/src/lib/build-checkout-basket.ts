@@ -1,4 +1,4 @@
-import { getComboGarmentQuantity } from '@/components/service-selection/service-selection-combo';
+import { formatComboLabel, getComboGarmentQuantity } from '@/components/service-selection/service-selection-combo';
 import { getCatalogOptionById } from '@/components/service-selection/service-selection-catalog';
 import {
   computeSelectionStickyMetrics,
@@ -7,7 +7,7 @@ import {
   isBulkServiceId,
   type ProviderGarmentCartSelection,
 } from '@/lib/provider-cart-selection';
-import { formatBulkLoadSummaryLine, resolveBulkLoadTier } from '@/lib/bulk-load-tiers';
+import { getBulkServiceRatePerKg, getBulkWeightLabelForTier, resolveBulkLoadTier } from '@/lib/bulk-load-tiers';
 import { getProviderBulkService, getProviderGarmentName, getProviderResultById } from '@/data/providers';
 
 export type CheckoutBasketGroup = {
@@ -20,11 +20,66 @@ export type CheckoutBasketLine = {
   serviceId: string;
   title: string;
   quantityLabel?: string;
+  /** Bulk load weight range (e.g. 3 - 5KG), shown nested under the primary row. */
+  weightSubline?: string;
   detailLines: string[];
   price: number;
   priceSuffix?: string;
   estimated?: boolean;
 };
+
+function buildGarmentDetailLines(
+  selection: ProviderGarmentCartSelection,
+  garmentServiceId: string,
+): string[] {
+  const detailCounts = new Map<string, number>();
+
+  for (const [optionId, qty] of Object.entries(selection.quantities)) {
+    if (qty <= 0) {
+      continue;
+    }
+    const option = getCatalogOptionById(optionId, garmentServiceId);
+    if (!option) {
+      continue;
+    }
+    detailCounts.set(option.title, (detailCounts.get(option.title) ?? 0) + qty);
+  }
+
+  for (const combo of selection.savedCombos) {
+    const comboQty = getComboGarmentQuantity(combo.items);
+    if (comboQty <= 0) {
+      continue;
+    }
+    const label = formatComboLabel(combo.items.map((item) => item.title));
+    detailCounts.set(label, (detailCounts.get(label) ?? 0) + comboQty);
+  }
+
+  return [...detailCounts.entries()].map(([title, count]) => `${count}x ${title}`);
+}
+
+function buildGarmentBasketLine(
+  providerId: string,
+  query: string,
+  garmentServiceId: string,
+  garmentName: string,
+  selection: ProviderGarmentCartSelection,
+): CheckoutBasketLine | null {
+  const itemCount = garmentAssignmentItemCount(selection, garmentServiceId);
+  if (itemCount <= 0) {
+    return null;
+  }
+
+  const detailLines = buildGarmentDetailLines(selection, garmentServiceId);
+  const price = computeSelectionStickyMetrics(selection, garmentServiceId).totalPrice;
+
+  return {
+    serviceId: garmentServiceId,
+    title: garmentName,
+    quantityLabel: `x ${itemCount}`,
+    detailLines,
+    price,
+  };
+}
 
 export function buildCheckoutBasketGroups(
   providerId: string,
@@ -41,14 +96,19 @@ export function buildCheckoutBasketGroups(
     }
     const bulkService = getProviderBulkService(serviceId, providerId, query);
     const tier = resolveBulkLoadTier(selection);
-    const price = computeSelectionStickyMetrics(selection, serviceId).totalPrice;
+    const weightSubline = tier
+      ? getBulkWeightLabelForTier(tier)
+      : selection.bulkWeightLabel;
+    const detailLines = buildGarmentDetailLines(selection, serviceId);
+    const ratePerKg = getBulkServiceRatePerKg(serviceId);
+
     bulkLines.push({
       serviceId,
       title: bulkService?.name ?? 'Bulk service',
-      quantityLabel: tier ? formatBulkLoadSummaryLine(tier) : selection.bulkWeightLabel,
-      detailLines: [],
-      price,
-      priceSuffix: `/kg`,
+      weightSubline,
+      detailLines,
+      price: ratePerKg,
+      priceSuffix: '/kg',
       estimated: true,
     });
   }
@@ -64,43 +124,10 @@ export function buildCheckoutBasketGroups(
         if (!entry || !hasProviderCartSelection(entry.selection, item.id)) {
           continue;
         }
-        const selection = entry.selection;
         const garmentName = getProviderGarmentName(item.id, providerId, query) ?? item.name;
-
-        for (const [optionId, qty] of Object.entries(selection.quantities)) {
-          if (qty <= 0) {
-            continue;
-          }
-          const option = getCatalogOptionById(optionId, item.id);
-          if (!option) {
-            continue;
-          }
-          lines.push({
-            serviceId: item.id,
-            title: garmentName,
-            quantityLabel: `x ${qty}`,
-            detailLines: [`${qty}x ${option.title}`],
-            price: option.amount * qty,
-          });
-        }
-
-        for (const combo of selection.savedCombos) {
-          const comboQty = getComboGarmentQuantity(combo.items);
-          if (comboQty <= 0) {
-            continue;
-          }
-          const counts = new Map<string, number>();
-          for (const line of combo.items) {
-            counts.set(line.title, (counts.get(line.title) ?? 0) + line.quantity);
-          }
-          const detailLines = [...counts.entries()].map(([title, count]) => `${count}x ${title}`);
-          lines.push({
-            serviceId: item.id,
-            title: garmentName,
-            quantityLabel: `x ${comboQty}`,
-            detailLines,
-            price: combo.items.reduce((sum, line) => sum + line.amount * line.quantity, 0) * comboQty,
-          });
+        const line = buildGarmentBasketLine(providerId, query, item.id, garmentName, entry.selection);
+        if (line) {
+          lines.push(line);
         }
       }
       if (lines.length > 0) {

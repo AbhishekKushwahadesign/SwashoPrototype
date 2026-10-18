@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AltArrowDownIcon, AltArrowRightIcon, ArrowLeftIcon, CalendarLinearIcon } from '@/components/home/figma-icons';
 import { ChevronDownIcon } from '@/components/provider-page/provider-page-icons';
+import { ServiceRowDivider } from '@/components/service-selection/ServiceRowDivider';
 import { figmaShadow, FigmaShadows } from '@/components/home/figma-shadows';
 import { HomeIndicator } from '@/components/home/HomeIndicator';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
@@ -747,6 +748,12 @@ function BasketCard({
   showCompareAt: boolean;
   onEditLine: (serviceId: string) => void;
 }) {
+  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+
+  const toggleSection = useCallback((sectionId: string) => {
+    setCollapsedSections((prev) => ({ ...prev, [sectionId]: !prev[sectionId] }));
+  }, []);
+
   return (
     <View
       style={[
@@ -826,26 +833,46 @@ function BasketCard({
         </Pressable>
       </View>
       <CheckoutSectionDivider width={376.514 * scale} scale={scale} />
-      {groups.map((group) => (
-        <View key={group.sectionId} style={{ width: '100%', gap: 12 * scale }}>
-          <View style={[styles.row, { height: 24 * scale, justifyContent: 'space-between' }]}>
-            <Text style={[searchFont('semibold'), styles.sectionLabel, { fontSize: 15 * scale, lineHeight: 14 * scale, letterSpacing: 0.3 * scale }]}>
-              {group.sectionTitle}
-            </Text>
-            <ChevronDownIcon width={24 * scale} height={24 * scale} />
+      {groups.map((group, groupIndex) => {
+        const sectionCollapsed = collapsedSections[group.sectionId] ?? false;
+        return (
+          <View key={group.sectionId} style={{ width: '100%', gap: 12 * scale }}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ expanded: !sectionCollapsed }}
+              onPress={() => toggleSection(group.sectionId)}
+              style={[styles.row, { height: 24 * scale, justifyContent: 'space-between' }]}>
+              <Text
+                style={[
+                  searchFont('semibold'),
+                  styles.sectionLabel,
+                  { fontSize: 15 * scale, lineHeight: 14 * scale, letterSpacing: 0.3 * scale },
+                ]}>
+                {group.sectionTitle}
+              </Text>
+              <View style={{ transform: [{ rotate: sectionCollapsed ? '-90deg' : '0deg' }] }}>
+                <ChevronDownIcon width={24 * scale} height={24 * scale} />
+              </View>
+            </Pressable>
+            {!sectionCollapsed
+              ? group.lines.map((line, index) => (
+                  <View key={`${line.serviceId}-${index}`} style={{ width: '100%', gap: 12 * scale }}>
+                    <BasketLineRow
+                      line={line}
+                      scale={scale}
+                      showCompareAt={showCompareAt}
+                      onEdit={() => onEditLine(line.serviceId)}
+                    />
+                    {index < group.lines.length - 1 ? (
+                      <CheckoutSectionDivider width={362 * scale} scale={scale} />
+                    ) : null}
+                  </View>
+                ))
+              : null}
+            {groupIndex < groups.length - 1 ? <CheckoutSectionDivider width={362 * scale} scale={scale} /> : null}
           </View>
-          {group.lines.map((line, index) => (
-            <BasketLineRow
-              key={`${line.serviceId}-${index}`}
-              line={line}
-              scale={scale}
-              showCompareAt={showCompareAt}
-              onEdit={() => onEditLine(line.serviceId)}
-            />
-          ))}
-          <CheckoutSectionDivider width={362 * scale} scale={scale} />
-        </View>
-      ))}
+        );
+      })}
     </View>
   );
 }
@@ -861,20 +888,20 @@ function BasketLineRow({
   showCompareAt: boolean;
   onEdit: () => void;
 }) {
+  const isBulk = isBulkServiceId(line.serviceId);
   const compareAt = showCompareAt && line.price > 0 ? compareAtPrice(line.price) : null;
   const qtyLabel = line.quantityLabel?.trim() ?? '';
   const showQtySuffix = qtyLabel.toLowerCase().startsWith('x');
   const qtySuffix = showQtySuffix ? qtyLabel.replace(/^x\s*/i, '') : '';
-  const hasMultipleServices = line.detailLines.length > 1;
-  const singleServiceLine = line.detailLines.length === 1 ? line.detailLines[0] : null;
-  const bulkQuantitySubline =
-    !line.detailLines.length && line.quantityLabel && !showQtySuffix ? line.quantityLabel : null;
+  const hasNestedContent = Boolean(line.weightSubline) || line.detailLines.length > 0;
+  const showServicesDropdown = isBulk || line.detailLines.length > 0;
+  const [servicesExpanded, setServicesExpanded] = useState(true);
 
   return (
     <View style={{ gap: 16 * scale, paddingHorizontal: 12 * scale, paddingTop: 4 * scale, paddingBottom: 8 * scale }}>
       <View style={[styles.row, { alignItems: 'flex-start', gap: 16 * scale }]}>
         <View style={{ flex: 1, gap: 16 * scale, paddingRight: 8 * scale }}>
-          <View style={[styles.row, { gap: 8 * scale, alignItems: 'flex-start', minHeight: 57 * scale }]}>
+          <View style={[styles.row, { gap: 8 * scale, alignItems: 'flex-start', minHeight: isBulk ? undefined : 57 * scale }]}>
             <View
               style={[
                 styles.garmentThumb,
@@ -924,8 +951,12 @@ function BasketLineRow({
                   </View>
                 ) : null}
               </View>
-              {hasMultipleServices ? (
-                <Pressable accessibilityRole="button" style={[styles.row, { gap: 4 * scale, alignItems: 'center' }]}>
+              {showServicesDropdown ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityState={{ expanded: servicesExpanded }}
+                  onPress={() => setServicesExpanded((value) => !value)}
+                  style={[styles.row, { gap: 4 * scale, alignItems: 'center' }]}>
                   <Text
                     style={[
                       searchFont('medium'),
@@ -934,33 +965,35 @@ function BasketLineRow({
                     ]}>
                     Services
                   </Text>
-                  <ChevronDownIcon width={18 * scale} height={18 * scale} />
+                  <View style={{ transform: [{ rotate: servicesExpanded ? '0deg' : '-90deg' }] }}>
+                    <ChevronDownIcon width={18 * scale} height={18 * scale} />
+                  </View>
                 </Pressable>
-              ) : singleServiceLine ? (
-                <Text
-                  style={[
-                    searchFont('medium'),
-                    styles.sectionLabel,
-                    { fontSize: 13 * scale, lineHeight: 20 * scale, letterSpacing: 0.5 * scale },
-                  ]}>
-                  {singleServiceLine}
-                </Text>
-              ) : bulkQuantitySubline ? (
+              ) : null}
+            </View>
+          </View>
+          {servicesExpanded && hasNestedContent ? (
+            <View style={{ gap: 20 * scale, paddingLeft: (isBulk ? 45 : 32) * scale }}>
+              {line.weightSubline ? (
                 <Text
                   style={[
                     searchFont('semibold'),
                     styles.cardHeading,
-                    { fontSize: 14 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
+                    {
+                      fontSize: 14 * scale,
+                      lineHeight: 14 * scale,
+                      letterSpacing: 0.5 * scale,
+                      paddingHorizontal: isBulk ? 0 : 14 * scale,
+                    },
                   ]}>
-                  {bulkQuantitySubline}
+                  {line.weightSubline}
                 </Text>
               ) : null}
-            </View>
-          </View>
-          {hasMultipleServices ? (
-            <View style={{ gap: 20 * scale, paddingLeft: 32 * scale }}>
               {line.detailLines.map((detail, detailIndex) => (
-                <View key={detail}>
+                <View key={detail} style={{ width: '100%', gap: 20 * scale }}>
+                  {detailIndex > 0 || line.weightSubline ? (
+                    <ServiceRowDivider variant="dotted" width={349} scale={scale} />
+                  ) : null}
                   <Text
                     style={[
                       searchFont('semibold'),
@@ -974,11 +1007,6 @@ function BasketLineRow({
                     ]}>
                     {detail}
                   </Text>
-                  {detailIndex < line.detailLines.length - 1 ? (
-                    <View style={{ marginTop: 20 * scale }}>
-                      <CheckoutSectionDivider width={349 * scale} scale={scale} />
-                    </View>
-                  ) : null}
                 </View>
               ))}
             </View>
@@ -1010,15 +1038,17 @@ function BasketLineRow({
                 {line.estimated ? '*' : ''}
               </Text>
             </View>
-            <View
-              style={{
-                width: 31.3 * scale,
-                height: 1 * scale,
-                borderBottomWidth: 1.75 * scale,
-                borderBottomColor: SwashoColors.neutral950,
-                borderStyle: 'dotted',
-              }}
-            />
+            {!isBulk ? (
+              <View
+                style={{
+                  width: 31.3 * scale,
+                  height: 1 * scale,
+                  borderBottomWidth: 1.75 * scale,
+                  borderBottomColor: SwashoColors.neutral950,
+                  borderStyle: 'dotted',
+                }}
+              />
+            ) : null}
           </View>
           <View
             style={{
