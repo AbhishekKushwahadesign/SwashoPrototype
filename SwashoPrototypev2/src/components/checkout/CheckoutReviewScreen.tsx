@@ -277,9 +277,14 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
     'Subscription';
   const startLabel = formatStartLabel(checkout.subscriptionStartDateKey);
 
-  const pickupWeekdayLabels = (checkout.subscriptionPickupWeekdays ?? [checkout.pickupWeekday])
-    .filter(Boolean)
-    .map((id) => WEEKDAY_EVERY_LABEL[id as CheckoutWeekdayId] ?? id);
+  const pickupWeekdayIds = (checkout.subscriptionPickupWeekdays ?? [checkout.pickupWeekday]).filter(Boolean);
+  const pickupWeekdayLabels = pickupWeekdayIds.map((id) => {
+    const weekdayId = id as CheckoutWeekdayId;
+    if (pickupWeekdayIds.length >= 2) {
+      return CHECKOUT_WEEKDAY_OPTIONS.find((d) => d.id === weekdayId)?.label ?? weekdayId;
+    }
+    return WEEKDAY_EVERY_LABEL[weekdayId] ?? weekdayId;
+  });
 
   const pickupSlot = isSubscription ? checkout.subscriptionPickupTimeSlot : checkout.pickupTimeSlot;
   const deliverySame = isSubscription
@@ -662,13 +667,21 @@ function ScheduleCard({
         <IconTile scale={scale}>
           <CalendarLinearIcon width={24 * scale} height={24 * scale} stroke={SwashoColors.neutral950} />
         </IconTile>
-        <View style={{ flex: 1, gap: 12 * scale }}>
+        <View style={{ flex: 1, minWidth: 0, gap: 12 * scale }}>
           {pickupLine ? (
-            <ScheduleTimingRow label="Pickup:" parts={[pickupLine, pickupSlot].filter(Boolean)} scale={scale} />
+            <ScheduleTimingRow
+              label="Pickup:"
+              parts={[pickupLine, formatSlotCompact(pickupSlot)].filter(Boolean)}
+              scale={scale}
+            />
           ) : null}
           <ScheduleTimingRow
             label="Delivery:"
-            parts={deliverySame ? ['Next day', pickupSlot || deliverySlot].filter(Boolean) : [deliverySlot].filter(Boolean)}
+            parts={
+              deliverySame
+                ? ['Next day', formatSlotCompact(pickupSlot || deliverySlot)].filter(Boolean)
+                : [formatSlotCompact(deliverySlot)].filter(Boolean)
+            }
             scale={scale}
           />
         </View>
@@ -697,12 +710,15 @@ function ScheduleTimingRow({
   scale: number;
 }) {
   return (
-    <View style={[styles.row, { flexWrap: 'wrap', gap: 4 * scale, alignItems: 'center' }]}>
-      <Text style={[searchFont('medium'), styles.cardHeading, { fontSize: 14 * scale, lineHeight: 14 * scale }]}>
+    <View style={[styles.row, { flexWrap: 'nowrap', gap: 4 * scale, alignItems: 'center', minWidth: 0 }]}>
+      <Text
+        style={[searchFont('medium'), styles.cardHeading, { fontSize: 14 * scale, lineHeight: 14 * scale, flexShrink: 0 }]}>
         {label}
       </Text>
       {parts.map((part, index) => (
-        <View key={`${part}-${index}`} style={[styles.row, { gap: 4 * scale, alignItems: 'center' }]}>
+        <View
+          key={`${part}-${index}`}
+          style={[styles.row, { gap: 4 * scale, alignItems: 'center', flexShrink: index === parts.length - 1 ? 1 : 0, minWidth: 0 }]}>
           {index > 0 ? (
             <View
               style={{
@@ -710,10 +726,13 @@ function ScheduleTimingRow({
                 height: 4 * scale,
                 borderRadius: 2 * scale,
                 backgroundColor: SwashoColors.neutral950,
+                flexShrink: 0,
               }}
             />
           ) : null}
-          <Text style={[searchFont('semibold'), styles.cardHeading, { fontSize: 14 * scale, lineHeight: 14 * scale }]}>
+          <Text
+            numberOfLines={1}
+            style={[searchFont('semibold'), styles.cardHeading, { fontSize: 14 * scale, lineHeight: 14 * scale, flexShrink: 1 }]}>
             {part}
           </Text>
         </View>
