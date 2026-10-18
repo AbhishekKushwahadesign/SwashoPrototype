@@ -1457,7 +1457,7 @@ const styles = StyleSheet.create({
   subscriberBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-start',
+    justifyContent: 'center',
   },
   subscriberBannerText: {
     color: '#4f1ee3',
