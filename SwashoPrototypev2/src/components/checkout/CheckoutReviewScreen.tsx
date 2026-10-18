@@ -390,43 +390,56 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
           style={{ flex: 1, marginTop: safeTop + HEADER_BLOCK_HEIGHT * scale }}
           contentContainerStyle={{
             alignItems: 'center',
-            paddingTop: 12 * scale,
+            paddingTop: isSubscription ? 0 : 12 * scale,
             paddingBottom: scrollBottomPadding,
             gap: 12 * scale,
           }}
           showsVerticalScrollIndicator={false}>
-          {isSubscription ? (
-            <LinearGradient
-              colors={[...SUBSCRIBER_BANNER_GRADIENT_COLORS]}
-              start={{ x: 0.5, y: 0 }}
-              end={{ x: 0.5, y: 1 }}
-              style={[
-                styles.subscriberBanner,
-                {
-                  width: contentWidth,
-                  height: SUBSCRIBER_BANNER_HEIGHT * scale,
-                  gap: 6 * scale,
-                },
-              ]}>
-              <CheckoutConfettiIcon width={20 * scale} height={20 * scale} />
-              <Text style={[searchFont('medium'), styles.subscriberBannerText, { fontSize: 13 * scale, lineHeight: 20 * scale }]}>
-                You&apos;re enjoying subscriber exclusive pricing
-              </Text>
-            </LinearGradient>
-          ) : null}
+          <View
+            style={{
+              width: '100%',
+              alignItems: 'center',
+              gap: (isSubscription ? 8 : 0) * scale,
+            }}>
+            {isSubscription ? (
+              <LinearGradient
+                colors={[...SUBSCRIBER_BANNER_GRADIENT_COLORS]}
+                start={{ x: 0.5, y: 0 }}
+                end={{ x: 0.5, y: 1 }}
+                style={[
+                  styles.subscriberBanner,
+                  {
+                    alignSelf: 'stretch',
+                    width: '100%',
+                    height: SUBSCRIBER_BANNER_HEIGHT * scale,
+                    gap: 6 * scale,
+                  },
+                ]}>
+                <CheckoutConfettiIcon width={20 * scale} height={20 * scale} />
+                <Text
+                  style={[
+                    searchFont('medium'),
+                    styles.subscriberBannerText,
+                    { fontSize: 13 * scale, lineHeight: 20 * scale },
+                  ]}>
+                  You&apos;re enjoying subscriber exclusive pricing
+                </Text>
+              </LinearGradient>
+            ) : null}
 
-          <ScheduleCard
-            scale={scale}
-            cardWidth={cardWidth}
-            isSubscription={isSubscription}
-            subscriptionFrequencyTitle={subscriptionFrequencyTitle}
-            startLabel={startLabel}
-            pickupLine={pickupLine}
-            pickupSlot={formatSlotCompact(pickupSlot)}
-            deliverySame={deliverySame}
-            deliverySlot={formatSlotCompact(deliverySlot)}
-            onChangePress={returnToSchedule}
-          />
+            <ScheduleCard
+              scale={scale}
+              cardWidth={cardWidth}
+              isSubscription={isSubscription}
+              subscriptionFrequencyTitle={subscriptionFrequencyTitle}
+              startLabel={startLabel}
+              pickupLine={pickupLine}
+              pickupSlot={formatSlotCompact(pickupSlot)}
+              deliverySame={deliverySame}
+              deliverySlot={formatSlotCompact(deliverySlot)}
+              onChangePress={returnToSchedule}
+            />
+          </View>
 
           <ContactlessCard scale={scale} cardWidth={cardWidth} value={contactless} onValueChange={setContactless} />
 
