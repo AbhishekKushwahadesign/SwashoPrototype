@@ -59,6 +59,7 @@ import {
   CheckoutInstructionPenIcon,
   CheckoutInstructionPhoneIcon,
   CheckoutInstructionShieldIcon,
+  CheckoutBillIcon,
   CheckoutInstructionsHeaderIcon,
   CheckoutMoneyTagIcon,
 } from './checkout-review-icons';
@@ -1351,7 +1352,7 @@ function PaymentSummaryCard({
         <View style={[styles.row, { justifyContent: 'space-between', paddingLeft: 6 * scale }]}>
           <View style={[styles.row, { gap: 8 * scale, flex: 1 }]}>
             <IconTile scale={scale}>
-              <CheckoutMoneyTagIcon width={24 * scale} height={24 * scale} />
+              <CheckoutBillIcon width={24 * scale} height={24 * scale} />
             </IconTile>
             <Text style={[searchFont('semibold'), styles.basketTitle, { fontSize: 15 * scale }]}>Payment Summary</Text>
           </View>
