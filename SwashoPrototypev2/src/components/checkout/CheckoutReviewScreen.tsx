@@ -712,21 +712,37 @@ function BasketCard({
             ({basketCount} {basketCount === 1 ? 'Item' : 'Items'})
           </Text>
         </Text>
-        <View
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Add basket instruction"
           style={[
             styles.instructionChip,
             styles.row,
             {
               marginLeft: 'auto',
+              flexShrink: 0,
               borderRadius: SwashoRadii.md * scale,
               paddingHorizontal: 4 * scale,
-              minHeight: 29 * scale,
+              height: 29 * scale,
               minWidth: 60 * scale,
               borderWidth: 1,
               gap: 4 * scale,
             },
           ]}>
-          <CheckoutAddSquareIcon width={20 * scale} height={20 * scale} />
+          <View
+            style={{
+              width: 20 * scale,
+              height: 20 * scale,
+              overflow: 'hidden',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <CheckoutAddSquareIcon
+              width={40 * scale}
+              height={40 * scale}
+              style={{ position: 'absolute', left: -10 * scale, top: -10 * scale }}
+            />
+          </View>
           <Text
             style={[
               searchFont('semibold'),
@@ -735,7 +751,7 @@ function BasketCard({
             ]}>
             Instruction
           </Text>
-        </View>
+        </Pressable>
       </View>
       <CheckoutSectionDivider width={376.514 * scale} scale={scale} />
       {groups.map((group) => (
@@ -777,12 +793,16 @@ function BasketLineRow({
   const qtyLabel = line.quantityLabel?.trim() ?? '';
   const showQtySuffix = qtyLabel.toLowerCase().startsWith('x');
   const qtySuffix = showQtySuffix ? qtyLabel.replace(/^x\s*/i, '') : '';
+  const hasMultipleServices = line.detailLines.length > 1;
+  const singleServiceLine = line.detailLines.length === 1 ? line.detailLines[0] : null;
+  const bulkQuantitySubline =
+    !line.detailLines.length && line.quantityLabel && !showQtySuffix ? line.quantityLabel : null;
 
   return (
     <View style={{ gap: 16 * scale, paddingHorizontal: 12 * scale, paddingTop: 4 * scale, paddingBottom: 8 * scale }}>
       <View style={[styles.row, { alignItems: 'flex-start', gap: 16 * scale }]}>
-        <View style={{ flex: 1, gap: 16 * scale }}>
-          <View style={[styles.row, { gap: 8 * scale, alignItems: 'center' }]}>
+        <View style={{ flex: 1, gap: 16 * scale, paddingRight: 8 * scale }}>
+          <View style={[styles.row, { gap: 8 * scale, alignItems: 'flex-start', minHeight: 57 * scale }]}>
             <View
               style={[
                 styles.garmentThumb,
@@ -801,40 +821,85 @@ function BasketLineRow({
                 height={25 * scale}
               />
             </View>
-            <View style={{ flex: 1, gap: 8 * scale }}>
+            <View style={{ flex: 1, gap: 8 * scale, justifyContent: 'center' }}>
               <View style={[styles.row, { gap: 8 * scale, alignItems: 'center', flexWrap: 'wrap' }]}>
-                <Text style={[searchFont('semibold'), styles.sectionLabel, { fontSize: 14 * scale, lineHeight: 14 * scale }]}>
+                <Text
+                  style={[
+                    searchFont('semibold'),
+                    styles.sectionLabel,
+                    { fontSize: 14 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
+                  ]}>
                   {line.title}
                 </Text>
                 {showQtySuffix ? (
-                  <Text style={[searchFont('semibold'), styles.sectionLabel, { fontSize: 14 * scale, lineHeight: 14 * scale }]}>
-                    x {qtySuffix}
-                  </Text>
+                  <View style={[styles.row, { gap: 4 * scale, alignItems: 'center' }]}>
+                    <Text
+                      style={[
+                        searchFont('semibold'),
+                        styles.sectionLabel,
+                        { fontSize: 14 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
+                      ]}>
+                      x
+                    </Text>
+                    <Text
+                      style={[
+                        searchFont('semibold'),
+                        styles.sectionLabel,
+                        { fontSize: 14 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
+                      ]}>
+                      {qtySuffix}
+                    </Text>
+                  </View>
                 ) : null}
               </View>
-              <Pressable accessibilityRole="button" style={[styles.row, { gap: 4 * scale, alignItems: 'center' }]}>
-                <Text style={[searchFont('medium'), styles.sectionLabel, { fontSize: 13 * scale, lineHeight: 20 * scale }]}>
-                  Services
+              {hasMultipleServices ? (
+                <Pressable accessibilityRole="button" style={[styles.row, { gap: 4 * scale, alignItems: 'center' }]}>
+                  <Text
+                    style={[
+                      searchFont('medium'),
+                      styles.sectionLabel,
+                      { fontSize: 13 * scale, lineHeight: 20 * scale, letterSpacing: 0.5 * scale },
+                    ]}>
+                    Services
+                  </Text>
+                  <ChevronDownIcon width={18 * scale} height={18 * scale} />
+                </Pressable>
+              ) : singleServiceLine ? (
+                <Text
+                  style={[
+                    searchFont('medium'),
+                    styles.sectionLabel,
+                    { fontSize: 13 * scale, lineHeight: 20 * scale, letterSpacing: 0.5 * scale },
+                  ]}>
+                  {singleServiceLine}
                 </Text>
-                <ChevronDownIcon width={18 * scale} height={18 * scale} />
-              </Pressable>
+              ) : bulkQuantitySubline ? (
+                <Text
+                  style={[
+                    searchFont('semibold'),
+                    styles.cardHeading,
+                    { fontSize: 14 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
+                  ]}>
+                  {bulkQuantitySubline}
+                </Text>
+              ) : null}
             </View>
           </View>
-          {line.quantityLabel && !line.detailLines.length && !showQtySuffix ? (
-            <Text
-              style={[
-                searchFont('semibold'),
-                styles.cardHeading,
-                { fontSize: 14 * scale, lineHeight: 14 * scale, paddingLeft: 45 * scale },
-              ]}>
-              {line.quantityLabel}
-            </Text>
-          ) : null}
-          {line.detailLines.length > 0 ? (
+          {hasMultipleServices ? (
             <View style={{ gap: 20 * scale, paddingLeft: 32 * scale }}>
               {line.detailLines.map((detail, detailIndex) => (
                 <View key={detail}>
-                  <Text style={[searchFont('semibold'), styles.cardHeading, { fontSize: 14 * scale, lineHeight: 14 * scale, paddingHorizontal: 14 * scale }]}>
+                  <Text
+                    style={[
+                      searchFont('semibold'),
+                      styles.cardHeading,
+                      {
+                        fontSize: 14 * scale,
+                        lineHeight: 14 * scale,
+                        letterSpacing: 0.5 * scale,
+                        paddingHorizontal: 14 * scale,
+                      },
+                    ]}>
                     {detail}
                   </Text>
                   {detailIndex < line.detailLines.length - 1 ? (
@@ -847,7 +912,7 @@ function BasketLineRow({
             </View>
           ) : null}
         </View>
-        <View style={{ alignItems: 'flex-end', gap: 10 * scale }}>
+        <View style={{ alignItems: 'flex-end', gap: 10 * scale, flexShrink: 0 }}>
           <View style={{ alignItems: 'flex-end', gap: 4 * scale }}>
             <View style={[styles.row, { gap: 8 * scale, alignItems: 'flex-end' }]}>
               {compareAt ? (
@@ -855,12 +920,17 @@ function BasketLineRow({
                   style={[
                     searchFont('medium'),
                     styles.strikePrice,
-                    { fontSize: 12 * scale, lineHeight: 10 * scale },
+                    { fontSize: 12 * scale, lineHeight: 10 * scale, letterSpacing: 0.5 * scale },
                   ]}>
                   {formatCheckoutInr(compareAt)}
                 </Text>
               ) : null}
-              <Text style={[searchFont('semibold'), styles.price, { fontSize: 14 * scale, lineHeight: 14 * scale }]}>
+              <Text
+                style={[
+                  searchFont('semibold'),
+                  styles.price,
+                  { fontSize: 14 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
+                ]}>
                 {formatCheckoutInr(line.price)}
                 {line.priceSuffix ? (
                   <Text style={[searchFont('semibold'), styles.price, { fontSize: 14 * scale }]}>{line.priceSuffix}</Text>
@@ -868,6 +938,15 @@ function BasketLineRow({
                 {line.estimated ? '*' : ''}
               </Text>
             </View>
+            <View
+              style={{
+                width: 31.3 * scale,
+                height: 1 * scale,
+                borderBottomWidth: 1.75 * scale,
+                borderBottomColor: SwashoColors.neutral950,
+                borderStyle: 'dotted',
+              }}
+            />
           </View>
           <View
             style={{
@@ -1012,7 +1091,9 @@ function InstructionsCard({
                   gap: 8 * scale,
                 },
               ]}>
-              <Icon width={20.9 * scale} height={20.9 * scale} />
+              <View style={{ height: 20.9 * scale, alignItems: 'center', justifyContent: 'center' }}>
+                <Icon width={20.9 * scale} height={20.9 * scale} />
+              </View>
               <Text
                 style={[
                   searchFont(selected ? 'medium' : 'regular'),
@@ -1022,6 +1103,7 @@ function InstructionsCard({
                     lineHeight: (selected ? 15 : 15.2) * scale,
                     letterSpacing: 0.475 * scale,
                     paddingHorizontal: 4 * scale,
+                    textAlign: 'center',
                   },
                 ]}>
                 {option.label}
