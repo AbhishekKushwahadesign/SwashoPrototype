@@ -247,9 +247,14 @@ export function CheckoutServicesChevronIcon({ width, height, style }: IconProps)
   return svgIcon(servicesChevronXml, { width, height, style });
 }
 
-const billXml = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M6 3H18C19.1046 3 20 3.89543 20 5V19C20 20.1046 19.1046 21 18 21H6C4.89543 21 4 20.1046 4 19V5C4 3.89543 4.89543 3 6 3Z" stroke="#292929" stroke-width="1.5"/>
-<path d="M8 7H16M8 11H16M8 15H12" stroke="#292929" stroke-width="1.5" stroke-linecap="round"/>
+/** Figma `3353:13892` — Linear / Money / Bill (Payment Summary header). */
+const billXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Linear / Money / Bill">
+<path id="Vector" d="M19.875 21C19.2334 20.4297 18.2666 20.4297 17.625 21C16.9834 21.5703 16.0166 21.5703 15.375 21C14.7334 20.4297 13.7666 20.4297 13.125 21C12.4834 21.5703 11.5166 21.5703 10.875 21C10.2334 20.4297 9.26659 20.4297 8.625 21C7.98341 21.5703 7.01659 21.5703 6.375 21C5.73341 20.4297 4.76659 20.4297 4.125 21C3.68909 21.3875 3 21.078 3 20.4948V3.50502C3 2.92179 3.68909 2.61235 4.125 2.99982C4.76659 3.57012 5.73341 3.57012 6.375 2.99982C7.01659 2.42952 7.98341 2.42952 8.625 2.99982C9.26659 3.57012 10.2334 3.57012 10.875 2.99982C11.5166 2.42952 12.4834 2.42952 13.125 2.99982C13.7666 3.57012 14.7334 3.57012 15.375 2.99982C16.0166 2.42952 16.9834 2.42952 17.625 2.99982C18.2666 3.57012 19.2334 3.57012 19.875 2.99982C20.3109 2.61235 21 2.92179 21 3.50502V20.4948C21 21.078 20.3109 21.3875 19.875 21Z" stroke-width="1.5" stroke="#292929"/>
+<path id="Vector_2" d="M7.5 15.5H16.5" stroke-width="1.5" stroke-linecap="round" stroke="#292929"/>
+<path id="Vector_3" d="M7.5 12H16.5" stroke-width="1.5" stroke-linecap="round" stroke="#292929"/>
+<path id="Vector_4" d="M7.5 8.5H16.5" stroke-width="1.5" stroke-linecap="round" stroke="#292929"/>
+</g>
 </svg>`;
 
 export function CheckoutBillIcon({ width, height, style }: IconProps) {
