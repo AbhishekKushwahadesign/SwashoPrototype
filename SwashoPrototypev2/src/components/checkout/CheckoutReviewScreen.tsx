@@ -63,9 +63,13 @@ import {
 
 const compensationShieldImage = require('@/assets/checkout/compensation-shield.png');
 const STATUS_BAR_HEIGHT = 32;
-const HEADER_BLOCK_HEIGHT = 114;
+/** Figma 3353:13935 — back + provider/address row (Frame 255) at y=56 on screen (69 inside 3353:13934 @ y=-13). */
+const HEADER_ROW_TOP = 56.58;
+const HEADER_ROW_HEIGHT = 36;
+/** Figma 3353:13933 clip height 88; inner 3353:13934 extends to y=101 where banner 3353:13605 begins. */
+const HEADER_CARD_HEIGHT = 101;
 /** Figma 3353:13605 — scroll content / banner starts at y=101 (flush under header). */
-const CHECKOUT_REVIEW_CONTENT_TOP = 101;
+const CHECKOUT_REVIEW_CONTENT_TOP = HEADER_CARD_HEIGHT;
 /** Figma 3353:13608 at y=136 vs banner 3353:13605 bottom y=150 — schedule stack overlaps banner by 14px. */
 const SUBSCRIBER_SCHEDULE_STACK_OVERLAP = 14;
 const HOME_INDICATOR_HEIGHT = 24;
@@ -283,6 +287,10 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
   const scrollBottomPadding =
     (COMPENSATION_BAR_HEIGHT + BOTTOM_BAR_HEIGHT + HOME_INDICATOR_HEIGHT) * scale + 24 * scale;
 
+  const headerCardHeight = HEADER_CARD_HEIGHT * scale;
+  const headerRowPaddingTop = HEADER_ROW_TOP * scale;
+  const headerCardPaddingBottom = (HEADER_CARD_HEIGHT - HEADER_ROW_TOP - HEADER_ROW_HEIGHT) * scale;
+
   const footer = (
     <View style={styles.footerStack}>
       <LinearGradient
@@ -368,7 +376,7 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
   return (
     <View style={[styles.root, { paddingTop: safeTop }]}>
       <View style={[styles.frame, { width: contentWidth }]}>
-        <View style={[styles.statusBar, { top: safeTop, height: STATUS_BAR_HEIGHT * scale }]}>
+        <View style={[styles.statusBar, { top: 0, height: STATUS_BAR_HEIGHT * scale }]}>
           <SearchStatusBar scale={scale} />
         </View>
 
@@ -376,10 +384,10 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
           style={[
             styles.header,
             {
-              top: safeTop,
-              minHeight: HEADER_BLOCK_HEIGHT * scale,
-              paddingTop: 64 * scale,
-              paddingBottom: 4 * scale,
+              top: 0,
+              height: headerCardHeight,
+              paddingTop: headerRowPaddingTop,
+              paddingBottom: headerCardPaddingBottom,
               paddingHorizontal: 20 * scale,
               ...figmaShadow(FigmaShadows.providerCard, scale),
             },
@@ -412,7 +420,7 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
         </View>
 
         <ScrollView
-          style={{ flex: 1, marginTop: safeTop + CHECKOUT_REVIEW_CONTENT_TOP * scale }}
+          style={{ flex: 1, marginTop: CHECKOUT_REVIEW_CONTENT_TOP * scale }}
           contentContainerStyle={{
             alignItems: 'center',
             paddingTop: isSubscription ? 0 : 12 * scale,
