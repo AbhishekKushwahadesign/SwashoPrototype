@@ -38,6 +38,7 @@ import {
   checkoutDayOptionFromKey,
   isSubscriptionExclusivePricingQualified,
   oneTimeCheckoutHref,
+  providerPageHref,
   subscriptionExclusivePricingShortfallInr,
   subscriptionSubscribe2Href,
   SUBSCRIPTION_FREQUENCY_OPTIONS,
@@ -51,6 +52,7 @@ import { CheckoutSectionDivider } from './CheckoutSectionDivider';
 import { CheckoutServiceHandoverSegment } from './CheckoutServiceHandoverSegment';
 import {
   CheckoutAddSquareIcon,
+  CheckoutAddSquarePrimaryIcon,
   CheckoutCartIcon,
   CheckoutCheckSquareIcon,
   CheckoutConfettiIcon,
@@ -289,6 +291,10 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
     },
     [providerId, query, router],
   );
+
+  const handleAddGarment = useCallback(() => {
+    router.push(providerPageHref(providerId, query));
+  }, [providerId, query, router]);
 
   const handlePayPress = useCallback(() => {
     if (payLockRef.current || totals.itemCount <= 0) {
@@ -586,6 +592,7 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
               groups={basketGroups}
               showCompareAt={exclusivePricingQualified}
               onEditLine={handleEditService}
+              onAddGarment={handleAddGarment}
             />
 
             <ScheduleCard
@@ -825,6 +832,7 @@ function BasketCard({
   groups,
   showCompareAt,
   onEditLine,
+  onAddGarment,
 }: {
   scale: number;
   cardWidth: number;
@@ -832,6 +840,7 @@ function BasketCard({
   groups: ReturnType<typeof buildCheckoutBasketGroups>;
   showCompareAt: boolean;
   onEditLine: (serviceId: string) => void;
+  onAddGarment: () => void;
 }) {
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
 
@@ -958,6 +967,59 @@ function BasketCard({
           </View>
         );
       })}
+      <View style={{ width: '100%', alignItems: 'center', gap: 12 * scale }}>
+        <CheckoutSectionDivider width={343.708 * scale} scale={scale} />
+        <View style={[styles.row, { gap: 4 * scale, alignItems: 'center', justifyContent: 'center' }]}>
+          <Text
+            style={[
+              searchFont('semibold'),
+              styles.muted,
+              { fontSize: 14 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale, textAlign: 'center' },
+            ]}>
+            Forgot Garment?
+          </Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Add item to basket"
+            onPress={onAddGarment}
+            style={[
+              styles.row,
+              {
+                flexShrink: 0,
+                gap: 2 * scale,
+                height: 29 * scale,
+                minWidth: 60 * scale,
+                paddingHorizontal: 4 * scale,
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: SwashoRadii.md * scale,
+              },
+            ]}>
+            <View
+              style={{
+                width: 20 * scale,
+                height: 20 * scale,
+                overflow: 'hidden',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <CheckoutAddSquarePrimaryIcon
+                width={40 * scale}
+                height={40 * scale}
+                style={{ position: 'absolute', left: -10 * scale, top: -10 * scale }}
+              />
+            </View>
+            <Text
+              style={[
+                searchFont('semibold'),
+                styles.addItemLabel,
+                { fontSize: 12 * scale, lineHeight: 20 * scale, letterSpacing: 0.5 * scale },
+              ]}>
+              Add Item
+            </Text>
+          </Pressable>
+        </View>
+      </View>
     </View>
   );
 }
@@ -1610,6 +1672,9 @@ const styles = StyleSheet.create({
   },
   instructionChipLabel: {
     color: SwashoColors.neutral700,
+  },
+  addItemLabel: {
+    color: SwashoColors.primary600,
   },
   instructionTabs: {
     flexDirection: 'row',

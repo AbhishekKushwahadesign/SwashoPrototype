@@ -23,6 +23,18 @@ export function CheckoutAddSquareIcon({ width, height, style }: IconProps) {
   return svgIcon(add_squareXml, { width, height, style });
 }
 
+/** Figma 59110:5935 — purple Add Square for basket “Add Item” tertiary control. */
+const add_squarePrimaryXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Linear / Essentional, UI / Add Square">
+<path id="Vector" d="M20 36.6667C12.1433 36.6667 8.21489 36.6667 5.77411 34.2259C3.33333 31.7851 3.33333 27.8567 3.33333 20C3.33333 12.1433 3.33333 8.21489 5.77411 5.77411C8.21489 3.33333 12.1433 3.33333 20 3.33333C27.8567 3.33333 31.7851 3.33333 34.2259 5.77411C36.6667 8.21489 36.6667 12.1433 36.6667 20C36.6667 27.8567 36.6667 31.7851 34.2259 34.2259C31.7851 36.6667 27.8567 36.6667 20 36.6667Z" stroke-width="3.33333" stroke="#5D30F7"/>
+<path id="Vector_2" d="M25 20H20M20 20L15 20M20 20L20 15M20 20L20 25" stroke-width="2" stroke-linecap="round" stroke="#5D30F7"/>
+</g>
+</svg>`;
+
+export function CheckoutAddSquarePrimaryIcon({ width, height, style }: IconProps) {
+  return svgIcon(add_squarePrimaryXml, { width, height, style });
+}
+
 const check_squareXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="Bold / Essentional, UI / Check Square" clip-path="url(#clip0_0_348)">
 <g id="Vector">
