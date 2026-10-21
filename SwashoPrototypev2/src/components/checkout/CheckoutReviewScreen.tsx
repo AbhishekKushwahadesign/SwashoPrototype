@@ -134,6 +134,8 @@ const GST_RATE = 0.18;
 /** Figma 3353:13605 — vertical wash (primary/100 → primary/50). */
 const SUBSCRIBER_BANNER_GRADIENT_COLORS = [SwashoColors.primary100, SwashoColors.primary50] as const;
 const SUBSCRIBER_BANNER_HEIGHT = 49;
+/** Deep-link / review without persisted frequency — nudge uses once-weekly ₹399 threshold. */
+const SUBSCRIPTION_BANNER_DEFAULT_FREQUENCY: SubscriptionFrequencyOption = 'once-weekly';
 const subscriberBannerBelowThresholdBg = require('@/assets/checkout/subscriber-banner-below-threshold-bg.png');
 
 function basketGarmentThumbVariant(serviceId: string): 'bulk' | 'tshirt' | 'top' {
@@ -220,19 +222,12 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
   );
   const basketCount = checkoutBasketItemCount(cartEntries);
   const totals = getProviderCartTotals(providerId);
-  /** Banner + shortfall use persisted frequency, or twice-weekly default on subscription review. */
-  const subscriptionPricingFrequency = useMemo((): SubscriptionFrequencyOption | undefined => {
-    if (!isSubscription) {
-      return undefined;
-    }
-    return checkout.subscriptionFrequency ?? 'twice-weekly';
-  }, [checkout.subscriptionFrequency, isSubscription]);
   const exclusivePricingQualified = useMemo(
     () =>
       isSubscription &&
-      subscriptionPricingFrequency != null &&
-      isSubscriptionExclusivePricingQualified(totals.totalPrice, subscriptionPricingFrequency),
-    [isSubscription, subscriptionPricingFrequency, totals.totalPrice],
+      checkout.subscriptionFrequency != null &&
+      isSubscriptionExclusivePricingQualified(totals.totalPrice, checkout.subscriptionFrequency),
+    [checkout.subscriptionFrequency, isSubscription, totals.totalPrice],
   );
 
   const paymentDisplay = useMemo(
@@ -241,16 +236,20 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
   );
 
   const subscriberExclusiveBanner = useMemo(() => {
-    if (!isSubscription || !subscriptionPricingFrequency) {
+    if (!isSubscription) {
       return null;
     }
+    const frequencyForShortfall = checkout.subscriptionFrequency ?? SUBSCRIPTION_BANNER_DEFAULT_FREQUENCY;
+    const qualified =
+      checkout.subscriptionFrequency != null &&
+      isSubscriptionExclusivePricingQualified(totals.totalPrice, checkout.subscriptionFrequency);
     return {
-      qualified: exclusivePricingQualified,
-      shortfallInr: exclusivePricingQualified
+      qualified,
+      shortfallInr: qualified
         ? 0
-        : subscriptionExclusivePricingShortfallInr(totals.totalPrice, subscriptionPricingFrequency),
+        : subscriptionExclusivePricingShortfallInr(totals.totalPrice, frequencyForShortfall),
     };
-  }, [exclusivePricingQualified, isSubscription, subscriptionPricingFrequency, totals.totalPrice]);
+  }, [checkout.subscriptionFrequency, isSubscription, totals.totalPrice]);
 
   const [contactless, setContactless] = useState(false);
   const [instructionTab, setInstructionTab] = useState<'pickup' | 'delivery'>('pickup');
@@ -572,6 +571,7 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
               alignItems: 'center',
               gap: 12 * scale,
               marginTop: subscriberExclusiveBanner ? -SUBSCRIBER_SCHEDULE_STACK_OVERLAP * scale : 0,
+              zIndex: subscriberExclusiveBanner ? 1 : undefined,
             }}>
             <CheckoutServiceHandoverSegment
               contactless={contactless}
