@@ -48,6 +48,7 @@ import {
 import { CHECKOUT_SCHEDULE_CARD_WIDTH } from '@/lib/checkout-figma-layout';
 import { isBulkServiceId } from '@/lib/provider-cart-selection';
 
+import { ContactlessHowItWorksModal } from './ContactlessHowItWorksModal';
 import { CheckoutSectionDivider } from './CheckoutSectionDivider';
 import { CheckoutServiceHandoverSegment } from './CheckoutServiceHandoverSegment';
 import {
@@ -254,6 +255,7 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
   }, [checkout.subscriptionFrequency, isSubscription, totals.totalPrice]);
 
   const [contactless, setContactless] = useState(false);
+  const [contactlessHowItWorksVisible, setContactlessHowItWorksVisible] = useState(false);
   const [instructionTab, setInstructionTab] = useState<'pickup' | 'delivery'>('pickup');
   const [pickupInstruction, setPickupInstruction] = useState<InstructionId>('doorstep');
   const [deliveryInstruction, setDeliveryInstruction] = useState<InstructionId>('doorstep');
@@ -582,6 +584,7 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
             <CheckoutServiceHandoverSegment
               contactless={contactless}
               onContactlessChange={setContactless}
+              onHowItWorksPress={() => setContactlessHowItWorksVisible(true)}
               scale={scale}
             />
 
@@ -635,6 +638,13 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
         <View style={styles.homeIndicatorWrap} pointerEvents="none">
           <HomeIndicator scale={scale} />
         </View>
+
+        <ContactlessHowItWorksModal
+          visible={contactlessHowItWorksVisible}
+          onClose={() => setContactlessHowItWorksVisible(false)}
+          scale={scale}
+          contentWidth={contentWidth}
+        />
       </View>
     </View>
   );
