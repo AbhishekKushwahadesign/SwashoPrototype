@@ -47,13 +47,13 @@ import { CHECKOUT_SCHEDULE_CARD_WIDTH } from '@/lib/checkout-figma-layout';
 import { isBulkServiceId } from '@/lib/provider-cart-selection';
 
 import { CheckoutSectionDivider } from './CheckoutSectionDivider';
+import { CheckoutServiceHandoverSegment } from './CheckoutServiceHandoverSegment';
 import {
   CheckoutAddSquareIcon,
   CheckoutCartIcon,
   CheckoutCheckSquareIcon,
   CheckoutConfettiIcon,
   CheckoutLockKeyholeIcon,
-  CheckoutContactlessIcon,
   CheckoutEditPenSquareIcon,
   CheckoutGarmentThumbIcon,
   CheckoutHeaderMenuDotsIcon,
@@ -567,6 +567,21 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
               gap: 12 * scale,
               marginTop: subscriberExclusiveBanner ? -SUBSCRIBER_SCHEDULE_STACK_OVERLAP * scale : 0,
             }}>
+            <CheckoutServiceHandoverSegment
+              contactless={contactless}
+              onContactlessChange={setContactless}
+              scale={scale}
+            />
+
+            <BasketCard
+              scale={scale}
+              cardWidth={cardWidth}
+              basketCount={basketCount}
+              groups={basketGroups}
+              showCompareAt={exclusivePricingQualified}
+              onEditLine={handleEditService}
+            />
+
             <ScheduleCard
               scale={scale}
               cardWidth={cardWidth}
@@ -578,17 +593,6 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
               deliverySame={deliverySame}
               deliverySlot={formatSlotCompact(deliverySlot)}
               onChangePress={returnToSchedule}
-            />
-
-            <ContactlessCard scale={scale} cardWidth={cardWidth} value={contactless} onValueChange={setContactless} />
-
-            <BasketCard
-              scale={scale}
-              cardWidth={cardWidth}
-              basketCount={basketCount}
-              groups={basketGroups}
-              showCompareAt={exclusivePricingQualified}
-              onEditLine={handleEditService}
             />
 
             <InstructionsCard
@@ -663,6 +667,10 @@ function ScheduleCard({
   deliverySlot: string;
   onChangePress: () => void;
 }) {
+  const cardShadow = isSubscription
+    ? figmaShadow({ offsetX: 0, offsetY: 0, blur: 8, color: '#000000', opacity: 0.1 }, scale)
+    : figmaShadow(FigmaShadows.checkoutScheduleCard, scale);
+
   return (
     <View
       style={[
@@ -670,10 +678,10 @@ function ScheduleCard({
         {
           width: cardWidth,
           paddingHorizontal: 10 * scale,
-          paddingVertical: 8 * scale,
-          gap: 8 * scale,
+          paddingVertical: isSubscription ? 16 * scale : 8 * scale,
+          gap: isSubscription ? 10 * scale : 8 * scale,
           borderRadius: SwashoRadii.lg * scale,
-          ...figmaShadow(FigmaShadows.checkoutScheduleCard, scale),
+          ...cardShadow,
         },
       ]}>
       {isSubscription ? (
@@ -722,9 +730,9 @@ function ScheduleCard({
           styles.scheduleRow,
           {
             gap: 8 * scale,
-            paddingTop: 8 * scale,
-            paddingBottom: 8 * scale,
+            paddingVertical: isSubscription ? 0 : 8 * scale,
             paddingLeft: 2 * scale,
+            width: '100%',
           },
         ]}>
         <IconTile scale={scale}>
@@ -800,52 +808,6 @@ function ScheduleTimingRow({
           </Text>
         </View>
       ))}
-    </View>
-  );
-}
-
-function ContactlessCard({
-  scale,
-  cardWidth,
-  value,
-  onValueChange,
-}: {
-  scale: number;
-  cardWidth: number;
-  value: boolean;
-  onValueChange: (next: boolean) => void;
-}) {
-  return (
-    <View
-      style={[
-        styles.card,
-        {
-          width: cardWidth,
-          paddingHorizontal: 10 * scale,
-          paddingVertical: 12 * scale,
-          borderRadius: SwashoRadii.lg * scale,
-          ...figmaShadow(FigmaShadows.checkoutScheduleCard, scale),
-        },
-      ]}>
-      <View style={[styles.row, { gap: 12 * scale, width: '100%', alignItems: 'center' }]}>
-        <IconTile scale={scale}>
-          <CheckoutContactlessIcon width={24 * scale} height={24 * scale} />
-        </IconTile>
-        <View style={{ flex: 1, minWidth: 0, gap: 8 * scale }}>
-          <Text style={[searchFont('semibold'), styles.cardHeading, { fontSize: 15 * scale, lineHeight: 14 * scale }]}>
-            Contactless Service
-          </Text>
-          <Text style={[searchFont('regular'), styles.muted, { fontSize: 12 * scale, lineHeight: 16 * scale }]}>
-            upload/capture image required
-          </Text>
-        </View>
-        <ContactlessToggle scale={scale} value={value} onValueChange={onValueChange} style={{ flexShrink: 0, marginLeft: 'auto' }} />
-      </View>
-      <Pressable style={{ paddingHorizontal: 8 * scale, marginTop: 12 * scale }}>
-        <Text style={[searchFont('medium'), styles.dottedLink, { fontSize: 13 * scale, lineHeight: 20 * scale }]}>
-          How it works?
-        </Text>
-      </Pressable>
     </View>
   );
 }
@@ -1520,47 +1482,6 @@ function SubscriberSavingRow({ scale, value }: { scale: number; value: string })
   );
 }
 
-function ContactlessToggle({
-  scale,
-  value,
-  onValueChange,
-  style,
-}: {
-  scale: number;
-  value: boolean;
-  onValueChange: (next: boolean) => void;
-  style?: object;
-}) {
-  return (
-    <Pressable
-      accessibilityRole="switch"
-      accessibilityState={{ checked: value }}
-      onPress={() => onValueChange(!value)}
-      style={[
-        styles.contactlessTrack,
-        style,
-        {
-          width: 41 * scale,
-          height: 25 * scale,
-          borderRadius: 6451 * scale,
-          padding: 2.58 * scale,
-          backgroundColor: value ? SwashoColors.primary600 : SwashoColors.neutral400,
-          ...figmaShadow(FigmaShadows.providerCard, scale),
-        },
-      ]}>
-      <View
-        style={{
-          width: 20 * scale,
-          height: 20 * scale,
-          borderRadius: 10 * scale,
-          backgroundColor: '#d9d9d9',
-          marginLeft: value ? 17 * scale : 0,
-        }}
-      />
-    </Pressable>
-  );
-}
-
 const styles = StyleSheet.create({
   root: {
     flex: 1,
@@ -1724,9 +1645,6 @@ const styles = StyleSheet.create({
     color: SwashoColors.primary600,
     textDecorationLine: 'underline',
     textDecorationStyle: 'dotted',
-  },
-  contactlessTrack: {
-    justifyContent: 'center',
   },
   instructionOptionLabel: {
     color: SwashoColors.neutral800,
