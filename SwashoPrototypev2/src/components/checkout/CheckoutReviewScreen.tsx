@@ -42,6 +42,7 @@ import {
   subscriptionSubscribe2Href,
   SUBSCRIPTION_FREQUENCY_OPTIONS,
   type CheckoutWeekdayId,
+  type SubscriptionFrequencyOption,
 } from '@/lib/checkout-flow';
 import { CHECKOUT_SCHEDULE_CARD_WIDTH } from '@/lib/checkout-figma-layout';
 import { isBulkServiceId } from '@/lib/provider-cart-selection';
@@ -219,12 +220,19 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
   );
   const basketCount = checkoutBasketItemCount(cartEntries);
   const totals = getProviderCartTotals(providerId);
+  /** Banner + shortfall use persisted frequency, or twice-weekly default on subscription review. */
+  const subscriptionPricingFrequency = useMemo((): SubscriptionFrequencyOption | undefined => {
+    if (!isSubscription) {
+      return undefined;
+    }
+    return checkout.subscriptionFrequency ?? 'twice-weekly';
+  }, [checkout.subscriptionFrequency, isSubscription]);
   const exclusivePricingQualified = useMemo(
     () =>
       isSubscription &&
-      checkout.subscriptionFrequency != null &&
-      isSubscriptionExclusivePricingQualified(totals.totalPrice, checkout.subscriptionFrequency),
-    [checkout.subscriptionFrequency, isSubscription, totals.totalPrice],
+      subscriptionPricingFrequency != null &&
+      isSubscriptionExclusivePricingQualified(totals.totalPrice, subscriptionPricingFrequency),
+    [isSubscription, subscriptionPricingFrequency, totals.totalPrice],
   );
 
   const paymentDisplay = useMemo(
@@ -233,16 +241,16 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
   );
 
   const subscriberExclusiveBanner = useMemo(() => {
-    if (!isSubscription || !checkout.subscriptionFrequency) {
+    if (!isSubscription || !subscriptionPricingFrequency) {
       return null;
     }
     return {
       qualified: exclusivePricingQualified,
       shortfallInr: exclusivePricingQualified
         ? 0
-        : subscriptionExclusivePricingShortfallInr(totals.totalPrice, checkout.subscriptionFrequency),
+        : subscriptionExclusivePricingShortfallInr(totals.totalPrice, subscriptionPricingFrequency),
     };
-  }, [checkout.subscriptionFrequency, exclusivePricingQualified, isSubscription, totals.totalPrice]);
+  }, [exclusivePricingQualified, isSubscription, subscriptionPricingFrequency, totals.totalPrice]);
 
   const [contactless, setContactless] = useState(false);
   const [instructionTab, setInstructionTab] = useState<'pickup' | 'delivery'>('pickup');
@@ -514,7 +522,6 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
                     paddingTop: 4 * scale,
                     paddingBottom: 15 * scale,
                     gap: 6 * scale,
-                    zIndex: -1,
                   },
                 ]}>
                 <CheckoutConfettiIcon width={20 * scale} height={20 * scale} />
@@ -540,7 +547,6 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
                     paddingTop: 4 * scale,
                     paddingBottom: 15 * scale,
                     gap: 6 * scale,
-                    zIndex: -1,
                   },
                 ]}>
                 <CheckoutLockKeyholeIcon width={20 * scale} height={20 * scale} />
