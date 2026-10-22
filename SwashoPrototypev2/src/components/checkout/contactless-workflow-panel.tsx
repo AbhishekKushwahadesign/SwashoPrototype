@@ -7,14 +7,20 @@ export type ContactlessWorkflowPanelVariant = 'upload' | 'pickup' | 'sort';
 
 type ArcSide = 'left' | 'right';
 
-/** Figma 59121:3490 / 3493 (right D-arc) and 59121:3491 (left D-arc) — panel-relative px @412. */
+/** Figma arc corner on curved edge (59121:3490 / 3493 / 3491). */
+const ARC_CORNER_RADIUS = 60;
+
+/** Sheet-absolute arc frames → panel-relative (412 sheet, content @ x=24 for steps). */
 const PANEL_ARC: Record<
   ContactlessWorkflowPanelVariant,
   { width: number; height: number; left: number; top: number; side: ArcSide }
 > = {
-  upload: { width: 225.320_312_5, height: 122, left: -17.82, top: -1, side: 'right' },
+  /** 59121:3490 @ sheet (444.5, 71); panel 59127:5954 @ sheet (237, 72). */
+  upload: { width: 225.320_312_5, height: 122, left: 207.5, top: -1, side: 'right' },
+  /** 59121:3491 @ sheet (-60.669, 211.806); panel 59127:5956 @ (30.804, 216.679). */
   pickup: { width: 237.168_945_312_5, height: 122, left: -91.474, top: -4.874, side: 'left' },
-  sort: { width: 225.320_312_5, height: 122, left: -21.82, top: -6.539, side: 'right' },
+  /** 59121:3493 @ sheet (444.5, 355.141); panel 59127:5958 @ (241, 361.679). */
+  sort: { width: 225.320_312_5, height: 122, left: 203.5, top: -6.539, side: 'right' },
 };
 
 /** Figma 59127:5954 / 5956 / 5958 — 1× PNG exports (single scene each). */
@@ -60,7 +66,7 @@ function WorkflowPanelArc({
   const arc = PANEL_ARC[variant];
   const width = arc.width * scale;
   const height = arc.height * scale;
-  const radius = 60 * scale;
+  const radius = ARC_CORNER_RADIUS * scale;
   const roundedLeft = arc.side === 'left';
   const roundedRight = arc.side === 'right';
 

@@ -335,11 +335,11 @@ function ContactlessStepRow({
 
   return (
     <View style={[styles.stepRow, { gap: rowGap * scale }]}>
-      <View style={styles.copyCluster}>
+      <View style={[styles.copyCluster, { width: 205 * scale }]}>
         {textBlock}
         {badge}
       </View>
-      <View style={styles.stepRowSpacer} />
+      <View style={{ flex: 1, minWidth: rowGap * scale }} />
       {illustration}
     </View>
   );
@@ -351,20 +351,26 @@ function StepNumberBadge({ number, scale }: { number: number; scale: number }) {
     <View
       style={{
         width: size,
-        minHeight: size,
-        borderRadius: 16 * scale,
+        height: size,
+        borderRadius: size / 2,
         borderWidth: 1,
         borderColor: SwashoColors.primary600,
         backgroundColor: SwashoColors.surface,
         alignItems: 'center',
         justifyContent: 'center',
         flexShrink: 0,
+        alignSelf: 'center',
       }}>
       <Text
         style={[
           searchFont('semibold'),
           styles.stepNumber,
-          { fontSize: 15 * scale, lineHeight: 20 * scale, letterSpacing: 0.2 * scale },
+          {
+            fontSize: 15 * scale,
+            lineHeight: 15 * scale,
+            letterSpacing: 0.2 * scale,
+            textAlign: 'center',
+          },
         ]}>
         {number}
       </Text>
@@ -417,10 +423,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flexShrink: 0,
-  },
-  stepRowSpacer: {
-    flex: 1,
-    minWidth: 0,
   },
   stepTitle: {
     color: SwashoColors.neutral800,
