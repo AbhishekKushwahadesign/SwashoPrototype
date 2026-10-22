@@ -1,4 +1,3 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import { Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -7,35 +6,38 @@ import { ServiceSelectionButton } from '@/components/service-selection/ServiceSe
 import { SheetCloseIcon } from '@/components/service-selection/service-selection-icons';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
-import { ContactlessWorkflowPanel } from './contactless-workflow-panel';
+import { ContactlessStepIllustrationCluster } from './contactless-workflow-panel';
 
 const STEPS = [
   {
     key: 'upload',
-    layout: 'textFirst' as const,
-    rowGap: 8,
+    layout: 'textLeft' as const,
     number: 1,
     title: 'Upload Photos',
     body: 'Upload your laundry bag photo and garment photos under their respective services.',
     panel: 'upload' as const,
+    arcSide: 'right' as const,
+    badgeSide: 'left' as const,
   },
   {
     key: 'pickup',
-    layout: 'imageFirstEnd' as const,
-    rowGap: 17,
+    layout: 'textRight' as const,
     number: 2,
     title: 'Hassle-Free Pickup',
     body: 'Our pickup partner collects your laundry from your selected location—no in-person handover needed.',
     panel: 'pickup' as const,
+    arcSide: 'left' as const,
+    badgeSide: 'right' as const,
   },
   {
     key: 'sort',
-    layout: 'textFirst' as const,
-    rowGap: 12,
+    layout: 'textLeft' as const,
     number: 3,
     title: 'We Sort & Process',
     body: 'Our laundry team uses your photos to sort garments by service and process them accordingly.',
     panel: 'sort' as const,
+    arcSide: 'right' as const,
+    badgeSide: 'left' as const,
   },
 ] as const;
 
@@ -108,8 +110,6 @@ export function ContactlessHowItWorksModal({
                 gap: 16 * scale,
               },
             ]}>
-            <ContactlessModalBackgroundArcs scale={scale} />
-
             <Text
               style={[
                 searchFont('semibold'),
@@ -140,11 +140,12 @@ export function ContactlessHowItWorksModal({
                     scale={scale}
                     textColWidth={textColWidth}
                     layout={step.layout}
-                    rowGap={step.rowGap}
                     number={step.number}
                     title={step.title}
                     body={step.body}
                     panel={step.panel}
+                    arcSide={step.arcSide}
+                    badgeSide={step.badgeSide}
                   />
                 ))}
               </View>
@@ -203,23 +204,25 @@ function ContactlessStepRow({
   scale,
   textColWidth,
   layout,
-  rowGap,
   number,
   title,
   body,
   panel,
+  arcSide,
+  badgeSide,
 }: {
   scale: number;
   textColWidth: number;
-  layout: 'textFirst' | 'imageFirstEnd';
-  rowGap: number;
+  layout: 'textLeft' | 'textRight';
   number: number;
   title: string;
   body: string;
   panel: 'upload' | 'pickup' | 'sort';
+  arcSide: 'left' | 'right';
+  badgeSide: 'left' | 'right';
 }) {
   const textBlock = (
-    <View style={{ width: textColWidth, gap: 8 * scale }}>
+    <View style={{ width: textColWidth, gap: 8 * scale, flexShrink: 1 }}>
       <Text
         style={[
           searchFont('semibold'),
@@ -239,130 +242,31 @@ function ContactlessStepRow({
     </View>
   );
 
-  const numberBadge = <StepNumberBadge number={number} scale={scale} />;
-  const illustration = <ContactlessWorkflowPanel variant={panel} scale={scale} />;
+  const illustration = (
+    <ContactlessStepIllustrationCluster
+      variant={panel}
+      number={number}
+      scale={scale}
+      arcSide={arcSide}
+      badgeSide={badgeSide}
+    />
+  );
 
-  if (layout === 'imageFirstEnd') {
-    return (
-      <View
-        style={[
-          styles.stepRow,
-          {
-            gap: rowGap * scale,
-            justifyContent: 'flex-end',
-          },
-        ]}>
-        {illustration}
-        <View style={[styles.stepTextCluster, { gap: 16 * scale }]}>
-          {numberBadge}
+  return (
+    <View style={[styles.stepRow, { gap: 8 * scale }]}>
+      {layout === 'textLeft' ? (
+        <>
           {textBlock}
-        </View>
-      </View>
-    );
-  }
-
-  return (
-    <View style={[styles.stepRow, { gap: rowGap * scale }]}>
-      <View style={[styles.stepTextCluster, { gap: 0, flexShrink: 1 }]}>
-        {textBlock}
-        {numberBadge}
-      </View>
-      {illustration}
-    </View>
-  );
-}
-
-function StepNumberBadge({ number, scale }: { number: number; scale: number }) {
-  const size = 20 * scale;
-  return (
-    <View
-      style={{
-        width: size,
-        minHeight: size,
-        borderRadius: 16 * scale,
-        borderWidth: 1,
-        borderColor: SwashoColors.primary600,
-        backgroundColor: SwashoColors.surface,
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}>
-      <Text
-        style={[
-          searchFont('semibold'),
-          styles.stepNumber,
-          { fontSize: 15 * scale, lineHeight: 20 * scale, letterSpacing: 0.2 * scale },
-        ]}>
-        {number}
-      </Text>
-    </View>
-  );
-}
-
-/** Decorative capsule arcs behind steps (Figma 59121:3490–3493, 59121:3491). */
-function ContactlessModalBackgroundArcs({ scale }: { scale: number }) {
-  const arcHeight = 122 * scale;
-  const arcStyle = {
-    height: arcHeight,
-    borderWidth: 1,
-    borderColor: SwashoColors.primary600,
-    borderTopLeftRadius: 0,
-    borderTopRightRadius: 60 * scale,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 60 * scale,
-    overflow: 'hidden' as const,
-  };
-
-  return (
-    <View
-      style={{
-        ...StyleSheet.absoluteFill,
-        overflow: 'hidden',
-      }}
-      pointerEvents="none">
-      <LinearGradient
-        colors={['rgba(233, 232, 255, 0.11)', 'rgba(213, 212, 255, 0.11)']}
-        start={{ x: 0.425, y: 0.5 }}
-        end={{ x: 1, y: 0.5 }}
-        style={[
-          arcStyle,
-          {
-            position: 'absolute',
-            width: 225.32 * scale,
-            left: 210.68 * scale,
-            top: 71 * scale,
-            transform: [{ scaleY: -1 }, { rotate: '180deg' }],
-          },
-        ]}
-      />
-      <LinearGradient
-        colors={['rgba(233, 232, 255, 0.11)', 'rgba(213, 212, 255, 0.11)']}
-        start={{ x: 0.425, y: 0.5 }}
-        end={{ x: 1, y: 0.5 }}
-        style={[
-          arcStyle,
-          {
-            position: 'absolute',
-            width: 225.32 * scale,
-            left: 210.68 * scale,
-            top: 355.14 * scale,
-            transform: [{ scaleY: -1 }, { rotate: '180deg' }],
-          },
-        ]}
-      />
-      <LinearGradient
-        colors={['rgba(233, 232, 255, 0.11)', 'rgba(213, 212, 255, 0.11)']}
-        start={{ x: 0.425, y: 0.5 }}
-        end={{ x: 1, y: 0.5 }}
-        style={[
-          arcStyle,
-          {
-            position: 'absolute',
-            width: 237.169 * scale,
-            left: -69.17 * scale,
-            top: 211.81 * scale,
-          },
-        ]}
-      />
+          <View style={styles.stepRowSpacer} />
+          {illustration}
+        </>
+      ) : (
+        <>
+          {illustration}
+          <View style={styles.stepRowSpacer} />
+          {textBlock}
+        </>
+      )}
     </View>
   );
 }
@@ -406,20 +310,17 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  stepTextCluster: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  stepRowSpacer: {
+    flex: 1,
+    minWidth: 4,
   },
   stepTitle: {
     color: SwashoColors.neutral800,
   },
   stepBody: {
     color: SwashoColors.neutral600,
-  },
-  stepNumber: {
-    color: SwashoColors.primary600,
-    textAlign: 'center',
   },
   reassuranceBox: {
     width: '100%',
