@@ -307,6 +307,7 @@ export function ContactlessHowItWorksModal({
                     (CONTACTLESS_MODAL_FIGMA.sheetHorizontalInset +
                       CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal) *
                     designScale,
+                  paddingVertical: 12 * designScale,
                   overflow: webOverflowVisible ?? 'visible',
                 }}>
                 <View
