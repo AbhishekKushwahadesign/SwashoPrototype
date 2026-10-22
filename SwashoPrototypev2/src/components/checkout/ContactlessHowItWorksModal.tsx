@@ -6,20 +6,29 @@ import { ServiceSelectionButton } from '@/components/service-selection/ServiceSe
 import { SheetCloseIcon } from '@/components/service-selection/service-selection-icons';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
-import { ContactlessWorkflowPanel, type ContactlessWorkflowPanelVariant } from './contactless-workflow-panel';
+import {
+  CONTACTLESS_WORKFLOW_ARC_STROKE,
+  ContactlessWorkflowPanel,
+  type ContactlessWorkflowPanelVariant,
+} from './contactless-workflow-panel';
 
-/** Figma 59136:3392 — Contactless Modal 59127:5994 (412×686), Sheet 59119:3332 (412×664.612). */
+const STEPS_BLOCK_HEIGHT = 399.612_060_546_875;
+const STEPS_ARC_VERTICAL_BLEED = 7;
+
+/** Figma 59136:3392 — Contactless Modal 59127:5994 (412×686), Sheet 59119:3332 (412×664.612 + arc bleed). */
 const CONTACTLESS_MODAL_FIGMA = {
   frameWidth: 412,
   modalFrameHeight: 686,
-  /** Setup sheet includes reassurance + hint + Continue (59132:3334 height 137). */
-  sheetHeightSetup: 664.612_060_546_875,
-  /** Info sheet: reassurance only in footer. */
-  sheetHeightInfo:
-    72 + 399.612_060_546_875 + 36 + 58 + 20,
   sheetHorizontalInset: 8,
   headerHeight: 72,
-  stepsBlockHeight: 399.612_060_546_875,
+  stepsBlockHeight: STEPS_BLOCK_HEIGHT,
+  stepsArcVerticalBleed: STEPS_ARC_VERTICAL_BLEED,
+  /** Setup sheet includes reassurance + hint + Continue (59132:3334 height 137). */
+  sheetHeightSetup:
+    72 + STEPS_BLOCK_HEIGHT + STEPS_ARC_VERTICAL_BLEED * 2 + 36 + 137 + 20,
+  /** Info sheet: reassurance only in footer. */
+  sheetHeightInfo:
+    72 + STEPS_BLOCK_HEIGHT + STEPS_ARC_VERTICAL_BLEED * 2 + 36 + 58 + 20,
   stepsToFooterGap: 36,
   footerSetupHeight: 137,
   footerInfoHeight: 58,
@@ -236,14 +245,22 @@ export function ContactlessHowItWorksModal({
             <View
               style={{
                 paddingHorizontal: CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal * designScale,
-                height: CONTACTLESS_MODAL_FIGMA.stepsBlockHeight * designScale,
+                paddingTop: CONTACTLESS_MODAL_FIGMA.stepsArcVerticalBleed * designScale,
+                paddingBottom: CONTACTLESS_MODAL_FIGMA.stepsArcVerticalBleed * designScale,
+                minHeight:
+                  (CONTACTLESS_MODAL_FIGMA.stepsBlockHeight +
+                    CONTACTLESS_MODAL_FIGMA.stepsArcVerticalBleed * 2) *
+                  designScale,
                 flexShrink: 0,
                 overflow: 'visible',
               }}>
               <View
                 style={[
                   styles.stepsStage,
-                  { height: CONTACTLESS_MODAL_FIGMA.stepsBlockHeight * designScale },
+                  {
+                    minHeight: CONTACTLESS_MODAL_FIGMA.stepsBlockHeight * designScale,
+                    overflow: 'visible',
+                  },
                 ]}>
                 <View style={{ gap: 28 * designScale, width: '100%', overflow: 'visible' }}>
                   {STEPS.map((step) => (
@@ -354,7 +371,7 @@ function StepNumberBadge({ number, scale }: { number: number; scale: number }) {
         height: size,
         borderRadius: size / 2,
         borderWidth: 1,
-        borderColor: SwashoColors.primary600,
+        borderColor: CONTACTLESS_WORKFLOW_ARC_STROKE,
         backgroundColor: SwashoColors.surface,
         alignItems: 'center',
         justifyContent: 'center',
@@ -401,13 +418,12 @@ const styles = StyleSheet.create({
   sheet: {
     width: '100%',
     backgroundColor: SwashoColors.surface,
-    overflow: 'hidden',
+    overflow: 'visible',
     flexDirection: 'column',
   },
   stepsStage: {
     position: 'relative',
     width: '100%',
-    overflow: 'visible',
   },
   title: {
     color: SwashoColors.neutral700,

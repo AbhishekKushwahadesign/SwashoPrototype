@@ -3,6 +3,9 @@ import { Image, ImageSourcePropType, StyleSheet, View } from 'react-native';
 
 import { SwashoColors } from '@/constants/swasho-tokens';
 
+/** Figma 59121:3490/3491/3493 — `colors/Primary/600` stroke on arc shell. */
+export const CONTACTLESS_WORKFLOW_ARC_STROKE = SwashoColors.primary600;
+
 export type ContactlessWorkflowPanelVariant = 'upload' | 'pickup' | 'sort';
 
 type ArcSide = 'left' | 'right';
@@ -80,7 +83,8 @@ function WorkflowPanelArc({
         width,
         height,
         borderWidth: 1,
-        borderColor: SwashoColors.primary600,
+        borderColor: CONTACTLESS_WORKFLOW_ARC_STROKE,
+        zIndex: 0,
         borderTopLeftRadius: roundedLeft ? radius : 0,
         borderBottomLeftRadius: roundedLeft ? radius : 0,
         borderTopRightRadius: roundedRight ? radius : 0,
@@ -97,22 +101,35 @@ function WorkflowPanelArc({
   );
 }
 
-/** Single-step illustration + Figma arc (primary600 stroke). Layout width = panel frame only. */
+function arcVerticalBleed(variant: ContactlessWorkflowPanelVariant) {
+  const arc = PANEL_ARC[variant];
+  const { frameHeight } = PANEL_IMAGE[variant];
+  return {
+    top: Math.max(0, -arc.top),
+    bottom: Math.max(0, arc.top + arc.height - frameHeight),
+  };
+}
+
+/** Single-step illustration + Figma arc stroke. Slot height includes arc vertical bleed. */
 export function ContactlessWorkflowPanel({ variant, scale }: ContactlessWorkflowPanelProps) {
   const { source, frameWidth, frameHeight } = PANEL_IMAGE[variant];
   const width = frameWidth * scale;
   const height = frameHeight * scale;
+  const bleed = arcVerticalBleed(variant);
+  const slotHeight = (frameHeight + bleed.top + bleed.bottom) * scale;
 
   return (
-    <View style={[styles.panelSlot, { width, height }]}>
-      <WorkflowPanelArc variant={variant} scale={scale} />
-      <View style={[styles.imageClip, { width, height }]}>
-        <Image
-          source={source}
-          style={styles.imageFill}
-          resizeMode="contain"
-          accessibilityIgnoresInvertColors
-        />
+    <View style={[styles.panelSlot, { width, height: slotHeight }]}>
+      <View style={[styles.panelFrame, { width, height, marginTop: bleed.top * scale }]}>
+        <WorkflowPanelArc variant={variant} scale={scale} />
+        <View style={[styles.imageClip, { width, height }]}>
+          <Image
+            source={source}
+            style={styles.imageFill}
+            resizeMode="contain"
+            accessibilityIgnoresInvertColors
+          />
+        </View>
       </View>
     </View>
   );
@@ -123,6 +140,10 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'visible',
     flexShrink: 0,
+  },
+  panelFrame: {
+    position: 'relative',
+    overflow: 'visible',
   },
   imageClip: {
     overflow: 'hidden',
