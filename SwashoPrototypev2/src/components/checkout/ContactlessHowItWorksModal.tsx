@@ -386,7 +386,6 @@ function ContactlessStepRow({
           {
             gap: rowGap * scale,
             paddingLeft: 6.804 * scale,
-            marginLeft: -8 * scale,
             marginRight: -8 * scale,
           },
         ]}>

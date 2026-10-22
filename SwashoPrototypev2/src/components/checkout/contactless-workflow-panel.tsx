@@ -1,5 +1,5 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import { Image, ImageSourcePropType, StyleSheet, View } from 'react-native';
+import Svg, { Defs, LinearGradient as SvgLinearGradient, Path, Stop } from 'react-native-svg';
 
 import { SwashoColors } from '@/constants/swasho-tokens';
 
@@ -8,22 +8,26 @@ export const CONTACTLESS_WORKFLOW_ARC_STROKE = SwashoColors.primary600;
 
 export type ContactlessWorkflowPanelVariant = 'upload' | 'pickup' | 'sort';
 
-type ArcSide = 'left' | 'right';
+type ArcCurveSide = 'left' | 'right';
 
-/** Figma arc corner on curved edge (59121:3490 / 3493 / 3491). */
+/** Figma arc corner on curved end (59121:3490 / 3493 / 3491). */
 const ARC_CORNER_RADIUS = 60;
 
-/** Sheet-absolute arc frames → panel-relative (412 sheet, content @ x=24 for steps). */
+/**
+ * Arc frames in Figma are anchored with the straight edge toward the screen edge:
+ * upload/sort right edge @ sheet x=444.5; pickup left edge @ sheet x=-60.669.
+ * Values below are panel-relative (arc origin minus illustration frame origin).
+ */
 const PANEL_ARC: Record<
   ContactlessWorkflowPanelVariant,
-  { width: number; height: number; left: number; top: number; side: ArcSide }
+  { width: number; height: number; left: number; top: number; curveSide: ArcCurveSide }
 > = {
-  /** 59121:3490 @ sheet (444.5, 71); panel 59127:5954 @ sheet (237, 72). */
-  upload: { width: 225.320_312_5, height: 122, left: 207.5, top: -1, side: 'right' },
-  /** 59121:3491 @ sheet (-60.669, 211.806); panel 59127:5956 @ (30.804, 216.679). */
-  pickup: { width: 237.168_945_312_5, height: 122, left: -91.474, top: -4.874, side: 'left' },
-  /** 59121:3493 @ sheet (444.5, 355.141); panel 59127:5958 @ (241, 361.679). */
-  sort: { width: 225.320_312_5, height: 122, left: 203.5, top: -6.539, side: 'right' },
+  /** 59121:3490; panel 59127:5954 @ sheet (237, 72) → left = 219.18 − 237. */
+  upload: { width: 225.320_312_5, height: 122, left: -17.820_312_5, top: -1, curveSide: 'left' },
+  /** 59121:3491; panel 59127:5956 @ sheet (30.804, 216.679). */
+  pickup: { width: 237.168_945_312_5, height: 122, left: -91.473_632_812_5, top: -4.874, curveSide: 'right' },
+  /** 59121:3493; panel 59127:5958 @ sheet (241, 361.679) → left = 219.18 − 241. */
+  sort: { width: 225.320_312_5, height: 122, left: -21.820_312_5, top: -6.539, curveSide: 'left' },
 };
 
 /** Figma 59127:5954 / 5956 / 5958 — 1× PNG exports (single scene each). */
@@ -54,6 +58,35 @@ const ARC_GRADIENT = {
   end: { x: 1, y: 0.5 },
 };
 
+/** Asymmetric D-panel path — one end uses 60px corner arcs (Figma rounded-*-[60px]). */
+function buildArcPath(width: number, height: number, radius: number, curveSide: ArcCurveSide): string {
+  const r = radius;
+  const w = width;
+  const h = height;
+  if (curveSide === 'left') {
+    return [
+      `M ${w} 0`,
+      `H ${r}`,
+      `A ${r} ${r} 0 0 0 0 ${r}`,
+      `V ${h - r}`,
+      `A ${r} ${r} 0 0 0 ${r} ${h}`,
+      `H ${w}`,
+      `V 0`,
+      'Z',
+    ].join(' ');
+  }
+  return [
+    'M 0 0',
+    `H ${w - r}`,
+    `A ${r} ${r} 0 0 1 ${w} ${r}`,
+    `V ${h - r}`,
+    `A ${r} ${r} 0 0 1 ${w - r} ${h}`,
+    'H 0',
+    'V 0',
+    'Z',
+  ].join(' ');
+}
+
 type ContactlessWorkflowPanelProps = {
   variant: ContactlessWorkflowPanelVariant;
   scale: number;
@@ -69,16 +102,10 @@ function WorkflowPanelArc({
   const arc = PANEL_ARC[variant];
   const width = arc.width * scale;
   const height = arc.height * scale;
-  const radius = ARC_CORNER_RADIUS * scale;
-  const roundedLeft = arc.side === 'left';
-  const roundedRight = arc.side === 'right';
-
-  const cornerRadii = {
-    borderTopLeftRadius: roundedLeft ? radius : 0,
-    borderBottomLeftRadius: roundedLeft ? radius : 0,
-    borderTopRightRadius: roundedRight ? radius : 0,
-    borderBottomRightRadius: roundedRight ? radius : 0,
-  };
+  const path = buildArcPath(arc.width, arc.height, ARC_CORNER_RADIUS, arc.curveSide);
+  const gradientId = `contactless-arc-fill-${variant}`;
+  const gradientStart = arc.curveSide === 'left' ? { x: '57.5%', y: '50%' } : { x: '42.5%', y: '50%' };
+  const gradientEnd = arc.curveSide === 'left' ? { x: '0%', y: '50%' } : { x: '100%', y: '50%' };
 
   return (
     <View
@@ -89,20 +116,24 @@ function WorkflowPanelArc({
         top: arc.top * scale,
         width,
         height,
-        borderWidth: 1,
-        borderColor: CONTACTLESS_WORKFLOW_ARC_STROKE,
         zIndex: 0,
-        ...cornerRadii,
         overflow: 'visible',
       }}>
-      <View style={[StyleSheet.absoluteFill, cornerRadii, { overflow: 'hidden' }]}>
-        <LinearGradient
-          colors={[...ARC_GRADIENT.colors]}
-          start={roundedLeft ? { x: 0.575, y: 0.5 } : ARC_GRADIENT.start}
-          end={roundedLeft ? { x: 0, y: 0.5 } : ARC_GRADIENT.end}
-          style={StyleSheet.absoluteFill}
+      <Svg width={width} height={height} viewBox={`0 0 ${arc.width} ${arc.height}`}>
+        <Defs>
+          <SvgLinearGradient id={gradientId} x1={gradientStart.x} y1={gradientStart.y} x2={gradientEnd.x} y2={gradientEnd.y}>
+            <Stop offset="42.505%" stopColor={ARC_GRADIENT.colors[0]} />
+            <Stop offset="100%" stopColor={ARC_GRADIENT.colors[1]} />
+          </SvgLinearGradient>
+        </Defs>
+        <Path
+          d={path}
+          fill={`url(#${gradientId})`}
+          stroke={CONTACTLESS_WORKFLOW_ARC_STROKE}
+          strokeWidth={1}
+          vectorEffect="non-scaling-stroke"
         />
-      </View>
+      </Svg>
     </View>
   );
 }
