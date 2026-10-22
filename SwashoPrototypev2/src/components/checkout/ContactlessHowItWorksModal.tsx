@@ -1,4 +1,3 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -29,15 +28,10 @@ const CONTACTLESS_MODAL_FIGMA = {
   continueButtonHeight: 45,
   contentPaddingBottom: 20,
   contentPaddingHorizontal: 16,
-  /** Sheet-absolute arc anchors (412px-wide sheet). */
-  arcs: {
-    right: { left: 444.5, width: 225.320_312_5, tops: [71, 355.140_625] as const },
-    left: { left: -60.668_945_312_5, width: 237.168_945_312_5, top: 211.805_908_203_125 },
-    height: 122,
-  },
 } as const;
 
-const SHEET_CONTENT_TOP = CONTACTLESS_MODAL_FIGMA.headerHeight;
+/** Figma 59138:3993 — hint above Continue on setup sheet. */
+export const CONTACTLESS_SETUP_CONTINUE_HINT = 'next, confirm clothes location for pickup';
 
 const STEPS: {
   key: string;
@@ -96,7 +90,7 @@ export function ContactlessHowItWorksModal({
   contentWidth,
   showContinue = false,
   onContinue,
-  continueHint = 'Next, choose where your laundry bag will be collected from.',
+  continueHint = CONTACTLESS_SETUP_CONTINUE_HINT,
 }: ContactlessHowItWorksModalProps) {
   const insets = useSafeAreaInsets();
   const designScale = contentWidth / CONTACTLESS_MODAL_FIGMA.frameWidth;
@@ -148,11 +142,12 @@ export function ContactlessHowItWorksModal({
           {continueHint ? (
             <Text
               style={[
-                searchFont('regular'),
+                searchFont('medium'),
                 styles.continueHint,
                 {
-                  fontSize: 12 * designScale,
+                  fontSize: 13 * designScale,
                   lineHeight: 20 * designScale,
+                  letterSpacing: 0.5 * designScale,
                   textAlign: 'center',
                 },
               ]}>
@@ -243,14 +238,14 @@ export function ContactlessHowItWorksModal({
                 paddingHorizontal: CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal * designScale,
                 height: CONTACTLESS_MODAL_FIGMA.stepsBlockHeight * designScale,
                 flexShrink: 0,
+                overflow: 'visible',
               }}>
               <View
                 style={[
                   styles.stepsStage,
                   { height: CONTACTLESS_MODAL_FIGMA.stepsBlockHeight * designScale },
                 ]}>
-                <ContactlessModalBackgroundArcs scale={scale} contentWidth={contentWidth} />
-                <View style={{ gap: 28 * designScale, width: '100%' }}>
+                <View style={{ gap: 28 * designScale, width: '100%', overflow: 'visible' }}>
                   {STEPS.map((step) => (
                     <ContactlessStepRow
                       key={step.key}
@@ -377,67 +372,6 @@ function StepNumberBadge({ number, scale }: { number: number; scale: number }) {
   );
 }
 
-/** Figma 59121:3490, 59121:3493, 59121:3491 — sheet-absolute coords (412px checkout frame). */
-function ContactlessModalBackgroundArcs({ scale, contentWidth }: { scale: number; contentWidth: number }) {
-  const { arcs } = CONTACTLESS_MODAL_FIGMA;
-  const designScale = contentWidth / CONTACTLESS_MODAL_FIGMA.frameWidth;
-  const arcHeight = arcs.height * designScale;
-  const arcShell = {
-    height: arcHeight,
-    borderWidth: 1,
-    borderColor: SwashoColors.primary600,
-    overflow: 'hidden' as const,
-  };
-
-  const arcTop = (sheetTop: number) => (sheetTop - SHEET_CONTENT_TOP) * designScale;
-  const arcLeftFromStage = (sheetX: number) =>
-    (sheetX - CONTACTLESS_MODAL_FIGMA.sheetHorizontalInset - CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal) *
-    designScale;
-
-  return (
-    <View
-      style={[StyleSheet.absoluteFill, { overflow: 'visible' }]}
-      pointerEvents="none">
-      {arcs.right.tops.map((top) => (
-        <LinearGradient
-          key={`right-${top}`}
-          colors={['rgba(233, 232, 255, 0.11)', 'rgba(213, 212, 255, 0.11)']}
-          start={{ x: 0.425, y: 0.5 }}
-          end={{ x: 1, y: 0.5 }}
-          style={[
-            arcShell,
-            {
-              position: 'absolute',
-              width: arcs.right.width * designScale,
-              left: arcLeftFromStage(arcs.right.left),
-              top: arcTop(top),
-              borderTopRightRadius: 60 * designScale,
-              borderBottomRightRadius: 60 * designScale,
-              transform: [{ scaleY: -1 }, { rotate: '180deg' }],
-            },
-          ]}
-        />
-      ))}
-      <LinearGradient
-        colors={['rgba(233, 232, 255, 0.11)', 'rgba(213, 212, 255, 0.11)']}
-        start={{ x: 0.425, y: 0.5 }}
-        end={{ x: 1, y: 0.5 }}
-        style={[
-          arcShell,
-          {
-            position: 'absolute',
-            width: arcs.left.width * designScale,
-            left: arcLeftFromStage(arcs.left.left),
-            top: arcTop(arcs.left.top),
-            borderTopRightRadius: 60 * designScale,
-            borderBottomRightRadius: 60 * designScale,
-          },
-        ]}
-      />
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
   root: {
     flex: 1,
@@ -477,6 +411,7 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
+    overflow: 'visible',
   },
   copyCluster: {
     flexDirection: 'row',
