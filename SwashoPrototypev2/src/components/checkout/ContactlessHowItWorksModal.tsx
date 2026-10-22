@@ -28,12 +28,6 @@ const STEPS_BLOCK_HEIGHT = 399.612_060_546_875;
 const PICKUP_ARC_SHEET_LEFT = 60.668_945_312_5;
 /** Figma 59121:3490 right @ sheet 444.5 on 412-wide sheet. */
 const UPLOAD_SORT_ARC_SHEET_RIGHT_BLEED = 32.5;
-/** Symmetric bleed so step block stays horizontally centered (asymmetric margins shifted content left). */
-const CONTACTLESS_STEPS_ARC_SHEET_BLEED = Math.max(
-  PICKUP_ARC_SHEET_LEFT,
-  UPLOAD_SORT_ARC_SHEET_RIGHT_BLEED,
-);
-
 /** Figma 59127:5994 — Contactless Modal (412×686), Sheet 59119:3332 (412×664.612). */
 const CONTACTLESS_MODAL_FIGMA = {
   frameWidth: 412,
@@ -59,6 +53,13 @@ const CONTACTLESS_MODAL_FIGMA = {
   contentPaddingHorizontal: 16,
   interStepGap: 28,
 } as const;
+
+/** Scroll content horizontal inset; Figma arc bleed is from sheet edge, not this padding box. */
+const CONTACTLESS_STEPS_CONTENT_INSET =
+  CONTACTLESS_MODAL_FIGMA.sheetHorizontalInset + CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal;
+const CONTACTLESS_STEPS_ARC_BLEED_LEFT = PICKUP_ARC_SHEET_LEFT - CONTACTLESS_STEPS_CONTENT_INSET;
+const CONTACTLESS_STEPS_ARC_BLEED_RIGHT =
+  UPLOAD_SORT_ARC_SHEET_RIGHT_BLEED - CONTACTLESS_STEPS_CONTENT_INSET;
 
 /** Figma 59138:3993 — hint above Continue on setup sheet. */
 export const CONTACTLESS_SETUP_CONTINUE_HINT = 'next, confirm clothes location for pickup';
@@ -314,15 +315,16 @@ export function ContactlessHowItWorksModal({
                     designScale,
                   paddingVertical: 12 * designScale,
                   overflow: webOverflowVisible ?? 'visible',
-                  alignItems: 'center',
                 }}>
                 <View
                   style={{
                     gap: CONTACTLESS_MODAL_FIGMA.interStepGap * designScale,
                     width: '100%',
                     overflow: webOverflowVisible ?? 'visible',
-                    marginHorizontal: -CONTACTLESS_STEPS_ARC_SHEET_BLEED * designScale,
-                    paddingHorizontal: CONTACTLESS_STEPS_ARC_SHEET_BLEED * designScale,
+                    marginLeft: -CONTACTLESS_STEPS_ARC_BLEED_LEFT * designScale,
+                    marginRight: -CONTACTLESS_STEPS_ARC_BLEED_RIGHT * designScale,
+                    paddingLeft: CONTACTLESS_STEPS_ARC_BLEED_LEFT * designScale,
+                    paddingRight: CONTACTLESS_STEPS_ARC_BLEED_RIGHT * designScale,
                   }}>
                   {STEPS.map((step) => (
                     <ContactlessStepRow
@@ -400,7 +402,6 @@ function ContactlessStepRow({
           {
             gap: rowGap * scale,
             paddingLeft: 6.804 * scale,
-            marginRight: -8 * scale,
           },
         ]}>
         {illustration}
