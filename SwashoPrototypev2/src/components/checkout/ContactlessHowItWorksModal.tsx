@@ -1,4 +1,4 @@
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { searchFont } from '@/components/search/search-fonts';
@@ -8,6 +8,7 @@ import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
 import {
   CONTACTLESS_WORKFLOW_ARC_STROKE,
+  CONTACTLESS_WORKFLOW_STEPS_SLOT_EXTRA,
   ContactlessWorkflowPanel,
   type ContactlessWorkflowPanelVariant,
 } from './contactless-workflow-panel';
@@ -15,21 +16,23 @@ import {
 const STEPS_BLOCK_HEIGHT = 399.612_060_546_875;
 /** Top padding for step 1 arc; extra bottom for step 3 D-arc + 60px corner stroke. */
 const STEPS_ARC_PADDING_TOP = 7;
-const STEPS_ARC_PADDING_BOTTOM = 16;
+const STEPS_ARC_PADDING_BOTTOM = 28;
 
 /** Figma 59136:3392 — Contactless Modal 59127:5994 (412×686), Sheet 59119:3332 (412×664.612 + arc bleed). */
 const CONTACTLESS_MODAL_FIGMA = {
   frameWidth: 412,
-  modalFrameHeight: 686,
+  modalFrameHeight: 686 + CONTACTLESS_WORKFLOW_STEPS_SLOT_EXTRA,
   sheetHorizontalInset: 8,
   headerHeight: 72,
   stepsBlockHeight: STEPS_BLOCK_HEIGHT,
+  stepsPanelSlotExtra: CONTACTLESS_WORKFLOW_STEPS_SLOT_EXTRA,
   stepsArcPaddingTop: STEPS_ARC_PADDING_TOP,
   stepsArcPaddingBottom: STEPS_ARC_PADDING_BOTTOM,
   /** Setup sheet includes reassurance + hint + Continue (59132:3334 height 137). */
   sheetHeightSetup:
     72 +
     STEPS_BLOCK_HEIGHT +
+    CONTACTLESS_WORKFLOW_STEPS_SLOT_EXTRA +
     STEPS_ARC_PADDING_TOP +
     STEPS_ARC_PADDING_BOTTOM +
     36 +
@@ -39,6 +42,7 @@ const CONTACTLESS_MODAL_FIGMA = {
   sheetHeightInfo:
     72 +
     STEPS_BLOCK_HEIGHT +
+    CONTACTLESS_WORKFLOW_STEPS_SLOT_EXTRA +
     STEPS_ARC_PADDING_TOP +
     STEPS_ARC_PADDING_BOTTOM +
     36 +
@@ -123,6 +127,7 @@ export function ContactlessHowItWorksModal({
     : CONTACTLESS_MODAL_FIGMA.sheetHeightInfo;
   const sheetHeight = sheetHeightDesign * designScale;
   const textColWidth = 185 * designScale;
+  const webOverflowVisible = Platform.OS === 'web' ? ('visible' as const) : undefined;
 
   const footerBlock = (
     <View
@@ -229,9 +234,10 @@ export function ContactlessHowItWorksModal({
               styles.sheet,
               {
                 width: contentWidth,
-                height: sheetHeight,
+                minHeight: sheetHeight,
                 borderTopLeftRadius: SwashoRadii.xl * designScale,
                 borderTopRightRadius: SwashoRadii.xl * designScale,
+                overflow: webOverflowVisible,
               },
             ]}>
             <View
@@ -264,21 +270,30 @@ export function ContactlessHowItWorksModal({
                 paddingBottom: CONTACTLESS_MODAL_FIGMA.stepsArcPaddingBottom * designScale,
                 minHeight:
                   (CONTACTLESS_MODAL_FIGMA.stepsBlockHeight +
+                    CONTACTLESS_MODAL_FIGMA.stepsPanelSlotExtra +
                     CONTACTLESS_MODAL_FIGMA.stepsArcPaddingTop +
                     CONTACTLESS_MODAL_FIGMA.stepsArcPaddingBottom) *
                   designScale,
                 flexShrink: 0,
-                overflow: 'visible',
+                overflow: webOverflowVisible ?? 'visible',
               }}>
               <View
                 style={[
                   styles.stepsStage,
                   {
-                    minHeight: CONTACTLESS_MODAL_FIGMA.stepsBlockHeight * designScale,
-                    overflow: 'visible',
+                    minHeight:
+                      (CONTACTLESS_MODAL_FIGMA.stepsBlockHeight +
+                        CONTACTLESS_MODAL_FIGMA.stepsPanelSlotExtra) *
+                      designScale,
+                    overflow: webOverflowVisible ?? 'visible',
                   },
                 ]}>
-                <View style={{ gap: 28 * designScale, width: '100%', overflow: 'visible' }}>
+                <View
+                  style={{
+                    gap: 28 * designScale,
+                    width: '100%',
+                    overflow: webOverflowVisible ?? 'visible',
+                  }}>
                   {STEPS.map((step) => (
                     <ContactlessStepRow
                       key={step.key}
@@ -290,6 +305,7 @@ export function ContactlessHowItWorksModal({
                       title={step.title}
                       body={step.body}
                       panel={step.panel}
+                      sortArcTailPad={step.panel === 'sort' ? 6 * designScale : 0}
                     />
                   ))}
                 </View>
@@ -313,6 +329,7 @@ function ContactlessStepRow({
   title,
   body,
   panel,
+  sortArcTailPad = 0,
 }: {
   scale: number;
   textColWidth: number;
@@ -322,6 +339,7 @@ function ContactlessStepRow({
   title: string;
   body: string;
   panel: ContactlessWorkflowPanelVariant;
+  sortArcTailPad?: number;
 }) {
   const textBlock = (
     <View style={{ width: textColWidth, gap: 8 * scale }}>
@@ -367,7 +385,11 @@ function ContactlessStepRow({
   }
 
   return (
-    <View style={[styles.stepRow, { gap: rowGap * scale }]}>
+    <View
+      style={[
+        styles.stepRow,
+        { gap: rowGap * scale, paddingBottom: sortArcTailPad, overflow: 'visible' },
+      ]}>
       <View style={[styles.copyCluster, { width: 205 * scale }]}>
         {textBlock}
         {badge}
@@ -425,6 +447,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'center',
     zIndex: 1,
+    ...(Platform.OS === 'web' ? { overflow: 'visible' as const } : null),
   },
   closeChip: {
     backgroundColor: 'rgba(236, 236, 236, 0.92)',

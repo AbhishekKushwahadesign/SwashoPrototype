@@ -73,6 +73,13 @@ function WorkflowPanelArc({
   const roundedLeft = arc.side === 'left';
   const roundedRight = arc.side === 'right';
 
+  const cornerRadii = {
+    borderTopLeftRadius: roundedLeft ? radius : 0,
+    borderBottomLeftRadius: roundedLeft ? radius : 0,
+    borderTopRightRadius: roundedRight ? radius : 0,
+    borderBottomRightRadius: roundedRight ? radius : 0,
+  };
+
   return (
     <View
       pointerEvents="none"
@@ -85,24 +92,25 @@ function WorkflowPanelArc({
         borderWidth: 1,
         borderColor: CONTACTLESS_WORKFLOW_ARC_STROKE,
         zIndex: 0,
-        borderTopLeftRadius: roundedLeft ? radius : 0,
-        borderBottomLeftRadius: roundedLeft ? radius : 0,
-        borderTopRightRadius: roundedRight ? radius : 0,
-        borderBottomRightRadius: roundedRight ? radius : 0,
-        overflow: 'hidden',
+        ...cornerRadii,
+        overflow: 'visible',
       }}>
-      <LinearGradient
-        colors={[...ARC_GRADIENT.colors]}
-        start={roundedLeft ? { x: 0.575, y: 0.5 } : ARC_GRADIENT.start}
-        end={roundedLeft ? { x: 0, y: 0.5 } : ARC_GRADIENT.end}
-        style={StyleSheet.absoluteFill}
-      />
+      <View style={[StyleSheet.absoluteFill, cornerRadii, { overflow: 'hidden' }]}>
+        <LinearGradient
+          colors={[...ARC_GRADIENT.colors]}
+          start={roundedLeft ? { x: 0.575, y: 0.5 } : ARC_GRADIENT.start}
+          end={roundedLeft ? { x: 0, y: 0.5 } : ARC_GRADIENT.end}
+          style={StyleSheet.absoluteFill}
+        />
+      </View>
     </View>
   );
 }
 
-/** Extra px below frame so 60px corner radius + 1px stroke are not clipped (step 3 sort). */
-const ARC_BOTTOM_STROKE_BLEED = 8;
+/** Extra px below arc box so 60px corner + 1px stroke are not clipped on web (step 3 sort). */
+const ARC_BOTTOM_STROKE_BLEED = 12;
+
+const WORKFLOW_PANEL_VARIANTS: ContactlessWorkflowPanelVariant[] = ['upload', 'pickup', 'sort'];
 
 function arcVerticalBleed(variant: ContactlessWorkflowPanelVariant) {
   const arc = PANEL_ARC[variant];
@@ -112,6 +120,17 @@ function arcVerticalBleed(variant: ContactlessWorkflowPanelVariant) {
     bottom: Math.max(0, arc.top + arc.height - frameHeight) + ARC_BOTTOM_STROKE_BLEED,
   };
 }
+
+/** Per-step slot grows by top+bottom bleed vs Figma frame height; sum for modal steps block. */
+export function contactlessWorkflowPanelSlotExtra(variant: ContactlessWorkflowPanelVariant) {
+  const bleed = arcVerticalBleed(variant);
+  return bleed.top + bleed.bottom;
+}
+
+export const CONTACTLESS_WORKFLOW_STEPS_SLOT_EXTRA = WORKFLOW_PANEL_VARIANTS.reduce(
+  (sum, variant) => sum + contactlessWorkflowPanelSlotExtra(variant),
+  0,
+);
 
 /** Single-step illustration + Figma arc stroke. Slot height includes arc vertical bleed. */
 export function ContactlessWorkflowPanel({ variant, scale }: ContactlessWorkflowPanelProps) {
