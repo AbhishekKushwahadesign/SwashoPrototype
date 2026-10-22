@@ -81,10 +81,7 @@ export function ContactlessClothesLocationModal({
     insets.top -
     closeStackHeight -
     Math.max(insets.bottom, 12 * designScale);
-  const sheetHeight = Math.min(
-    sheetHeightTarget,
-    Math.max(availableForSheet, sheetHeightTarget * 0.55),
-  );
+  const sheetHeight = Math.min(sheetHeightTarget, Math.max(availableForSheet, 0));
 
   const canConfirm = contactlessClothesLocationLabel(draftId, draftOther) != null;
 

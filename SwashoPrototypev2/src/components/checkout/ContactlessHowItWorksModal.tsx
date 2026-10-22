@@ -137,7 +137,7 @@ export function ContactlessHowItWorksModal({
     insets.top -
     closeStackHeight -
     Math.max(insets.bottom, 12 * designScale);
-  const maxSheetHeight = Math.min(sheetHeightTarget, Math.max(availableForSheet, sheetHeightTarget * 0.55));
+  const maxSheetHeight = Math.min(sheetHeightTarget, Math.max(availableForSheet, 0));
   const scrollContentBottomPad =
     (CONTACTLESS_WORKFLOW_STEPS_BOTTOM_BLEED + CONTACTLESS_MODAL_FIGMA.contentPaddingBottom) * designScale;
 
