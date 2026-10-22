@@ -428,11 +428,13 @@ function StepNumberBadge({ number, scale }: { number: number; scale: number }) {
         borderRadius: size / 2,
         borderWidth: 1,
         borderColor: CONTACTLESS_WORKFLOW_ARC_STROKE,
-        backgroundColor: SwashoColors.surface,
+        backgroundColor: '#FFFFFF',
         alignItems: 'center',
         justifyContent: 'center',
         flexShrink: 0,
         alignSelf: 'center',
+        position: 'relative',
+        zIndex: 2,
       }}>
       <Text
         style={[
