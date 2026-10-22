@@ -9,8 +9,19 @@ import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
 import { ContactlessWorkflowPanel, type ContactlessWorkflowPanelVariant } from './contactless-workflow-panel';
 
-/** Scroll content top offset from sheet top (pt 24 + title row + 16 gap) — Figma 59119:3332. */
-const SHEET_CONTENT_TOP = 72;
+/** Figma 59127:5994 — `Sheet` frame 59119:3332 (395×642.612). */
+const CONTACTLESS_MODAL_SHEET_FIGMA = {
+  width: 395,
+  height: 642.612_060_546_875,
+  headerHeight: 72,
+  stepsBlockHeight: 399.612_060_546_875,
+  stepsToFooterGap: 36,
+  footerBlockHeight: 115,
+  contentPaddingBottom: 20,
+} as const;
+
+/** Steps stage / arc Y positions are relative to scroll content top (= header bottom). */
+const SHEET_CONTENT_TOP = CONTACTLESS_MODAL_SHEET_FIGMA.headerHeight;
 
 const STEPS: {
   key: string;
@@ -72,7 +83,9 @@ export function ContactlessHowItWorksModal({
   continueHint = 'Next, choose where your laundry bag will be collected from.',
 }: ContactlessHowItWorksModalProps) {
   const insets = useSafeAreaInsets();
-  const sheetMaxHeight = Math.min(720 * scale, 680 * scale);
+  const sheetHeight = CONTACTLESS_MODAL_SHEET_FIGMA.height * scale;
+  /** Figma steps frame 59121:3489 height — scroll viewport for step rows only. */
+  const scrollBodyHeight = CONTACTLESS_MODAL_SHEET_FIGMA.stepsBlockHeight * scale;
   const textColWidth = 185 * scale;
 
   const footerBlock = (
@@ -80,10 +93,11 @@ export function ContactlessHowItWorksModal({
       style={{
         width: '100%',
         paddingHorizontal: 16 * scale,
-        paddingBottom: 20 * scale,
-        paddingTop: showContinue ? 12 * scale : 16 * scale,
+        paddingBottom: CONTACTLESS_MODAL_SHEET_FIGMA.contentPaddingBottom * scale,
+        paddingTop: CONTACTLESS_MODAL_SHEET_FIGMA.stepsToFooterGap * scale,
         gap: 4 * scale,
         backgroundColor: SwashoColors.surface,
+        minHeight: CONTACTLESS_MODAL_SHEET_FIGMA.footerBlockHeight * scale,
       }}>
       <View
         style={[
@@ -164,35 +178,48 @@ export function ContactlessHowItWorksModal({
               styles.sheet,
               {
                 width: contentWidth,
-                maxHeight: sheetMaxHeight,
+                height: sheetHeight,
                 borderTopLeftRadius: SwashoRadii.xl * scale,
                 borderTopRightRadius: SwashoRadii.xl * scale,
               },
             ]}>
-            <Text
-              style={[
-                searchFont('semibold'),
-                styles.title,
-                {
-                  fontSize: 18 * scale,
-                  lineHeight: 24 * scale,
-                  letterSpacing: 0.3 * scale,
-                  paddingHorizontal: 16 * scale,
-                  paddingTop: 24 * scale,
-                  paddingBottom: 8 * scale,
-                },
-              ]}>
-              How Contactless Service Works
-            </Text>
+            <View
+              style={{
+                height: CONTACTLESS_MODAL_SHEET_FIGMA.headerHeight * scale,
+                paddingTop: 24 * scale,
+                paddingBottom: 16 * scale,
+                paddingHorizontal: 16 * scale,
+                justifyContent: 'flex-start',
+              }}>
+              <Text
+                style={[
+                  searchFont('semibold'),
+                  styles.title,
+                  {
+                    fontSize: 18 * scale,
+                    lineHeight: 24 * scale,
+                    letterSpacing: 0.3 * scale,
+                  },
+                ]}>
+                How Contactless Service Works
+              </Text>
+            </View>
 
             <ScrollView
-              style={[styles.scroll, Platform.OS === 'web' ? styles.scrollWeb : null]}
+              style={[
+                styles.scroll,
+                Platform.OS === 'web' ? styles.scrollWeb : null,
+                { maxHeight: scrollBodyHeight },
+              ]}
               contentContainerStyle={{
                 paddingHorizontal: 16 * scale,
-                paddingBottom: 8 * scale,
               }}
               showsVerticalScrollIndicator={false}>
-              <View style={[styles.stepsStage, { minHeight: 400 * scale }]}>
+              <View
+                style={[
+                  styles.stepsStage,
+                  { minHeight: CONTACTLESS_MODAL_SHEET_FIGMA.stepsBlockHeight * scale },
+                ]}>
                 <ContactlessModalBackgroundArcs scale={scale} contentWidth={contentWidth} />
                 <View style={{ gap: 28 * scale, width: '100%' }}>
                   {STEPS.map((step) => (
