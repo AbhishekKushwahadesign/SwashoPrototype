@@ -9,16 +9,24 @@ import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
 import { ContactlessWorkflowPanel, type ContactlessWorkflowPanelVariant } from './contactless-workflow-panel';
 
-/** Figma 59136:3392 — Contactless Modal 59127:5994 (412×686), Sheet 59119:3332 (412×642.612). */
+/** Figma 59136:3392 — Contactless Modal 59127:5994 (412×686), Sheet 59119:3332 (412×664.612). */
 const CONTACTLESS_MODAL_FIGMA = {
   frameWidth: 412,
-  frameHeight: 686,
-  sheetHeight: 642.612_060_546_875,
+  modalFrameHeight: 686,
+  /** Setup sheet includes reassurance + hint + Continue (59132:3334 height 137). */
+  sheetHeightSetup: 664.612_060_546_875,
+  /** Info sheet: reassurance only in footer. */
+  sheetHeightInfo:
+    72 + 399.612_060_546_875 + 36 + 58 + 20,
   sheetHorizontalInset: 8,
   headerHeight: 72,
   stepsBlockHeight: 399.612_060_546_875,
   stepsToFooterGap: 36,
-  footerBlockHeight: 115,
+  footerSetupHeight: 137,
+  footerInfoHeight: 58,
+  reassuranceToHintGap: 12,
+  hintToContinueGap: 2,
+  continueButtonHeight: 45,
   contentPaddingBottom: 20,
   contentPaddingHorizontal: 16,
   /** Sheet-absolute arc anchors (412px-wide sheet). */
@@ -91,58 +99,75 @@ export function ContactlessHowItWorksModal({
   continueHint = 'Next, choose where your laundry bag will be collected from.',
 }: ContactlessHowItWorksModalProps) {
   const insets = useSafeAreaInsets();
-  const setupHintHeight = showContinue && continueHint ? 22 * scale : 0;
-  const sheetMinHeight = CONTACTLESS_MODAL_FIGMA.sheetHeight * scale + setupHintHeight;
-  const textColWidth = 185 * scale;
+  const designScale = contentWidth / CONTACTLESS_MODAL_FIGMA.frameWidth;
+  const sheetHeightDesign = showContinue
+    ? CONTACTLESS_MODAL_FIGMA.sheetHeightSetup
+    : CONTACTLESS_MODAL_FIGMA.sheetHeightInfo;
+  const sheetHeight = sheetHeightDesign * designScale;
+  const textColWidth = 185 * designScale;
 
   const footerBlock = (
     <View
       style={{
         width: '100%',
-        paddingHorizontal: 16 * scale,
-        paddingBottom: CONTACTLESS_MODAL_FIGMA.contentPaddingBottom * scale,
-        paddingTop: CONTACTLESS_MODAL_FIGMA.stepsToFooterGap * scale,
-        gap: 4 * scale,
+        paddingHorizontal: CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal * designScale,
+        paddingBottom: CONTACTLESS_MODAL_FIGMA.contentPaddingBottom * designScale,
+        paddingTop: CONTACTLESS_MODAL_FIGMA.stepsToFooterGap * designScale,
         backgroundColor: SwashoColors.surface,
+        flexShrink: 0,
+        minHeight:
+          (showContinue
+            ? CONTACTLESS_MODAL_FIGMA.footerSetupHeight
+            : CONTACTLESS_MODAL_FIGMA.footerInfoHeight) * designScale,
       }}>
       <View
         style={[
           styles.reassuranceBox,
           {
-            borderRadius: SwashoRadii.md * scale,
-            paddingHorizontal: 12 * scale,
-            paddingVertical: 8 * scale,
+            borderRadius: SwashoRadii.md * designScale,
+            paddingHorizontal: 12 * designScale,
+            paddingVertical: 8 * designScale,
           },
         ]}>
         <Text
           style={[
             searchFont('medium'),
             styles.reassuranceText,
-            { fontSize: 13 * scale, lineHeight: 20 * scale },
+            { fontSize: 13 * designScale, lineHeight: 20 * designScale },
           ]}>
           {REASSURANCE}
         </Text>
       </View>
 
-      {showContinue && continueHint ? (
-        <Text
-          style={[
-            searchFont('regular'),
-            styles.continueHint,
-            { fontSize: 12 * scale, lineHeight: 18 * scale },
-          ]}>
-          {continueHint}
-        </Text>
-      ) : null}
-
       {showContinue ? (
-        <View style={{ width: '100%', paddingTop: 8 * scale }}>
+        <View
+          style={{
+            marginTop: CONTACTLESS_MODAL_FIGMA.reassuranceToHintGap * designScale,
+            gap: CONTACTLESS_MODAL_FIGMA.hintToContinueGap * designScale,
+          }}>
+          {continueHint ? (
+            <Text
+              style={[
+                searchFont('regular'),
+                styles.continueHint,
+                {
+                  fontSize: 12 * designScale,
+                  lineHeight: 20 * designScale,
+                  textAlign: 'center',
+                },
+              ]}>
+              {continueHint}
+            </Text>
+          ) : null}
           <ServiceSelectionButton
             label="Continue"
             variant="primary"
             onPress={onContinue ?? onClose}
             scale={scale}
-            style={{ width: '100%', minHeight: 45 * scale }}
+            style={{
+              width: '100%',
+              minHeight: CONTACTLESS_MODAL_FIGMA.continueButtonHeight * designScale,
+            }}
           />
         </View>
       ) : null}
@@ -161,7 +186,7 @@ export function ContactlessHowItWorksModal({
         <View
           style={[
             styles.sheetColumn,
-            { width: contentWidth, paddingBottom: Math.max(insets.bottom, 12 * scale) },
+            { width: contentWidth, paddingBottom: Math.max(insets.bottom, 12 * designScale) },
           ]}
           pointerEvents="box-none">
           <Pressable
@@ -171,13 +196,13 @@ export function ContactlessHowItWorksModal({
             style={[
               styles.closeChip,
               {
-                width: 35 * scale,
-                height: 35 * scale,
+                width: 35 * designScale,
+                height: 35 * designScale,
                 borderRadius: 999,
-                marginBottom: 8 * scale,
+                marginBottom: 8 * designScale,
               },
             ]}>
-            <SheetCloseIcon width={20 * scale} height={20 * scale} />
+            <SheetCloseIcon width={20 * designScale} height={20 * designScale} />
           </Pressable>
 
           <View
@@ -185,27 +210,28 @@ export function ContactlessHowItWorksModal({
               styles.sheet,
               {
                 width: contentWidth,
-                minHeight: sheetMinHeight,
-                borderTopLeftRadius: SwashoRadii.xl * scale,
-                borderTopRightRadius: SwashoRadii.xl * scale,
+                height: sheetHeight,
+                borderTopLeftRadius: SwashoRadii.xl * designScale,
+                borderTopRightRadius: SwashoRadii.xl * designScale,
               },
             ]}>
             <View
               style={{
-                height: CONTACTLESS_MODAL_FIGMA.headerHeight * scale,
-                paddingTop: 24 * scale,
-                paddingBottom: 16 * scale,
-                paddingHorizontal: CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal * scale,
+                height: CONTACTLESS_MODAL_FIGMA.headerHeight * designScale,
+                paddingTop: 24 * designScale,
+                paddingBottom: 16 * designScale,
+                paddingHorizontal: CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal * designScale,
                 justifyContent: 'flex-start',
+                flexShrink: 0,
               }}>
               <Text
                 style={[
                   searchFont('semibold'),
                   styles.title,
                   {
-                    fontSize: 18 * scale,
-                    lineHeight: 24 * scale,
-                    letterSpacing: 0.3 * scale,
+                    fontSize: 18 * designScale,
+                    lineHeight: 24 * designScale,
+                    letterSpacing: 0.3 * designScale,
                   },
                 ]}>
                 How Contactless Service Works
@@ -214,20 +240,21 @@ export function ContactlessHowItWorksModal({
 
             <View
               style={{
-                paddingHorizontal: CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal * scale,
+                paddingHorizontal: CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal * designScale,
+                height: CONTACTLESS_MODAL_FIGMA.stepsBlockHeight * designScale,
                 flexShrink: 0,
               }}>
               <View
                 style={[
                   styles.stepsStage,
-                  { minHeight: CONTACTLESS_MODAL_FIGMA.stepsBlockHeight * scale },
+                  { height: CONTACTLESS_MODAL_FIGMA.stepsBlockHeight * designScale },
                 ]}>
                 <ContactlessModalBackgroundArcs scale={scale} contentWidth={contentWidth} />
-                <View style={{ gap: 28 * scale, width: '100%' }}>
+                <View style={{ gap: 28 * designScale, width: '100%' }}>
                   {STEPS.map((step) => (
                     <ContactlessStepRow
                       key={step.key}
-                      scale={scale}
+                      scale={designScale}
                       textColWidth={textColWidth}
                       variant={step.variant}
                       rowGap={step.rowGap}
@@ -434,7 +461,7 @@ const styles = StyleSheet.create({
   sheet: {
     width: '100%',
     backgroundColor: SwashoColors.surface,
-    overflow: 'visible',
+    overflow: 'hidden',
     flexDirection: 'column',
   },
   stepsStage: {
