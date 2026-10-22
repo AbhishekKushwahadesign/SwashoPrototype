@@ -1,4 +1,13 @@
-import { Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  Dimensions,
+  Modal,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { searchFont } from '@/components/search/search-fonts';
@@ -8,46 +17,28 @@ import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
 import {
   CONTACTLESS_WORKFLOW_ARC_STROKE,
-  CONTACTLESS_WORKFLOW_STEPS_SLOT_EXTRA,
+  CONTACTLESS_WORKFLOW_STEPS_BOTTOM_BLEED,
   ContactlessWorkflowPanel,
   type ContactlessWorkflowPanelVariant,
 } from './contactless-workflow-panel';
 
 const STEPS_BLOCK_HEIGHT = 399.612_060_546_875;
-/** Top padding for step 1 arc; extra bottom for step 3 D-arc + 60px corner stroke. */
-const STEPS_ARC_PADDING_TOP = 7;
-const STEPS_ARC_PADDING_BOTTOM = 28;
 
-/** Figma 59136:3392 — Contactless Modal 59127:5994 (412×686), Sheet 59119:3332 (412×664.612 + arc bleed). */
+/** Figma 59127:5994 — Contactless Modal (412×686), Sheet 59119:3332 (412×664.612). */
 const CONTACTLESS_MODAL_FIGMA = {
   frameWidth: 412,
-  modalFrameHeight: 686 + CONTACTLESS_WORKFLOW_STEPS_SLOT_EXTRA,
+  modalFrameHeight: 686,
+  closeChipHeight: 35,
+  closeToSheetGap: 8,
   sheetHorizontalInset: 8,
+  sheetPaddingTop: 24,
+  titleRowPaddingBottom: 8,
   headerHeight: 72,
   stepsBlockHeight: STEPS_BLOCK_HEIGHT,
-  stepsPanelSlotExtra: CONTACTLESS_WORKFLOW_STEPS_SLOT_EXTRA,
-  stepsArcPaddingTop: STEPS_ARC_PADDING_TOP,
-  stepsArcPaddingBottom: STEPS_ARC_PADDING_BOTTOM,
   /** Setup sheet includes reassurance + hint + Continue (59132:3334 height 137). */
-  sheetHeightSetup:
-    72 +
-    STEPS_BLOCK_HEIGHT +
-    CONTACTLESS_WORKFLOW_STEPS_SLOT_EXTRA +
-    STEPS_ARC_PADDING_TOP +
-    STEPS_ARC_PADDING_BOTTOM +
-    36 +
-    137 +
-    20,
+  sheetHeightSetup: 72 + STEPS_BLOCK_HEIGHT + 36 + 137 + 20,
   /** Info sheet: reassurance only in footer. */
-  sheetHeightInfo:
-    72 +
-    STEPS_BLOCK_HEIGHT +
-    CONTACTLESS_WORKFLOW_STEPS_SLOT_EXTRA +
-    STEPS_ARC_PADDING_TOP +
-    STEPS_ARC_PADDING_BOTTOM +
-    36 +
-    58 +
-    20,
+  sheetHeightInfo: 72 + STEPS_BLOCK_HEIGHT + 36 + 58 + 20,
   stepsToFooterGap: 36,
   footerSetupHeight: 137,
   footerInfoHeight: 58,
@@ -56,6 +47,7 @@ const CONTACTLESS_MODAL_FIGMA = {
   continueButtonHeight: 45,
   contentPaddingBottom: 20,
   contentPaddingHorizontal: 16,
+  interStepGap: 28,
 } as const;
 
 /** Figma 59138:3993 — hint above Continue on setup sheet. */
@@ -128,14 +120,27 @@ export function ContactlessHowItWorksModal({
   const sheetHeight = sheetHeightDesign * designScale;
   const textColWidth = 185 * designScale;
   const webOverflowVisible = Platform.OS === 'web' ? ('visible' as const) : undefined;
+  const windowHeight = Dimensions.get('window').height;
+  const closeStackHeight =
+    (CONTACTLESS_MODAL_FIGMA.closeChipHeight + CONTACTLESS_MODAL_FIGMA.closeToSheetGap) * designScale;
+  const availableForSheet =
+    windowHeight -
+    insets.top -
+    closeStackHeight -
+    Math.max(insets.bottom, 12 * designScale);
+  const maxSheetHeight = Math.min(sheetHeight, Math.max(availableForSheet, sheetHeight * 0.55));
+  const scrollStepsBottomPad =
+    (CONTACTLESS_WORKFLOW_STEPS_BOTTOM_BLEED + CONTACTLESS_MODAL_FIGMA.stepsToFooterGap) * designScale;
 
   const footerBlock = (
     <View
       style={{
         width: '100%',
-        paddingHorizontal: CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal * designScale,
+        paddingHorizontal:
+          (CONTACTLESS_MODAL_FIGMA.sheetHorizontalInset +
+            CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal) *
+          designScale,
         paddingBottom: CONTACTLESS_MODAL_FIGMA.contentPaddingBottom * designScale,
-        paddingTop: CONTACTLESS_MODAL_FIGMA.stepsToFooterGap * designScale,
         backgroundColor: SwashoColors.surface,
         flexShrink: 0,
         minHeight:
@@ -210,7 +215,11 @@ export function ContactlessHowItWorksModal({
         <View
           style={[
             styles.sheetColumn,
-            { width: contentWidth, paddingBottom: Math.max(insets.bottom, 12 * designScale) },
+            {
+              width: contentWidth,
+              maxHeight: windowHeight - insets.top,
+              paddingBottom: Math.max(insets.bottom, 12 * designScale),
+            },
           ]}
           pointerEvents="box-none">
           <Pressable
@@ -220,10 +229,10 @@ export function ContactlessHowItWorksModal({
             style={[
               styles.closeChip,
               {
-                width: 35 * designScale,
-                height: 35 * designScale,
+                width: CONTACTLESS_MODAL_FIGMA.closeChipHeight * designScale,
+                height: CONTACTLESS_MODAL_FIGMA.closeChipHeight * designScale,
                 borderRadius: 999,
-                marginBottom: 8 * designScale,
+                marginBottom: CONTACTLESS_MODAL_FIGMA.closeToSheetGap * designScale,
               },
             ]}>
             <SheetCloseIcon width={20 * designScale} height={20 * designScale} />
@@ -234,63 +243,61 @@ export function ContactlessHowItWorksModal({
               styles.sheet,
               {
                 width: contentWidth,
-                minHeight: sheetHeight,
+                maxHeight: maxSheetHeight,
+                minHeight: Math.min(sheetHeight, maxSheetHeight),
                 borderTopLeftRadius: SwashoRadii.xl * designScale,
                 borderTopRightRadius: SwashoRadii.xl * designScale,
                 overflow: webOverflowVisible,
               },
             ]}>
-            <View
-              style={{
-                height: CONTACTLESS_MODAL_FIGMA.headerHeight * designScale,
-                paddingTop: 24 * designScale,
-                paddingBottom: 16 * designScale,
-                paddingHorizontal: CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal * designScale,
-                justifyContent: 'flex-start',
-                flexShrink: 0,
-              }}>
-              <Text
-                style={[
-                  searchFont('semibold'),
-                  styles.title,
-                  {
-                    fontSize: 18 * designScale,
-                    lineHeight: 24 * designScale,
-                    letterSpacing: 0.3 * designScale,
-                  },
-                ]}>
-                How Contactless Service Works
-              </Text>
-            </View>
-
-            <View
-              style={{
-                paddingHorizontal: CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal * designScale,
-                paddingTop: CONTACTLESS_MODAL_FIGMA.stepsArcPaddingTop * designScale,
-                paddingBottom: CONTACTLESS_MODAL_FIGMA.stepsArcPaddingBottom * designScale,
-                minHeight:
-                  (CONTACTLESS_MODAL_FIGMA.stepsBlockHeight +
-                    CONTACTLESS_MODAL_FIGMA.stepsPanelSlotExtra +
-                    CONTACTLESS_MODAL_FIGMA.stepsArcPaddingTop +
-                    CONTACTLESS_MODAL_FIGMA.stepsArcPaddingBottom) *
-                  designScale,
-                flexShrink: 0,
+            <ScrollView
+              style={[
+                styles.scrollBody,
+                Platform.OS === 'web' ? styles.scrollBodyWeb : null,
+                { overflow: webOverflowVisible ?? 'scroll' },
+              ]}
+              contentContainerStyle={{
+                paddingTop: CONTACTLESS_MODAL_FIGMA.sheetPaddingTop * designScale,
+                paddingBottom: scrollStepsBottomPad,
                 overflow: webOverflowVisible ?? 'visible',
-              }}>
+              }}
+              showsVerticalScrollIndicator={false}
+              bounces={false}>
               <View
-                style={[
-                  styles.stepsStage,
-                  {
-                    minHeight:
-                      (CONTACTLESS_MODAL_FIGMA.stepsBlockHeight +
-                        CONTACTLESS_MODAL_FIGMA.stepsPanelSlotExtra) *
-                      designScale,
-                    overflow: webOverflowVisible ?? 'visible',
-                  },
-                ]}>
+                style={{
+                  paddingHorizontal:
+                    (CONTACTLESS_MODAL_FIGMA.sheetHorizontalInset +
+                      CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal) *
+                    designScale,
+                  paddingBottom: CONTACTLESS_MODAL_FIGMA.titleRowPaddingBottom * designScale,
+                  flexShrink: 0,
+                }}>
+                <Text
+                  style={[
+                    searchFont('semibold'),
+                    styles.title,
+                    {
+                      fontSize: 18 * designScale,
+                      lineHeight: 24 * designScale,
+                      letterSpacing: 0.3 * designScale,
+                    },
+                  ]}>
+                  How Contactless Service Works
+                </Text>
+              </View>
+
+              <View
+                style={{
+                  paddingHorizontal:
+                    (CONTACTLESS_MODAL_FIGMA.sheetHorizontalInset +
+                      CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal) *
+                    designScale,
+                  marginHorizontal: -CONTACTLESS_MODAL_FIGMA.sheetHorizontalInset * designScale,
+                  overflow: webOverflowVisible ?? 'visible',
+                }}>
                 <View
                   style={{
-                    gap: 28 * designScale,
+                    gap: CONTACTLESS_MODAL_FIGMA.interStepGap * designScale,
                     width: '100%',
                     overflow: webOverflowVisible ?? 'visible',
                   }}>
@@ -305,12 +312,11 @@ export function ContactlessHowItWorksModal({
                       title={step.title}
                       body={step.body}
                       panel={step.panel}
-                      sortArcTailPad={step.panel === 'sort' ? 6 * designScale : 0}
                     />
                   ))}
                 </View>
               </View>
-            </View>
+            </ScrollView>
 
             {footerBlock}
           </View>
@@ -329,7 +335,6 @@ function ContactlessStepRow({
   title,
   body,
   panel,
-  sortArcTailPad = 0,
 }: {
   scale: number;
   textColWidth: number;
@@ -339,7 +344,6 @@ function ContactlessStepRow({
   title: string;
   body: string;
   panel: ContactlessWorkflowPanelVariant;
-  sortArcTailPad?: number;
 }) {
   const textBlock = (
     <View style={{ width: textColWidth, gap: 8 * scale }}>
@@ -372,11 +376,11 @@ function ContactlessStepRow({
           styles.stepRow,
           {
             gap: rowGap * scale,
-            justifyContent: 'flex-end',
+            paddingLeft: 6.804 * scale,
           },
         ]}>
         {illustration}
-        <View style={[styles.copyCluster, { gap: 16 * scale }]}>
+        <View style={[styles.copyCluster, { gap: 16 * scale, flex: 1, minWidth: 0 }]}>
           {badge}
           {textBlock}
         </View>
@@ -385,16 +389,11 @@ function ContactlessStepRow({
   }
 
   return (
-    <View
-      style={[
-        styles.stepRow,
-        { gap: rowGap * scale, paddingBottom: sortArcTailPad, overflow: 'visible' },
-      ]}>
-      <View style={[styles.copyCluster, { width: 205 * scale }]}>
+    <View style={[styles.stepRow, { gap: rowGap * scale }]}>
+      <View style={[styles.copyCluster, { width: 205 * scale, flexShrink: 0 }]}>
         {textBlock}
         {badge}
       </View>
-      <View style={{ flex: 1, minWidth: rowGap * scale }} />
       {illustration}
     </View>
   );
@@ -437,29 +436,42 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     justifyContent: 'flex-end',
+    zIndex: 1000,
+    elevation: 1000,
   },
   scrim: {
     ...StyleSheet.absoluteFill,
     backgroundColor: SwashoColors.modalScrim,
+    zIndex: 0,
   },
   sheetColumn: {
     width: '100%',
     alignSelf: 'center',
     alignItems: 'center',
-    zIndex: 1,
+    zIndex: 2,
     ...(Platform.OS === 'web' ? { overflow: 'visible' as const } : null),
   },
   closeChip: {
     backgroundColor: 'rgba(236, 236, 236, 0.92)',
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 3,
+    elevation: 4,
   },
   sheet: {
     width: '100%',
     backgroundColor: SwashoColors.surface,
     overflow: 'visible',
     flexDirection: 'column',
+    flexShrink: 1,
   },
+  scrollBody: {
+    flexGrow: 0,
+    flexShrink: 1,
+  },
+  scrollBodyWeb: {
+    overflow: 'auto',
+  } as object,
   stepsStage: {
     position: 'relative',
     width: '100%',
