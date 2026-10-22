@@ -1,6 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useCallback, useState } from 'react';
 import {
+  Dimensions,
   Modal,
   Platform,
   Pressable,
@@ -30,6 +31,12 @@ import {
   CheckoutInstructionPhoneIcon,
   CheckoutInstructionShieldIcon,
 } from './checkout-review-icons';
+
+/** Figma 59153:4639 — clothes location sheet 600px at 412 frame. */
+const CLOTHES_LOCATION_SHEET_FIGMA = {
+  frameWidth: 412,
+  sheetHeightAt412: 600,
+} as const;
 
 const LOCATION_ICONS: Record<
   ContactlessClothesLocationId,
@@ -65,9 +72,21 @@ export function ContactlessClothesLocationModal({
   const [draftId, setDraftId] = useState<ContactlessClothesLocationId | undefined>(selectedId);
   const [draftOther, setDraftOther] = useState(otherText ?? '');
 
-  const sheetMaxHeight = Math.min(720 * scale, 640 * scale);
-  const canConfirm =
-    contactlessClothesLocationLabel(draftId, draftOther) != null;
+  const designScale = contentWidth / CLOTHES_LOCATION_SHEET_FIGMA.frameWidth;
+  const sheetHeightTarget = CLOTHES_LOCATION_SHEET_FIGMA.sheetHeightAt412 * designScale;
+  const windowHeight = Dimensions.get('window').height;
+  const closeStackHeight = (35 + 8) * designScale;
+  const availableForSheet =
+    windowHeight -
+    insets.top -
+    closeStackHeight -
+    Math.max(insets.bottom, 12 * designScale);
+  const sheetHeight = Math.min(
+    sheetHeightTarget,
+    Math.max(availableForSheet, sheetHeightTarget * 0.55),
+  );
+
+  const canConfirm = contactlessClothesLocationLabel(draftId, draftOther) != null;
 
   const handleConfirm = useCallback(() => {
     if (!draftId || !canConfirm) {
@@ -113,7 +132,8 @@ export function ContactlessClothesLocationModal({
               styles.sheet,
               {
                 width: contentWidth,
-                maxHeight: sheetMaxHeight,
+                height: sheetHeight,
+                maxHeight: sheetHeight,
                 borderTopLeftRadius: 24 * scale,
                 borderTopRightRadius: 24 * scale,
                 paddingTop: 24 * scale,
@@ -124,12 +144,19 @@ export function ContactlessClothesLocationModal({
               colors={['#ffffff', '#e8ddfc']}
               start={{ x: 0.2, y: 0 }}
               end={{ x: 0.8, y: 1 }}
-              style={[styles.headerGradient, { height: 80 * scale, borderTopLeftRadius: 24 * scale, borderTopRightRadius: 24 * scale }]}
+              style={[
+                styles.headerGradient,
+                {
+                  height: 80 * scale,
+                  borderTopLeftRadius: 24 * scale,
+                  borderTopRightRadius: 24 * scale,
+                },
+              ]}
               pointerEvents="none"
             />
 
-            <View style={{ paddingHorizontal: 16 * scale, gap: 16 * scale, marginTop: -56 * scale }}>
-              <View style={{ gap: 6 * scale }}>
+            <View style={[styles.sheetBody, { paddingHorizontal: 16 * scale }]}>
+              <View style={{ gap: 6 * scale, marginTop: -56 * scale, flexShrink: 0 }}>
                 <Text
                   style={[
                     searchFont('semibold'),
@@ -149,7 +176,11 @@ export function ContactlessClothesLocationModal({
               </View>
 
               <ScrollView
-                style={[styles.scroll, Platform.OS === 'web' ? styles.scrollWeb : null]}
+                style={[
+                  styles.scroll,
+                  { marginTop: 16 * scale, flex: 1, minHeight: 0 },
+                  Platform.OS === 'web' ? styles.scrollWeb : null,
+                ]}
                 contentContainerStyle={{ gap: 8 * scale, paddingBottom: 8 * scale }}
                 showsVerticalScrollIndicator={false}>
                 {CONTACTLESS_CLOTHES_LOCATION_OPTIONS.map((option) => {
@@ -219,23 +250,25 @@ export function ContactlessClothesLocationModal({
                 })}
               </ScrollView>
 
-              <Text
-                style={[
-                  searchFont('medium'),
-                  styles.footerNote,
-                  { fontSize: 13 * scale, lineHeight: 20 * scale },
-                ]}>
-                Clothes Location can be updated up to 2 hrs before scheduled Pickup/Delivery
-              </Text>
+              <View style={{ gap: 12 * scale, flexShrink: 0, paddingTop: 12 * scale }}>
+                <Text
+                  style={[
+                    searchFont('medium'),
+                    styles.footerNote,
+                    { fontSize: 13 * scale, lineHeight: 20 * scale },
+                  ]}>
+                  Clothes Location can be updated up to 2 hrs before scheduled Pickup/Delivery
+                </Text>
 
-              <ServiceSelectionButton
-                label="Confirm Location"
-                variant="primary"
-                disabled={!canConfirm}
-                onPress={handleConfirm}
-                scale={scale}
-                style={{ width: '100%', minHeight: 45 * scale }}
-              />
+                <ServiceSelectionButton
+                  label="Confirm Location"
+                  variant="primary"
+                  disabled={!canConfirm}
+                  onPress={handleConfirm}
+                  scale={scale}
+                  style={{ width: '100%', minHeight: 45 * scale }}
+                />
+              </View>
             </View>
           </View>
         </View>
@@ -396,6 +429,11 @@ const styles = StyleSheet.create({
     backgroundColor: SwashoColors.surface,
     overflow: 'hidden',
   },
+  sheetBody: {
+    flex: 1,
+    minHeight: 0,
+    flexDirection: 'column',
+  },
   headerGradient: {
     position: 'absolute',
     top: 0,
@@ -403,8 +441,8 @@ const styles = StyleSheet.create({
     right: 0,
   },
   scroll: {
-    flexGrow: 0,
-    maxHeight: 360,
+    flexGrow: 1,
+    flexShrink: 1,
   },
   scrollWeb: {
     overflow: 'auto',

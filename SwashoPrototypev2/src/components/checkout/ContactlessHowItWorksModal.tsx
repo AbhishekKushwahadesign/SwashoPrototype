@@ -39,13 +39,12 @@ const CONTACTLESS_MODAL_FIGMA = {
   titleRowPaddingBottom: 8,
   headerHeight: 72,
   stepsBlockHeight: STEPS_BLOCK_HEIGHT,
-  /** Setup sheet includes reassurance + hint + Continue (59132:3334 height 137). */
-  sheetHeightSetup: 72 + STEPS_BLOCK_HEIGHT + 36 + 137 + 20,
-  /** Info sheet: reassurance only in footer. */
-  sheetHeightInfo: 72 + STEPS_BLOCK_HEIGHT + 36 + 58 + 20,
-  stepsToFooterGap: 36,
-  footerSetupHeight: 137,
-  footerInfoHeight: 58,
+  /** Figma 59119:3332 — sheet body 600px at 412 frame (setup + info cap). */
+  sheetHeightAt412: 600,
+  /** Info-only sheet cap at 412 (no hint / Continue footer). */
+  sheetHeightInfoAt412: 600,
+  stepsToReassuranceGap: 36,
+  footerSetupHeight: 88,
   reassuranceToHintGap: 12,
   hintToContinueGap: 2,
   continueButtonHeight: 45,
@@ -126,9 +125,9 @@ export function ContactlessHowItWorksModal({
   const insets = useSafeAreaInsets();
   const designScale = contentWidth / CONTACTLESS_MODAL_FIGMA.frameWidth;
   const sheetHeightDesign = showContinue
-    ? CONTACTLESS_MODAL_FIGMA.sheetHeightSetup
-    : CONTACTLESS_MODAL_FIGMA.sheetHeightInfo;
-  const sheetHeight = sheetHeightDesign * designScale;
+    ? CONTACTLESS_MODAL_FIGMA.sheetHeightAt412
+    : CONTACTLESS_MODAL_FIGMA.sheetHeightInfoAt412;
+  const sheetHeightTarget = sheetHeightDesign * designScale;
   const textColWidth = 185 * designScale;
   const webOverflowVisible = Platform.OS === 'web' ? ('visible' as const) : undefined;
   const windowHeight = Dimensions.get('window').height;
@@ -139,11 +138,33 @@ export function ContactlessHowItWorksModal({
     insets.top -
     closeStackHeight -
     Math.max(insets.bottom, 12 * designScale);
-  const maxSheetHeight = Math.min(sheetHeight, Math.max(availableForSheet, sheetHeight * 0.55));
-  const scrollStepsBottomPad =
-    (CONTACTLESS_WORKFLOW_STEPS_BOTTOM_BLEED + CONTACTLESS_MODAL_FIGMA.stepsToFooterGap) * designScale;
+  const maxSheetHeight = Math.min(sheetHeightTarget, Math.max(availableForSheet, sheetHeightTarget * 0.55));
+  const scrollContentBottomPad =
+    (CONTACTLESS_WORKFLOW_STEPS_BOTTOM_BLEED + CONTACTLESS_MODAL_FIGMA.contentPaddingBottom) * designScale;
 
-  const footerBlock = (
+  const reassuranceBlock = (
+    <View
+      style={[
+        styles.reassuranceBox,
+        {
+          marginTop: CONTACTLESS_MODAL_FIGMA.stepsToReassuranceGap * designScale,
+          borderRadius: SwashoRadii.md * designScale,
+          paddingHorizontal: 12 * designScale,
+          paddingVertical: 8 * designScale,
+        },
+      ]}>
+      <Text
+        style={[
+          searchFont('medium'),
+          styles.reassuranceText,
+          { fontSize: 13 * designScale, lineHeight: 20 * designScale },
+        ]}>
+        {REASSURANCE}
+      </Text>
+    </View>
+  );
+
+  const setupFooter = showContinue ? (
     <View
       style={{
         width: '100%',
@@ -154,65 +175,35 @@ export function ContactlessHowItWorksModal({
         paddingBottom: CONTACTLESS_MODAL_FIGMA.contentPaddingBottom * designScale,
         backgroundColor: SwashoColors.surface,
         flexShrink: 0,
-        minHeight:
-          (showContinue
-            ? CONTACTLESS_MODAL_FIGMA.footerSetupHeight
-            : CONTACTLESS_MODAL_FIGMA.footerInfoHeight) * designScale,
+        gap: CONTACTLESS_MODAL_FIGMA.hintToContinueGap * designScale,
       }}>
-      <View
-        style={[
-          styles.reassuranceBox,
-          {
-            borderRadius: SwashoRadii.md * designScale,
-            paddingHorizontal: 12 * designScale,
-            paddingVertical: 8 * designScale,
-          },
-        ]}>
+      {continueHint ? (
         <Text
           style={[
             searchFont('medium'),
-            styles.reassuranceText,
-            { fontSize: 13 * designScale, lineHeight: 20 * designScale },
+            styles.continueHint,
+            {
+              fontSize: 13 * designScale,
+              lineHeight: 20 * designScale,
+              letterSpacing: 0.5 * designScale,
+              textAlign: 'center',
+            },
           ]}>
-          {REASSURANCE}
+          {continueHint}
         </Text>
-      </View>
-
-      {showContinue ? (
-        <View
-          style={{
-            marginTop: CONTACTLESS_MODAL_FIGMA.reassuranceToHintGap * designScale,
-            gap: CONTACTLESS_MODAL_FIGMA.hintToContinueGap * designScale,
-          }}>
-          {continueHint ? (
-            <Text
-              style={[
-                searchFont('medium'),
-                styles.continueHint,
-                {
-                  fontSize: 13 * designScale,
-                  lineHeight: 20 * designScale,
-                  letterSpacing: 0.5 * designScale,
-                  textAlign: 'center',
-                },
-              ]}>
-              {continueHint}
-            </Text>
-          ) : null}
-          <ServiceSelectionButton
-            label="Continue"
-            variant="primary"
-            onPress={onContinue ?? onClose}
-            scale={scale}
-            style={{
-              width: '100%',
-              minHeight: CONTACTLESS_MODAL_FIGMA.continueButtonHeight * designScale,
-            }}
-          />
-        </View>
       ) : null}
+      <ServiceSelectionButton
+        label="Continue"
+        variant="primary"
+        onPress={onContinue ?? onClose}
+        scale={scale}
+        style={{
+          width: '100%',
+          minHeight: CONTACTLESS_MODAL_FIGMA.continueButtonHeight * designScale,
+        }}
+      />
     </View>
-  );
+  ) : null;
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -242,8 +233,8 @@ export function ContactlessHowItWorksModal({
               styles.sheet,
               {
                 width: contentWidth,
+                height: maxSheetHeight,
                 maxHeight: maxSheetHeight,
-                minHeight: Math.min(sheetHeight, maxSheetHeight),
                 borderTopLeftRadius: SwashoRadii.xl * designScale,
                 borderTopRightRadius: SwashoRadii.xl * designScale,
                 overflow: webOverflowVisible,
@@ -271,48 +262,48 @@ export function ContactlessHowItWorksModal({
               <SheetCloseIcon width={20 * designScale} height={20 * designScale} />
             </Pressable>
 
+            <View
+              style={{
+                paddingTop: CONTACTLESS_MODAL_FIGMA.sheetPaddingTop * designScale,
+                paddingHorizontal:
+                  (CONTACTLESS_MODAL_FIGMA.sheetHorizontalInset +
+                    CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal) *
+                  designScale,
+                paddingBottom: CONTACTLESS_MODAL_FIGMA.titleRowPaddingBottom * designScale,
+                flexShrink: 0,
+              }}>
+              <Text
+                style={[
+                  searchFont('semibold'),
+                  styles.title,
+                  {
+                    fontSize: 18 * designScale,
+                    lineHeight: 24 * designScale,
+                    letterSpacing: 0.3 * designScale,
+                  },
+                ]}>
+                How Contactless Service Works
+              </Text>
+            </View>
+
             <ScrollView
               style={[
                 styles.scrollBody,
                 Platform.OS === 'web' ? styles.scrollBodyWeb : null,
-                { overflow: webOverflowVisible ?? 'scroll' },
+                { overflow: webOverflowVisible ?? 'scroll', flex: 1, minHeight: 0 },
               ]}
               contentContainerStyle={{
-                paddingTop: CONTACTLESS_MODAL_FIGMA.sheetPaddingTop * designScale,
-                paddingBottom: scrollStepsBottomPad,
+                paddingHorizontal:
+                  (CONTACTLESS_MODAL_FIGMA.sheetHorizontalInset +
+                    CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal) *
+                  designScale,
+                paddingBottom: scrollContentBottomPad,
                 overflow: webOverflowVisible ?? 'visible',
               }}
               showsVerticalScrollIndicator={false}
               bounces={false}>
               <View
                 style={{
-                  paddingHorizontal:
-                    (CONTACTLESS_MODAL_FIGMA.sheetHorizontalInset +
-                      CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal) *
-                    designScale,
-                  paddingBottom: CONTACTLESS_MODAL_FIGMA.titleRowPaddingBottom * designScale,
-                  flexShrink: 0,
-                }}>
-                <Text
-                  style={[
-                    searchFont('semibold'),
-                    styles.title,
-                    {
-                      fontSize: 18 * designScale,
-                      lineHeight: 24 * designScale,
-                      letterSpacing: 0.3 * designScale,
-                    },
-                  ]}>
-                  How Contactless Service Works
-                </Text>
-              </View>
-
-              <View
-                style={{
-                  paddingHorizontal:
-                    (CONTACTLESS_MODAL_FIGMA.sheetHorizontalInset +
-                      CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal) *
-                    designScale,
                   paddingVertical: 12 * designScale,
                   overflow: webOverflowVisible ?? 'visible',
                 }}>
@@ -340,10 +331,11 @@ export function ContactlessHowItWorksModal({
                     />
                   ))}
                 </View>
+                {reassuranceBlock}
               </View>
             </ScrollView>
 
-            {footerBlock}
+            {setupFooter}
           </View>
         </View>
       </View>
@@ -495,7 +487,7 @@ const styles = StyleSheet.create({
     zIndex: 4,
   },
   scrollBody: {
-    flexGrow: 0,
+    flexGrow: 1,
     flexShrink: 1,
   },
   scrollBodyWeb: {
