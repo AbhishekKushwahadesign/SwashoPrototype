@@ -406,7 +406,7 @@ function ContactlessStepRow({
         ]}>
         {illustration}
         <View style={[styles.copyCluster, { gap: 16 * scale, flex: 1, minWidth: 0 }]}>
-          {badge}
+          <View style={styles.stepBadgeAboveArc}>{badge}</View>
           {textBlock}
         </View>
       </View>
@@ -415,11 +415,9 @@ function ContactlessStepRow({
 
   return (
     <View style={[styles.stepRow, { gap: rowGap * scale }]}>
-      <View style={[styles.copyCluster, { width: 205 * scale, flexShrink: 0 }]}>
-        {textBlock}
-        {badge}
-      </View>
-      {illustration}
+      <View style={{ width: 185 * scale, flexShrink: 0 }}>{textBlock}</View>
+      <View style={styles.stepBadgeAboveArc}>{badge}</View>
+      <View style={{ zIndex: 0, flexShrink: 0 }}>{illustration}</View>
     </View>
   );
 }
@@ -434,13 +432,11 @@ function StepNumberBadge({ number, scale }: { number: number; scale: number }) {
         borderRadius: size / 2,
         borderWidth: 1,
         borderColor: CONTACTLESS_WORKFLOW_ARC_STROKE,
-        backgroundColor: '#FFFFFF',
+        backgroundColor: SwashoColors.surface,
         alignItems: 'center',
         justifyContent: 'center',
         flexShrink: 0,
         alignSelf: 'center',
-        position: 'relative',
-        zIndex: 2,
       }}>
       <Text
         style={[
@@ -524,6 +520,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     flexShrink: 0,
+  },
+  stepBadgeAboveArc: {
+    zIndex: 10,
+    elevation: 10,
+    flexShrink: 0,
+    alignSelf: 'center',
+    ...(Platform.OS === 'web'
+      ? ({ isolation: 'isolate', position: 'relative' } as object)
+      : null),
   },
   stepTitle: {
     color: SwashoColors.neutral800,
