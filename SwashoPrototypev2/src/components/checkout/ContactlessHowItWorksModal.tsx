@@ -13,7 +13,9 @@ import {
 } from './contactless-workflow-panel';
 
 const STEPS_BLOCK_HEIGHT = 399.612_060_546_875;
-const STEPS_ARC_VERTICAL_BLEED = 7;
+/** Top padding for step 1 arc; extra bottom for step 3 D-arc + 60px corner stroke. */
+const STEPS_ARC_PADDING_TOP = 7;
+const STEPS_ARC_PADDING_BOTTOM = 16;
 
 /** Figma 59136:3392 — Contactless Modal 59127:5994 (412×686), Sheet 59119:3332 (412×664.612 + arc bleed). */
 const CONTACTLESS_MODAL_FIGMA = {
@@ -22,13 +24,26 @@ const CONTACTLESS_MODAL_FIGMA = {
   sheetHorizontalInset: 8,
   headerHeight: 72,
   stepsBlockHeight: STEPS_BLOCK_HEIGHT,
-  stepsArcVerticalBleed: STEPS_ARC_VERTICAL_BLEED,
+  stepsArcPaddingTop: STEPS_ARC_PADDING_TOP,
+  stepsArcPaddingBottom: STEPS_ARC_PADDING_BOTTOM,
   /** Setup sheet includes reassurance + hint + Continue (59132:3334 height 137). */
   sheetHeightSetup:
-    72 + STEPS_BLOCK_HEIGHT + STEPS_ARC_VERTICAL_BLEED * 2 + 36 + 137 + 20,
+    72 +
+    STEPS_BLOCK_HEIGHT +
+    STEPS_ARC_PADDING_TOP +
+    STEPS_ARC_PADDING_BOTTOM +
+    36 +
+    137 +
+    20,
   /** Info sheet: reassurance only in footer. */
   sheetHeightInfo:
-    72 + STEPS_BLOCK_HEIGHT + STEPS_ARC_VERTICAL_BLEED * 2 + 36 + 58 + 20,
+    72 +
+    STEPS_BLOCK_HEIGHT +
+    STEPS_ARC_PADDING_TOP +
+    STEPS_ARC_PADDING_BOTTOM +
+    36 +
+    58 +
+    20,
   stepsToFooterGap: 36,
   footerSetupHeight: 137,
   footerInfoHeight: 58,
@@ -245,11 +260,12 @@ export function ContactlessHowItWorksModal({
             <View
               style={{
                 paddingHorizontal: CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal * designScale,
-                paddingTop: CONTACTLESS_MODAL_FIGMA.stepsArcVerticalBleed * designScale,
-                paddingBottom: CONTACTLESS_MODAL_FIGMA.stepsArcVerticalBleed * designScale,
+                paddingTop: CONTACTLESS_MODAL_FIGMA.stepsArcPaddingTop * designScale,
+                paddingBottom: CONTACTLESS_MODAL_FIGMA.stepsArcPaddingBottom * designScale,
                 minHeight:
                   (CONTACTLESS_MODAL_FIGMA.stepsBlockHeight +
-                    CONTACTLESS_MODAL_FIGMA.stepsArcVerticalBleed * 2) *
+                    CONTACTLESS_MODAL_FIGMA.stepsArcPaddingTop +
+                    CONTACTLESS_MODAL_FIGMA.stepsArcPaddingBottom) *
                   designScale,
                 flexShrink: 0,
                 overflow: 'visible',

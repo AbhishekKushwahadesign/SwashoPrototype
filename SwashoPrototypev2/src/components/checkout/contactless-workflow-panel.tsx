@@ -101,12 +101,15 @@ function WorkflowPanelArc({
   );
 }
 
+/** Extra px below frame so 60px corner radius + 1px stroke are not clipped (step 3 sort). */
+const ARC_BOTTOM_STROKE_BLEED = 8;
+
 function arcVerticalBleed(variant: ContactlessWorkflowPanelVariant) {
   const arc = PANEL_ARC[variant];
   const { frameHeight } = PANEL_IMAGE[variant];
   return {
     top: Math.max(0, -arc.top),
-    bottom: Math.max(0, arc.top + arc.height - frameHeight),
+    bottom: Math.max(0, arc.top + arc.height - frameHeight) + ARC_BOTTOM_STROKE_BLEED,
   };
 }
 
