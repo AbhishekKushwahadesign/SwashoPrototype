@@ -45,7 +45,6 @@ const CONTACTLESS_MODAL_FIGMA = {
   sheetHeightInfoAt412: 600,
   stepsToReassuranceGap: 36,
   footerSetupHeight: 88,
-  reassuranceToHintGap: 12,
   hintToContinueGap: 2,
   continueButtonHeight: 45,
   contentPaddingBottom: 20,
