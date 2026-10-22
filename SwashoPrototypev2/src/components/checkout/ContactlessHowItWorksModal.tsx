@@ -1,3 +1,4 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -6,40 +7,48 @@ import { ServiceSelectionButton } from '@/components/service-selection/ServiceSe
 import { SheetCloseIcon } from '@/components/service-selection/service-selection-icons';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
-import { ContactlessStepIllustrationCluster } from './contactless-workflow-panel';
+import { ContactlessWorkflowPanel, type ContactlessWorkflowPanelVariant } from './contactless-workflow-panel';
 
-const STEPS = [
+/** Scroll content top offset from sheet top (pt 24 + title row + 16 gap) — Figma 59119:3332. */
+const SHEET_CONTENT_TOP = 72;
+
+const STEPS: {
+  key: string;
+  variant: 'textLeading' | 'textTrailing';
+  rowGap: number;
+  number: number;
+  title: string;
+  body: string;
+  panel: ContactlessWorkflowPanelVariant;
+}[] = [
   {
     key: 'upload',
-    layout: 'textLeft' as const,
+    variant: 'textLeading',
+    rowGap: 8,
     number: 1,
     title: 'Upload Photos',
     body: 'Upload your laundry bag photo and garment photos under their respective services.',
-    panel: 'upload' as const,
-    arcSide: 'right' as const,
-    badgeSide: 'left' as const,
+    panel: 'upload',
   },
   {
     key: 'pickup',
-    layout: 'textRight' as const,
+    variant: 'textTrailing',
+    rowGap: 17,
     number: 2,
     title: 'Hassle-Free Pickup',
     body: 'Our pickup partner collects your laundry from your selected location—no in-person handover needed.',
-    panel: 'pickup' as const,
-    arcSide: 'left' as const,
-    badgeSide: 'right' as const,
+    panel: 'pickup',
   },
   {
     key: 'sort',
-    layout: 'textLeft' as const,
+    variant: 'textLeading',
+    rowGap: 12,
     number: 3,
     title: 'We Sort & Process',
     body: 'Our laundry team uses your photos to sort garments by service and process them accordingly.',
-    panel: 'sort' as const,
-    arcSide: 'right' as const,
-    badgeSide: 'left' as const,
+    panel: 'sort',
   },
-] as const;
+];
 
 const REASSURANCE = 'Your convenience, your schedule - no waiting for a pickup handover.';
 
@@ -48,7 +57,6 @@ type ContactlessHowItWorksModalProps = {
   onClose: () => void;
   scale: number;
   contentWidth: number;
-  /** Figma 59127:5994 setup flow — primary Continue CTA. */
   showContinue?: boolean;
   onContinue?: () => void;
   continueHint?: string;
@@ -64,8 +72,61 @@ export function ContactlessHowItWorksModal({
   continueHint = 'Next, choose where your laundry bag will be collected from.',
 }: ContactlessHowItWorksModalProps) {
   const insets = useSafeAreaInsets();
-  const sheetMaxHeight = Math.min(720 * scale, 640 * scale);
+  const sheetMaxHeight = Math.min(720 * scale, 680 * scale);
   const textColWidth = 185 * scale;
+
+  const footerBlock = (
+    <View
+      style={{
+        width: '100%',
+        paddingHorizontal: 16 * scale,
+        paddingBottom: 20 * scale,
+        paddingTop: showContinue ? 12 * scale : 16 * scale,
+        gap: 4 * scale,
+        backgroundColor: SwashoColors.surface,
+      }}>
+      <View
+        style={[
+          styles.reassuranceBox,
+          {
+            borderRadius: SwashoRadii.md * scale,
+            paddingHorizontal: 12 * scale,
+            paddingVertical: 8 * scale,
+          },
+        ]}>
+        <Text
+          style={[
+            searchFont('medium'),
+            styles.reassuranceText,
+            { fontSize: 13 * scale, lineHeight: 20 * scale },
+          ]}>
+          {REASSURANCE}
+        </Text>
+      </View>
+
+      {showContinue ? (
+        <View style={{ width: '100%', paddingTop: 8 * scale, gap: 4 * scale }}>
+          {continueHint ? (
+            <Text
+              style={[
+                searchFont('regular'),
+                styles.continueHint,
+                { fontSize: 12 * scale, lineHeight: 18 * scale },
+              ]}>
+              {continueHint}
+            </Text>
+          ) : null}
+          <ServiceSelectionButton
+            label="Continue"
+            variant="primary"
+            onPress={onContinue ?? onClose}
+            scale={scale}
+            style={{ width: '100%', minHeight: 45 * scale }}
+          />
+        </View>
+      ) : null}
+    </View>
+  );
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -106,8 +167,6 @@ export function ContactlessHowItWorksModal({
                 maxHeight: sheetMaxHeight,
                 borderTopLeftRadius: SwashoRadii.xl * scale,
                 borderTopRightRadius: SwashoRadii.xl * scale,
-                paddingTop: 24 * scale,
-                gap: 16 * scale,
               },
             ]}>
             <Text
@@ -119,6 +178,7 @@ export function ContactlessHowItWorksModal({
                   lineHeight: 24 * scale,
                   letterSpacing: 0.3 * scale,
                   paddingHorizontal: 16 * scale,
+                  paddingTop: 24 * scale,
                   paddingBottom: 8 * scale,
                 },
               ]}>
@@ -129,70 +189,30 @@ export function ContactlessHowItWorksModal({
               style={[styles.scroll, Platform.OS === 'web' ? styles.scrollWeb : null]}
               contentContainerStyle={{
                 paddingHorizontal: 16 * scale,
-                paddingBottom: 20 * scale,
-                gap: 36 * scale,
+                paddingBottom: 8 * scale,
               }}
               showsVerticalScrollIndicator={false}>
-              <View style={{ gap: 28 * scale, width: '100%' }}>
-                {STEPS.map((step) => (
-                  <ContactlessStepRow
-                    key={step.key}
-                    scale={scale}
-                    textColWidth={textColWidth}
-                    layout={step.layout}
-                    number={step.number}
-                    title={step.title}
-                    body={step.body}
-                    panel={step.panel}
-                    arcSide={step.arcSide}
-                    badgeSide={step.badgeSide}
-                  />
-                ))}
-              </View>
-
-              <View style={{ width: '100%', gap: 4 * scale }}>
-                <View
-                  style={[
-                    styles.reassuranceBox,
-                    {
-                      borderRadius: SwashoRadii.md * scale,
-                      paddingHorizontal: 12 * scale,
-                      paddingVertical: 8 * scale,
-                    },
-                  ]}>
-                  <Text
-                    style={[
-                      searchFont('medium'),
-                      styles.reassuranceText,
-                      { fontSize: 13 * scale, lineHeight: 20 * scale },
-                    ]}>
-                    {REASSURANCE}
-                  </Text>
-                </View>
-
-                {showContinue ? (
-                  <View style={{ width: '100%', paddingTop: 8 * scale, gap: 4 * scale }}>
-                    {continueHint ? (
-                      <Text
-                        style={[
-                          searchFont('regular'),
-                          styles.continueHint,
-                          { fontSize: 12 * scale, lineHeight: 18 * scale },
-                        ]}>
-                        {continueHint}
-                      </Text>
-                    ) : null}
-                    <ServiceSelectionButton
-                      label="Continue"
-                      variant="primary"
-                      onPress={onContinue ?? onClose}
+              <View style={[styles.stepsStage, { minHeight: 400 * scale }]}>
+                <ContactlessModalBackgroundArcs scale={scale} contentWidth={contentWidth} />
+                <View style={{ gap: 28 * scale, width: '100%' }}>
+                  {STEPS.map((step) => (
+                    <ContactlessStepRow
+                      key={step.key}
                       scale={scale}
-                      style={{ width: '100%', minHeight: 45 * scale }}
+                      textColWidth={textColWidth}
+                      variant={step.variant}
+                      rowGap={step.rowGap}
+                      number={step.number}
+                      title={step.title}
+                      body={step.body}
+                      panel={step.panel}
                     />
-                  </View>
-                ) : null}
+                  ))}
+                </View>
               </View>
             </ScrollView>
+
+            {footerBlock}
           </View>
         </View>
       </View>
@@ -203,26 +223,24 @@ export function ContactlessHowItWorksModal({
 function ContactlessStepRow({
   scale,
   textColWidth,
-  layout,
+  variant,
+  rowGap,
   number,
   title,
   body,
   panel,
-  arcSide,
-  badgeSide,
 }: {
   scale: number;
   textColWidth: number;
-  layout: 'textLeft' | 'textRight';
+  variant: 'textLeading' | 'textTrailing';
+  rowGap: number;
   number: number;
   title: string;
   body: string;
-  panel: 'upload' | 'pickup' | 'sort';
-  arcSide: 'left' | 'right';
-  badgeSide: 'left' | 'right';
+  panel: ContactlessWorkflowPanelVariant;
 }) {
   const textBlock = (
-    <View style={{ width: textColWidth, gap: 8 * scale, flexShrink: 1 }}>
+    <View style={{ width: textColWidth, gap: 8 * scale }}>
       <Text
         style={[
           searchFont('semibold'),
@@ -242,31 +260,133 @@ function ContactlessStepRow({
     </View>
   );
 
-  const illustration = (
-    <ContactlessStepIllustrationCluster
-      variant={panel}
-      number={number}
-      scale={scale}
-      arcSide={arcSide}
-      badgeSide={badgeSide}
-    />
-  );
+  const badge = <StepNumberBadge number={number} scale={scale} />;
+  const illustration = <ContactlessWorkflowPanel variant={panel} scale={scale} />;
+
+  if (variant === 'textTrailing') {
+    return (
+      <View
+        style={[
+          styles.stepRow,
+          {
+            gap: rowGap * scale,
+            justifyContent: 'flex-end',
+          },
+        ]}>
+        {illustration}
+        <View style={[styles.copyCluster, { gap: 16 * scale }]}>
+          {badge}
+          {textBlock}
+        </View>
+      </View>
+    );
+  }
 
   return (
-    <View style={[styles.stepRow, { gap: 8 * scale }]}>
-      {layout === 'textLeft' ? (
-        <>
-          {textBlock}
-          <View style={styles.stepRowSpacer} />
-          {illustration}
-        </>
-      ) : (
-        <>
-          {illustration}
-          <View style={styles.stepRowSpacer} />
-          {textBlock}
-        </>
-      )}
+    <View style={[styles.stepRow, { gap: rowGap * scale }]}>
+      <View style={styles.copyCluster}>
+        {textBlock}
+        {badge}
+      </View>
+      <View style={styles.stepRowSpacer} />
+      {illustration}
+    </View>
+  );
+}
+
+function StepNumberBadge({ number, scale }: { number: number; scale: number }) {
+  const size = 20 * scale;
+  return (
+    <View
+      style={{
+        width: size,
+        minHeight: size,
+        borderRadius: 16 * scale,
+        borderWidth: 1,
+        borderColor: SwashoColors.primary600,
+        backgroundColor: SwashoColors.surface,
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+      }}>
+      <Text
+        style={[
+          searchFont('semibold'),
+          styles.stepNumber,
+          { fontSize: 15 * scale, lineHeight: 20 * scale, letterSpacing: 0.2 * scale },
+        ]}>
+        {number}
+      </Text>
+    </View>
+  );
+}
+
+/** Figma 59121:3490, 59121:3493, 59121:3491 — positioned vs step stage. */
+function ContactlessModalBackgroundArcs({ scale, contentWidth }: { scale: number; contentWidth: number }) {
+  const arcHeight = 122 * scale;
+  const arcShell = {
+    height: arcHeight,
+    borderWidth: 1,
+    borderColor: SwashoColors.primary600,
+    overflow: 'hidden' as const,
+  };
+
+  const arcTop = (sheetTop: number) => (sheetTop - SHEET_CONTENT_TOP) * scale;
+
+  return (
+    <View
+      style={[StyleSheet.absoluteFill, { overflow: 'hidden', width: contentWidth }]}
+      pointerEvents="none">
+      <LinearGradient
+        colors={['rgba(233, 232, 255, 0.11)', 'rgba(213, 212, 255, 0.11)']}
+        start={{ x: 0.425, y: 0.5 }}
+        end={{ x: 1, y: 0.5 }}
+        style={[
+          arcShell,
+          {
+            position: 'absolute',
+            width: 225.32 * scale,
+            left: 210.68 * scale - 16 * scale,
+            top: arcTop(71),
+            borderTopRightRadius: 60 * scale,
+            borderBottomRightRadius: 60 * scale,
+            transform: [{ scaleY: -1 }, { rotate: '180deg' }],
+          },
+        ]}
+      />
+      <LinearGradient
+        colors={['rgba(233, 232, 255, 0.11)', 'rgba(213, 212, 255, 0.11)']}
+        start={{ x: 0.425, y: 0.5 }}
+        end={{ x: 1, y: 0.5 }}
+        style={[
+          arcShell,
+          {
+            position: 'absolute',
+            width: 237.169 * scale,
+            left: -69.17 * scale - 16 * scale,
+            top: arcTop(211.81),
+            borderTopRightRadius: 60 * scale,
+            borderBottomRightRadius: 60 * scale,
+          },
+        ]}
+      />
+      <LinearGradient
+        colors={['rgba(233, 232, 255, 0.11)', 'rgba(213, 212, 255, 0.11)']}
+        start={{ x: 0.425, y: 0.5 }}
+        end={{ x: 1, y: 0.5 }}
+        style={[
+          arcShell,
+          {
+            position: 'absolute',
+            width: 225.32 * scale,
+            left: 210.68 * scale - 16 * scale,
+            top: arcTop(355.14),
+            borderTopRightRadius: 60 * scale,
+            borderBottomRightRadius: 60 * scale,
+            transform: [{ scaleY: -1 }, { rotate: '180deg' }],
+          },
+        ]}
+      />
     </View>
   );
 }
@@ -295,13 +415,19 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: SwashoColors.surface,
     overflow: 'hidden',
+    flexDirection: 'column',
   },
   scroll: {
     flexGrow: 0,
+    flexShrink: 1,
   },
   scrollWeb: {
     overflow: 'auto',
   } as object,
+  stepsStage: {
+    position: 'relative',
+    width: '100%',
+  },
   title: {
     color: SwashoColors.neutral700,
     textAlign: 'left',
@@ -310,17 +436,25 @@ const styles = StyleSheet.create({
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+  },
+  copyCluster: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexShrink: 0,
   },
   stepRowSpacer: {
     flex: 1,
-    minWidth: 4,
+    minWidth: 0,
   },
   stepTitle: {
     color: SwashoColors.neutral800,
   },
   stepBody: {
     color: SwashoColors.neutral600,
+  },
+  stepNumber: {
+    color: SwashoColors.primary600,
+    textAlign: 'center',
   },
   reassuranceBox: {
     width: '100%',
