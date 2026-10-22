@@ -487,7 +487,8 @@ const styles = StyleSheet.create({
     flexShrink: 1,
   },
   scrollBodyWeb: {
-    overflow: 'auto',
+    overflowY: 'auto',
+    overflowX: 'visible',
   } as object,
   stepsStage: {
     position: 'relative',
