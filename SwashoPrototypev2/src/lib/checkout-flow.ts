@@ -1,5 +1,12 @@
 import type { Href } from 'expo-router';
 
+export type ContactlessClothesLocationId =
+  | 'flat-door'
+  | 'society-gate'
+  | 'society-lobby'
+  | 'maid'
+  | 'other';
+
 export type ProviderOrderFulfillmentMode = 'one-time' | 'subscribe';
 
 export type SubscriptionFrequencyOption = 'twice-weekly' | 'once-weekly';
@@ -27,6 +34,11 @@ export type ProviderCheckoutState = {
   pickupTimeSlot?: CheckoutPickupTimeSlotId;
   deliverySameAsPickup?: boolean;
   deliveryTimeSlot?: CheckoutPickupTimeSlotId;
+  contactlessService?: boolean;
+  /** User has seen the contactless setup explainer (Standard → Contactless first entry). */
+  contactlessFirstEntryCompleted?: boolean;
+  contactlessClothesLocationId?: ContactlessClothesLocationId;
+  contactlessClothesLocationOther?: string;
 };
 
 export const CHECKOUT_WEEKDAY_OPTIONS: { id: CheckoutWeekdayId; label: string }[] = [

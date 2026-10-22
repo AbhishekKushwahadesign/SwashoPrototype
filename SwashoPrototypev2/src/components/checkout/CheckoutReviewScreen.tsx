@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   Alert,
   Image,
@@ -43,11 +43,17 @@ import {
   subscriptionSubscribe2Href,
   SUBSCRIPTION_FREQUENCY_OPTIONS,
   type CheckoutWeekdayId,
+  type ContactlessClothesLocationId,
   type SubscriptionFrequencyOption,
 } from '@/lib/checkout-flow';
 import { CHECKOUT_SCHEDULE_CARD_WIDTH } from '@/lib/checkout-figma-layout';
+import {
+  contactlessClothesLocationLabel,
+  isContactlessClothesLocationValid,
+} from '@/lib/contactless-clothes-location';
 import { isBulkServiceId } from '@/lib/provider-cart-selection';
 
+import { ContactlessClothesLocationModal } from './ContactlessClothesLocationModal';
 import { ContactlessHowItWorksModal } from './ContactlessHowItWorksModal';
 import { CheckoutSectionDivider } from './CheckoutSectionDivider';
 import { CheckoutServiceHandoverSegment } from './CheckoutServiceHandoverSegment';
@@ -214,7 +220,8 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
   const { scale, contentWidth } = useScreenScale();
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
-  const { getCheckoutState, getProviderCartTotals, getProviderCartEntries } = useProviderCart();
+  const { getCheckoutState, getProviderCartTotals, getProviderCartEntries, setContactlessCheckout } =
+    useProviderCart();
 
   const provider = getProviderResultById(providerId, query);
   const checkout = getCheckoutState(providerId);
@@ -254,8 +261,18 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
     };
   }, [checkout.subscriptionFrequency, isSubscription, totals.totalPrice]);
 
-  const [contactless, setContactless] = useState(false);
+  const contactless = checkout.contactlessService ?? false;
+  const clothesLocationValid = isContactlessClothesLocationValid(checkout);
+  const savedLocationLabel = contactlessClothesLocationLabel(
+    checkout.contactlessClothesLocationId,
+    checkout.contactlessClothesLocationOther,
+  );
+
+  const [contactlessSetupExplainerVisible, setContactlessSetupExplainerVisible] = useState(false);
   const [contactlessHowItWorksVisible, setContactlessHowItWorksVisible] = useState(false);
+  const [clothesLocationVisible, setClothesLocationVisible] = useState(false);
+  const openLocationAfterExplainerRef = useRef(false);
+  const [clothesLocationSheetKey, setClothesLocationSheetKey] = useState(0);
   const [instructionTab, setInstructionTab] = useState<'pickup' | 'delivery'>('pickup');
   const [pickupInstruction, setPickupInstruction] = useState<InstructionId>('doorstep');
   const [deliveryInstruction, setDeliveryInstruction] = useState<InstructionId>('doorstep');
@@ -298,8 +315,68 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
     router.push(providerPageHref(providerId, query));
   }, [providerId, query, router]);
 
+  const openClothesLocationSheet = useCallback(() => {
+    setContactlessSetupExplainerVisible(false);
+    setContactlessHowItWorksVisible(false);
+    setClothesLocationSheetKey((key) => key + 1);
+    setClothesLocationVisible(true);
+  }, []);
+
+  const markContactlessFirstEntryCompleted = useCallback(() => {
+    if (!checkout.contactlessFirstEntryCompleted) {
+      setContactlessCheckout(providerId, { contactlessFirstEntryCompleted: true });
+    }
+  }, [checkout.contactlessFirstEntryCompleted, providerId, setContactlessCheckout]);
+
+  const handleContactlessChange = useCallback(
+    (nextContactless: boolean) => {
+      setContactlessCheckout(providerId, { contactlessService: nextContactless });
+      if (nextContactless && !checkout.contactlessFirstEntryCompleted) {
+        setContactlessSetupExplainerVisible(true);
+      }
+    },
+    [checkout.contactlessFirstEntryCompleted, providerId, setContactlessCheckout],
+  );
+
+  const handleSetupExplainerClose = useCallback(() => {
+    openLocationAfterExplainerRef.current = false;
+    setContactlessSetupExplainerVisible(false);
+    markContactlessFirstEntryCompleted();
+  }, [markContactlessFirstEntryCompleted]);
+
+  const handleSetupExplainerContinue = useCallback(() => {
+    openLocationAfterExplainerRef.current = true;
+    setContactlessSetupExplainerVisible(false);
+    markContactlessFirstEntryCompleted();
+  }, [markContactlessFirstEntryCompleted]);
+
+  useEffect(() => {
+    if (!contactlessSetupExplainerVisible && openLocationAfterExplainerRef.current) {
+      openLocationAfterExplainerRef.current = false;
+      const timer = setTimeout(() => {
+        setClothesLocationSheetKey((key) => key + 1);
+        setClothesLocationVisible(true);
+      }, 320);
+      return () => clearTimeout(timer);
+    }
+  }, [contactlessSetupExplainerVisible]);
+
+  const handleConfirmClothesLocation = useCallback(
+    (locationId: ContactlessClothesLocationId, otherText: string) => {
+      setContactlessCheckout(providerId, {
+        contactlessClothesLocationId: locationId,
+        contactlessClothesLocationOther: locationId === 'other' ? otherText.trim() : undefined,
+      });
+    },
+    [providerId, setContactlessCheckout],
+  );
+
   const handlePayPress = useCallback(() => {
     if (payLockRef.current || totals.itemCount <= 0) {
+      return;
+    }
+    if (contactless && !clothesLocationValid) {
+      openClothesLocationSheet();
       return;
     }
     payLockRef.current = true;
@@ -316,7 +393,16 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
     setTimeout(() => {
       payLockRef.current = false;
     }, 800);
-  }, [isSubscription, provider?.category, router, totals.itemCount, totals.totalPrice]);
+  }, [
+    clothesLocationValid,
+    contactless,
+    isSubscription,
+    openClothesLocationSheet,
+    provider?.category,
+    router,
+    totals.itemCount,
+    totals.totalPrice,
+  ]);
 
   const subscriptionFrequencyTitle =
     SUBSCRIPTION_FREQUENCY_OPTIONS.find((option) => option.id === checkout.subscriptionFrequency)?.title ??
@@ -583,7 +669,11 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
             }}>
             <CheckoutServiceHandoverSegment
               contactless={contactless}
-              onContactlessChange={setContactless}
+              onContactlessChange={handleContactlessChange}
+              showLocationReminder={contactless && !clothesLocationValid}
+              savedLocationLabel={savedLocationLabel}
+              onChooseLocationPress={openClothesLocationSheet}
+              onEditLocationPress={openClothesLocationSheet}
               onHowItWorksPress={() => setContactlessHowItWorksVisible(true)}
               scale={scale}
             />
@@ -640,10 +730,28 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
         </View>
 
         <ContactlessHowItWorksModal
+          visible={contactlessSetupExplainerVisible}
+          onClose={handleSetupExplainerClose}
+          onContinue={handleSetupExplainerContinue}
+          showContinue
+          scale={scale}
+          contentWidth={contentWidth}
+        />
+        <ContactlessHowItWorksModal
           visible={contactlessHowItWorksVisible}
           onClose={() => setContactlessHowItWorksVisible(false)}
           scale={scale}
           contentWidth={contentWidth}
+        />
+        <ContactlessClothesLocationModal
+          key={clothesLocationSheetKey}
+          visible={clothesLocationVisible}
+          onClose={() => setClothesLocationVisible(false)}
+          scale={scale}
+          contentWidth={contentWidth}
+          selectedId={checkout.contactlessClothesLocationId}
+          otherText={checkout.contactlessClothesLocationOther}
+          onConfirm={handleConfirmClothesLocation}
         />
       </View>
     </View>

@@ -2,6 +2,7 @@ import { Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from '
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { searchFont } from '@/components/search/search-fonts';
+import { ServiceSelectionButton } from '@/components/service-selection/ServiceSelectionButton';
 import { SheetCloseIcon } from '@/components/service-selection/service-selection-icons';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
@@ -40,6 +41,10 @@ type ContactlessHowItWorksModalProps = {
   onClose: () => void;
   scale: number;
   contentWidth: number;
+  /** Figma 59127:5994 setup flow — primary Continue CTA. */
+  showContinue?: boolean;
+  onContinue?: () => void;
+  continueHint?: string;
 };
 
 export function ContactlessHowItWorksModal({
@@ -47,6 +52,9 @@ export function ContactlessHowItWorksModal({
   onClose,
   scale,
   contentWidth,
+  showContinue = false,
+  onContinue,
+  continueHint = 'Next, choose where your laundry bag will be collected from.',
 }: ContactlessHowItWorksModalProps) {
   const insets = useSafeAreaInsets();
   const sheetMaxHeight = Math.min(640 * scale, 560 * scale);
@@ -113,7 +121,7 @@ export function ContactlessHowItWorksModal({
               style={[styles.scroll, Platform.OS === 'web' ? styles.scrollWeb : null]}
               contentContainerStyle={{
                 paddingHorizontal: 16 * scale,
-                paddingBottom: 20 * scale,
+                paddingBottom: showContinue ? 8 * scale : 20 * scale,
                 gap: 20 * scale,
               }}
               showsVerticalScrollIndicator={false}>
@@ -160,6 +168,28 @@ export function ContactlessHowItWorksModal({
                   {REASSURANCE}
                 </Text>
               </View>
+
+              {showContinue ? (
+                <View style={{ width: '100%', gap: 4 * scale, marginTop: 4 * scale }}>
+                  {continueHint ? (
+                    <Text
+                      style={[
+                        searchFont('regular'),
+                        styles.continueHint,
+                        { fontSize: 12 * scale, lineHeight: 18 * scale, paddingHorizontal: 4 * scale },
+                      ]}>
+                      {continueHint}
+                    </Text>
+                  ) : null}
+                  <ServiceSelectionButton
+                    label="Continue"
+                    variant="primary"
+                    onPress={onContinue ?? onClose}
+                    scale={scale}
+                    style={{ width: '100%', minHeight: 45 * scale, marginTop: 8 * scale }}
+                  />
+                </View>
+              ) : null}
             </ScrollView>
           </View>
         </View>
@@ -226,6 +256,10 @@ const styles = StyleSheet.create({
   },
   reassuranceText: {
     color: SwashoColors.primary800,
+    textAlign: 'center',
+  },
+  continueHint: {
+    color: SwashoColors.neutral600,
     textAlign: 'center',
   },
 });

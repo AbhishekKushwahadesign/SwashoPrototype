@@ -48,6 +48,18 @@ type ProviderCartContextValue = {
       >
     >,
   ) => void;
+  setContactlessCheckout: (
+    providerId: string,
+    patch: Partial<
+      Pick<
+        ProviderCheckoutState,
+        | 'contactlessService'
+        | 'contactlessFirstEntryCompleted'
+        | 'contactlessClothesLocationId'
+        | 'contactlessClothesLocationOther'
+      >
+    >,
+  ) => void;
 };
 
 const ProviderCartContext = createContext<ProviderCartContextValue | null>(null);
@@ -165,6 +177,30 @@ export function ProviderCartProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const setContactlessCheckout = useCallback(
+    (
+      providerId: string,
+      patch: Partial<
+        Pick<
+          ProviderCheckoutState,
+          | 'contactlessService'
+          | 'contactlessFirstEntryCompleted'
+          | 'contactlessClothesLocationId'
+          | 'contactlessClothesLocationOther'
+        >
+      >,
+    ) => {
+      setCheckoutStore((prev) => ({
+        ...prev,
+        [providerId]: {
+          ...prev[providerId],
+          ...patch,
+        },
+      }));
+    },
+    [],
+  );
+
   const getProviderCartTotals = useCallback(
     (providerId: string) => {
       let itemCount = 0;
@@ -201,6 +237,7 @@ export function ProviderCartProvider({ children }: { children: ReactNode }) {
       setOneTimeSchedule,
       setSubscriptionFrequency,
       setSubscriptionSchedule,
+      setContactlessCheckout,
     }),
     [
       clearSelection,
@@ -208,6 +245,7 @@ export function ProviderCartProvider({ children }: { children: ReactNode }) {
       getProviderCartTotals,
       getProviderCartEntries,
       getSelection,
+      setContactlessCheckout,
       setFulfillmentMode,
       setOneTimeSchedule,
       setSelection,
