@@ -28,6 +28,11 @@ const STEPS_BLOCK_HEIGHT = 399.612_060_546_875;
 const PICKUP_ARC_SHEET_LEFT = 60.668_945_312_5;
 /** Figma 59121:3490 right @ sheet 444.5 on 412-wide sheet. */
 const UPLOAD_SORT_ARC_SHEET_RIGHT_BLEED = 32.5;
+/** Symmetric bleed so step block stays horizontally centered (asymmetric margins shifted content left). */
+const CONTACTLESS_STEPS_ARC_SHEET_BLEED = Math.max(
+  PICKUP_ARC_SHEET_LEFT,
+  UPLOAD_SORT_ARC_SHEET_RIGHT_BLEED,
+);
 
 /** Figma 59127:5994 — Contactless Modal (412×686), Sheet 59119:3332 (412×664.612). */
 const CONTACTLESS_MODAL_FIGMA = {
@@ -309,16 +314,15 @@ export function ContactlessHowItWorksModal({
                     designScale,
                   paddingVertical: 12 * designScale,
                   overflow: webOverflowVisible ?? 'visible',
+                  alignItems: 'center',
                 }}>
                 <View
                   style={{
                     gap: CONTACTLESS_MODAL_FIGMA.interStepGap * designScale,
                     width: '100%',
                     overflow: webOverflowVisible ?? 'visible',
-                    marginLeft: -PICKUP_ARC_SHEET_LEFT * designScale,
-                    marginRight: -UPLOAD_SORT_ARC_SHEET_RIGHT_BLEED * designScale,
-                    paddingLeft: PICKUP_ARC_SHEET_LEFT * designScale,
-                    paddingRight: UPLOAD_SORT_ARC_SHEET_RIGHT_BLEED * designScale,
+                    marginHorizontal: -CONTACTLESS_STEPS_ARC_SHEET_BLEED * designScale,
+                    paddingHorizontal: CONTACTLESS_STEPS_ARC_SHEET_BLEED * designScale,
                   }}>
                   {STEPS.map((step) => (
                     <ContactlessStepRow
