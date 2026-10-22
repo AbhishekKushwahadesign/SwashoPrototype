@@ -218,26 +218,14 @@ export function ContactlessHowItWorksModal({
             {
               width: contentWidth,
               maxHeight: windowHeight - insets.top,
+              paddingTop:
+                (CONTACTLESS_MODAL_FIGMA.closeChipHeight +
+                  CONTACTLESS_MODAL_FIGMA.closeToSheetGap) *
+                designScale,
               paddingBottom: Math.max(insets.bottom, 12 * designScale),
             },
           ]}
           pointerEvents="box-none">
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Close"
-            onPress={onClose}
-            style={[
-              styles.closeChip,
-              {
-                width: CONTACTLESS_MODAL_FIGMA.closeChipHeight * designScale,
-                height: CONTACTLESS_MODAL_FIGMA.closeChipHeight * designScale,
-                borderRadius: 999,
-                marginBottom: CONTACTLESS_MODAL_FIGMA.closeToSheetGap * designScale,
-              },
-            ]}>
-            <SheetCloseIcon width={20 * designScale} height={20 * designScale} />
-          </Pressable>
-
           <View
             style={[
               styles.sheet,
@@ -250,6 +238,28 @@ export function ContactlessHowItWorksModal({
                 overflow: webOverflowVisible,
               },
             ]}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Close"
+              onPress={onClose}
+              style={[
+                styles.closeChip,
+                styles.closeOnSheet,
+                {
+                  width: CONTACTLESS_MODAL_FIGMA.closeChipHeight * designScale,
+                  height: CONTACTLESS_MODAL_FIGMA.closeChipHeight * designScale,
+                  borderRadius: 999,
+                  top:
+                    -(
+                      CONTACTLESS_MODAL_FIGMA.closeChipHeight +
+                      CONTACTLESS_MODAL_FIGMA.closeToSheetGap
+                    ) * designScale,
+                  marginLeft: (-CONTACTLESS_MODAL_FIGMA.closeChipHeight / 2) * designScale,
+                },
+              ]}>
+              <SheetCloseIcon width={20 * designScale} height={20 * designScale} />
+            </Pressable>
+
             <ScrollView
               style={[
                 styles.scrollBody,
@@ -292,7 +302,6 @@ export function ContactlessHowItWorksModal({
                     (CONTACTLESS_MODAL_FIGMA.sheetHorizontalInset +
                       CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal) *
                     designScale,
-                  marginHorizontal: -CONTACTLESS_MODAL_FIGMA.sheetHorizontalInset * designScale,
                   overflow: webOverflowVisible ?? 'visible',
                 }}>
                 <View
@@ -377,6 +386,8 @@ function ContactlessStepRow({
           {
             gap: rowGap * scale,
             paddingLeft: 6.804 * scale,
+            marginLeft: -8 * scale,
+            marginRight: -8 * scale,
           },
         ]}>
         {illustration}
@@ -464,6 +475,12 @@ const styles = StyleSheet.create({
     overflow: 'visible',
     flexDirection: 'column',
     flexShrink: 1,
+    position: 'relative',
+  },
+  closeOnSheet: {
+    position: 'absolute',
+    left: '50%',
+    zIndex: 4,
   },
   scrollBody: {
     flexGrow: 0,
