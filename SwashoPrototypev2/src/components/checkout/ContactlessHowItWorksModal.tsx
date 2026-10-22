@@ -1,5 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { Modal, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { searchFont } from '@/components/search/search-fonts';
@@ -9,19 +9,27 @@ import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
 import { ContactlessWorkflowPanel, type ContactlessWorkflowPanelVariant } from './contactless-workflow-panel';
 
-/** Figma 59127:5994 — `Sheet` frame 59119:3332 (395×642.612). */
-const CONTACTLESS_MODAL_SHEET_FIGMA = {
-  width: 395,
-  height: 642.612_060_546_875,
+/** Figma 59136:3392 — Contactless Modal 59127:5994 (412×686), Sheet 59119:3332 (412×642.612). */
+const CONTACTLESS_MODAL_FIGMA = {
+  frameWidth: 412,
+  frameHeight: 686,
+  sheetHeight: 642.612_060_546_875,
+  sheetHorizontalInset: 8,
   headerHeight: 72,
   stepsBlockHeight: 399.612_060_546_875,
   stepsToFooterGap: 36,
   footerBlockHeight: 115,
   contentPaddingBottom: 20,
+  contentPaddingHorizontal: 16,
+  /** Sheet-absolute arc anchors (412px-wide sheet). */
+  arcs: {
+    right: { left: 444.5, width: 225.320_312_5, tops: [71, 355.140_625] as const },
+    left: { left: -60.668_945_312_5, width: 237.168_945_312_5, top: 211.805_908_203_125 },
+    height: 122,
+  },
 } as const;
 
-/** Steps stage / arc Y positions are relative to scroll content top (= header bottom). */
-const SHEET_CONTENT_TOP = CONTACTLESS_MODAL_SHEET_FIGMA.headerHeight;
+const SHEET_CONTENT_TOP = CONTACTLESS_MODAL_FIGMA.headerHeight;
 
 const STEPS: {
   key: string;
@@ -83,9 +91,8 @@ export function ContactlessHowItWorksModal({
   continueHint = 'Next, choose where your laundry bag will be collected from.',
 }: ContactlessHowItWorksModalProps) {
   const insets = useSafeAreaInsets();
-  const sheetHeight = CONTACTLESS_MODAL_SHEET_FIGMA.height * scale;
-  /** Figma steps frame 59121:3489 height — scroll viewport for step rows only. */
-  const scrollBodyHeight = CONTACTLESS_MODAL_SHEET_FIGMA.stepsBlockHeight * scale;
+  const setupHintHeight = showContinue && continueHint ? 22 * scale : 0;
+  const sheetMinHeight = CONTACTLESS_MODAL_FIGMA.sheetHeight * scale + setupHintHeight;
   const textColWidth = 185 * scale;
 
   const footerBlock = (
@@ -93,11 +100,10 @@ export function ContactlessHowItWorksModal({
       style={{
         width: '100%',
         paddingHorizontal: 16 * scale,
-        paddingBottom: CONTACTLESS_MODAL_SHEET_FIGMA.contentPaddingBottom * scale,
-        paddingTop: CONTACTLESS_MODAL_SHEET_FIGMA.stepsToFooterGap * scale,
+        paddingBottom: CONTACTLESS_MODAL_FIGMA.contentPaddingBottom * scale,
+        paddingTop: CONTACTLESS_MODAL_FIGMA.stepsToFooterGap * scale,
         gap: 4 * scale,
         backgroundColor: SwashoColors.surface,
-        minHeight: CONTACTLESS_MODAL_SHEET_FIGMA.footerBlockHeight * scale,
       }}>
       <View
         style={[
@@ -118,18 +124,19 @@ export function ContactlessHowItWorksModal({
         </Text>
       </View>
 
+      {showContinue && continueHint ? (
+        <Text
+          style={[
+            searchFont('regular'),
+            styles.continueHint,
+            { fontSize: 12 * scale, lineHeight: 18 * scale },
+          ]}>
+          {continueHint}
+        </Text>
+      ) : null}
+
       {showContinue ? (
-        <View style={{ width: '100%', paddingTop: 8 * scale, gap: 4 * scale }}>
-          {continueHint ? (
-            <Text
-              style={[
-                searchFont('regular'),
-                styles.continueHint,
-                { fontSize: 12 * scale, lineHeight: 18 * scale },
-              ]}>
-              {continueHint}
-            </Text>
-          ) : null}
+        <View style={{ width: '100%', paddingTop: 8 * scale }}>
           <ServiceSelectionButton
             label="Continue"
             variant="primary"
@@ -178,17 +185,17 @@ export function ContactlessHowItWorksModal({
               styles.sheet,
               {
                 width: contentWidth,
-                height: sheetHeight,
+                minHeight: sheetMinHeight,
                 borderTopLeftRadius: SwashoRadii.xl * scale,
                 borderTopRightRadius: SwashoRadii.xl * scale,
               },
             ]}>
             <View
               style={{
-                height: CONTACTLESS_MODAL_SHEET_FIGMA.headerHeight * scale,
+                height: CONTACTLESS_MODAL_FIGMA.headerHeight * scale,
                 paddingTop: 24 * scale,
                 paddingBottom: 16 * scale,
-                paddingHorizontal: 16 * scale,
+                paddingHorizontal: CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal * scale,
                 justifyContent: 'flex-start',
               }}>
               <Text
@@ -205,20 +212,15 @@ export function ContactlessHowItWorksModal({
               </Text>
             </View>
 
-            <ScrollView
-              style={[
-                styles.scroll,
-                Platform.OS === 'web' ? styles.scrollWeb : null,
-                { maxHeight: scrollBodyHeight },
-              ]}
-              contentContainerStyle={{
-                paddingHorizontal: 16 * scale,
-              }}
-              showsVerticalScrollIndicator={false}>
+            <View
+              style={{
+                paddingHorizontal: CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal * scale,
+                flexShrink: 0,
+              }}>
               <View
                 style={[
                   styles.stepsStage,
-                  { minHeight: CONTACTLESS_MODAL_SHEET_FIGMA.stepsBlockHeight * scale },
+                  { minHeight: CONTACTLESS_MODAL_FIGMA.stepsBlockHeight * scale },
                 ]}>
                 <ContactlessModalBackgroundArcs scale={scale} contentWidth={contentWidth} />
                 <View style={{ gap: 28 * scale, width: '100%' }}>
@@ -237,7 +239,7 @@ export function ContactlessHowItWorksModal({
                   ))}
                 </View>
               </View>
-            </ScrollView>
+            </View>
 
             {footerBlock}
           </View>
@@ -348,9 +350,11 @@ function StepNumberBadge({ number, scale }: { number: number; scale: number }) {
   );
 }
 
-/** Figma 59121:3490, 59121:3493, 59121:3491 — positioned vs step stage. */
+/** Figma 59121:3490, 59121:3493, 59121:3491 — sheet-absolute coords (412px checkout frame). */
 function ContactlessModalBackgroundArcs({ scale, contentWidth }: { scale: number; contentWidth: number }) {
-  const arcHeight = 122 * scale;
+  const { arcs } = CONTACTLESS_MODAL_FIGMA;
+  const designScale = contentWidth / CONTACTLESS_MODAL_FIGMA.frameWidth;
+  const arcHeight = arcs.height * designScale;
   const arcShell = {
     height: arcHeight,
     borderWidth: 1,
@@ -358,12 +362,35 @@ function ContactlessModalBackgroundArcs({ scale, contentWidth }: { scale: number
     overflow: 'hidden' as const,
   };
 
-  const arcTop = (sheetTop: number) => (sheetTop - SHEET_CONTENT_TOP) * scale;
+  const arcTop = (sheetTop: number) => (sheetTop - SHEET_CONTENT_TOP) * designScale;
+  const arcLeftFromStage = (sheetX: number) =>
+    (sheetX - CONTACTLESS_MODAL_FIGMA.sheetHorizontalInset - CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal) *
+    designScale;
 
   return (
     <View
-      style={[StyleSheet.absoluteFill, { overflow: 'hidden', width: contentWidth }]}
+      style={[StyleSheet.absoluteFill, { overflow: 'visible' }]}
       pointerEvents="none">
+      {arcs.right.tops.map((top) => (
+        <LinearGradient
+          key={`right-${top}`}
+          colors={['rgba(233, 232, 255, 0.11)', 'rgba(213, 212, 255, 0.11)']}
+          start={{ x: 0.425, y: 0.5 }}
+          end={{ x: 1, y: 0.5 }}
+          style={[
+            arcShell,
+            {
+              position: 'absolute',
+              width: arcs.right.width * designScale,
+              left: arcLeftFromStage(arcs.right.left),
+              top: arcTop(top),
+              borderTopRightRadius: 60 * designScale,
+              borderBottomRightRadius: 60 * designScale,
+              transform: [{ scaleY: -1 }, { rotate: '180deg' }],
+            },
+          ]}
+        />
+      ))}
       <LinearGradient
         colors={['rgba(233, 232, 255, 0.11)', 'rgba(213, 212, 255, 0.11)']}
         start={{ x: 0.425, y: 0.5 }}
@@ -372,45 +399,11 @@ function ContactlessModalBackgroundArcs({ scale, contentWidth }: { scale: number
           arcShell,
           {
             position: 'absolute',
-            width: 225.32 * scale,
-            left: 210.68 * scale - 16 * scale,
-            top: arcTop(71),
-            borderTopRightRadius: 60 * scale,
-            borderBottomRightRadius: 60 * scale,
-            transform: [{ scaleY: -1 }, { rotate: '180deg' }],
-          },
-        ]}
-      />
-      <LinearGradient
-        colors={['rgba(233, 232, 255, 0.11)', 'rgba(213, 212, 255, 0.11)']}
-        start={{ x: 0.425, y: 0.5 }}
-        end={{ x: 1, y: 0.5 }}
-        style={[
-          arcShell,
-          {
-            position: 'absolute',
-            width: 237.169 * scale,
-            left: -69.17 * scale - 16 * scale,
-            top: arcTop(211.81),
-            borderTopRightRadius: 60 * scale,
-            borderBottomRightRadius: 60 * scale,
-          },
-        ]}
-      />
-      <LinearGradient
-        colors={['rgba(233, 232, 255, 0.11)', 'rgba(213, 212, 255, 0.11)']}
-        start={{ x: 0.425, y: 0.5 }}
-        end={{ x: 1, y: 0.5 }}
-        style={[
-          arcShell,
-          {
-            position: 'absolute',
-            width: 225.32 * scale,
-            left: 210.68 * scale - 16 * scale,
-            top: arcTop(355.14),
-            borderTopRightRadius: 60 * scale,
-            borderBottomRightRadius: 60 * scale,
-            transform: [{ scaleY: -1 }, { rotate: '180deg' }],
+            width: arcs.left.width * designScale,
+            left: arcLeftFromStage(arcs.left.left),
+            top: arcTop(arcs.left.top),
+            borderTopRightRadius: 60 * designScale,
+            borderBottomRightRadius: 60 * designScale,
           },
         ]}
       />
@@ -441,19 +434,13 @@ const styles = StyleSheet.create({
   sheet: {
     width: '100%',
     backgroundColor: SwashoColors.surface,
-    overflow: 'hidden',
+    overflow: 'visible',
     flexDirection: 'column',
   },
-  scroll: {
-    flexGrow: 0,
-    flexShrink: 1,
-  },
-  scrollWeb: {
-    overflow: 'auto',
-  } as object,
   stepsStage: {
     position: 'relative',
     width: '100%',
+    overflow: 'visible',
   },
   title: {
     color: SwashoColors.neutral700,
