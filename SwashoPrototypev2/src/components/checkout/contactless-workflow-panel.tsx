@@ -1,10 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { Image, StyleSheet, View } from 'react-native';
+import { Image, ImageSourcePropType, StyleSheet, View } from 'react-native';
 
 import { SwashoColors } from '@/constants/swasho-tokens';
-
-/** Figma sprite `Laundry App Workflow Panels 1` (59127:5994) — illustration crop only. */
-const workflowPanelsSource = require('@/assets/checkout/contactless-workflow-panels.png');
 
 export type ContactlessWorkflowPanelVariant = 'upload' | 'pickup' | 'sort';
 
@@ -18,33 +15,25 @@ const PANEL_ARC: Record<
   sort: { width: 225.320_312_5, height: 122, left: -21.82, top: -6.539 },
 };
 
-const PANEL_FRAME: Record<
+/** Figma panel nodes 59127:5954 / 5956 / 5958 — exported @2x PNGs (no shared sprite crop). */
+const PANEL_IMAGE: Record<
   ContactlessWorkflowPanelVariant,
-  { frameWidth: number; frameHeight: number; imgWidthRatio: number; imgHeightRatio: number; leftRatio: number; topRatio: number }
+  { source: ImageSourcePropType; frameWidth: number; frameHeight: number }
 > = {
   upload: {
+    source: require('@/assets/checkout/contactless-workflow-upload@2x.png'),
     frameWidth: 126.082,
     frameHeight: 116.679,
-    imgWidthRatio: 2.9166,
-    imgHeightRatio: 1.1999,
-    leftRatio: 0,
-    topRatio: -0.0999,
   },
   pickup: {
+    source: require('@/assets/checkout/contactless-workflow-pickup@2x.png'),
     frameWidth: 119.196,
     frameHeight: 117,
-    imgWidthRatio: 3.0851,
-    imgHeightRatio: 1.1966,
-    leftRatio: -1.0425,
-    topRatio: -0.0983,
   },
   sort: {
+    source: require('@/assets/checkout/contactless-workflow-sort@2x.png'),
     frameWidth: 120.944,
     frameHeight: 109.933,
-    imgWidthRatio: 3.0405,
-    imgHeightRatio: 1.2735,
-    leftRatio: -2.0405,
-    topRatio: -0.1368,
   },
 };
 
@@ -85,42 +74,48 @@ function WorkflowPanelArc({ variant, scale }: { variant: ContactlessWorkflowPane
   );
 }
 
-/** Cropped workflow illustration with Figma arc fill + primary600 stroke behind the sprite. */
+/** Single-step illustration export + Figma arc fill and primary600 stroke. */
 export function ContactlessWorkflowPanel({ variant, scale }: ContactlessWorkflowPanelProps) {
-  const spec = PANEL_FRAME[variant];
-  const frameWidth = spec.frameWidth * scale;
-  const frameHeight = spec.frameHeight * scale;
-  const imageWidth = frameWidth * spec.imgWidthRatio;
-  const imageHeight = frameHeight * spec.imgHeightRatio;
-  const imageLeft = frameWidth * spec.leftRatio;
-  const imageTop = frameHeight * spec.topRatio;
+  const { source, frameWidth, frameHeight } = PANEL_IMAGE[variant];
+  const width = frameWidth * scale;
+  const height = frameHeight * scale;
   const arc = PANEL_ARC[variant];
   const bleedLeft = Math.max(0, -arc.left * scale);
   const bleedTop = Math.max(0, -arc.top * scale);
-  const bleedRight = Math.max(0, (arc.left + arc.width - spec.frameWidth) * scale);
-  const bleedBottom = Math.max(0, (arc.top + arc.height - spec.frameHeight) * scale);
+  const bleedRight = Math.max(0, (arc.left + arc.width - frameWidth) * scale);
+  const bleedBottom = Math.max(0, (arc.top + arc.height - frameHeight) * scale);
 
   return (
     <View
       style={{
-        width: frameWidth + bleedLeft + bleedRight,
-        height: frameHeight + bleedTop + bleedBottom,
+        width: width + bleedLeft + bleedRight,
+        height: height + bleedTop + bleedBottom,
         marginLeft: -bleedLeft,
         marginTop: -bleedTop,
         marginRight: -bleedRight,
         marginBottom: -bleedBottom,
         overflow: 'visible',
       }}>
-      <View style={[styles.frame, { width: frameWidth, height: frameHeight, marginLeft: bleedLeft, marginTop: bleedTop }]}>
+      <View
+        style={[
+          styles.frame,
+          {
+            width,
+            height,
+            marginLeft: bleedLeft,
+            marginTop: bleedTop,
+            overflow: 'hidden',
+          },
+        ]}>
         <WorkflowPanelArc variant={variant} scale={scale} />
         <Image
-          source={workflowPanelsSource}
+          source={source}
           style={{
             position: 'absolute',
-            width: imageWidth,
-            height: imageHeight,
-            left: imageLeft,
-            top: imageTop,
+            left: 0,
+            top: 0,
+            width,
+            height,
             zIndex: 1,
           }}
           resizeMode="cover"
@@ -134,6 +129,5 @@ export function ContactlessWorkflowPanel({ variant, scale }: ContactlessWorkflow
 const styles = StyleSheet.create({
   frame: {
     position: 'relative',
-    overflow: 'visible',
   },
 });
