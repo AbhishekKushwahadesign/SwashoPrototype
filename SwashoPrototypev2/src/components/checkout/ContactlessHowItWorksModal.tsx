@@ -286,21 +286,21 @@ export function ContactlessHowItWorksModal({
             </View>
 
             <ScrollView
-              style={[
-                styles.scrollBody,
-                Platform.OS === 'web' ? styles.scrollBodyWeb : null,
-                { overflow: webOverflowVisible ?? 'scroll', flex: 1, minHeight: 0 },
+              style={[styles.scrollBody, Platform.OS === 'web' ? styles.scrollBodyWeb : null, styles.scrollFlex]}
+              contentContainerStyle={[
+                styles.scrollContent,
+                {
+                  paddingHorizontal:
+                    (CONTACTLESS_MODAL_FIGMA.sheetHorizontalInset +
+                      CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal) *
+                    designScale,
+                  paddingBottom: scrollContentBottomPad,
+                },
+                Platform.OS === 'web' ? styles.scrollContentWeb : null,
               ]}
-              contentContainerStyle={{
-                paddingHorizontal:
-                  (CONTACTLESS_MODAL_FIGMA.sheetHorizontalInset +
-                    CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal) *
-                  designScale,
-                paddingBottom: scrollContentBottomPad,
-                overflow: webOverflowVisible ?? 'visible',
-              }}
-              showsVerticalScrollIndicator={false}
-              bounces={false}>
+              showsVerticalScrollIndicator={Platform.OS === 'web'}
+              bounces={false}
+              nestedScrollEnabled>
               <View
                 style={{
                   paddingVertical: 12 * designScale,
@@ -489,9 +489,19 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     flexShrink: 1,
   },
+  scrollFlex: {
+    flex: 1,
+    minHeight: 0,
+  },
   scrollBodyWeb: {
     overflowY: 'auto',
-    overflowX: 'visible',
+    overflowX: 'clip',
+  } as object,
+  scrollContent: {
+    flexGrow: 0,
+  },
+  scrollContentWeb: {
+    overflow: 'visible',
   } as object,
   stepsStage: {
     position: 'relative',
