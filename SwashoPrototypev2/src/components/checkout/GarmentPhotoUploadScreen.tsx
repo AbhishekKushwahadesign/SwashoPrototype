@@ -47,6 +47,47 @@ type GarmentPhotoUploadScreenProps = {
   initialServiceId: string;
 };
 
+/** Fixed overlay: progress ring only (icons scroll underneath). */
+function GarmentProgressRingFrame({ scale, fraction }: { scale: number; fraction: number }) {
+  const size = 81 * scale;
+  const stroke = 3 * scale;
+  const radius = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const progress = Math.min(1, Math.max(0, fraction));
+  const dashOffset = circumference * (1 - progress);
+
+  return (
+    <View
+      style={[
+        { width: size, height: size, alignItems: 'center', justifyContent: 'center' },
+        figmaShadow(FigmaShadows.providerCard, scale),
+      ]}>
+      <Svg width={size} height={size} style={{ position: 'absolute' }}>
+        <Circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke={SwashoColors.neutral300}
+          strokeWidth={stroke}
+          fill="none"
+        />
+        <Circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke={SwashoColors.neutral950}
+          strokeWidth={stroke}
+          fill="none"
+          strokeDasharray={`${circumference} ${circumference}`}
+          strokeDashoffset={dashOffset}
+          strokeLinecap="round"
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        />
+      </Svg>
+    </View>
+  );
+}
+
 function GarmentProgressRing({
   scale,
   fraction,
@@ -276,6 +317,7 @@ export function GarmentPhotoUploadScreen({
   const garmentScrollRef = useRef<ScrollView>(null);
   const serviceScrollRef = useRef<ScrollView>(null);
   const serviceChipLayouts = useRef<{ x: number; width: number }[]>([]);
+  const [garmentCarouselWidth, setGarmentCarouselWidth] = useState(contentWidth);
 
   const activeContext = garmentContexts[garmentIndex] ?? garmentContexts[0];
   const activeLine = activeContext?.line;
@@ -322,35 +364,54 @@ export function GarmentPhotoUploadScreen({
   }, [activeLine, activeService, addContactlessGarmentPhoto, pickPhoto, providerId]);
 
   const garmentRingSize = 81 * scale;
-  const garmentInactiveSize = 65 * scale;
-  const garmentSnapWidth = garmentRingSize + 12 * scale;
-  const garmentCarouselInset = Math.max(0, (contentWidth - garmentSnapWidth) / 2);
+  const garmentActiveInner = 71 * scale;
+  const garmentInactiveInner = 56 * scale;
+  const garmentSnapStep = garmentRingSize;
+  const garmentCarouselInset = Math.max(0, (garmentCarouselWidth - garmentSnapStep) / 2);
+
+  const garmentSnapOffsets = useMemo(
+    () => garmentContexts.map((_, index) => index * garmentSnapStep),
+    [garmentContexts.length, garmentSnapStep],
+  );
 
   const scrollGarmentToIndex = useCallback(
     (index: number, animated: boolean) => {
-      garmentScrollRef.current?.scrollTo({ x: index * garmentSnapWidth, animated });
+      garmentScrollRef.current?.scrollTo({ x: index * garmentSnapStep, animated });
     },
-    [garmentSnapWidth],
+    [garmentSnapStep],
   );
 
-  const syncGarmentIndexFromScroll = useCallback(
+  const applyGarmentIndexFromOffset = useCallback(
     (offsetX: number) => {
       const maxIndex = Math.max(0, garmentContexts.length - 1);
-      const index = Math.max(0, Math.min(maxIndex, Math.round(offsetX / garmentSnapWidth)));
-      if (index !== garmentIndex) {
-        setGarmentIndex(index);
-        setServiceIndex(0);
-      }
+      const index = Math.max(0, Math.min(maxIndex, Math.round(offsetX / garmentSnapStep)));
+      setGarmentIndex((prev) => {
+        if (prev !== index) {
+          setServiceIndex(0);
+          return index;
+        }
+        return prev;
+      });
     },
-    [garmentContexts.length, garmentIndex, garmentSnapWidth],
+    [garmentContexts.length, garmentSnapStep],
+  );
+
+  const handleGarmentScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      applyGarmentIndexFromOffset(event.nativeEvent.contentOffset.x);
+    },
+    [applyGarmentIndexFromOffset],
   );
 
   const handleGarmentScrollEnd = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      garmentSnapScrolling.current = false;
-      syncGarmentIndexFromScroll(event.nativeEvent.contentOffset.x);
+      const offsetX = event.nativeEvent.contentOffset.x;
+      applyGarmentIndexFromOffset(offsetX);
+      const maxIndex = Math.max(0, garmentContexts.length - 1);
+      const index = Math.max(0, Math.min(maxIndex, Math.round(offsetX / garmentSnapStep)));
+      scrollGarmentToIndex(index, true);
     },
-    [syncGarmentIndexFromScroll],
+    [applyGarmentIndexFromOffset, garmentContexts.length, garmentSnapStep, scrollGarmentToIndex],
   );
 
   const centerServiceInCarousel = useCallback(
@@ -369,7 +430,7 @@ export function GarmentPhotoUploadScreen({
       scrollGarmentToIndex(garmentIndex, false);
     });
     return () => cancelAnimationFrame(frame);
-  }, [garmentContexts.length, scrollGarmentToIndex]);
+  }, [garmentContexts.length, garmentCarouselWidth, scrollGarmentToIndex]);
 
   if (!activeLine) {
     return (
@@ -506,6 +567,12 @@ export function GarmentPhotoUploadScreen({
           </View>
 
           <View
+            onLayout={(event) => {
+              const width = event.nativeEvent.layout.width;
+              if (width > 0 && Math.abs(width - garmentCarouselWidth) > 0.5) {
+                setGarmentCarouselWidth(width);
+              }
+            }}
             style={[
               styles.carouselClip,
               { marginBottom: 16 * scale, height: garmentRingSize, justifyContent: 'center' },
@@ -522,29 +589,25 @@ export function GarmentPhotoUploadScreen({
                 justifyContent: 'center',
                 zIndex: 2,
               }}>
-              <GarmentProgressRing
+              <GarmentProgressRingFrame
                 scale={scale}
                 fraction={garmentPhotoProgressFraction(
                   photoStore,
                   activeLine.serviceId,
                   activeSlots,
                 )}
-                active>
-                <CheckoutGarmentThumbIcon
-                  variant={basketGarmentThumbVariant(activeLine.serviceId)}
-                  width={40 * scale}
-                  height={43 * scale}
-                />
-              </GarmentProgressRing>
+              />
             </View>
 
             <ScrollView
               ref={garmentScrollRef}
               horizontal
               showsHorizontalScrollIndicator={false}
-              snapToInterval={garmentSnapWidth}
-              snapToAlignment="center"
+              snapToOffsets={garmentSnapOffsets}
+              snapToAlignment="start"
               decelerationRate="fast"
+              scrollEventThrottle={16}
+              onScroll={handleGarmentScroll}
               onMomentumScrollEnd={handleGarmentScrollEnd}
               onScrollEndDrag={handleGarmentScrollEnd}
               contentContainerStyle={{
@@ -554,7 +617,9 @@ export function GarmentPhotoUploadScreen({
               }}>
               {garmentContexts.map((ctx, index) => {
                 const isCentered = index === garmentIndex;
-                const inner = garmentInactiveSize;
+                const inner = isCentered ? garmentActiveInner : garmentInactiveInner;
+                const iconW = (isCentered ? 40 : 28) * scale;
+                const iconH = (isCentered ? 43 : 25) * scale;
                 return (
                   <Pressable
                     key={ctx.line.serviceId}
@@ -566,7 +631,7 @@ export function GarmentPhotoUploadScreen({
                       scrollGarmentToIndex(index, true);
                     }}
                     style={{
-                      width: garmentSnapWidth,
+                      width: garmentSnapStep,
                       height: garmentRingSize,
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -579,14 +644,13 @@ export function GarmentPhotoUploadScreen({
                         backgroundColor: SwashoColors.surface,
                         alignItems: 'center',
                         justifyContent: 'center',
-                        borderWidth: 1 * scale,
+                        borderWidth: isCentered ? 0 : 1 * scale,
                         borderColor: SwashoColors.neutral300,
-                        opacity: isCentered ? 0 : 1,
                       }}>
                       <CheckoutGarmentThumbIcon
                         variant={basketGarmentThumbVariant(ctx.line.serviceId)}
-                        width={28 * scale}
-                        height={25 * scale}
+                        width={iconW}
+                        height={iconH}
                       />
                     </View>
                   </Pressable>
