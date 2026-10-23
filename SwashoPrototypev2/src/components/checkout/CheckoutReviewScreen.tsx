@@ -1987,8 +1987,6 @@ const styles = StyleSheet.create({
   },
   contactlessLocationLink: {
     color: SwashoColors.primary600,
-    textDecorationLine: 'underline',
-    textDecorationStyle: 'dotted',
   },
   clothesLocationChip: {
     flexDirection: 'row',
