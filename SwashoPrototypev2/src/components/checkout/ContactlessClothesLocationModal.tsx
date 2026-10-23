@@ -11,6 +11,7 @@ import {
   Text,
   TextInput,
   View,
+  type ImageSourcePropType,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
@@ -59,11 +60,12 @@ const HEADER_BACKDROP_GRADIENT = {
   end: { x: 0.92, y: 0.98 },
 };
 
-/** Figma 59153:4644 — exact CSS gradient (expo-linear-gradient mis-renders as a flat wash on web). */
+/** Figma 59153:4644 @ 380×56 — exact CSS fill (expo-linear-gradient = flat wash on web). */
 const HEADER_TEXT_STRIPE_CSS =
   'linear-gradient(34.02632356705384deg, rgba(255, 255, 255, 0) 43.16%, rgb(242, 236, 253) 79.478%, rgba(242, 236, 253, 0) 84.379%)';
 
-const clothesLocationHeaderTextStripeImage = require('@/assets/checkout/clothes-location-header-text-stripe.png');
+const clothesLocationHeaderTextStripeImage =
+  require('@/assets/checkout/clothes-location-header-text-stripe.png') as ImageSourcePropType;
 
 type ContactlessClothesLocationModalProps = {
   visible: boolean;
@@ -361,7 +363,7 @@ export function ContactlessClothesLocationModal({
   );
 }
 
-/** Figma 59153:4644 — soft diagonal lavender band (left stays clear; peak upper-right). */
+/** Figma 59153:4644 — soft diagonal lavender band (left clear; peak upper-right). */
 function ModalHeaderTextStripe({
   designScale,
   children,
@@ -372,53 +374,50 @@ function ModalHeaderTextStripe({
   const stripeHeight = CLOTHES_LOCATION_SHEET_FIGMA.headerBlockHeight * designScale;
   const textGap = CLOTHES_LOCATION_SHEET_FIGMA.headerTextGap * designScale;
 
-  const shell: ViewStyle = {
-    width: '100%',
-    height: stripeHeight,
-    flexShrink: 0,
-    zIndex: 1,
-    alignSelf: 'stretch',
-    position: 'relative',
-    overflow: 'hidden',
-  };
-
-  const textStack: ViewStyle = {
-    width: '100%',
-    height: stripeHeight,
-    gap: textGap,
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
-    zIndex: 1,
-  };
-
-  if (Platform.OS === 'web') {
-    return (
+  return (
+    <View
+      style={{
+        width: '100%',
+        height: stripeHeight,
+        flexShrink: 0,
+        zIndex: 1,
+        alignSelf: 'stretch',
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+      {Platform.OS === 'web' ? (
+        <View
+          pointerEvents="none"
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              backgroundImage: HEADER_TEXT_STRIPE_CSS,
+              backgroundRepeat: 'no-repeat',
+              backgroundSize: '100% 100%',
+            } as ViewStyle,
+          ]}
+        />
+      ) : (
+        <Image
+          pointerEvents="none"
+          source={clothesLocationHeaderTextStripeImage}
+          style={StyleSheet.absoluteFill}
+          resizeMode="stretch"
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+        />
+      )}
       <View
-        style={[
-          shell,
-          textStack,
-          {
-            backgroundColor: 'transparent',
-            backgroundImage: HEADER_TEXT_STRIPE_CSS,
-            backgroundRepeat: 'no-repeat',
-            backgroundSize: '100% 100%',
-          } as ViewStyle,
-        ]}>
+        style={{
+          width: '100%',
+          height: stripeHeight,
+          gap: textGap,
+          alignItems: 'flex-start',
+          justifyContent: 'flex-start',
+          zIndex: 1,
+        }}>
         {children}
       </View>
-    );
-  }
-
-  return (
-    <View style={shell}>
-      <Image
-        source={clothesLocationHeaderTextStripeImage}
-        style={StyleSheet.absoluteFillObject}
-        resizeMode="stretch"
-        accessibilityElementsHidden
-        importantForAccessibility="no-hide-descendants"
-      />
-      <View style={textStack}>{children}</View>
     </View>
   );
 }
