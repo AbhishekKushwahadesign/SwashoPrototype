@@ -163,18 +163,30 @@ export function ContactlessHowItWorksModal({
     </View>
   );
 
-  const infoAckButton = !showContinue ? (
-    <ServiceSelectionButton
-      label="Ok, Understood"
-      variant="primary"
-      onPress={onClose}
-      scale={scale}
-      style={{
-        width: '100%',
-        marginTop: 16 * designScale,
-        minHeight: CONTACTLESS_MODAL_FIGMA.continueButtonHeight * designScale,
-      }}
-    />
+  const sheetFooterPadding = {
+    width: '100%' as const,
+    paddingHorizontal:
+      (CONTACTLESS_MODAL_FIGMA.sheetHorizontalInset +
+        CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal) *
+      designScale,
+    paddingBottom: CONTACTLESS_MODAL_FIGMA.contentPaddingBottom * designScale,
+    backgroundColor: SwashoColors.surface,
+    flexShrink: 0,
+  };
+
+  const infoFooter = !showContinue ? (
+    <View style={sheetFooterPadding}>
+      <ServiceSelectionButton
+        label="Ok, Understood"
+        variant="primary"
+        onPress={onClose}
+        scale={scale}
+        style={{
+          width: '100%',
+          minHeight: CONTACTLESS_MODAL_FIGMA.continueButtonHeight * designScale,
+        }}
+      />
+    </View>
   ) : null;
 
   const setupFooter = showContinue ? (
