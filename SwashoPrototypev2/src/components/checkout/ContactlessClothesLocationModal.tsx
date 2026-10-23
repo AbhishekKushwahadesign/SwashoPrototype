@@ -1,5 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { useCallback, useState } from 'react';
+import { useCallback, useState, type ReactNode } from 'react';
 import {
   Dimensions,
   Modal,
@@ -62,9 +62,12 @@ const HEADER_BACKDROP_GRADIENT = {
 const HEADER_TEXT_STRIPE_GRADIENT = {
   colors: ['rgba(255,255,255,0)', '#F2ECFD', 'rgba(242,236,253,0)'] as const,
   locations: [0.431_6, 0.794_78, 0.843_79] as const,
-  start: { x: 0.02, y: 0.12 },
-  end: { x: 0.98, y: 0.88 },
+  start: { x: 0, y: 0.25 },
+  end: { x: 1, y: 0.75 },
 };
+
+const HEADER_TEXT_STRIPE_CSS =
+  'linear-gradient(34.026deg, rgba(255, 255, 255, 0) 43.16%, rgb(242, 236, 253) 79.478%, rgba(242, 236, 253, 0) 84.379%)';
 
 type ContactlessClothesLocationModalProps = {
   visible: boolean;
@@ -242,18 +245,7 @@ export function ContactlessClothesLocationModal({
                   gap: CLOTHES_LOCATION_SHEET_FIGMA.sectionGap * designScale,
                 },
               ]}>
-              <LinearGradient
-                colors={[...HEADER_TEXT_STRIPE_GRADIENT.colors]}
-                locations={[...HEADER_TEXT_STRIPE_GRADIENT.locations]}
-                start={HEADER_TEXT_STRIPE_GRADIENT.start}
-                end={HEADER_TEXT_STRIPE_GRADIENT.end}
-                style={{
-                  minHeight: CLOTHES_LOCATION_SHEET_FIGMA.headerBlockHeight * designScale,
-                  gap: CLOTHES_LOCATION_SHEET_FIGMA.headerTextGap * designScale,
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                  zIndex: 1,
-                }}>
+              <ModalHeaderTextStripe designScale={designScale}>
                 <Text
                   style={[
                     searchFont('semibold'),
@@ -274,7 +266,7 @@ export function ContactlessClothesLocationModal({
                   ]}>
                   Select a contactless drop/pickup spot at your location.
                 </Text>
-              </LinearGradient>
+              </ModalHeaderTextStripe>
 
               <ScrollView
                 style={[
@@ -366,6 +358,52 @@ export function ContactlessClothesLocationModal({
         </View>
       </View>
     </Modal>
+  );
+}
+
+/** Figma 59153:4644 — lavender stripe behind title/subtitle for contrast on web + native. */
+function ModalHeaderTextStripe({
+  designScale,
+  children,
+}: {
+  designScale: number;
+  children: React.ReactNode;
+}) {
+  const layout = {
+    width: '100%' as const,
+    minHeight: CLOTHES_LOCATION_SHEET_FIGMA.headerBlockHeight * designScale,
+    gap: CLOTHES_LOCATION_SHEET_FIGMA.headerTextGap * designScale,
+    justifyContent: 'center' as const,
+    flexShrink: 0,
+    zIndex: 1,
+    borderRadius: 4 * designScale,
+    paddingVertical: 2 * designScale,
+  };
+
+  if (Platform.OS === 'web') {
+    return (
+      <View
+        style={[
+          layout,
+          {
+            backgroundColor: '#F2ECFD',
+            backgroundImage: HEADER_TEXT_STRIPE_CSS,
+          } as ViewStyle,
+        ]}>
+        {children}
+      </View>
+    );
+  }
+
+  return (
+    <LinearGradient
+      colors={[...HEADER_TEXT_STRIPE_GRADIENT.colors]}
+      locations={[...HEADER_TEXT_STRIPE_GRADIENT.locations]}
+      start={HEADER_TEXT_STRIPE_GRADIENT.start}
+      end={HEADER_TEXT_STRIPE_GRADIENT.end}
+      style={layout}>
+      {children}
+    </LinearGradient>
   );
 }
 
