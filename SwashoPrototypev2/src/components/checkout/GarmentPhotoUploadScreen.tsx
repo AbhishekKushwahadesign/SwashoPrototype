@@ -1,6 +1,16 @@
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Image, LayoutChangeEvent, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  Image,
+  LayoutChangeEvent,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -266,7 +276,6 @@ export function GarmentPhotoUploadScreen({
   const garmentScrollRef = useRef<ScrollView>(null);
   const serviceScrollRef = useRef<ScrollView>(null);
   const serviceChipLayouts = useRef<{ x: number; width: number }[]>([]);
-  const garmentChipLayouts = useRef<{ x: number; width: number }[]>([]);
 
   const activeContext = garmentContexts[garmentIndex] ?? garmentContexts[0];
   const activeLine = activeContext?.line;
@@ -312,11 +321,36 @@ export function GarmentPhotoUploadScreen({
     addContactlessGarmentPhoto(providerId, captureGarmentId, captureServiceId, uri);
   }, [activeLine, activeService, addContactlessGarmentPhoto, pickPhoto, providerId]);
 
-  const centerGarmentInCarousel = useCallback(
+  const garmentRingSize = 81 * scale;
+  const garmentInactiveSize = 65 * scale;
+  const garmentSnapWidth = garmentRingSize + 12 * scale;
+  const garmentCarouselInset = Math.max(0, (contentWidth - garmentSnapWidth) / 2);
+
+  const scrollGarmentToIndex = useCallback(
     (index: number, animated: boolean) => {
-      scrollChipToCenter(garmentScrollRef.current, garmentChipLayouts.current, index, contentWidth, animated);
+      garmentScrollRef.current?.scrollTo({ x: index * garmentSnapWidth, animated });
     },
-    [contentWidth],
+    [garmentSnapWidth],
+  );
+
+  const syncGarmentIndexFromScroll = useCallback(
+    (offsetX: number) => {
+      const maxIndex = Math.max(0, garmentContexts.length - 1);
+      const index = Math.max(0, Math.min(maxIndex, Math.round(offsetX / garmentSnapWidth)));
+      if (index !== garmentIndex) {
+        setGarmentIndex(index);
+        setServiceIndex(0);
+      }
+    },
+    [garmentContexts.length, garmentIndex, garmentSnapWidth],
+  );
+
+  const handleGarmentScrollEnd = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      garmentSnapScrolling.current = false;
+      syncGarmentIndexFromScroll(event.nativeEvent.contentOffset.x);
+    },
+    [syncGarmentIndexFromScroll],
   );
 
   const centerServiceInCarousel = useCallback(
@@ -331,8 +365,11 @@ export function GarmentPhotoUploadScreen({
   }, [centerServiceInCarousel, serviceIndex, activeSlots.length]);
 
   useEffect(() => {
-    centerGarmentInCarousel(garmentIndex, true);
-  }, [centerGarmentInCarousel, garmentIndex, garmentContexts.length]);
+    const frame = requestAnimationFrame(() => {
+      scrollGarmentToIndex(garmentIndex, false);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [garmentContexts.length, scrollGarmentToIndex]);
 
   if (!activeLine) {
     return (
@@ -468,45 +505,93 @@ export function GarmentPhotoUploadScreen({
             </ScrollView>
           </View>
 
-          <View style={[styles.carouselClip, { marginBottom: 16 * scale }]}>
+          <View
+            style={[
+              styles.carouselClip,
+              { marginBottom: 16 * scale, height: garmentRingSize, justifyContent: 'center' },
+            ]}>
+            <View
+              pointerEvents="none"
+              style={{
+                position: 'absolute',
+                left: garmentCarouselInset,
+                top: 0,
+                width: garmentRingSize,
+                height: garmentRingSize,
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 2,
+              }}>
+              <GarmentProgressRing
+                scale={scale}
+                fraction={garmentPhotoProgressFraction(
+                  photoStore,
+                  activeLine.serviceId,
+                  activeSlots,
+                )}
+                active>
+                <CheckoutGarmentThumbIcon
+                  variant={basketGarmentThumbVariant(activeLine.serviceId)}
+                  width={40 * scale}
+                  height={43 * scale}
+                />
+              </GarmentProgressRing>
+            </View>
+
             <ScrollView
               ref={garmentScrollRef}
               horizontal
               showsHorizontalScrollIndicator={false}
+              snapToInterval={garmentSnapWidth}
+              snapToAlignment="center"
+              decelerationRate="fast"
+              onScrollBeginDrag={() => {
+                garmentSnapScrolling.current = true;
+              }}
+              onMomentumScrollEnd={handleGarmentScrollEnd}
+              onScrollEndDrag={handleGarmentScrollEnd}
               contentContainerStyle={{
-                alignItems: 'flex-end',
-                paddingHorizontal: contentWidth * 0.22,
-                gap: 12 * scale,
-                minHeight: 90 * scale,
+                alignItems: 'center',
+                paddingHorizontal: garmentCarouselInset,
+                minHeight: garmentRingSize,
               }}>
               {garmentContexts.map((ctx, index) => {
-                const fraction = garmentPhotoProgressFraction(photoStore, ctx.line.serviceId, ctx.slots);
-                const isActive = index === garmentIndex;
-                const iconW = (isActive ? 40 : 28) * scale;
-                const iconH = (isActive ? 43 : 25) * scale;
+                const isCentered = index === garmentIndex;
+                const inner = garmentInactiveSize;
                 return (
                   <Pressable
                     key={ctx.line.serviceId}
                     accessibilityRole="button"
-                    onLayout={(event) => {
-                      const { x, width } = event.nativeEvent.layout;
-                      garmentChipLayouts.current[index] = { x, width };
-                      if (index === garmentIndex) {
-                        centerGarmentInCarousel(index, false);
-                      }
-                    }}
+                    accessibilityState={{ selected: isCentered }}
                     onPress={() => {
                       setGarmentIndex(index);
                       setServiceIndex(0);
-                      centerGarmentInCarousel(index, true);
+                      scrollGarmentToIndex(index, true);
+                    }}
+                    style={{
+                      width: garmentSnapWidth,
+                      height: garmentRingSize,
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}>
-                    <GarmentProgressRing scale={scale} fraction={fraction} active={isActive}>
+                    <View
+                      style={{
+                        width: inner,
+                        height: inner,
+                        borderRadius: inner / 2,
+                        backgroundColor: SwashoColors.surface,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderWidth: 1 * scale,
+                        borderColor: SwashoColors.neutral300,
+                        opacity: isCentered ? 0 : 1,
+                      }}>
                       <CheckoutGarmentThumbIcon
                         variant={basketGarmentThumbVariant(ctx.line.serviceId)}
-                        width={iconW}
-                        height={iconH}
+                        width={28 * scale}
+                        height={25 * scale}
                       />
-                    </GarmentProgressRing>
+                    </View>
                   </Pressable>
                 );
               })}
