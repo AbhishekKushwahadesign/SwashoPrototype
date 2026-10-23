@@ -62,12 +62,18 @@ const HEADER_BACKDROP_GRADIENT = {
 const HEADER_TEXT_STRIPE_GRADIENT = {
   colors: ['rgba(255,255,255,0)', '#F2ECFD', 'rgba(242,236,253,0)'] as const,
   locations: [0.431_6, 0.794_78, 0.843_79] as const,
-  start: { x: 0, y: 0.25 },
-  end: { x: 1, y: 0.75 },
 };
 
-const HEADER_TEXT_STRIPE_CSS =
-  'linear-gradient(34.026deg, rgba(255, 255, 255, 0) 43.16%, rgb(242, 236, 253) 79.478%, rgba(242, 236, 253, 0) 84.379%)';
+/** CSS 34.026deg → expo-linear-gradient axis (0deg = up, clockwise). */
+const HEADER_TEXT_STRIPE_AXIS = (() => {
+  const rad = (34.026 * Math.PI) / 180;
+  const dx = Math.sin(rad);
+  const dy = Math.cos(rad);
+  return {
+    start: { x: 0.5 - dx / 2, y: 0.5 - dy / 2 },
+    end: { x: 0.5 + dx / 2, y: 0.5 + dy / 2 },
+  };
+})();
 
 type ContactlessClothesLocationModalProps = {
   visible: boolean;
@@ -250,7 +256,10 @@ export function ContactlessClothesLocationModal({
                   style={[
                     searchFont('semibold'),
                     styles.title,
-                    { fontSize: 18 * designScale, lineHeight: 22 * designScale },
+                    {
+                      fontSize: 18 * designScale,
+                      lineHeight: 20.426 * designScale,
+                    },
                   ]}>
                   Where should we collect from?
                 </Text>
@@ -259,6 +268,7 @@ export function ContactlessClothesLocationModal({
                     searchFont('regular'),
                     styles.subtitle,
                     {
+                      flex: 1,
                       fontSize: 12 * designScale,
                       lineHeight: 16 * designScale,
                       letterSpacing: 0.5 * designScale,
@@ -369,39 +379,23 @@ function ModalHeaderTextStripe({
   designScale: number;
   children: ReactNode;
 }) {
-  const layout = {
-    width: '100%' as const,
+  const layout: ViewStyle = {
+    width: '100%',
     height: CLOTHES_LOCATION_SHEET_FIGMA.headerBlockHeight * designScale,
     gap: CLOTHES_LOCATION_SHEET_FIGMA.headerTextGap * designScale,
-    justifyContent: 'center' as const,
     flexShrink: 0,
     zIndex: 1,
-    alignSelf: 'stretch' as const,
+    alignSelf: 'stretch',
+    alignItems: 'flex-start',
+    overflow: 'hidden',
   };
-
-  if (Platform.OS === 'web') {
-    return (
-      <View
-        style={[
-          layout,
-          {
-            backgroundColor: 'transparent',
-            backgroundImage: HEADER_TEXT_STRIPE_CSS,
-            backgroundRepeat: 'no-repeat',
-            backgroundSize: '100% 100%',
-          } as ViewStyle,
-        ]}>
-        {children}
-      </View>
-    );
-  }
 
   return (
     <LinearGradient
       colors={[...HEADER_TEXT_STRIPE_GRADIENT.colors]}
       locations={[...HEADER_TEXT_STRIPE_GRADIENT.locations]}
-      start={HEADER_TEXT_STRIPE_GRADIENT.start}
-      end={HEADER_TEXT_STRIPE_GRADIENT.end}
+      start={HEADER_TEXT_STRIPE_AXIS.start}
+      end={HEADER_TEXT_STRIPE_AXIS.end}
       style={layout}>
       {children}
     </LinearGradient>
