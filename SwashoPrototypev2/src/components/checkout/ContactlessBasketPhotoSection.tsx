@@ -16,18 +16,28 @@ import {
 
 const MOCK_GARMENT_PHOTO = require('@/assets/checkout/contactless-workflow-upload.png');
 
+import {
+  contactlessGarmentPhotoSlotKey,
+  garmentBasketPhotoSatisfied,
+  garmentPhotoSlotsFromBasketLine,
+  type ContactlessGarmentPhotoStore,
+  type GarmentPhotoServiceSlot,
+} from '@/lib/contactless-garment-photos';
+import type { ProviderGarmentCartSelection } from '@/lib/provider-cart-selection';
+
 export type ContactlessBasketPhotoMap = Record<string, boolean>;
 
-export function contactlessPhotoSlotKey(serviceId: string, slotId: string) {
-  return `${serviceId}::${slotId}`;
+export function contactlessPhotoSlotKey(garmentId: string, serviceId: string) {
+  return contactlessGarmentPhotoSlotKey(garmentId, serviceId);
 }
 
 type ContactlessBasketPhotoSectionProps = {
   line: CheckoutBasketLine;
   isBulk: boolean;
   scale: number;
-  photos: ContactlessBasketPhotoMap;
-  onTogglePhoto: (slotKey: string) => void;
+  photoStore: ContactlessGarmentPhotoStore;
+  selection?: ProviderGarmentCartSelection;
+  onOpenPhotoUpload: (garmentId: string, serviceId: string) => void;
 };
 
 function StatusDot({ scale }: { scale: number }) {
@@ -158,20 +168,20 @@ export function ContactlessBasketPhotoSection({
   line,
   isBulk,
   scale,
-  photos,
-  onTogglePhoto,
+  photoStore,
+  selection,
+  onOpenPhotoUpload,
 }: ContactlessBasketPhotoSectionProps) {
-  const detailLines = line.detailLines;
-  const optionalSingle = !isBulk && detailLines.length === 1;
-  const showBlock = isBulk || detailLines.length > 0;
+  const slots: GarmentPhotoServiceSlot[] = garmentPhotoSlotsFromBasketLine(line, selection);
+  const optionalSingle = !isBulk && slots.length === 1 && slots[0]?.optional;
+  const showBlock = isBulk || slots.length > 0;
 
   if (!showBlock) {
     return null;
   }
 
-  const slotIds = isBulk ? ['bag'] : detailLines.map((_, index) => `svc-${index}`);
-  const uploadedCount = slotIds.filter((id) => photos[contactlessPhotoSlotKey(line.serviceId, id)]).length;
   const requiredCount = 1;
+  const garmentSatisfied = garmentBasketPhotoSatisfied(photoStore, line.serviceId, slots);
 
   const statusMuted = { fontSize: 12 * scale, lineHeight: 20 * scale, letterSpacing: 0.5 * scale, color: SwashoColors.neutral500 };
 
@@ -187,12 +197,12 @@ export function ContactlessBasketPhotoSection({
           <Text style={[searchFont('medium'), statusMuted]}>No Upload Required</Text>
         ) : isBulk ? (
           <Text style={[searchFont('medium'), statusMuted]}>
-            {uploadedCount}/{requiredCount} Bag Image Uploaded
+            {garmentSatisfied ? 1 : 0}/{requiredCount} Bag Image Uploaded
           </Text>
         ) : (
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 * scale, flexWrap: 'wrap' }}>
             <Text style={[searchFont('medium'), statusMuted]}>
-              {uploadedCount}/{requiredCount} Image Uploaded
+              {garmentSatisfied ? 1 : 0}/{requiredCount} Image Uploaded
             </Text>
             <StatusDot scale={scale} />
             <Text style={[searchFont('medium'), statusMuted]}>Any 1 Service</Text>
@@ -201,41 +211,30 @@ export function ContactlessBasketPhotoSection({
       </View>
 
       <View style={{ paddingLeft: 32 * scale, gap: 20 * scale }}>
-        {isBulk ? (
-          <PhotoSlotRow
-            scale={scale}
-            variant="primary"
-            uploaded={Boolean(photos[contactlessPhotoSlotKey(line.serviceId, 'bag')])}
-            title={line.weightSubline ?? 'Bag'}
-            actionLabel="+ Add bag Photo"
-            actionColor={SwashoColors.primary600}
-            onPress={() => onTogglePhoto(contactlessPhotoSlotKey(line.serviceId, 'bag'))}
-            tileContent={<ContactlessBagBoldIcon width={24 * scale} height={24 * scale} />}
-            gap={10}
-          />
-        ) : (
-          detailLines.map((detail, index) => {
-            const slotKey = contactlessPhotoSlotKey(line.serviceId, `svc-${index}`);
-            const uploaded = Boolean(photos[slotKey]);
-            const isOptional = optionalSingle;
-            return (
-              <View key={detail} style={{ width: '100%', gap: 20 * scale }}>
-                {index > 0 ? <ServiceRowDivider variant="dotted" width={349} scale={scale} /> : null}
-                <PhotoSlotRow
-                  scale={scale}
-                  variant={isOptional ? 'muted' : 'primary'}
-                  uploaded={uploaded}
-                  title={detail}
-                  actionLabel="+ Add garment Photo"
-                  actionColor={isOptional ? SwashoColors.neutral500 : SwashoColors.primary600}
-                  onPress={() => onTogglePhoto(slotKey)}
-                  gap={isOptional ? 8 : 10}
-                  paddingHorizontal={isOptional ? 14 : 14}
-                />
-              </View>
-            );
-          })
-        )}
+        {slots.map((slot, index) => {
+          const uploaded = Boolean(photoStore[line.serviceId]?.[slot.serviceId]?.length);
+          const isOptional = slot.optional;
+          const isBag = isBulk;
+          return (
+            <View key={slot.serviceId} style={{ width: '100%', gap: 20 * scale }}>
+              {index > 0 ? <ServiceRowDivider variant="dotted" width={349} scale={scale} /> : null}
+              <PhotoSlotRow
+                scale={scale}
+                variant={isOptional ? 'muted' : 'primary'}
+                uploaded={uploaded}
+                title={isBag ? (line.weightSubline ?? slot.title) : `${slot.quantity}x ${slot.title}`}
+                actionLabel={isBag ? '+ Add bag Photo' : '+ Add garment Photo'}
+                actionColor={isOptional ? SwashoColors.neutral500 : SwashoColors.primary600}
+                onPress={() => onOpenPhotoUpload(line.serviceId, slot.serviceId)}
+                gap={isOptional ? 8 : 10}
+                paddingHorizontal={14}
+                tileContent={
+                  isBag ? <ContactlessBagBoldIcon width={24 * scale} height={24 * scale} /> : undefined
+                }
+              />
+            </View>
+          );
+        })}
       </View>
     </View>
   );

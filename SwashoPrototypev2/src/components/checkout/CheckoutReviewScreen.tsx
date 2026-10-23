@@ -37,6 +37,7 @@ import {
   CHECKOUT_WEEKDAY_OPTIONS,
   checkoutDayOptionFromKey,
   isSubscriptionExclusivePricingQualified,
+  garmentPhotoUploadHref,
   oneTimeCheckoutHref,
   providerPageHref,
   subscriptionExclusivePricingShortfallInr,
@@ -51,17 +52,15 @@ import {
   contactlessClothesLocationChipText,
   isContactlessClothesLocationValid,
 } from '@/lib/contactless-clothes-location';
-import { isBulkServiceId } from '@/lib/provider-cart-selection';
+import type { ContactlessGarmentPhotoStore } from '@/lib/contactless-garment-photos';
+import { isBulkServiceId, type ProviderGarmentCartSelection } from '@/lib/provider-cart-selection';
 
 import {
   ClothesLocationOptionSpriteIcon,
   ClothesLocationPencilIcon,
 } from './clothes-location-sheet-icons';
 import { ContactlessClothesLocationModal } from './ContactlessClothesLocationModal';
-import {
-  ContactlessBasketPhotoSection,
-  type ContactlessBasketPhotoMap,
-} from './ContactlessBasketPhotoSection';
+import { ContactlessBasketPhotoSection } from './ContactlessBasketPhotoSection';
 import { ContactlessHowItWorksModal } from './ContactlessHowItWorksModal';
 import { CheckoutSectionDivider } from './CheckoutSectionDivider';
 import { CheckoutServiceHandoverSegment } from './CheckoutServiceHandoverSegment';
@@ -228,8 +227,13 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
   const { scale, contentWidth } = useScreenScale();
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
-  const { getCheckoutState, getProviderCartTotals, getProviderCartEntries, setContactlessCheckout } =
-    useProviderCart();
+  const {
+    getCheckoutState,
+    getProviderCartTotals,
+    getProviderCartEntries,
+    getContactlessGarmentPhotos,
+    setContactlessCheckout,
+  } = useProviderCart();
 
   const provider = getProviderResultById(providerId, query);
   const checkout = getCheckoutState(providerId);
@@ -689,6 +693,10 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
               groups={basketGroups}
               showCompareAt={exclusivePricingQualified}
               contactless={contactless}
+              providerId={providerId}
+              query={query}
+              isSubscription={isSubscription}
+              contactlessPhotoStore={getContactlessGarmentPhotos(providerId)}
               onEditLine={handleEditService}
               onAddGarment={handleAddGarment}
             />
@@ -960,6 +968,10 @@ function BasketCard({
   groups,
   showCompareAt,
   contactless,
+  providerId,
+  query,
+  isSubscription,
+  contactlessPhotoStore,
   onEditLine,
   onAddGarment,
 }: {
@@ -969,15 +981,29 @@ function BasketCard({
   groups: ReturnType<typeof buildCheckoutBasketGroups>;
   showCompareAt: boolean;
   contactless: boolean;
+  providerId: string;
+  query: string;
+  isSubscription: boolean;
+  contactlessPhotoStore: ContactlessGarmentPhotoStore;
   onEditLine: (serviceId: string) => void;
   onAddGarment: () => void;
 }) {
+  const router = useRouter();
+  const { getSelection } = useProviderCart();
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
-  const [contactlessPhotos, setContactlessPhotos] = useState<ContactlessBasketPhotoMap>({});
 
-  const handleToggleContactlessPhoto = useCallback((slotKey: string) => {
-    setContactlessPhotos((prev) => ({ ...prev, [slotKey]: !prev[slotKey] }));
-  }, []);
+  const handleOpenPhotoUpload = useCallback(
+    (garmentId: string, serviceId: string) => {
+      router.push(
+        garmentPhotoUploadHref(providerId, query, {
+          garmentId,
+          serviceId,
+          subscription: isSubscription,
+        }),
+      );
+    },
+    [isSubscription, providerId, query, router],
+  );
 
   const toggleSection = useCallback((sectionId: string) => {
     setCollapsedSections((prev) => ({ ...prev, [sectionId]: !prev[sectionId] }));
@@ -1091,8 +1117,9 @@ function BasketCard({
                       scale={scale}
                       showCompareAt={showCompareAt}
                       contactless={contactless}
-                      contactlessPhotos={contactlessPhotos}
-                      onToggleContactlessPhoto={handleToggleContactlessPhoto}
+                      contactlessPhotoStore={contactlessPhotoStore}
+                      selection={getSelection(providerId, line.serviceId)}
+                      onOpenPhotoUpload={handleOpenPhotoUpload}
                       onEdit={() => onEditLine(line.serviceId)}
                     />
                     {index < group.lines.length - 1 ? (
@@ -1167,16 +1194,18 @@ function BasketLineRow({
   scale,
   showCompareAt,
   contactless,
-  contactlessPhotos,
-  onToggleContactlessPhoto,
+  contactlessPhotoStore,
+  selection,
+  onOpenPhotoUpload,
   onEdit,
 }: {
   line: CheckoutBasketLine;
   scale: number;
   showCompareAt: boolean;
   contactless: boolean;
-  contactlessPhotos: ContactlessBasketPhotoMap;
-  onToggleContactlessPhoto: (slotKey: string) => void;
+  contactlessPhotoStore: ContactlessGarmentPhotoStore;
+  selection?: ProviderGarmentCartSelection;
+  onOpenPhotoUpload: (garmentId: string, serviceId: string) => void;
   onEdit: () => void;
 }) {
   const isBulk = isBulkServiceId(line.serviceId);
@@ -1269,8 +1298,9 @@ function BasketLineRow({
                 line={line}
                 isBulk={isBulk}
                 scale={scale}
-                photos={contactlessPhotos}
-                onTogglePhoto={onToggleContactlessPhoto}
+                photoStore={contactlessPhotoStore}
+                selection={selection}
+                onOpenPhotoUpload={onOpenPhotoUpload}
               />
             ) : (
               <View style={{ gap: 20 * scale, paddingLeft: (isBulk ? 45 : 32) * scale }}>

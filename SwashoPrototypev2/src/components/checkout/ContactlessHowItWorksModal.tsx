@@ -191,17 +191,10 @@ export function ContactlessHowItWorksModal({
 
   const setupFooter = showContinue ? (
     <View
-      style={{
-        width: '100%',
-        paddingHorizontal:
-          (CONTACTLESS_MODAL_FIGMA.sheetHorizontalInset +
-            CONTACTLESS_MODAL_FIGMA.contentPaddingHorizontal) *
-          designScale,
-        paddingBottom: CONTACTLESS_MODAL_FIGMA.contentPaddingBottom * designScale,
-        backgroundColor: SwashoColors.surface,
-        flexShrink: 0,
-        gap: CONTACTLESS_MODAL_FIGMA.hintToContinueGap * designScale,
-      }}>
+      style={[
+        sheetFooterPadding,
+        { gap: CONTACTLESS_MODAL_FIGMA.hintToContinueGap * designScale },
+      ]}>
       {continueHint ? (
         <Text
           style={[
@@ -357,10 +350,10 @@ export function ContactlessHowItWorksModal({
                   ))}
                 </View>
                 {reassuranceBlock}
-                {infoAckButton}
               </View>
             </ScrollView>
 
+            {infoFooter}
             {setupFooter}
           </View>
         </View>

@@ -184,6 +184,22 @@ export function subscriptionPickupWeekdayLimit(
 }
 
 /** Post-scheduling checkout review (Figma 3353:13604) — same `/checkout` route with query flags. */
+/** Shared garment photo upload (Figma 3399:16790). */
+export function garmentPhotoUploadHref(
+  providerId: string,
+  query: string,
+  params: { garmentId: string; serviceId: string; subscription?: boolean },
+): Href {
+  const extra: Record<string, string> = {
+    garmentId: params.garmentId,
+    serviceId: params.serviceId,
+  };
+  if (params.subscription) {
+    extra.subscription = '1';
+  }
+  return `/checkout/garment-photo-upload?${checkoutQueryString(providerId, query, extra)}` as Href;
+}
+
 export function checkoutPlaceholderHref(
   providerId: string,
   query: string,

@@ -8,6 +8,7 @@ export default function CheckoutLayout() {
       <Stack.Screen name="subscribe-2" />
       <Stack.Screen name="index" />
       <Stack.Screen name="review" />
+      <Stack.Screen name="garment-photo-upload" />
     </Stack>
   );
 }

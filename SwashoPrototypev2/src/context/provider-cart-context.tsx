@@ -5,6 +5,7 @@ import type {
   ProviderOrderFulfillmentMode,
   SubscriptionFrequencyOption,
 } from '@/lib/checkout-flow';
+import type { ContactlessGarmentPhotoStore } from '@/lib/contactless-garment-photos';
 import {
   computeSelectionStickyMetrics,
   garmentAssignmentItemCount,
@@ -14,6 +15,7 @@ import {
 
 type ProviderCartStore = Record<string, ProviderGarmentCartSelection>;
 type ProviderCheckoutStore = Record<string, ProviderCheckoutState>;
+type ContactlessPhotoStoreByProvider = Record<string, ContactlessGarmentPhotoStore>;
 
 type ProviderCartEntry = { serviceId: string; selection: ProviderGarmentCartSelection };
 
@@ -60,6 +62,19 @@ type ProviderCartContextValue = {
       >
     >,
   ) => void;
+  getContactlessGarmentPhotos: (providerId: string) => ContactlessGarmentPhotoStore;
+  addContactlessGarmentPhoto: (
+    providerId: string,
+    garmentId: string,
+    serviceId: string,
+    uri: string,
+  ) => void;
+  removeContactlessGarmentPhoto: (
+    providerId: string,
+    garmentId: string,
+    serviceId: string,
+    uri: string,
+  ) => void;
 };
 
 const ProviderCartContext = createContext<ProviderCartContextValue | null>(null);
@@ -67,6 +82,7 @@ const ProviderCartContext = createContext<ProviderCartContextValue | null>(null)
 export function ProviderCartProvider({ children }: { children: ReactNode }) {
   const [store, setStore] = useState<ProviderCartStore>({});
   const [checkoutStore, setCheckoutStore] = useState<ProviderCheckoutStore>({});
+  const [contactlessPhotoStore, setContactlessPhotoStore] = useState<ContactlessPhotoStoreByProvider>({});
 
   const getSelection = useCallback(
     (providerId: string, serviceId: string) => store[providerCartKey(providerId, serviceId)],
@@ -201,6 +217,62 @@ export function ProviderCartProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const getContactlessGarmentPhotos = useCallback(
+    (providerId: string) => contactlessPhotoStore[providerId] ?? {},
+    [contactlessPhotoStore],
+  );
+
+  const addContactlessGarmentPhoto = useCallback(
+    (providerId: string, garmentId: string, serviceId: string, uri: string) => {
+      setContactlessPhotoStore((prev) => {
+        const providerStore = prev[providerId] ?? {};
+        const garmentStore = providerStore[garmentId] ?? {};
+        const existing = garmentStore[serviceId] ?? [];
+        if (existing.includes(uri)) {
+          return prev;
+        }
+        return {
+          ...prev,
+          [providerId]: {
+            ...providerStore,
+            [garmentId]: {
+              ...garmentStore,
+              [serviceId]: [...existing, uri],
+            },
+          },
+        };
+      });
+    },
+    [],
+  );
+
+  const removeContactlessGarmentPhoto = useCallback(
+    (providerId: string, garmentId: string, serviceId: string, uri: string) => {
+      setContactlessPhotoStore((prev) => {
+        const providerStore = prev[providerId];
+        if (!providerStore) {
+          return prev;
+        }
+        const garmentStore = providerStore[garmentId];
+        if (!garmentStore) {
+          return prev;
+        }
+        const nextUris = (garmentStore[serviceId] ?? []).filter((item) => item !== uri);
+        return {
+          ...prev,
+          [providerId]: {
+            ...providerStore,
+            [garmentId]: {
+              ...garmentStore,
+              [serviceId]: nextUris,
+            },
+          },
+        };
+      });
+    },
+    [],
+  );
+
   const getProviderCartTotals = useCallback(
     (providerId: string) => {
       let itemCount = 0;
@@ -238,13 +310,19 @@ export function ProviderCartProvider({ children }: { children: ReactNode }) {
       setSubscriptionFrequency,
       setSubscriptionSchedule,
       setContactlessCheckout,
+      getContactlessGarmentPhotos,
+      addContactlessGarmentPhoto,
+      removeContactlessGarmentPhoto,
     }),
     [
+      addContactlessGarmentPhoto,
       clearSelection,
+      getContactlessGarmentPhotos,
       getCheckoutState,
       getProviderCartTotals,
       getProviderCartEntries,
       getSelection,
+      removeContactlessGarmentPhoto,
       setContactlessCheckout,
       setFulfillmentMode,
       setOneTimeSchedule,
