@@ -154,6 +154,22 @@ function GarmentProgressRing({
   );
 }
 
+function ServiceCarouselCenterFrame({ scale }: { scale: number }) {
+  return (
+    <View
+      pointerEvents="none"
+      style={{
+        width: '100%',
+        height: '100%',
+        borderRadius: 20 * scale,
+        borderWidth: 1.5 * scale,
+        borderColor: '#252525',
+        backgroundColor: 'transparent',
+      }}
+    />
+  );
+}
+
 function ServiceCarouselChip({
   scale,
   slot,
@@ -172,8 +188,7 @@ function ServiceCarouselChip({
         paddingHorizontal: 5 * scale,
         height: 35 * scale,
         borderRadius: 20 * scale,
-        borderWidth: emphasized ? 1.5 * scale : 0,
-        borderColor: emphasized ? '#252525' : 'transparent',
+        borderWidth: 0,
         backgroundColor: emphasized ? SwashoColors.surface : 'transparent',
         maxWidth: emphasized ? 145 * scale : 120 * scale,
       }}>
@@ -636,23 +651,20 @@ export function GarmentPhotoUploadScreen({
               styles.carouselClip,
               { marginBottom: 20 * scale, height: serviceChipHeight, justifyContent: 'center' },
             ]}>
-            {activeService ? (
-              <View
-                pointerEvents="none"
-                style={{
-                  position: 'absolute',
-                  left: serviceCarouselInset,
-                  top: 0,
-                  height: serviceChipHeight,
-                  width: serviceSnapStep,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  zIndex: 2,
-                  overflow: 'hidden',
-                }}>
-                <ServiceCarouselChip scale={scale} slot={activeService} emphasized />
-              </View>
-            ) : null}
+            <View
+              pointerEvents="none"
+              style={{
+                position: 'absolute',
+                left: serviceCarouselInset,
+                top: 0,
+                height: serviceChipHeight,
+                width: serviceSnapStep,
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 2,
+              }}>
+              <ServiceCarouselCenterFrame scale={scale} />
+            </View>
             <ScrollView
               ref={serviceScrollRef}
               horizontal
@@ -697,8 +709,8 @@ export function GarmentPhotoUploadScreen({
                       },
                       Platform.OS === 'web' ? ({ touchAction: 'pan-x', cursor: 'grab' } as object) : null,
                     ]}>
-                    <View style={{ opacity: isCentered ? 0 : 1, transform: [{ scale: isCentered ? 1 : 0.94 }] }}>
-                      <ServiceCarouselChip scale={scale} slot={slot} emphasized={false} />
+                    <View style={{ transform: [{ scale: isCentered ? 1 : 0.94 }] }}>
+                      <ServiceCarouselChip scale={scale} slot={slot} emphasized={isCentered} />
                     </View>
                   </Pressable>
                 );
