@@ -53,3 +53,25 @@ export function contactlessClothesLocationLabel(
 export function isContactlessClothesLocationValid(state: ProviderCheckoutState): boolean {
   return contactlessClothesLocationLabel(state.contactlessClothesLocationId, state.contactlessClothesLocationOther) != null;
 }
+
+/** Figma 59066:3241 — chip label on checkout review instructions (contactless). */
+const CONTACTLESS_LOCATION_CHIP_PHRASE: Partial<Record<ContactlessClothesLocationId, string>> = {
+  'flat-door': 'Collect clothes from Flat Door',
+  'society-gate': 'Collect clothes from Security Guard',
+  'society-lobby': 'Collect clothes from Society Lobby',
+  maid: 'Collect clothes from Maid / Domestic Help',
+};
+
+export function contactlessClothesLocationChipText(
+  locationId: ContactlessClothesLocationId | undefined,
+  otherText: string | undefined,
+): string | null {
+  if (!locationId) {
+    return null;
+  }
+  if (locationId === 'other') {
+    const trimmed = otherText?.trim();
+    return trimmed && trimmed.length > 0 ? trimmed : null;
+  }
+  return CONTACTLESS_LOCATION_CHIP_PHRASE[locationId] ?? null;
+}

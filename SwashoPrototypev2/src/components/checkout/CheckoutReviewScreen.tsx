@@ -48,11 +48,15 @@ import {
 } from '@/lib/checkout-flow';
 import { CHECKOUT_SCHEDULE_CARD_WIDTH } from '@/lib/checkout-figma-layout';
 import {
-  contactlessClothesLocationLabel,
+  contactlessClothesLocationChipText,
   isContactlessClothesLocationValid,
 } from '@/lib/contactless-clothes-location';
 import { isBulkServiceId } from '@/lib/provider-cart-selection';
 
+import {
+  ClothesLocationOptionSpriteIcon,
+  ClothesLocationPencilIcon,
+} from './clothes-location-sheet-icons';
 import { ContactlessClothesLocationModal } from './ContactlessClothesLocationModal';
 import { ContactlessHowItWorksModal } from './ContactlessHowItWorksModal';
 import { CheckoutSectionDivider } from './CheckoutSectionDivider';
@@ -263,7 +267,7 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
 
   const contactless = checkout.contactlessService ?? false;
   const clothesLocationValid = isContactlessClothesLocationValid(checkout);
-  const savedLocationLabel = contactlessClothesLocationLabel(
+  const savedLocationChipText = contactlessClothesLocationChipText(
     checkout.contactlessClothesLocationId,
     checkout.contactlessClothesLocationOther,
   );
@@ -670,10 +674,6 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
             <CheckoutServiceHandoverSegment
               contactless={contactless}
               onContactlessChange={handleContactlessChange}
-              showLocationReminder={contactless && !clothesLocationValid}
-              savedLocationLabel={savedLocationLabel}
-              onChooseLocationPress={openClothesLocationSheet}
-              onEditLocationPress={openClothesLocationSheet}
               onHowItWorksPress={() => setContactlessHowItWorksVisible(true)}
               scale={scale}
             />
@@ -704,6 +704,11 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
             <InstructionsCard
               scale={scale}
               cardWidth={cardWidth}
+              contactless={contactless}
+              showLocationReminder={contactless && !clothesLocationValid}
+              clothesLocationId={checkout.contactlessClothesLocationId}
+              clothesLocationChipText={savedLocationChipText}
+              onClothesLocationPress={openClothesLocationSheet}
               instructionTab={instructionTab}
               onTabChange={setInstructionTab}
               activeInstruction={activeInstruction}
@@ -1365,6 +1370,11 @@ function BasketLineRow({
 function InstructionsCard({
   scale,
   cardWidth,
+  contactless,
+  showLocationReminder,
+  clothesLocationId,
+  clothesLocationChipText,
+  onClothesLocationPress,
   instructionTab,
   onTabChange,
   activeInstruction,
@@ -1374,6 +1384,11 @@ function InstructionsCard({
 }: {
   scale: number;
   cardWidth: number;
+  contactless?: boolean;
+  showLocationReminder?: boolean;
+  clothesLocationId?: ContactlessClothesLocationId;
+  clothesLocationChipText?: string | null;
+  onClothesLocationPress?: () => void;
   instructionTab: 'pickup' | 'delivery';
   onTabChange: (tab: 'pickup' | 'delivery') => void;
   activeInstruction: InstructionId;
@@ -1381,17 +1396,22 @@ function InstructionsCard({
   rememberInstructions: boolean;
   onToggleRemember: () => void;
 }) {
+  const cardShadow = contactless
+    ? figmaShadow({ offsetX: 0, offsetY: 0, blur: 8, color: '#000000', opacity: 0.1 }, scale)
+    : figmaShadow(FigmaShadows.checkoutScheduleCard, scale);
+
   return (
     <View
       style={[
         styles.card,
         {
           width: cardWidth,
-          paddingHorizontal: 10 * scale,
+          paddingLeft: contactless ? 8 * scale : 10 * scale,
+          paddingRight: contactless ? 10 * scale : 10 * scale,
           paddingVertical: 16 * scale,
-          gap: 20 * scale,
+          gap: contactless ? 16 * scale : 20 * scale,
           borderRadius: SwashoRadii.lg * scale,
-          ...figmaShadow(FigmaShadows.checkoutScheduleCard, scale),
+          ...cardShadow,
         },
       ]}>
       <View style={{ gap: 12 * scale, width: '100%' }}>
@@ -1399,10 +1419,95 @@ function InstructionsCard({
           <IconTile scale={scale}>
             <CheckoutInstructionsHeaderIcon width={24 * scale} height={24 * scale} />
           </IconTile>
-          <Text style={[searchFont('semibold'), styles.basketTitle, { fontSize: 15 * scale }]}>Instructions</Text>
+          <Text
+            style={[
+              searchFont('semibold'),
+              contactless ? styles.instructionsTitleContactless : styles.basketTitle,
+              { fontSize: 15 * scale, lineHeight: 14 * scale, letterSpacing: 0.3 * scale },
+            ]}>
+            Instructions
+          </Text>
         </View>
         <CheckoutSectionDivider width={376.514 * scale} scale={scale} />
       </View>
+      {contactless ? (
+        <View style={{ width: '100%', gap: 16 * scale, paddingLeft: 8 * scale }}>
+          <View
+            style={[
+              styles.row,
+              {
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                paddingVertical: 4 * scale,
+                width: '100%',
+              },
+            ]}>
+            <Text
+              style={[
+                searchFont('semibold'),
+                styles.basketTitle,
+                { fontSize: 15 * scale, lineHeight: 14 * scale, letterSpacing: 0.3 * scale },
+              ]}>
+              Clothes Location
+            </Text>
+            {onClothesLocationPress ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={showLocationReminder ? 'Choose clothes location' : 'Update clothes location'}
+                onPress={onClothesLocationPress}
+                hitSlop={8}>
+                <Text
+                  style={[
+                    searchFont('medium'),
+                    styles.contactlessLocationLink,
+                    { fontSize: 14 * scale, lineHeight: 12 * scale, letterSpacing: 0.5 * scale },
+                  ]}>
+                  {showLocationReminder ? 'Choose location' : 'Update'}
+                </Text>
+              </Pressable>
+            ) : null}
+          </View>
+          {showLocationReminder ? (
+            <Text
+              style={[
+                searchFont('regular'),
+                styles.muted,
+                { fontSize: 12 * scale, lineHeight: 16 * scale, letterSpacing: 0.5 * scale },
+              ]}>
+              Choose where your laundry bag will be collected from.
+            </Text>
+          ) : clothesLocationChipText ? (
+            <View style={[styles.row, { alignItems: 'center', minHeight: 45 * scale }]}>
+              <View
+                style={[
+                  styles.clothesLocationChip,
+                  {
+                    gap: 4 * scale,
+                    padding: 8 * scale,
+                    borderRadius: 8 * scale,
+                    borderWidth: 0.5 * scale,
+                  },
+                ]}>
+                {clothesLocationId && clothesLocationId !== 'other' ? (
+                  <ClothesLocationOptionSpriteIcon optionId={clothesLocationId} scale={scale} frameSize={24} />
+                ) : (
+                  <ClothesLocationPencilIcon scale={(24 / 21.53) * scale} />
+                )}
+                <Text
+                  numberOfLines={1}
+                  style={[
+                    searchFont('medium'),
+                    styles.clothesLocationChipLabel,
+                    { fontSize: 14 * scale, lineHeight: 12 * scale, letterSpacing: 0.5 * scale },
+                  ]}>
+                  {clothesLocationChipText}
+                </Text>
+              </View>
+            </View>
+          ) : null}
+          <CheckoutSectionDivider width={374.644 * scale} scale={scale} />
+        </View>
+      ) : null}
       <View
         style={[
           styles.instructionTabs,
@@ -1845,6 +1950,26 @@ const styles = StyleSheet.create({
   },
   rememberLabel: {
     color: SwashoColors.neutral900,
+  },
+  instructionsTitleContactless: {
+    color: SwashoColors.neutral950,
+  },
+  contactlessLocationLink: {
+    color: SwashoColors.primary600,
+    textDecorationLine: 'underline',
+    textDecorationStyle: 'dotted',
+  },
+  clothesLocationChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f7f7f7',
+    borderColor: SwashoColors.neutral600,
+    alignSelf: 'flex-start',
+    maxWidth: '100%',
+  },
+  clothesLocationChipLabel: {
+    color: SwashoColors.darkHeaderText,
+    flexShrink: 1,
   },
   totalLabel: {
     color: SwashoColors.darkHeaderText,

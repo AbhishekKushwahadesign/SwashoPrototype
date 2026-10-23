@@ -58,11 +58,14 @@ export function ClothesLocationSheetGrabber({ scale }: { scale: number }) {
 export function ClothesLocationOptionSpriteIcon({
   optionId,
   scale,
+  frameSize = 32,
 }: {
   optionId: Exclude<ContactlessClothesLocationId, 'other'>;
   scale: number;
+  /** Icon frame in design px (Figma chip uses 24, sheet options use 32). */
+  frameSize?: number;
 }) {
-  const frame = 32 * scale;
+  const frame = frameSize * scale;
   const crop = OPTION_SPRITE_CROPS[optionId];
   const imageWidth = (crop.widthPercent / 100) * frame;
   const imageHeight = (crop.heightPercent / 100) * frame;
