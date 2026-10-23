@@ -32,7 +32,7 @@ export function ClothesLocationHeaderIllustration({ scale }: { scale: number }) 
       style={{
         position: 'absolute',
         right: 0,
-        top: -18.04 * scale,
+        top: 4 * scale,
         width,
         height,
       }}
