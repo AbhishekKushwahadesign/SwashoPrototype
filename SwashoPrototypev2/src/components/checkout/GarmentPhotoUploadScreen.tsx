@@ -545,9 +545,6 @@ export function GarmentPhotoUploadScreen({
               snapToInterval={garmentSnapWidth}
               snapToAlignment="center"
               decelerationRate="fast"
-              onScrollBeginDrag={() => {
-                garmentSnapScrolling.current = true;
-              }}
               onMomentumScrollEnd={handleGarmentScrollEnd}
               onScrollEndDrag={handleGarmentScrollEnd}
               contentContainerStyle={{
