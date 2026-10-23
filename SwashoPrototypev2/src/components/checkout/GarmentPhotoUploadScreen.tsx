@@ -1,19 +1,11 @@
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import {
-  Image,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Image, LayoutChangeEvent, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ArrowLeftIcon } from '@/components/home/figma-icons';
+import { figmaShadow, FigmaShadows } from '@/components/home/figma-shadows';
 import { HomeIndicator } from '@/components/home/HomeIndicator';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { SearchStatusBar } from '@/components/search/SearchStatusBar';
@@ -34,9 +26,10 @@ import { ContactlessGalleryAddPrimaryIcon } from './contactless-basket-photo-ico
 import { ContactlessHowItWorksModal } from './ContactlessHowItWorksModal';
 import { usePickGarmentPhoto } from './use-pick-garment-photo';
 
-const DEFAULT_GARMENT_HERO = require('@/assets/checkout/contactless-workflow-upload.png');
+/** Figma 3399:16791 — reference garment on hanger (not contactless workflow art). */
+const DEFAULT_GARMENT_HERO = require('@/assets/checkout/garment-photo-upload-hero.png');
 const STATUS_BAR_HEIGHT = 32;
-
+const BOTTOM_PANEL_HEIGHT = 310;
 type GarmentPhotoUploadScreenProps = {
   providerId: string;
   query: string;
@@ -56,6 +49,7 @@ function GarmentProgressRing({
   children: ReactNode;
 }) {
   const size = active ? 81 * scale : 65 * scale;
+  const inner = active ? 71 * scale : 56 * scale;
   const stroke = 3 * scale;
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -63,7 +57,11 @@ function GarmentProgressRing({
   const dashOffset = circumference * (1 - progress);
 
   return (
-    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+    <View
+      style={[
+        { width: size, height: size, alignItems: 'center', justifyContent: 'center' },
+        active ? figmaShadow(FigmaShadows.providerCard, scale) : null,
+      ]}>
       {active ? (
         <Svg width={size} height={size} style={{ position: 'absolute' }}>
           <Circle
@@ -84,16 +82,15 @@ function GarmentProgressRing({
             strokeDasharray={`${circumference} ${circumference}`}
             strokeDashoffset={dashOffset}
             strokeLinecap="round"
-            rotation={-90}
-            origin={`${size / 2}, ${size / 2}`}
+            transform={`rotate(-90 ${size / 2} ${size / 2})`}
           />
         </Svg>
       ) : null}
       <View
         style={{
-          width: active ? 71 * scale : 56 * scale,
-          height: active ? 71 * scale : 56 * scale,
-          borderRadius: (active ? 71 : 56) * scale / 2,
+          width: inner,
+          height: inner,
+          borderRadius: inner / 2,
           backgroundColor: SwashoColors.surface,
           alignItems: 'center',
           justifyContent: 'center',
@@ -111,26 +108,30 @@ function ServiceCarouselChip({
   slot,
   active,
   onPress,
+  onLayout,
 }: {
   scale: number;
   slot: GarmentPhotoServiceSlot;
   active: boolean;
   onPress: () => void;
+  onLayout: (event: LayoutChangeEvent) => void;
 }) {
   return (
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
+      onLayout={onLayout}
       style={{
         flexDirection: 'row',
         alignItems: 'center',
         gap: 4 * scale,
-        paddingHorizontal: active ? 5 * scale : 5 * scale,
+        paddingHorizontal: 5 * scale,
         height: 35 * scale,
         borderRadius: 20 * scale,
         borderWidth: active ? 1.5 * scale : 0,
         borderColor: active ? '#252525' : 'transparent',
         backgroundColor: active ? SwashoColors.surface : 'transparent',
+        maxWidth: active ? 145 * scale : undefined,
       }}>
       <Text
         numberOfLines={1}
@@ -141,7 +142,7 @@ function ServiceCarouselChip({
             lineHeight: 14 * scale,
             letterSpacing: 0.5 * scale,
             color: active ? SwashoColors.neutral950 : SwashoColors.neutral700,
-            maxWidth: 120 * scale,
+            maxWidth: active ? 95 * scale : 120 * scale,
           },
         ]}>
         {slot.title}
@@ -170,6 +171,21 @@ function ServiceCarouselChip({
       </View>
     </Pressable>
   );
+}
+
+function scrollChipToCenter(
+  scrollRef: ScrollView | null,
+  layouts: { x: number; width: number }[],
+  index: number,
+  viewportWidth: number,
+  animated: boolean,
+) {
+  const layout = layouts[index];
+  if (!layout || !scrollRef) {
+    return;
+  }
+  const targetX = layout.x + layout.width / 2 - viewportWidth / 2;
+  scrollRef.scrollTo({ x: Math.max(0, targetX), animated });
 }
 
 export function GarmentPhotoUploadScreen({
@@ -248,6 +264,9 @@ export function GarmentPhotoUploadScreen({
   const [garmentIndex, setGarmentIndex] = useState(initialGarmentIndex);
   const [serviceIndex, setServiceIndex] = useState(0);
   const garmentScrollRef = useRef<ScrollView>(null);
+  const serviceScrollRef = useRef<ScrollView>(null);
+  const serviceChipLayouts = useRef<{ x: number; width: number }[]>([]);
+  const garmentChipLayouts = useRef<{ x: number; width: number }[]>([]);
 
   const activeContext = garmentContexts[garmentIndex] ?? garmentContexts[0];
   const activeLine = activeContext?.line;
@@ -272,8 +291,6 @@ export function GarmentPhotoUploadScreen({
     return photoStore[activeLine.serviceId]?.[activeService.serviceId] ?? [];
   }, [activeLine, activeService, photoStore]);
 
-  const heroUri = activePhotos[0];
-
   const handleBack = useCallback(() => {
     if (router.canGoBack()) {
       router.back();
@@ -295,17 +312,27 @@ export function GarmentPhotoUploadScreen({
     addContactlessGarmentPhoto(providerId, captureGarmentId, captureServiceId, uri);
   }, [activeLine, activeService, addContactlessGarmentPhoto, pickPhoto, providerId]);
 
-  const onGarmentScrollEnd = useCallback(
-    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const offsetX = event.nativeEvent.contentOffset.x;
-      const index = Math.round(offsetX / contentWidth);
-      if (index !== garmentIndex && index >= 0 && index < garmentContexts.length) {
-        setGarmentIndex(index);
-        setServiceIndex(0);
-      }
+  const centerGarmentInCarousel = useCallback(
+    (index: number, animated: boolean) => {
+      scrollChipToCenter(garmentScrollRef.current, garmentChipLayouts.current, index, contentWidth, animated);
     },
-    [contentWidth, garmentContexts.length, garmentIndex],
+    [contentWidth],
   );
+
+  const centerServiceInCarousel = useCallback(
+    (index: number, animated: boolean) => {
+      scrollChipToCenter(serviceScrollRef.current, serviceChipLayouts.current, index, contentWidth, animated);
+    },
+    [contentWidth],
+  );
+
+  useEffect(() => {
+    centerServiceInCarousel(serviceIndex, true);
+  }, [centerServiceInCarousel, serviceIndex, activeSlots.length]);
+
+  useEffect(() => {
+    centerGarmentInCarousel(garmentIndex, true);
+  }, [centerGarmentInCarousel, garmentIndex, garmentContexts.length]);
 
   if (!activeLine) {
     return (
@@ -318,7 +345,9 @@ export function GarmentPhotoUploadScreen({
     );
   }
 
-  const bottomPanelHeight = 310 * scale;
+  const bottomPanelHeight = BOTTOM_PANEL_HEIGHT * scale;
+
+  const headerTop = safeTop + 27 * scale;
 
   return (
     <View style={styles.root}>
@@ -326,174 +355,222 @@ export function GarmentPhotoUploadScreen({
         <SearchStatusBar scale={scale} />
       </View>
 
-      <View style={[styles.heroWrap, { top: safeTop + 20 * scale, bottom: bottomPanelHeight }]}>
+      <View
+        style={[
+          styles.heroRegion,
+          {
+            top: safeTop + STATUS_BAR_HEIGHT * scale,
+            bottom: bottomPanelHeight + insets.bottom,
+          },
+        ]}>
         <Image
-          source={heroUri ? { uri: heroUri } : DEFAULT_GARMENT_HERO}
+          source={DEFAULT_GARMENT_HERO}
           style={styles.heroImage}
           resizeMode="cover"
+          accessibilityIgnoresInvertColors
         />
       </View>
 
-      <View style={[styles.headerRow, { top: safeTop + 27 * scale, paddingHorizontal: 20 * scale }]}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Go back" onPress={handleBack} hitSlop={8}>
-          <ArrowLeftIcon width={20 * scale} height={20 * scale} />
-        </Pressable>
-        <Text
-          numberOfLines={1}
-          style={[
-            searchFont('semibold'),
-            styles.headerTitle,
-            { fontSize: 15 * scale, letterSpacing: 0.6 * scale, flex: 1, textAlign: 'center' },
-          ]}>
-          {activeLine.title}
-        </Text>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Photo upload guide"
-          onPress={() => setGuideVisible(true)}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: 2 * scale }}>
-          <CheckoutInfoIcon width={16 * scale} height={16 * scale} color="#0D0D0D" />
-          <Text style={[searchFont('regular'), { fontSize: 13 * scale, letterSpacing: 0.52 * scale, color: '#000' }]}>
-            Guide
+      <View
+        style={[
+          styles.headerRow,
+          { top: headerTop, paddingHorizontal: 20 * scale, minHeight: 26 * scale },
+        ]}>
+        <View style={[styles.headerSide, { flex: 1, alignItems: 'flex-start' }]}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Go back" onPress={handleBack} hitSlop={8}>
+            <ArrowLeftIcon width={20 * scale} height={20 * scale} />
+          </Pressable>
+        </View>
+        <View style={[styles.headerCenter, { flex: 2 }]}>
+          <Text
+            numberOfLines={1}
+            style={[
+              searchFont('semibold'),
+              {
+                fontSize: 15 * scale,
+                letterSpacing: 0.6 * scale,
+                lineHeight: 20 * scale,
+                color: '#000',
+                textAlign: 'center',
+              },
+            ]}>
+            {activeLine.title}
           </Text>
-        </Pressable>
+        </View>
+        <View style={[styles.headerSide, { flex: 1, alignItems: 'flex-end' }]}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Photo upload guide"
+            onPress={() => setGuideVisible(true)}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 2 * scale }}>
+            <CheckoutInfoIcon width={16 * scale} height={16 * scale} color="#0D0D0D" />
+            <Text style={[searchFont('regular'), { fontSize: 13 * scale, letterSpacing: 0.52 * scale, color: '#000' }]}>
+              Guide
+            </Text>
+          </Pressable>
+        </View>
       </View>
 
       <View
         style={[
           styles.bottomPanel,
           {
-            height: bottomPanelHeight,
+            height: bottomPanelHeight + insets.bottom,
             paddingTop: 12 * scale,
-            paddingBottom: 24 * scale + insets.bottom,
+            paddingBottom: insets.bottom,
           },
         ]}>
-        {uploadHint ? (
-          <Text
-            style={[
-              searchFont('medium'),
-              {
-                fontSize: 14 * scale,
-                lineHeight: 14 * scale,
-                letterSpacing: 0.5 * scale,
-                color: SwashoColors.neutral950,
-                textAlign: 'center',
-                marginBottom: 16 * scale,
-              },
-            ]}>
-            {uploadHint}
-          </Text>
-        ) : null}
-
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{
-            gap: 16 * scale,
-            paddingHorizontal: 16 * scale,
-            alignItems: 'center',
-            minWidth: contentWidth,
-            justifyContent: 'center',
-          }}
-          style={{ maxHeight: 40 * scale, marginBottom: 20 * scale }}>
-          {activeSlots.map((slot, index) => (
-            <ServiceCarouselChip
-              key={slot.serviceId}
-              scale={scale}
-              slot={slot}
-              active={index === serviceIndex}
-              onPress={() => setServiceIndex(index)}
-            />
-          ))}
-        </ScrollView>
-
-        <ScrollView
-          ref={garmentScrollRef}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onMomentumScrollEnd={onGarmentScrollEnd}
-          contentContainerStyle={{
-            alignItems: 'flex-end',
-            paddingHorizontal: contentWidth * 0.28,
-            gap: 12 * scale,
-            minHeight: 90 * scale,
-          }}
-          style={{ marginBottom: 16 * scale }}>
-          {garmentContexts.map((ctx, index) => {
-            const fraction = garmentPhotoProgressFraction(photoStore, ctx.line.serviceId, ctx.slots);
-            const isActive = index === garmentIndex;
-            return (
-              <Pressable
-                key={ctx.line.serviceId}
-                accessibilityRole="button"
-                onPress={() => {
-                  setGarmentIndex(index);
-                  setServiceIndex(0);
-                  garmentScrollRef.current?.scrollTo({ x: index * contentWidth, animated: true });
-                }}>
-                <GarmentProgressRing scale={scale} fraction={fraction} active={isActive}>
-                  <CheckoutGarmentThumbIcon
-                    variant={basketGarmentThumbVariant(ctx.line.serviceId)}
-                    width={28 * scale}
-                    height={25 * scale}
-                  />
-                </GarmentProgressRing>
-              </Pressable>
-            );
-          })}
-        </ScrollView>
-
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 * scale, paddingHorizontal: 24 * scale }}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Upload image"
-            onPress={handleUploadPress}
-            style={{
-              width: 54 * scale,
-              height: 54 * scale,
-              borderRadius: 6.3 * scale,
-              borderWidth: 1.3 * scale,
-              borderColor: SwashoColors.neutral300,
-              alignItems: 'center',
-              justifyContent: 'center',
-              shadowColor: '#000',
-              shadowOpacity: 0.2,
-              shadowRadius: 4.7 * scale,
-              shadowOffset: { width: 0, height: 0 },
-              backgroundColor: SwashoColors.surface,
-            }}>
-            <ContactlessGalleryAddPrimaryIcon width={14 * scale} height={14 * scale} />
+          {uploadHint ? (
             <Text
               style={[
-                searchFont('semibold'),
+                searchFont('medium'),
                 {
-                  fontSize: 8.3 * scale,
-                  lineHeight: 9.4 * scale,
-                  letterSpacing: 0.69 * scale,
-                  color: SwashoColors.primary600,
-                  marginTop: 2 * scale,
+                  fontSize: 14 * scale,
+                  lineHeight: 14 * scale,
+                  letterSpacing: 0.5 * scale,
+                  color: SwashoColors.neutral950,
                   textAlign: 'center',
+                  marginBottom: 16 * scale,
+                  paddingHorizontal: 16 * scale,
                 },
               ]}>
-              Upload Image
+              {uploadHint}
             </Text>
-          </Pressable>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 * scale }}>
-            {activePhotos.map((uri) => (
-              <Image
-                key={uri}
-                source={{ uri }}
-                style={{
-                  width: 48.5 * scale,
-                  height: 48.5 * scale,
-                  borderRadius: 4.8 * scale,
-                }}
-              />
-            ))}
-          </ScrollView>
+          ) : null}
+
+          <View style={[styles.carouselClip, { marginBottom: 20 * scale }]}>
+            <ScrollView
+              ref={serviceScrollRef}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{
+                gap: 16 * scale,
+                paddingHorizontal: 16 * scale,
+                alignItems: 'center',
+              }}
+              style={{ maxHeight: 40 * scale }}>
+              {activeSlots.map((slot, index) => (
+                <ServiceCarouselChip
+                  key={slot.serviceId}
+                  scale={scale}
+                  slot={slot}
+                  active={index === serviceIndex}
+                  onPress={() => setServiceIndex(index)}
+                  onLayout={(event) => {
+                    const { x, width } = event.nativeEvent.layout;
+                    serviceChipLayouts.current[index] = { x, width };
+                    if (index === serviceIndex) {
+                      centerServiceInCarousel(index, false);
+                    }
+                  }}
+                />
+              ))}
+            </ScrollView>
+          </View>
+
+          <View style={[styles.carouselClip, { marginBottom: 16 * scale }]}>
+            <ScrollView
+              ref={garmentScrollRef}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{
+                alignItems: 'flex-end',
+                paddingHorizontal: contentWidth * 0.22,
+                gap: 12 * scale,
+                minHeight: 90 * scale,
+              }}>
+              {garmentContexts.map((ctx, index) => {
+                const fraction = garmentPhotoProgressFraction(photoStore, ctx.line.serviceId, ctx.slots);
+                const isActive = index === garmentIndex;
+                const iconW = (isActive ? 40 : 28) * scale;
+                const iconH = (isActive ? 43 : 25) * scale;
+                return (
+                  <Pressable
+                    key={ctx.line.serviceId}
+                    accessibilityRole="button"
+                    onLayout={(event) => {
+                      const { x, width } = event.nativeEvent.layout;
+                      garmentChipLayouts.current[index] = { x, width };
+                      if (index === garmentIndex) {
+                        centerGarmentInCarousel(index, false);
+                      }
+                    }}
+                    onPress={() => {
+                      setGarmentIndex(index);
+                      setServiceIndex(0);
+                      centerGarmentInCarousel(index, true);
+                    }}>
+                    <GarmentProgressRing scale={scale} fraction={fraction} active={isActive}>
+                      <CheckoutGarmentThumbIcon
+                        variant={basketGarmentThumbVariant(ctx.line.serviceId)}
+                        width={iconW}
+                        height={iconH}
+                      />
+                    </GarmentProgressRing>
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+          </View>
+
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 12 * scale,
+              paddingHorizontal: 24 * scale,
+              marginTop: 'auto',
+              paddingBottom: 8 * scale,
+            }}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Upload image"
+              onPress={handleUploadPress}
+              style={{
+                width: 54 * scale,
+                height: 54 * scale,
+                borderRadius: 6.3 * scale,
+                borderWidth: 1.3 * scale,
+                borderColor: SwashoColors.neutral300,
+                alignItems: 'center',
+                justifyContent: 'center',
+                shadowColor: '#000',
+                shadowOpacity: 0.2,
+                shadowRadius: 4.7 * scale,
+                shadowOffset: { width: 0, height: 0 },
+                backgroundColor: SwashoColors.surface,
+              }}>
+              <ContactlessGalleryAddPrimaryIcon width={14 * scale} height={14 * scale} />
+              <Text
+                style={[
+                  searchFont('semibold'),
+                  {
+                    fontSize: 8.3 * scale,
+                    lineHeight: 9.4 * scale,
+                    letterSpacing: 0.69 * scale,
+                    color: SwashoColors.primary600,
+                    marginTop: 2 * scale,
+                    textAlign: 'center',
+                  },
+                ]}>
+                Upload Image
+              </Text>
+            </Pressable>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 * scale }}>
+              {activePhotos.map((uri) => (
+                <Image
+                  key={uri}
+                  source={{ uri }}
+                  style={{
+                    width: 48.5 * scale,
+                    height: 48.5 * scale,
+                    borderRadius: 4.8 * scale,
+                  }}
+                />
+              ))}
+            </ScrollView>
+          </View>
         </View>
-      </View>
 
       <View style={styles.homeIndicatorWrap} pointerEvents="none">
         <HomeIndicator scale={scale} />
@@ -520,35 +597,49 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 30,
   },
-  heroWrap: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    overflow: 'hidden',
-  },
-  heroImage: {
-    width: '100%',
-    height: '100%',
-  },
   headerRow: {
     position: 'absolute',
     left: 0,
     right: 0,
-    zIndex: 20,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    zIndex: 20,
   },
-  headerTitle: {
-    color: '#000',
+  headerSide: {
+    justifyContent: 'center',
+  },
+  headerCenter: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    minWidth: 0,
+  },
+  heroRegion: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    overflow: 'hidden',
+    backgroundColor: '#f2f2f2',
+    zIndex: 1,
+  },
+  heroImage: {
+    position: 'absolute',
+    width: '102.36%',
+    height: '166.7%',
+    left: '-1.18%',
+    top: '-22.59%',
   },
   bottomPanel: {
     position: 'absolute',
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(255,255,255,0)',
+    backgroundColor: 'transparent',
     zIndex: 15,
+    justifyContent: 'flex-start',
+  },
+  carouselClip: {
+    overflow: 'hidden',
+    width: '100%',
   },
   homeIndicatorWrap: {
     position: 'absolute',

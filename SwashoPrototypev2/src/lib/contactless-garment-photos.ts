@@ -164,7 +164,7 @@ export function basketGarmentThumbVariant(serviceId: string): 'bulk' | 'tshirt' 
     return 'bulk';
   }
   const catalogId = garmentCatalogIdFromServiceId(serviceId);
-  if (catalogId === 'tshirt') {
+  if (catalogId === 'tshirt' || catalogId === 'shirt') {
     return 'tshirt';
   }
   return 'top';
