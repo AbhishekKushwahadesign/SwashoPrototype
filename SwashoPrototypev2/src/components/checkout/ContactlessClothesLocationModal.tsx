@@ -50,6 +50,22 @@ const CLOTHES_LOCATION_SHEET_FIGMA = {
   headerGradientHeight: 80,
 } as const;
 
+/** Figma 59153:4640 — linear-gradient(12.1deg, #fff 46.591%, #e8ddfc 86.091%). */
+const HEADER_BACKDROP_GRADIENT = {
+  colors: ['#FFFFFF', '#E8DDFC'] as const,
+  locations: [0.465_91, 0.860_91] as const,
+  start: { x: 0.08, y: 0.02 },
+  end: { x: 0.92, y: 0.98 },
+};
+
+/** Figma 59153:4644 — linear-gradient(34deg, transparent 43.16%, #f2ecfd 79.478%, transparent 84.379%). */
+const HEADER_TEXT_STRIPE_GRADIENT = {
+  colors: ['rgba(255,255,255,0)', '#F2ECFD', 'rgba(242,236,253,0)'] as const,
+  locations: [0.431_6, 0.794_78, 0.843_79] as const,
+  start: { x: 0.02, y: 0.12 },
+  end: { x: 0.98, y: 0.88 },
+};
+
 type ContactlessClothesLocationModalProps = {
   visible: boolean;
   onClose: () => void;
@@ -185,18 +201,19 @@ export function ContactlessClothesLocationModal({
 
             <View
               style={[
-                styles.headerSection,
+                styles.headerBackdrop,
                 {
-                  minHeight: CLOTHES_LOCATION_SHEET_FIGMA.headerGradientHeight * designScale,
-                  paddingBottom: 8 * designScale,
+                  height: CLOTHES_LOCATION_SHEET_FIGMA.headerGradientHeight * designScale,
                   borderTopLeftRadius: SwashoRadii.xl * designScale,
                   borderTopRightRadius: SwashoRadii.xl * designScale,
                 },
-              ]}>
+              ]}
+              pointerEvents="none">
               <LinearGradient
-                colors={['#ffffff', '#e8ddfc']}
-                start={{ x: 0.15, y: 0 }}
-                end={{ x: 0.85, y: 1 }}
+                colors={[...HEADER_BACKDROP_GRADIENT.colors]}
+                locations={[...HEADER_BACKDROP_GRADIENT.locations]}
+                start={HEADER_BACKDROP_GRADIENT.start}
+                end={HEADER_BACKDROP_GRADIENT.end}
                 style={[
                   StyleSheet.absoluteFillObject,
                   {
@@ -204,7 +221,6 @@ export function ContactlessClothesLocationModal({
                     borderTopRightRadius: SwashoRadii.xl * designScale,
                   },
                 ]}
-                pointerEvents="none"
               />
               <View
                 style={{
@@ -214,16 +230,27 @@ export function ContactlessClothesLocationModal({
                 }}>
                 <ClothesLocationSheetGrabber scale={designScale} />
               </View>
+              <ClothesLocationHeaderIllustration scale={designScale} />
+            </View>
+
+            <View
+              style={[
+                styles.sheetMain,
+                {
+                  paddingTop: CLOTHES_LOCATION_SHEET_FIGMA.sheetPaddingTop * designScale,
+                  paddingHorizontal: horizontalPad,
+                  gap: CLOTHES_LOCATION_SHEET_FIGMA.sectionGap * designScale,
+                },
+              ]}>
               <LinearGradient
-                colors={['rgba(255,255,255,0)', '#f2ecfd', 'rgba(242,236,253,0)']}
-                locations={[0.43, 0.79, 0.84]}
-                start={{ x: 0, y: 0.5 }}
-                end={{ x: 1, y: 0.5 }}
+                colors={[...HEADER_TEXT_STRIPE_GRADIENT.colors]}
+                locations={[...HEADER_TEXT_STRIPE_GRADIENT.locations]}
+                start={HEADER_TEXT_STRIPE_GRADIENT.start}
+                end={HEADER_TEXT_STRIPE_GRADIENT.end}
                 style={{
-                  marginHorizontal: horizontalPad,
-                  marginTop: 8 * designScale,
+                  minHeight: CLOTHES_LOCATION_SHEET_FIGMA.headerBlockHeight * designScale,
                   gap: CLOTHES_LOCATION_SHEET_FIGMA.headerTextGap * designScale,
-                  paddingVertical: 4 * designScale,
+                  justifyContent: 'center',
                   flexShrink: 0,
                   zIndex: 1,
                 }}>
@@ -248,21 +275,17 @@ export function ContactlessClothesLocationModal({
                   Select a contactless drop/pickup spot at your location.
                 </Text>
               </LinearGradient>
-              <ClothesLocationHeaderIllustration scale={designScale} />
-            </View>
 
-            <ScrollView
-              style={[
-                styles.scroll,
-                styles.scrollFlex,
-                Platform.OS === 'web' ? styles.scrollWeb : null,
-                { paddingHorizontal: horizontalPad },
-              ]}
-              contentContainerStyle={{
-                gap: CLOTHES_LOCATION_SHEET_FIGMA.optionRowGap * designScale,
-                paddingTop: CLOTHES_LOCATION_SHEET_FIGMA.sectionGap * designScale,
-                paddingBottom: CLOTHES_LOCATION_SHEET_FIGMA.optionsToFooterGap * designScale,
-              }}
+              <ScrollView
+                style={[
+                  styles.scroll,
+                  styles.scrollFlex,
+                  Platform.OS === 'web' ? styles.scrollWeb : null,
+                ]}
+                contentContainerStyle={{
+                  gap: CLOTHES_LOCATION_SHEET_FIGMA.optionRowGap * designScale,
+                  paddingBottom: CLOTHES_LOCATION_SHEET_FIGMA.optionsToFooterGap * designScale,
+                }}
               showsVerticalScrollIndicator={Platform.OS === 'web'}
               bounces={false}
               nestedScrollEnabled>
@@ -335,7 +358,8 @@ export function ContactlessClothesLocationModal({
                     </Pressable>
                   );
                 })}
-            </ScrollView>
+              </ScrollView>
+            </View>
 
             {footer}
           </View>
@@ -491,11 +515,19 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     position: 'relative',
   },
-  headerSection: {
-    position: 'relative',
-    width: '100%',
-    flexShrink: 0,
+  headerBackdrop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
     overflow: 'hidden',
+    zIndex: 0,
+  },
+  sheetMain: {
+    flex: 1,
+    minHeight: 0,
+    flexDirection: 'column',
+    zIndex: 1,
   },
   scroll: {
     flexGrow: 1,
