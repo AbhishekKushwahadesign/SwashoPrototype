@@ -26,28 +26,29 @@ import {
 } from '@/lib/contactless-clothes-location';
 
 import {
-  CheckoutInstructionDoorstepIcon,
-  CheckoutInstructionPenIcon,
-  CheckoutInstructionPhoneIcon,
-  CheckoutInstructionShieldIcon,
-} from './checkout-review-icons';
+  ClothesLocationHeaderIllustration,
+  ClothesLocationOptionSpriteIcon,
+  ClothesLocationPencilIcon,
+  ClothesLocationRadioSelected,
+  ClothesLocationSheetGrabber,
+} from './clothes-location-sheet-icons';
 
-/** Figma 59153:4639 — clothes location sheet 600px at 412 frame. */
+/** Figma 59153:4468 / 59153:4639 — clothes location sheet @ 412×600. */
 const CLOTHES_LOCATION_SHEET_FIGMA = {
   frameWidth: 412,
   sheetHeightAt412: 600,
+  closeChipHeight: 35,
+  /** Parent frame: sheet top 43px, close bottom at 22px → 21px gap. */
+  closeToSheetGap: 21,
+  sheetPaddingTop: 24,
+  contentPaddingHorizontal: 16,
+  sectionGap: 16,
+  headerBlockHeight: 56,
+  headerTextGap: 8,
+  optionsToFooterGap: 12,
+  optionRowGap: 8,
+  headerGradientHeight: 80,
 } as const;
-
-const LOCATION_ICONS: Record<
-  ContactlessClothesLocationId,
-  typeof CheckoutInstructionDoorstepIcon
-> = {
-  'flat-door': CheckoutInstructionDoorstepIcon,
-  'society-gate': CheckoutInstructionShieldIcon,
-  'society-lobby': CheckoutInstructionPhoneIcon,
-  maid: CheckoutInstructionPhoneIcon,
-  other: CheckoutInstructionPenIcon,
-};
 
 type ContactlessClothesLocationModalProps = {
   visible: boolean;
@@ -74,14 +75,17 @@ export function ContactlessClothesLocationModal({
 
   const designScale = contentWidth / CLOTHES_LOCATION_SHEET_FIGMA.frameWidth;
   const sheetHeightTarget = CLOTHES_LOCATION_SHEET_FIGMA.sheetHeightAt412 * designScale;
+  const webOverflowVisible = Platform.OS === 'web' ? ('visible' as const) : undefined;
   const windowHeight = Dimensions.get('window').height;
-  const closeStackHeight = (35 + 8) * designScale;
+  const closeStackHeight =
+    (CLOTHES_LOCATION_SHEET_FIGMA.closeChipHeight + CLOTHES_LOCATION_SHEET_FIGMA.closeToSheetGap) *
+    designScale;
   const availableForSheet =
     windowHeight -
     insets.top -
     closeStackHeight -
     Math.max(insets.bottom, 12 * designScale);
-  const sheetHeight = Math.min(sheetHeightTarget, Math.max(availableForSheet, 0));
+  const maxSheetHeight = Math.min(sheetHeightTarget, Math.max(availableForSheet, 0));
 
   const canConfirm = contactlessClothesLocationLabel(draftId, draftOther) != null;
 
@@ -92,6 +96,37 @@ export function ContactlessClothesLocationModal({
     onConfirm(draftId, draftOther);
     onClose();
   }, [canConfirm, draftId, draftOther, onClose, onConfirm]);
+
+  const horizontalPad = CLOTHES_LOCATION_SHEET_FIGMA.contentPaddingHorizontal * designScale;
+
+  const footer = (
+    <View
+      style={{
+        width: '100%',
+        paddingHorizontal: horizontalPad,
+        paddingBottom: 16 * designScale,
+        backgroundColor: SwashoColors.surface,
+        flexShrink: 0,
+        gap: 12 * designScale,
+      }}>
+      <Text
+        style={[
+          searchFont('medium'),
+          styles.footerNote,
+          { fontSize: 13 * designScale, lineHeight: 20 * designScale },
+        ]}>
+        Clothes Location can be updated up to 2 hrs before scheduled Pickup/Delivery
+      </Text>
+      <ServiceSelectionButton
+        label="Confirm Location"
+        variant="primary"
+        disabled={!canConfirm}
+        onPress={handleConfirm}
+        scale={scale}
+        style={{ width: '100%', minHeight: 45 * designScale }}
+      />
+    </View>
+  );
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -105,60 +140,99 @@ export function ContactlessClothesLocationModal({
         <View
           style={[
             styles.sheetColumn,
-            { width: contentWidth, paddingBottom: Math.max(insets.bottom, 12 * scale) },
+            {
+              width: contentWidth,
+              maxHeight: windowHeight - insets.top,
+              paddingTop: closeStackHeight,
+              paddingBottom: Math.max(insets.bottom, 12 * designScale),
+            },
           ]}
           pointerEvents="box-none">
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Close"
-            onPress={onClose}
-            style={[
-              styles.closeChip,
-              {
-                width: 35 * scale,
-                height: 35 * scale,
-                borderRadius: 999,
-                marginBottom: 8 * scale,
-              },
-            ]}>
-            <SheetCloseIcon width={20 * scale} height={20 * scale} />
-          </Pressable>
-
           <View
             style={[
               styles.sheet,
               {
                 width: contentWidth,
-                height: sheetHeight,
-                maxHeight: sheetHeight,
-                borderTopLeftRadius: 24 * scale,
-                borderTopRightRadius: 24 * scale,
-                paddingTop: 24 * scale,
-                ...figmaSheetShadow(scale),
+                height: maxSheetHeight,
+                maxHeight: maxSheetHeight,
+                borderTopLeftRadius: SwashoRadii.xl * designScale,
+                borderTopRightRadius: SwashoRadii.xl * designScale,
+                overflow: webOverflowVisible,
+                ...figmaSheetShadow(designScale),
               },
             ]}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Close"
+              onPress={onClose}
+              style={[
+                styles.closeChip,
+                styles.closeOnSheet,
+                {
+                  width: CLOTHES_LOCATION_SHEET_FIGMA.closeChipHeight * designScale,
+                  height: CLOTHES_LOCATION_SHEET_FIGMA.closeChipHeight * designScale,
+                  borderRadius: 999,
+                  top:
+                    -(
+                      CLOTHES_LOCATION_SHEET_FIGMA.closeChipHeight +
+                      CLOTHES_LOCATION_SHEET_FIGMA.closeToSheetGap
+                    ) * designScale,
+                  marginLeft: (-CLOTHES_LOCATION_SHEET_FIGMA.closeChipHeight / 2) * designScale,
+                },
+              ]}>
+              <SheetCloseIcon width={20 * designScale} height={20 * designScale} />
+            </Pressable>
+
             <LinearGradient
               colors={['#ffffff', '#e8ddfc']}
-              start={{ x: 0.2, y: 0 }}
-              end={{ x: 0.8, y: 1 }}
+              start={{ x: 0.15, y: 0 }}
+              end={{ x: 0.85, y: 1 }}
               style={[
                 styles.headerGradient,
                 {
-                  height: 80 * scale,
-                  borderTopLeftRadius: 24 * scale,
-                  borderTopRightRadius: 24 * scale,
+                  height: CLOTHES_LOCATION_SHEET_FIGMA.headerGradientHeight * designScale,
+                  borderTopLeftRadius: SwashoRadii.xl * designScale,
+                  borderTopRightRadius: SwashoRadii.xl * designScale,
                 },
               ]}
-              pointerEvents="none"
-            />
+              pointerEvents="none">
+              <View
+                style={{
+                  paddingTop: 8 * designScale,
+                  alignItems: 'center',
+                  width: '100%',
+                }}>
+                <ClothesLocationSheetGrabber scale={designScale} />
+              </View>
+              <ClothesLocationHeaderIllustration scale={designScale} />
+            </LinearGradient>
 
-            <View style={[styles.sheetBody, { paddingHorizontal: 16 * scale }]}>
-              <View style={{ gap: 6 * scale, marginTop: -56 * scale, flexShrink: 0 }}>
+            <View
+              style={[
+                styles.sheetBody,
+                {
+                  paddingTop: CLOTHES_LOCATION_SHEET_FIGMA.sheetPaddingTop * designScale,
+                  paddingHorizontal: horizontalPad,
+                  gap: CLOTHES_LOCATION_SHEET_FIGMA.sectionGap * designScale,
+                },
+              ]}>
+              <LinearGradient
+                colors={['rgba(255,255,255,0)', '#f2ecfd', 'rgba(242,236,253,0)']}
+                locations={[0.43, 0.79, 0.84]}
+                start={{ x: 0, y: 0.5 }}
+                end={{ x: 1, y: 0.5 }}
+                style={{
+                  gap: CLOTHES_LOCATION_SHEET_FIGMA.headerTextGap * designScale,
+                  minHeight: CLOTHES_LOCATION_SHEET_FIGMA.headerBlockHeight * designScale,
+                  flexShrink: 0,
+                  justifyContent: 'center',
+                  borderRadius: 4 * designScale,
+                }}>
                 <Text
                   style={[
                     searchFont('semibold'),
                     styles.title,
-                    { fontSize: 18 * scale, lineHeight: 22 * scale },
+                    { fontSize: 18 * designScale, lineHeight: 22 * designScale },
                   ]}>
                   Where should we collect from?
                 </Text>
@@ -166,26 +240,35 @@ export function ContactlessClothesLocationModal({
                   style={[
                     searchFont('regular'),
                     styles.subtitle,
-                    { fontSize: 12 * scale, lineHeight: 16 * scale, letterSpacing: 0.5 * scale },
+                    {
+                      fontSize: 12 * designScale,
+                      lineHeight: 16 * designScale,
+                      letterSpacing: 0.5 * designScale,
+                    },
                   ]}>
                   Select a contactless drop/pickup spot at your location.
                 </Text>
-              </View>
+              </LinearGradient>
 
               <ScrollView
                 style={[
                   styles.scroll,
-                  { marginTop: 16 * scale, flex: 1, minHeight: 0 },
+                  styles.scrollFlex,
                   Platform.OS === 'web' ? styles.scrollWeb : null,
                 ]}
-                contentContainerStyle={{ gap: 8 * scale, paddingBottom: 8 * scale }}
-                showsVerticalScrollIndicator={false}>
+                contentContainerStyle={{
+                  gap: CLOTHES_LOCATION_SHEET_FIGMA.optionRowGap * designScale,
+                  paddingBottom: CLOTHES_LOCATION_SHEET_FIGMA.optionsToFooterGap * designScale,
+                }}
+                showsVerticalScrollIndicator={Platform.OS === 'web'}
+                bounces={false}
+                nestedScrollEnabled>
                 {CONTACTLESS_CLOTHES_LOCATION_OPTIONS.map((option) => {
                   if (option.id === 'other') {
                     return (
                       <LocationOtherRow
                         key={option.id}
-                        scale={scale}
+                        scale={designScale}
                         selected={draftId === 'other'}
                         value={draftOther}
                         onSelect={() => setDraftId('other')}
@@ -193,7 +276,6 @@ export function ContactlessClothesLocationModal({
                       />
                     );
                   }
-                  const Icon = LOCATION_ICONS[option.id];
                   const selected = draftId === option.id;
                   return (
                     <Pressable
@@ -204,9 +286,10 @@ export function ContactlessClothesLocationModal({
                       style={[
                         styles.optionRow,
                         {
-                          padding: 16 * scale,
-                          borderRadius: SwashoRadii.lg * scale,
-                          gap: 16 * scale,
+                          paddingHorizontal: 16 * designScale,
+                          paddingVertical: 12 * designScale,
+                          borderRadius: SwashoRadii.lg * designScale,
+                          gap: 16 * designScale,
                           borderWidth: 1,
                         },
                         selected ? styles.optionRowSelected : styles.optionRowDefault,
@@ -215,20 +298,24 @@ export function ContactlessClothesLocationModal({
                         style={[
                           styles.iconTile,
                           {
-                            width: 40 * scale,
-                            height: 40 * scale,
-                            borderRadius: SwashoRadii.md * scale,
+                            width: 40 * designScale,
+                            height: 40 * designScale,
+                            borderRadius: SwashoRadii.md * designScale,
                             backgroundColor: selected ? SwashoColors.primary100 : SwashoColors.neutral100,
                           },
                         ]}>
-                        <Icon width={24 * scale} height={24 * scale} />
+                        <ClothesLocationOptionSpriteIcon optionId={option.id} scale={designScale} />
                       </View>
-                      <View style={{ flex: 1, gap: 4 * scale }}>
+                      <View style={{ flex: 1, gap: 4 * designScale, minWidth: 0 }}>
                         <Text
                           style={[
                             searchFont('semibold'),
                             styles.optionTitle,
-                            { fontSize: 14 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
+                            {
+                              fontSize: 14 * designScale,
+                              lineHeight: 14 * designScale,
+                              letterSpacing: 0.5 * designScale,
+                            },
                           ]}>
                           {option.title}
                         </Text>
@@ -236,37 +323,19 @@ export function ContactlessClothesLocationModal({
                           style={[
                             searchFont('regular'),
                             styles.optionBody,
-                            { fontSize: 12 * scale, lineHeight: 16 * scale },
+                            { fontSize: 12 * designScale, lineHeight: 16 * designScale },
                           ]}>
                           {option.description}
                         </Text>
                       </View>
-                      <RadioMark selected={selected} scale={scale} />
+                      <RadioMark selected={selected} scale={designScale} />
                     </Pressable>
                   );
                 })}
               </ScrollView>
-
-              <View style={{ gap: 12 * scale, flexShrink: 0, paddingTop: 12 * scale }}>
-                <Text
-                  style={[
-                    searchFont('medium'),
-                    styles.footerNote,
-                    { fontSize: 13 * scale, lineHeight: 20 * scale },
-                  ]}>
-                  Clothes Location can be updated up to 2 hrs before scheduled Pickup/Delivery
-                </Text>
-
-                <ServiceSelectionButton
-                  label="Confirm Location"
-                  variant="primary"
-                  disabled={!canConfirm}
-                  onPress={handleConfirm}
-                  scale={scale}
-                  style={{ width: '100%', minHeight: 45 * scale }}
-                />
-              </View>
             </View>
+
+            {footer}
           </View>
         </View>
       </View>
@@ -275,30 +344,10 @@ export function ContactlessClothesLocationModal({
 }
 
 function RadioMark({ selected, scale }: { selected: boolean; scale: number }) {
-  const size = 20 * scale;
   if (selected) {
-    return (
-      <View
-        style={{
-          width: size,
-          height: size,
-          borderRadius: size / 2,
-          borderWidth: 2 * scale,
-          borderColor: SwashoColors.primary600,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-        <View
-          style={{
-            width: 10 * scale,
-            height: 10 * scale,
-            borderRadius: 5 * scale,
-            backgroundColor: SwashoColors.primary600,
-          }}
-        />
-      </View>
-    );
+    return <ClothesLocationRadioSelected scale={scale} />;
   }
+  const size = 20 * scale;
   return (
     <View
       style={{
@@ -332,14 +381,14 @@ function LocationOtherRow({
       onPress={onSelect}
       style={[
         styles.optionRow,
-        styles.optionRowDefault,
         {
-          padding: 16 * scale,
+          paddingHorizontal: 16 * scale,
+          paddingVertical: 12 * scale,
           borderRadius: SwashoRadii.lg * scale,
           gap: 16 * scale,
-          borderWidth: selected ? 1 : 0,
+          borderWidth: 1,
         },
-        selected ? styles.optionRowSelected : null,
+        selected ? styles.optionRowSelected : styles.optionRowDefault,
       ]}>
       <View
         style={[
@@ -351,9 +400,9 @@ function LocationOtherRow({
             backgroundColor: SwashoColors.neutral100,
           },
         ]}>
-        <CheckoutInstructionPenIcon width={22 * scale} height={22 * scale} />
+        <ClothesLocationPencilIcon scale={scale} />
       </View>
-      <View style={{ flex: 1, gap: 8 * scale }}>
+      <View style={{ flex: 1, gap: 4 * scale, minWidth: 0 }}>
         <Text
           style={[
             searchFont('semibold'),
@@ -405,26 +454,40 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     justifyContent: 'flex-end',
+    zIndex: 1000,
+    elevation: 1000,
   },
   scrim: {
     ...StyleSheet.absoluteFill,
     backgroundColor: SwashoColors.modalScrim,
+    zIndex: 0,
   },
   sheetColumn: {
     width: '100%',
     alignSelf: 'center',
     alignItems: 'center',
-    zIndex: 1,
+    zIndex: 2,
+    ...(Platform.OS === 'web' ? { overflow: 'visible' as const } : null),
   },
   closeChip: {
     backgroundColor: 'rgba(236, 236, 236, 0.92)',
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 4,
+    elevation: 4,
+  },
+  closeOnSheet: {
+    position: 'absolute',
+    left: '50%',
+    zIndex: 4,
   },
   sheet: {
     width: '100%',
     backgroundColor: SwashoColors.surface,
     overflow: 'hidden',
+    flexDirection: 'column',
+    flexShrink: 1,
+    position: 'relative',
   },
   sheetBody: {
     flex: 1,
@@ -436,13 +499,19 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
+    overflow: 'hidden',
   },
   scroll: {
     flexGrow: 1,
     flexShrink: 1,
   },
+  scrollFlex: {
+    flex: 1,
+    minHeight: 0,
+  },
   scrollWeb: {
-    overflow: 'auto',
+    overflowY: 'auto',
+    overflowX: 'clip',
   } as object,
   title: {
     color: SwashoColors.neutral700,
@@ -460,7 +529,7 @@ const styles = StyleSheet.create({
   },
   optionRowDefault: {
     backgroundColor: SwashoColors.surface,
-    borderColor: 'transparent',
+    borderColor: 'rgba(0,0,0,0)',
   },
   iconTile: {
     alignItems: 'center',
