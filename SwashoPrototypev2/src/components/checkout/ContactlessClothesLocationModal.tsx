@@ -367,17 +367,16 @@ function ModalHeaderTextStripe({
   children,
 }: {
   designScale: number;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   const layout = {
     width: '100%' as const,
-    minHeight: CLOTHES_LOCATION_SHEET_FIGMA.headerBlockHeight * designScale,
+    height: CLOTHES_LOCATION_SHEET_FIGMA.headerBlockHeight * designScale,
     gap: CLOTHES_LOCATION_SHEET_FIGMA.headerTextGap * designScale,
     justifyContent: 'center' as const,
     flexShrink: 0,
     zIndex: 1,
-    borderRadius: 4 * designScale,
-    paddingVertical: 2 * designScale,
+    alignSelf: 'stretch' as const,
   };
 
   if (Platform.OS === 'web') {
@@ -386,8 +385,10 @@ function ModalHeaderTextStripe({
         style={[
           layout,
           {
-            backgroundColor: '#F2ECFD',
+            backgroundColor: 'transparent',
             backgroundImage: HEADER_TEXT_STRIPE_CSS,
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: '100% 100%',
           } as ViewStyle,
         ]}>
         {children}
