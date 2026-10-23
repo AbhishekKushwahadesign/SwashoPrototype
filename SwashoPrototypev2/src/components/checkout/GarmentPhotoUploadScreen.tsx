@@ -5,6 +5,7 @@ import {
   LayoutChangeEvent,
   NativeSyntheticEvent,
   NativeScrollEvent,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -381,37 +382,52 @@ export function GarmentPhotoUploadScreen({
     [garmentSnapStep],
   );
 
-  const applyGarmentIndexFromOffset = useCallback(
-    (offsetX: number) => {
+  const garmentInactiveScale = garmentInactiveInner / garmentActiveInner;
+  const lastGarmentSnapAt = useRef(0);
+
+  const snapGarmentToNearest = useCallback(
+    (offsetX: number, animated: boolean) => {
+      const now = Date.now();
+      if (now - lastGarmentSnapAt.current < 40) {
+        return;
+      }
+      lastGarmentSnapAt.current = now;
+
       const maxIndex = Math.max(0, garmentContexts.length - 1);
       const index = Math.max(0, Math.min(maxIndex, Math.round(offsetX / garmentSnapStep)));
+      const targetX = index * garmentSnapStep;
+
       setGarmentIndex((prev) => {
         if (prev !== index) {
           setServiceIndex(0);
-          return index;
         }
-        return prev;
+        return index;
       });
+
+      if (Math.abs(offsetX - targetX) > 0.5 || !animated) {
+        requestAnimationFrame(() => {
+          garmentScrollRef.current?.scrollTo({ x: targetX, animated });
+        });
+      }
     },
     [garmentContexts.length, garmentSnapStep],
   );
 
   const handleGarmentScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      applyGarmentIndexFromOffset(event.nativeEvent.contentOffset.x);
+      const offsetX = event.nativeEvent.contentOffset.x;
+      const maxIndex = Math.max(0, garmentContexts.length - 1);
+      const index = Math.max(0, Math.min(maxIndex, Math.round(offsetX / garmentSnapStep)));
+      setGarmentIndex((prev) => (prev === index ? prev : index));
     },
-    [applyGarmentIndexFromOffset],
+    [garmentContexts.length, garmentSnapStep],
   );
 
   const handleGarmentScrollEnd = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const offsetX = event.nativeEvent.contentOffset.x;
-      applyGarmentIndexFromOffset(offsetX);
-      const maxIndex = Math.max(0, garmentContexts.length - 1);
-      const index = Math.max(0, Math.min(maxIndex, Math.round(offsetX / garmentSnapStep)));
-      scrollGarmentToIndex(index, true);
+      snapGarmentToNearest(event.nativeEvent.contentOffset.x, true);
     },
-    [applyGarmentIndexFromOffset, garmentContexts.length, garmentSnapStep, scrollGarmentToIndex],
+    [snapGarmentToNearest],
   );
 
   const centerServiceInCarousel = useCallback(
@@ -426,11 +442,21 @@ export function GarmentPhotoUploadScreen({
   }, [centerServiceInCarousel, serviceIndex, activeSlots.length]);
 
   useEffect(() => {
+    const index = Math.max(
+      0,
+      garmentContexts.findIndex((ctx) => ctx.line.serviceId === initialGarmentId),
+    );
     const frame = requestAnimationFrame(() => {
-      scrollGarmentToIndex(garmentIndex, false);
+      snapGarmentToNearest(index * garmentSnapStep, false);
     });
     return () => cancelAnimationFrame(frame);
-  }, [garmentContexts.length, garmentCarouselWidth, scrollGarmentToIndex]);
+  }, [
+    garmentContexts.length,
+    garmentCarouselWidth,
+    garmentSnapStep,
+    initialGarmentId,
+    snapGarmentToNearest,
+  ]);
 
   if (!activeLine) {
     return (
@@ -605,11 +631,21 @@ export function GarmentPhotoUploadScreen({
               showsHorizontalScrollIndicator={false}
               snapToOffsets={garmentSnapOffsets}
               snapToAlignment="start"
+              disableIntervalMomentum
               decelerationRate="fast"
               scrollEventThrottle={16}
               onScroll={handleGarmentScroll}
               onMomentumScrollEnd={handleGarmentScrollEnd}
-              onScrollEndDrag={handleGarmentScrollEnd}
+              onScrollEndDrag={(event) => {
+                if (event.nativeEvent.velocity?.x === 0) {
+                  snapGarmentToNearest(event.nativeEvent.contentOffset.x, true);
+                }
+              }}
+              style={
+                Platform.OS === 'web'
+                  ? ({ scrollSnapType: 'x mandatory', overflowX: 'auto' } as object)
+                  : undefined
+              }
               contentContainerStyle={{
                 alignItems: 'center',
                 paddingHorizontal: garmentCarouselInset,
@@ -617,7 +653,6 @@ export function GarmentPhotoUploadScreen({
               }}>
               {garmentContexts.map((ctx, index) => {
                 const isCentered = index === garmentIndex;
-                const inner = isCentered ? garmentActiveInner : garmentInactiveInner;
                 const iconW = (isCentered ? 40 : 28) * scale;
                 const iconH = (isCentered ? 43 : 25) * scale;
                 return (
@@ -630,22 +665,28 @@ export function GarmentPhotoUploadScreen({
                       setServiceIndex(0);
                       scrollGarmentToIndex(index, true);
                     }}
-                    style={{
-                      width: garmentSnapStep,
-                      height: garmentRingSize,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}>
+                    style={[
+                      {
+                        width: garmentSnapStep,
+                        height: garmentRingSize,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      },
+                      Platform.OS === 'web'
+                        ? ({ scrollSnapAlign: 'center', scrollSnapStop: 'always' } as object)
+                        : null,
+                    ]}>
                     <View
                       style={{
-                        width: inner,
-                        height: inner,
-                        borderRadius: inner / 2,
+                        width: garmentActiveInner,
+                        height: garmentActiveInner,
+                        borderRadius: garmentActiveInner / 2,
                         backgroundColor: SwashoColors.surface,
                         alignItems: 'center',
                         justifyContent: 'center',
                         borderWidth: isCentered ? 0 : 1 * scale,
                         borderColor: SwashoColors.neutral300,
+                        transform: [{ scale: isCentered ? 1 : garmentInactiveScale }],
                       }}>
                       <CheckoutGarmentThumbIcon
                         variant={basketGarmentThumbVariant(ctx.line.serviceId)}
