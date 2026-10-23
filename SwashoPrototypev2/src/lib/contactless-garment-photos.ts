@@ -150,13 +150,18 @@ export function garmentPhotoProgressFraction(
   return satisfied / required.length;
 }
 
-/** Figma copy when multiple services need coverage (any 2 of N). */
+/** Instruction above the service carousel for the active garment's linked services. */
 export function garmentPhotoUploadHint(slots: GarmentPhotoServiceSlot[]): string | null {
-  const required = requiredGarmentPhotoSlots(slots);
-  if (required.length >= 2) {
-    return 'Upload photos for any 2 services';
+  const linkedCount = slots.length;
+  if (linkedCount === 0) {
+    return null;
   }
-  return null;
+  if (linkedCount === 1) {
+    return 'No mandatory uploads required';
+  }
+  const required = requiredGarmentPhotoSlots(slots);
+  const photoTargetCount = required.length >= 2 ? required.length : linkedCount;
+  return `Upload photos for any ${photoTargetCount} services`;
 }
 
 export function basketGarmentThumbVariant(serviceId: string): 'bulk' | 'tshirt' | 'top' {
