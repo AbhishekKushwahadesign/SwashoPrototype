@@ -58,6 +58,10 @@ import {
   ClothesLocationPencilIcon,
 } from './clothes-location-sheet-icons';
 import { ContactlessClothesLocationModal } from './ContactlessClothesLocationModal';
+import {
+  ContactlessBasketPhotoSection,
+  type ContactlessBasketPhotoMap,
+} from './ContactlessBasketPhotoSection';
 import { ContactlessHowItWorksModal } from './ContactlessHowItWorksModal';
 import { CheckoutSectionDivider } from './CheckoutSectionDivider';
 import { CheckoutServiceHandoverSegment } from './CheckoutServiceHandoverSegment';
@@ -684,6 +688,7 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
               basketCount={basketCount}
               groups={basketGroups}
               showCompareAt={exclusivePricingQualified}
+              contactless={contactless}
               onEditLine={handleEditService}
               onAddGarment={handleAddGarment}
             />
@@ -954,6 +959,7 @@ function BasketCard({
   basketCount,
   groups,
   showCompareAt,
+  contactless,
   onEditLine,
   onAddGarment,
 }: {
@@ -962,10 +968,16 @@ function BasketCard({
   basketCount: number;
   groups: ReturnType<typeof buildCheckoutBasketGroups>;
   showCompareAt: boolean;
+  contactless: boolean;
   onEditLine: (serviceId: string) => void;
   onAddGarment: () => void;
 }) {
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+  const [contactlessPhotos, setContactlessPhotos] = useState<ContactlessBasketPhotoMap>({});
+
+  const handleToggleContactlessPhoto = useCallback((slotKey: string) => {
+    setContactlessPhotos((prev) => ({ ...prev, [slotKey]: !prev[slotKey] }));
+  }, []);
 
   const toggleSection = useCallback((sectionId: string) => {
     setCollapsedSections((prev) => ({ ...prev, [sectionId]: !prev[sectionId] }));
@@ -1078,6 +1090,9 @@ function BasketCard({
                       line={line}
                       scale={scale}
                       showCompareAt={showCompareAt}
+                      contactless={contactless}
+                      contactlessPhotos={contactlessPhotos}
+                      onToggleContactlessPhoto={handleToggleContactlessPhoto}
                       onEdit={() => onEditLine(line.serviceId)}
                     />
                     {index < group.lines.length - 1 ? (
@@ -1151,11 +1166,17 @@ function BasketLineRow({
   line,
   scale,
   showCompareAt,
+  contactless,
+  contactlessPhotos,
+  onToggleContactlessPhoto,
   onEdit,
 }: {
   line: CheckoutBasketLine;
   scale: number;
   showCompareAt: boolean;
+  contactless: boolean;
+  contactlessPhotos: ContactlessBasketPhotoMap;
+  onToggleContactlessPhoto: (slotKey: string) => void;
   onEdit: () => void;
 }) {
   const isBulk = isBulkServiceId(line.serviceId);
@@ -1243,27 +1264,17 @@ function BasketLineRow({
             </View>
           </View>
           {servicesExpanded && hasNestedContent ? (
-            <View style={{ gap: 20 * scale, paddingLeft: (isBulk ? 45 : 32) * scale }}>
-              {line.weightSubline ? (
-                <Text
-                  style={[
-                    searchFont('semibold'),
-                    styles.cardHeading,
-                    {
-                      fontSize: 14 * scale,
-                      lineHeight: 14 * scale,
-                      letterSpacing: 0.5 * scale,
-                      paddingHorizontal: isBulk ? 0 : 14 * scale,
-                    },
-                  ]}>
-                  {line.weightSubline}
-                </Text>
-              ) : null}
-              {line.detailLines.map((detail, detailIndex) => (
-                <View key={detail} style={{ width: '100%', gap: 20 * scale }}>
-                  {detailIndex > 0 || line.weightSubline ? (
-                    <ServiceRowDivider variant="dotted" width={349} scale={scale} />
-                  ) : null}
+            contactless ? (
+              <ContactlessBasketPhotoSection
+                line={line}
+                isBulk={isBulk}
+                scale={scale}
+                photos={contactlessPhotos}
+                onTogglePhoto={onToggleContactlessPhoto}
+              />
+            ) : (
+              <View style={{ gap: 20 * scale, paddingLeft: (isBulk ? 45 : 32) * scale }}>
+                {line.weightSubline ? (
                   <Text
                     style={[
                       searchFont('semibold'),
@@ -1272,14 +1283,34 @@ function BasketLineRow({
                         fontSize: 14 * scale,
                         lineHeight: 14 * scale,
                         letterSpacing: 0.5 * scale,
-                        paddingHorizontal: 14 * scale,
+                        paddingHorizontal: isBulk ? 0 : 14 * scale,
                       },
                     ]}>
-                    {detail}
+                    {line.weightSubline}
                   </Text>
-                </View>
-              ))}
-            </View>
+                ) : null}
+                {line.detailLines.map((detail, detailIndex) => (
+                  <View key={detail} style={{ width: '100%', gap: 20 * scale }}>
+                    {detailIndex > 0 || line.weightSubline ? (
+                      <ServiceRowDivider variant="dotted" width={349} scale={scale} />
+                    ) : null}
+                    <Text
+                      style={[
+                        searchFont('semibold'),
+                        styles.cardHeading,
+                        {
+                          fontSize: 14 * scale,
+                          lineHeight: 14 * scale,
+                          letterSpacing: 0.5 * scale,
+                          paddingHorizontal: 14 * scale,
+                        },
+                      ]}>
+                      {detail}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            )
           ) : null}
         </View>
         <View style={{ alignItems: 'flex-end', gap: 10 * scale, flexShrink: 0 }}>
