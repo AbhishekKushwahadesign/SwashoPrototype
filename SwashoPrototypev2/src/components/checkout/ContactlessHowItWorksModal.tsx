@@ -163,6 +163,20 @@ export function ContactlessHowItWorksModal({
     </View>
   );
 
+  const infoAckButton = !showContinue ? (
+    <ServiceSelectionButton
+      label="Ok, Understood"
+      variant="primary"
+      onPress={onClose}
+      scale={scale}
+      style={{
+        width: '100%',
+        marginTop: 16 * designScale,
+        minHeight: CONTACTLESS_MODAL_FIGMA.continueButtonHeight * designScale,
+      }}
+    />
+  ) : null;
+
   const setupFooter = showContinue ? (
     <View
       style={{
@@ -331,6 +345,7 @@ export function ContactlessHowItWorksModal({
                   ))}
                 </View>
                 {reassuranceBlock}
+                {infoAckButton}
               </View>
             </ScrollView>
 
