@@ -2,6 +2,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useCallback, useState, type ReactNode } from 'react';
 import {
   Dimensions,
+  Image,
   Modal,
   Platform,
   Pressable,
@@ -58,22 +59,11 @@ const HEADER_BACKDROP_GRADIENT = {
   end: { x: 0.92, y: 0.98 },
 };
 
-/** Figma 59153:4644 — linear-gradient(34deg, transparent 43.16%, #f2ecfd 79.478%, transparent 84.379%). */
-const HEADER_TEXT_STRIPE_GRADIENT = {
-  colors: ['rgba(255,255,255,0)', '#F2ECFD', 'rgba(242,236,253,0)'] as const,
-  locations: [0.431_6, 0.794_78, 0.843_79] as const,
-};
+/** Figma 59153:4644 — exact CSS gradient (expo-linear-gradient mis-renders as a flat wash on web). */
+const HEADER_TEXT_STRIPE_CSS =
+  'linear-gradient(34.02632356705384deg, rgba(255, 255, 255, 0) 43.16%, rgb(242, 236, 253) 79.478%, rgba(242, 236, 253, 0) 84.379%)';
 
-/** CSS 34.026deg → expo-linear-gradient axis (0deg = up, clockwise). */
-const HEADER_TEXT_STRIPE_AXIS = (() => {
-  const rad = (34.026 * Math.PI) / 180;
-  const dx = Math.sin(rad);
-  const dy = Math.cos(rad);
-  return {
-    start: { x: 0.5 - dx / 2, y: 0.5 - dy / 2 },
-    end: { x: 0.5 + dx / 2, y: 0.5 + dy / 2 },
-  };
-})();
+const clothesLocationHeaderTextStripeImage = require('@/assets/checkout/clothes-location-header-text-stripe.png');
 
 type ContactlessClothesLocationModalProps = {
   visible: boolean;
@@ -371,7 +361,7 @@ export function ContactlessClothesLocationModal({
   );
 }
 
-/** Figma 59153:4644 — lavender stripe behind title/subtitle for contrast on web + native. */
+/** Figma 59153:4644 — soft diagonal lavender band (left stays clear; peak upper-right). */
 function ModalHeaderTextStripe({
   designScale,
   children,
@@ -379,26 +369,57 @@ function ModalHeaderTextStripe({
   designScale: number;
   children: ReactNode;
 }) {
-  const layout: ViewStyle = {
+  const stripeHeight = CLOTHES_LOCATION_SHEET_FIGMA.headerBlockHeight * designScale;
+  const textGap = CLOTHES_LOCATION_SHEET_FIGMA.headerTextGap * designScale;
+
+  const shell: ViewStyle = {
     width: '100%',
-    height: CLOTHES_LOCATION_SHEET_FIGMA.headerBlockHeight * designScale,
-    gap: CLOTHES_LOCATION_SHEET_FIGMA.headerTextGap * designScale,
+    height: stripeHeight,
     flexShrink: 0,
     zIndex: 1,
     alignSelf: 'stretch',
-    alignItems: 'flex-start',
+    position: 'relative',
     overflow: 'hidden',
   };
 
+  const textStack: ViewStyle = {
+    width: '100%',
+    height: stripeHeight,
+    gap: textGap,
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    zIndex: 1,
+  };
+
+  if (Platform.OS === 'web') {
+    return (
+      <View
+        style={[
+          shell,
+          textStack,
+          {
+            backgroundColor: 'transparent',
+            backgroundImage: HEADER_TEXT_STRIPE_CSS,
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: '100% 100%',
+          } as ViewStyle,
+        ]}>
+        {children}
+      </View>
+    );
+  }
+
   return (
-    <LinearGradient
-      colors={[...HEADER_TEXT_STRIPE_GRADIENT.colors]}
-      locations={[...HEADER_TEXT_STRIPE_GRADIENT.locations]}
-      start={HEADER_TEXT_STRIPE_AXIS.start}
-      end={HEADER_TEXT_STRIPE_AXIS.end}
-      style={layout}>
-      {children}
-    </LinearGradient>
+    <View style={shell}>
+      <Image
+        source={clothesLocationHeaderTextStripeImage}
+        style={StyleSheet.absoluteFillObject}
+        resizeMode="stretch"
+        accessibilityElementsHidden
+        importantForAccessibility="no-hide-descendants"
+      />
+      <View style={textStack}>{children}</View>
+    </View>
   );
 }
 
