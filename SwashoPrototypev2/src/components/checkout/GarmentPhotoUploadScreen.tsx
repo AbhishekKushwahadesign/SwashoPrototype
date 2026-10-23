@@ -296,24 +296,46 @@ export function GarmentPhotoUploadScreen({
   const serviceScrollRef = useRef<ScrollView>(null);
   const [trackCarouselWidth, setTrackCarouselWidth] = useState(contentWidth);
   const lastServiceSnapAt = useRef(0);
+  const serviceIndexRef = useRef(0);
+  const serviceScrollSyncingRef = useRef(false);
 
   const activeContext = garmentContexts[garmentIndex] ?? garmentContexts[0];
   const activeLine = activeContext?.line;
   const activeSlots = activeContext?.slots ?? [];
+  const activeGarmentId = activeLine?.serviceId ?? '';
+  const activeSlotKey = useMemo(
+    () => activeSlots.map((slot) => slot.serviceId).join('|'),
+    [activeSlots],
+  );
   const serviceChipHeight = 35 * scale;
-  const serviceSnapStep = 132 * scale;
+  const serviceSnapStep = 148 * scale;
+
+  const appliedInitialServiceRef = useRef(false);
 
   useEffect(() => {
     if (!activeSlots.length) {
       return;
     }
+    setServiceIndex(0);
+    requestAnimationFrame(() => {
+      serviceScrollRef.current?.scrollTo({ x: 0, animated: false });
+    });
+  }, [activeGarmentId, activeSlotKey, serviceSnapStep]);
+
+  useEffect(() => {
+    if (!activeSlots.length || appliedInitialServiceRef.current) {
+      return;
+    }
     const idx = activeSlots.findIndex((slot) => slot.serviceId === initialServiceId);
     const nextIndex = idx >= 0 ? idx : 0;
+    appliedInitialServiceRef.current = true;
     setServiceIndex(nextIndex);
     requestAnimationFrame(() => {
       serviceScrollRef.current?.scrollTo({ x: nextIndex * serviceSnapStep, animated: false });
     });
-  }, [activeSlots, initialServiceId, garmentIndex, serviceSnapStep]);
+  }, [activeGarmentId, activeSlotKey, activeSlots.length, initialServiceId, serviceSnapStep]);
+
+  serviceIndexRef.current = serviceIndex;
 
   const activeService = activeSlots[serviceIndex] ?? activeSlots[0];
   const uploadHint = garmentPhotoUploadHint(activeSlots);
@@ -378,8 +400,12 @@ export function GarmentPhotoUploadScreen({
       setServiceIndex((prev) => (prev === index ? prev : index));
 
       if (Math.abs(offsetX - targetX) > 0.5 || !animated) {
+        serviceScrollSyncingRef.current = true;
         requestAnimationFrame(() => {
           serviceScrollRef.current?.scrollTo({ x: targetX, animated });
+          if (!animated) {
+            serviceScrollSyncingRef.current = false;
+          }
         });
       }
     },
@@ -388,6 +414,9 @@ export function GarmentPhotoUploadScreen({
 
   const handleServiceScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      if (serviceScrollSyncingRef.current) {
+        return;
+      }
       const offsetX = event.nativeEvent.contentOffset.x;
       const maxIndex = Math.max(0, activeSlots.length - 1);
       const index = Math.max(0, Math.min(maxIndex, Math.round(offsetX / serviceSnapStep)));
@@ -398,6 +427,7 @@ export function GarmentPhotoUploadScreen({
 
   const handleServiceScrollEnd = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      serviceScrollSyncingRef.current = false;
       snapServiceToNearest(event.nativeEvent.contentOffset.x, true);
     },
     [snapServiceToNearest],
@@ -485,11 +515,11 @@ export function GarmentPhotoUploadScreen({
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => {
-      const idx = Math.min(serviceIndex, Math.max(0, activeSlots.length - 1));
-      snapServiceToNearest(idx * serviceSnapStep, false);
+      const idx = Math.min(serviceIndexRef.current, Math.max(0, activeSlots.length - 1));
+      serviceScrollRef.current?.scrollTo({ x: idx * serviceSnapStep, animated: false });
     });
     return () => cancelAnimationFrame(frame);
-  }, [activeSlots.length, garmentIndex, trackCarouselWidth, serviceSnapStep, snapServiceToNearest]);
+  }, [activeSlots.length, activeGarmentId, trackCarouselWidth, serviceSnapStep]);
 
   if (!activeLine) {
     return (
@@ -618,6 +648,7 @@ export function GarmentPhotoUploadScreen({
                   alignItems: 'center',
                   justifyContent: 'center',
                   zIndex: 2,
+                  overflow: 'hidden',
                 }}>
                 <ServiceCarouselChip scale={scale} slot={activeService} emphasized />
               </View>
@@ -634,11 +665,12 @@ export function GarmentPhotoUploadScreen({
               onScroll={handleServiceScroll}
               onMomentumScrollEnd={handleServiceScrollEnd}
               onScrollEndDrag={handleServiceScrollEnd}
-              style={
+              style={[
+                { width: '100%', maxHeight: serviceChipHeight },
                 Platform.OS === 'web'
-                  ? ({ scrollSnapType: 'x mandatory', overflowX: 'auto' } as object)
-                  : { maxHeight: serviceChipHeight }
-              }
+                  ? ({ overflowX: 'auto', touchAction: 'pan-x', overscrollBehaviorX: 'contain' } as object)
+                  : null,
+              ]}
               contentContainerStyle={{
                 alignItems: 'center',
                 paddingHorizontal: serviceCarouselInset,
@@ -651,6 +683,7 @@ export function GarmentPhotoUploadScreen({
                     key={slot.serviceId}
                     accessibilityRole="button"
                     accessibilityState={{ selected: isCentered }}
+                    delayPressIn={80}
                     onPress={() => {
                       setServiceIndex(index);
                       scrollServiceToIndex(index, true);
@@ -662,9 +695,7 @@ export function GarmentPhotoUploadScreen({
                         alignItems: 'center',
                         justifyContent: 'center',
                       },
-                      Platform.OS === 'web'
-                        ? ({ scrollSnapAlign: 'center', scrollSnapStop: 'always' } as object)
-                        : null,
+                      Platform.OS === 'web' ? ({ touchAction: 'pan-x', cursor: 'grab' } as object) : null,
                     ]}>
                     <View style={{ opacity: isCentered ? 0 : 1, transform: [{ scale: isCentered ? 1 : 0.94 }] }}>
                       <ServiceCarouselChip scale={scale} slot={slot} emphasized={false} />
