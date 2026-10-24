@@ -155,6 +155,22 @@ function GarmentProgressRing({
   );
 }
 
+function ServiceCarouselCenterFrame({ scale }: { scale: number }) {
+  return (
+    <View
+      pointerEvents="none"
+      style={{
+        width: '100%',
+        height: '100%',
+        borderRadius: 20 * scale,
+        borderWidth: 1.5 * scale,
+        borderColor: '#252525',
+        backgroundColor: 'transparent',
+      }}
+    />
+  );
+}
+
 function nearestCarouselOffsetIndex(offsetX: number, offsets: number[]): number {
   if (!offsets.length) {
     return 0;
@@ -189,8 +205,8 @@ function ServiceCarouselChip({
         paddingHorizontal: 5 * scale,
         height: 35 * scale,
         borderRadius: 20 * scale,
-        borderWidth: 1.5 * scale,
-        borderColor: emphasized ? '#252525' : 'transparent',
+        borderWidth: 0,
+        borderColor: 'transparent',
         backgroundColor: emphasized ? SwashoColors.surface : 'transparent',
         flexShrink: 0,
       }}>
@@ -315,6 +331,7 @@ export function GarmentPhotoUploadScreen({
   const lastServiceSnapAt = useRef(0);
   const serviceIndexRef = useRef(0);
   const serviceScrollSyncingRef = useRef(false);
+  const committedGarmentIndexRef = useRef(initialGarmentIndex);
 
   const activeContext = garmentContexts[garmentIndex] ?? garmentContexts[0];
   const activeLine = activeContext?.line;
@@ -336,16 +353,18 @@ export function GarmentPhotoUploadScreen({
     setServiceChipWidths([]);
   }, [activeSlotKey]);
 
-  useEffect(() => {
-    if (!activeSlots.length) {
-      return;
-    }
-    setServiceIndex(0);
-  }, [activeGarmentId, activeSlotKey, activeSlots.length]);
-
   serviceIndexRef.current = serviceIndex;
 
-  const activeService = activeSlots[serviceIndex] ?? activeSlots[0];
+  const resolvedServiceIndex = Math.min(
+    serviceIndex,
+    Math.max(0, activeSlots.length - 1),
+  );
+  const centerServiceCapsuleWidth = serviceChipWidths[resolvedServiceIndex] ?? 0;
+  const centerServiceCapsuleLeft =
+    centerServiceCapsuleWidth > 0
+      ? trackCarouselWidth / 2 - centerServiceCapsuleWidth / 2
+      : 0;
+  const activeService = activeSlots[resolvedServiceIndex] ?? activeSlots[0];
   const uploadHint = garmentPhotoUploadHint(activeSlots);
   const activePhotos = useMemo(() => {
     if (!activeLine || !activeService) {
@@ -392,6 +411,9 @@ export function GarmentPhotoUploadScreen({
 
   const serviceSnapOffsets = useMemo(() => {
     if (serviceChipWidths.length !== activeSlots.length || !activeSlots.length) {
+      return [];
+    }
+    if (serviceChipWidths.some((width) => width <= 0)) {
       return [];
     }
     let cursor = 0;
@@ -495,16 +517,12 @@ export function GarmentPhotoUploadScreen({
       const index = Math.max(0, Math.min(maxIndex, Math.round(offsetX / garmentSnapStep)));
       const targetX = index * garmentSnapStep;
 
-      setGarmentIndex((prev) => {
-        if (prev !== index) {
-          setServiceIndex(0);
-          requestAnimationFrame(() => {
-            const targetX = serviceSnapOffsets[0] ?? 0;
-            serviceScrollRef.current?.scrollTo({ x: targetX, animated: false });
-          });
-        }
-        return index;
-      });
+      if (committedGarmentIndexRef.current !== index) {
+        committedGarmentIndexRef.current = index;
+        setServiceIndex(0);
+        serviceIndexRef.current = 0;
+      }
+      setGarmentIndex(index);
 
       if (Math.abs(offsetX - targetX) > 0.5 || !animated) {
         requestAnimationFrame(() => {
@@ -550,17 +568,33 @@ export function GarmentPhotoUploadScreen({
     }
     const idx = Math.min(serviceIndexRef.current, serviceSnapOffsets.length - 1);
     scrollServiceToIndex(idx, false);
-  }, [activeGarmentId, activeSlotKey, scrollServiceToIndex, serviceSnapOffsets, trackCarouselWidth]);
+  }, [scrollServiceToIndex, serviceSnapOffsets, trackCarouselWidth]);
 
   const handleGarmentScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       const offsetX = event.nativeEvent.contentOffset.x;
       const maxIndex = Math.max(0, garmentContexts.length - 1);
       const index = Math.max(0, Math.min(maxIndex, Math.round(offsetX / garmentSnapStep)));
-      setGarmentIndex((prev) => (prev === index ? prev : index));
+      setGarmentIndex((prev) => {
+        if (prev === index) {
+          return prev;
+        }
+        const slots = garmentContexts[index]?.slots ?? [];
+        const maxService = Math.max(0, slots.length - 1);
+        setServiceIndex((service) => Math.min(service, maxService));
+        return index;
+      });
     },
-    [garmentContexts.length, garmentSnapStep],
+    [garmentContexts, garmentSnapStep],
   );
+
+  const handleGarmentScrollBegin = useCallback(() => {
+    serviceScrollSyncingRef.current = false;
+  }, []);
+
+  const handleServiceScrollBegin = useCallback(() => {
+    serviceScrollSyncingRef.current = false;
+  }, []);
 
   const handleGarmentScrollEnd = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -701,6 +735,20 @@ export function GarmentPhotoUploadScreen({
               styles.carouselClip,
               { marginBottom: 20 * scale, height: serviceChipHeight, justifyContent: 'center' },
             ]}>
+            {centerServiceCapsuleWidth > 0 ? (
+              <View
+                pointerEvents="none"
+                style={{
+                  position: 'absolute',
+                  left: centerServiceCapsuleLeft,
+                  top: 0,
+                  width: centerServiceCapsuleWidth,
+                  height: serviceChipHeight,
+                  zIndex: 2,
+                }}>
+                <ServiceCarouselCenterFrame scale={scale} />
+              </View>
+            ) : null}
             <ScrollView
               ref={serviceScrollRef}
               horizontal
@@ -711,6 +759,7 @@ export function GarmentPhotoUploadScreen({
               decelerationRate="fast"
               scrollEventThrottle={16}
               onScroll={handleServiceScroll}
+              onScrollBeginDrag={handleServiceScrollBegin}
               onMomentumScrollEnd={handleServiceScrollEnd}
               onScrollEndDrag={handleServiceScrollEnd}
               style={[
@@ -728,7 +777,7 @@ export function GarmentPhotoUploadScreen({
                 minHeight: serviceChipHeight,
               }}>
               {activeSlots.map((slot, index) => {
-                const isCentered = index === serviceIndex;
+                const isCentered = index === resolvedServiceIndex;
                 return (
                   <Pressable
                     key={slot.serviceId}
@@ -795,13 +844,20 @@ export function GarmentPhotoUploadScreen({
               decelerationRate="fast"
               scrollEventThrottle={16}
               onScroll={handleGarmentScroll}
+              onScrollBeginDrag={handleGarmentScrollBegin}
               onMomentumScrollEnd={handleGarmentScrollEnd}
               onScrollEndDrag={handleGarmentScrollEnd}
-              style={
+              style={[
+                { width: '100%' },
                 Platform.OS === 'web'
-                  ? ({ scrollSnapType: 'x mandatory', overflowX: 'auto' } as object)
-                  : undefined
-              }
+                  ? ({
+                      scrollSnapType: 'x mandatory',
+                      overflowX: 'auto',
+                      touchAction: 'pan-x',
+                      overscrollBehaviorX: 'contain',
+                    } as object)
+                  : null,
+              ]}
               contentContainerStyle={{
                 alignItems: 'center',
                 paddingHorizontal: garmentCarouselInset,
@@ -821,13 +877,16 @@ export function GarmentPhotoUploadScreen({
                         ? `Capture photo for ${activeService?.title ?? 'service'}`
                         : `Select ${ctx.line.title}`
                     }
+                    delayPressIn={isCentered ? 220 : 80}
                     onPress={() => {
                       if (isCentered) {
                         void handleUploadPress();
                         return;
                       }
+                      committedGarmentIndexRef.current = index;
                       setGarmentIndex(index);
-                      setServiceIndex(0);
+                      const slots = garmentContexts[index]?.slots ?? [];
+                      setServiceIndex((service) => Math.min(service, Math.max(0, slots.length - 1)));
                       scrollGarmentToIndex(index, true);
                     }}
                     style={[
@@ -843,6 +902,8 @@ export function GarmentPhotoUploadScreen({
                             scrollSnapStop: 'always',
                             outlineStyle: 'none',
                             outlineWidth: 0,
+                            touchAction: 'pan-x',
+                            cursor: 'grab',
                           } as object)
                         : null,
                     ]}>
