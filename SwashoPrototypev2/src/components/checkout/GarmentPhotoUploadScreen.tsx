@@ -816,7 +816,16 @@ export function GarmentPhotoUploadScreen({
                     key={ctx.line.serviceId}
                     accessibilityRole="button"
                     accessibilityState={{ selected: isCentered }}
+                    accessibilityLabel={
+                      isCentered
+                        ? `Capture photo for ${activeService?.title ?? 'service'}`
+                        : `Select ${ctx.line.title}`
+                    }
                     onPress={() => {
+                      if (isCentered) {
+                        void handleUploadPress();
+                        return;
+                      }
                       setGarmentIndex(index);
                       setServiceIndex(0);
                       scrollGarmentToIndex(index, true);
@@ -829,7 +838,12 @@ export function GarmentPhotoUploadScreen({
                         justifyContent: 'center',
                       },
                       Platform.OS === 'web'
-                        ? ({ scrollSnapAlign: 'center', scrollSnapStop: 'always' } as object)
+                        ? ({
+                            scrollSnapAlign: 'center',
+                            scrollSnapStop: 'always',
+                            outlineStyle: 'none',
+                            outlineWidth: 0,
+                          } as object)
                         : null,
                     ]}>
                     <View
@@ -840,8 +854,7 @@ export function GarmentPhotoUploadScreen({
                         backgroundColor: SwashoColors.surface,
                         alignItems: 'center',
                         justifyContent: 'center',
-                        borderWidth: isCentered ? 0 : 1 * scale,
-                        borderColor: SwashoColors.neutral300,
+                        borderWidth: 0,
                         transform: [{ scale: isCentered ? 1 : garmentInactiveScale }],
                       }}>
                       <CheckoutGarmentThumbIcon
