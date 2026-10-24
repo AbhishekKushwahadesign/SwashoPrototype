@@ -329,7 +329,9 @@ export function GarmentPhotoUploadScreen({
   const serviceScrollRef = useRef<ScrollView>(null);
   const [trackCarouselWidth, setTrackCarouselWidth] = useState(contentWidth);
   const serviceIndexRef = useRef(0);
-  const serviceScrollSyncingRef = useRef(false);
+  const serviceScrollOffsetRef = useRef(0);
+  const serviceSnapIdleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const serviceOffsetsAlignedRef = useRef(false);
   const committedGarmentIndexRef = useRef(initialGarmentIndex);
 
   const activeContext = garmentContexts[garmentIndex] ?? garmentContexts[0];
@@ -351,6 +353,7 @@ export function GarmentPhotoUploadScreen({
   useEffect(() => {
     serviceChipLayoutsRef.current = [];
     setServiceChipLayouts([]);
+    serviceOffsetsAlignedRef.current = false;
   }, [activeSlotKey]);
 
   serviceIndexRef.current = serviceIndex;
@@ -427,10 +430,14 @@ export function GarmentPhotoUploadScreen({
   }, [serviceSnapOffsets]);
 
   const scrollServiceToOffset = useCallback((offsetX: number, animated: boolean) => {
-    serviceScrollSyncingRef.current = true;
     serviceScrollRef.current?.scrollTo({ x: offsetX, animated });
-    if (!animated) {
-      serviceScrollSyncingRef.current = false;
+    if (Platform.OS === 'web') {
+      const scrollable = (
+        serviceScrollRef.current as unknown as { getScrollableNode?: () => HTMLElement }
+      )?.getScrollableNode?.();
+      if (scrollable) {
+        scrollable.scrollTo({ left: offsetX, behavior: animated ? 'smooth' : 'auto' });
+      }
     }
   }, []);
 
@@ -456,35 +463,51 @@ export function GarmentPhotoUploadScreen({
       const targetX = offsets[index];
 
       setServiceIndex((prev) => (prev === index ? prev : index));
-      scrollServiceToOffset(targetX, animated);
+      if (Math.abs(offsetX - targetX) > 1) {
+        scrollServiceToOffset(targetX, animated);
+      }
     },
     [scrollServiceToOffset],
   );
 
+  const scheduleServiceSnap = useCallback(() => {
+    if (serviceSnapIdleTimerRef.current) {
+      clearTimeout(serviceSnapIdleTimerRef.current);
+    }
+    serviceSnapIdleTimerRef.current = setTimeout(() => {
+      snapServiceToNearest(serviceScrollOffsetRef.current, true);
+      if (Platform.OS === 'web') {
+        setTimeout(() => {
+          snapServiceToNearest(serviceScrollOffsetRef.current, false);
+        }, 48);
+      }
+    }, 90);
+  }, [snapServiceToNearest]);
+
   const handleServiceScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      if (serviceScrollSyncingRef.current) {
-        return;
-      }
       const offsets = serviceSnapOffsetsRef.current;
-      if (!offsets.length) {
-        return;
-      }
       const offsetX = event.nativeEvent.contentOffset.x;
-      const index = nearestCarouselOffsetIndex(offsetX, offsets);
-      setServiceIndex((prev) => (prev === index ? prev : index));
+      serviceScrollOffsetRef.current = offsetX;
+      if (offsets.length) {
+        const index = nearestCarouselOffsetIndex(offsetX, offsets);
+        setServiceIndex((prev) => (prev === index ? prev : index));
+      }
+      scheduleServiceSnap();
     },
-    [],
+    [scheduleServiceSnap],
   );
 
   const handleServiceScrollEnd = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      serviceScrollSyncingRef.current = false;
-      const offsetX = event.nativeEvent.contentOffset.x;
-      snapServiceToNearest(offsetX, true);
+      serviceScrollOffsetRef.current = event.nativeEvent.contentOffset.x;
+      if (serviceSnapIdleTimerRef.current) {
+        clearTimeout(serviceSnapIdleTimerRef.current);
+      }
+      snapServiceToNearest(serviceScrollOffsetRef.current, true);
       if (Platform.OS === 'web') {
         requestAnimationFrame(() => {
-          snapServiceToNearest(offsetX, false);
+          snapServiceToNearest(serviceScrollOffsetRef.current, false);
         });
       }
     },
@@ -567,12 +590,21 @@ export function GarmentPhotoUploadScreen({
   }, [activeSlots, initialServiceId, scrollServiceToIndex, serviceSnapOffsets.length]);
 
   useEffect(() => {
-    if (!serviceSnapOffsets.length) {
+    if (!serviceSnapOffsets.length || serviceOffsetsAlignedRef.current) {
       return;
     }
+    serviceOffsetsAlignedRef.current = true;
     const idx = Math.min(serviceIndexRef.current, serviceSnapOffsets.length - 1);
     scrollServiceToIndex(idx, false);
-  }, [scrollServiceToIndex, serviceSnapOffsets, trackCarouselWidth]);
+  }, [scrollServiceToIndex, serviceSnapOffsets]);
+
+  useEffect(() => {
+    return () => {
+      if (serviceSnapIdleTimerRef.current) {
+        clearTimeout(serviceSnapIdleTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleGarmentScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -592,12 +624,10 @@ export function GarmentPhotoUploadScreen({
     [garmentContexts, garmentSnapStep],
   );
 
-  const handleGarmentScrollBegin = useCallback(() => {
-    serviceScrollSyncingRef.current = false;
-  }, []);
-
   const handleServiceScrollBegin = useCallback(() => {
-    serviceScrollSyncingRef.current = false;
+    if (serviceSnapIdleTimerRef.current) {
+      clearTimeout(serviceSnapIdleTimerRef.current);
+    }
   }, []);
 
   const handleGarmentScrollEnd = useCallback(
@@ -849,7 +879,6 @@ export function GarmentPhotoUploadScreen({
               decelerationRate="fast"
               scrollEventThrottle={16}
               onScroll={handleGarmentScroll}
-              onScrollBeginDrag={handleGarmentScrollBegin}
               onMomentumScrollEnd={handleGarmentScrollEnd}
               onScrollEndDrag={handleGarmentScrollEnd}
               style={[
