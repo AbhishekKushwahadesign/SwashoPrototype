@@ -5,8 +5,8 @@ import { SwashoColors, SwashoFonts } from '@/constants/swasho-tokens';
 
 type StatusBarProps = {
   scale: number;
-  /** Home header uses purple chrome; Swasho AI uses light surface. */
-  tone?: 'purple' | 'light';
+  /** Home header uses purple chrome; Swasho AI matches Figma transparent bar. */
+  tone?: 'purple' | 'light' | 'transparent';
 };
 
 const ICON_COLOR_PURPLE = '#E6E6E6';
@@ -46,17 +46,24 @@ function BatteryIcon({ size, color }: { size: number; color: string }) {
 
 export function StatusBar({ scale, tone = 'purple' }: StatusBarProps) {
   const iconSize = 16 * scale;
-  const light = tone === 'light';
-  const iconColor = light ? SwashoColors.neutral800 : ICON_COLOR_PURPLE;
+  const light = tone === 'light' || tone === 'transparent';
+  const iconColor = light ? '#333333' : ICON_COLOR_PURPLE;
+  const containerStyle =
+    tone === 'transparent'
+      ? styles.containerTransparent
+      : tone === 'light'
+        ? styles.containerLight
+        : styles.containerPurple;
+  const timeStyle = light ? styles.timeLight : styles.timePurple;
 
   return (
     <View
       style={[
         styles.container,
-        light ? styles.containerLight : styles.containerPurple,
+        containerStyle,
         { height: 32 * scale, paddingHorizontal: 8 * scale, paddingVertical: 4 * scale },
       ]}>
-      <Text style={[styles.time, light ? styles.timeLight : styles.timePurple, { fontSize: 12 * scale }]}>11:07</Text>
+      <Text style={[styles.time, timeStyle, { fontSize: 12 * scale }]}>11:07</Text>
       <View style={[styles.icons, { gap: 4 * scale }]}>
         <WifiIcon size={iconSize} color={iconColor} />
         <ReceptionIcon size={iconSize} color={iconColor} />
@@ -79,6 +86,9 @@ const styles = StyleSheet.create({
   containerLight: {
     backgroundColor: SwashoColors.surface,
   },
+  containerTransparent: {
+    backgroundColor: 'transparent',
+  },
   time: {
     fontFamily: SwashoFonts.robotoMedium,
     letterSpacing: 0,
@@ -87,7 +97,7 @@ const styles = StyleSheet.create({
     color: SwashoColors.statusTime,
   },
   timeLight: {
-    color: SwashoColors.neutral800,
+    color: '#333333',
   },
   icons: {
     flexDirection: 'row',

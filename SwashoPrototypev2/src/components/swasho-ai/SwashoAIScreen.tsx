@@ -19,7 +19,7 @@ import { SwashoAiIcon } from '@/components/home/NavBar';
 import { StatusBar } from '@/components/home/StatusBar';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { searchFont } from '@/components/search/search-fonts';
-import { ScreenHeight, SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
+import { ScreenWidth, SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
 import { HistoryIcon, ScannerIcon, SparkleBulletIcon } from './swasho-ai-icons';
 
@@ -35,6 +35,10 @@ const FIGMA_SCAN_TOP = 567;
 const FIGMA_SCAN_LEFT = 30;
 const FIGMA_CHIPS_TOP = 706;
 const FIGMA_COMPOSER_TOP = 812;
+const FIGMA_HOME_INDICATOR_TOP = 896;
+const FIGMA_CONTENT_WIDTH = 372;
+const FIGMA_CHIPS_WIDTH = 451;
+const FIGMA_HORIZONTAL_INSET = 20;
 
 const FEATURE_BULLETS = [
   'Recommend the best service for your garment',
@@ -81,19 +85,21 @@ function CircleIconButton({
 }
 
 export function SwashoAIScreen() {
-  const { scale, contentWidth, contentHeight } = useScreenScale();
+  const { scale, contentWidth } = useScreenScale();
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
   const [draft, setDraft] = useState('');
 
-  const frameHeight = contentHeight + safeTop;
-  const figmaY = (y: number) => (y / FIGMA_FRAME_HEIGHT) * frameHeight;
+  const layoutHeight = FIGMA_FRAME_HEIGHT * scale;
+  const figmaY = (y: number) => y * scale;
+  const contentColumnWidth = FIGMA_CONTENT_WIDTH * scale;
+  const contentColumnLeft = (contentWidth - contentColumnWidth) / 2;
 
   const composerTop = figmaY(FIGMA_COMPOSER_TOP);
   const scanTop = figmaY(FIGMA_SCAN_TOP);
   const chipsTop = figmaY(FIGMA_CHIPS_TOP);
   const scrollTop = figmaY(FIGMA_CONTENT_TOP);
-  const scrollBottom = frameHeight - scanTop;
+  const scrollBottom = layoutHeight - scanTop;
 
   const applySuggestion = (label: string) => {
     setDraft(label);
@@ -106,7 +112,7 @@ export function SwashoAIScreen() {
           styles.frame,
           {
             width: contentWidth,
-            height: frameHeight,
+            height: layoutHeight,
             marginTop: safeTop,
             ...figmaShadow(FigmaShadows.screen, scale),
           },
@@ -116,30 +122,32 @@ export function SwashoAIScreen() {
           locations={[0, 0.78058, 1]}
           style={StyleSheet.absoluteFill}
         />
-        <LinearGradient
-          pointerEvents="none"
-          colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.35)', SwashoColors.primary200]}
-          locations={[0, 0.35, 1]}
-          style={[styles.bottomGradient, { top: figmaY(520) }]}
-        />
 
         <View style={[styles.statusBar, { height: STATUS_BAR_HEIGHT * scale }]}>
-          <StatusBar scale={scale} tone="light" />
+          <StatusBar scale={scale} tone="transparent" />
         </View>
 
-        <View style={[styles.headerRow, { paddingHorizontal: 20 * scale }]}>
+        <View style={styles.headerRow}>
           <CircleIconButton
             scale={scale}
             accessibilityLabel="Go back"
             onPress={() => router.back()}
-            style={{ position: 'absolute', left: 20 * scale, top: figmaY(FIGMA_HEADER_BUTTON_TOP) }}>
+            style={{
+              position: 'absolute',
+              left: FIGMA_HORIZONTAL_INSET * scale,
+              top: figmaY(FIGMA_HEADER_BUTTON_TOP),
+            }}>
             <ArrowLeftIcon width={24 * scale} height={24 * scale} />
           </CircleIconButton>
 
           <CircleIconButton
             scale={scale}
             accessibilityLabel="Conversation history"
-            style={{ position: 'absolute', right: 20 * scale, top: figmaY(FIGMA_HEADER_BUTTON_TOP) }}>
+            style={{
+              position: 'absolute',
+              left: contentWidth * 0.75 + 47 * scale,
+              top: figmaY(FIGMA_HEADER_BUTTON_TOP),
+            }}>
             <HistoryIcon width={24 * scale} height={24 * scale} />
           </CircleIconButton>
 
@@ -178,12 +186,11 @@ export function SwashoAIScreen() {
             },
           ]}
           contentContainerStyle={{
-            paddingHorizontal: 20 * scale,
             paddingBottom: 16 * scale,
-            gap: 32 * scale,
+            alignItems: 'center',
           }}
           showsVerticalScrollIndicator={false}>
-          <View style={{ width: 372 * scale, alignSelf: 'center', gap: 32 * scale }}>
+          <View style={{ width: contentColumnWidth, gap: 32 * scale }}>
             <Text
               style={[
                 searchFont('medium'),
@@ -263,12 +270,12 @@ export function SwashoAIScreen() {
             styles.chipScroll,
             {
               top: chipsTop,
-              width: contentWidth,
-              paddingLeft: 20 * scale,
+              left: FIGMA_HORIZONTAL_INSET * scale,
+              width: contentWidth - FIGMA_HORIZONTAL_INSET * scale,
             },
           ]}
           contentContainerStyle={styles.chipScrollContent}>
-          <View style={{ gap: 10 * scale }}>
+          <View style={{ width: FIGMA_CHIPS_WIDTH * scale, gap: 10 * scale }}>
             <View style={[styles.chipRow, { gap: 10 * scale, paddingTop: 10 * scale, paddingHorizontal: 10 * scale }]}>
               {SUGGESTION_CHIPS.slice(0, 2).map((chip) => (
                 <Pressable
@@ -333,7 +340,8 @@ export function SwashoAIScreen() {
             styles.composerRow,
             {
               top: composerTop,
-              width: 372 * scale,
+              left: contentColumnLeft,
+              width: contentColumnWidth,
               gap: 4 * scale,
             },
           ]}>
@@ -391,7 +399,14 @@ export function SwashoAIScreen() {
           </Pressable>
         </View>
 
-        <View style={[styles.homeIndicatorWrap, { bottom: Math.max(insets.bottom, 4 * scale) }]}>
+        <View
+          style={[
+            styles.homeIndicatorWrap,
+            {
+              top: figmaY(FIGMA_HOME_INDICATOR_TOP),
+              height: HOME_INDICATOR_HEIGHT * scale,
+            },
+          ]}>
           <HomeIndicator scale={scale} />
         </View>
       </View>
@@ -410,7 +425,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     ...Platform.select({
       web: {
-        maxHeight: ScreenHeight,
+        maxHeight: FIGMA_FRAME_HEIGHT,
       },
     }),
   },
