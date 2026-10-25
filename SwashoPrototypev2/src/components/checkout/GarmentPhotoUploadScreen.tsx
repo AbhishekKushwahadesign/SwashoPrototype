@@ -49,6 +49,16 @@ import { usePickGarmentPhoto } from './use-pick-garment-photo';
 const DEFAULT_GARMENT_HERO = require('@/assets/checkout/garment-photo-upload-hero.png');
 const STATUS_BAR_HEIGHT = 32;
 const BOTTOM_PANEL_HEIGHT = 310;
+
+/** Dev / QA fixture — six distinct service widths (contactless multi-service garment). */
+const SNAP_TEST_MULTI_SERVICE_SLOTS: GarmentPhotoServiceSlot[] = [
+  { serviceId: 'wash-iron', title: 'Wash & Iron', quantity: 1, optional: false },
+  { serviceId: 'ironing-basic', title: 'Ironing', quantity: 1, optional: false },
+  { serviceId: 'wash-fold', title: 'Wash & fold', quantity: 2, optional: false },
+  { serviceId: 'pressing-ironing', title: 'Ironing', quantity: 1, optional: false },
+  { serviceId: 'dry-cleaning', title: 'Dry Cleaning', quantity: 2, optional: false },
+  { serviceId: 'stain-removal', title: 'Stain removal', quantity: 1, optional: false },
+];
 type GarmentPhotoUploadScreenProps = {
   providerId: string;
   query: string;
@@ -352,6 +362,9 @@ export function GarmentPhotoUploadScreen({
       price: 0,
     };
     const slots = garmentPhotoSlotsFromBasketLine(fallbackLine, selection);
+    if (query === 'snap-test') {
+      return [{ line: fallbackLine, slots: SNAP_TEST_MULTI_SERVICE_SLOTS }];
+    }
     if (slots.length === 0) {
       slots.push({
         serviceId: initialServiceId,
@@ -439,8 +452,15 @@ export function GarmentPhotoUploadScreen({
   );
   trackCarouselWidthRef.current = trackCarouselWidth;
 
+  /** Figma — fixed-width capsule slot; every chip scrolls inside the same stride. */
+  const serviceSlotWidth = useMemo(() => {
+    const measured = serviceItemWidths.filter((width) => width > 0);
+    const maxMeasured = measured.length ? Math.max(...measured) : 0;
+    return Math.max(144 * scale, maxMeasured);
+  }, [scale, serviceItemWidths]);
+
   const serviceMetrics = useMemo(() => {
-    if (!activeSlots.length || trackCarouselWidth <= 0) {
+    if (!activeSlots.length || trackCarouselWidth <= 0 || serviceSlotWidth <= 0) {
       return {
         leadingInset: 0,
         trailingInset: 0,
@@ -449,22 +469,13 @@ export function GarmentPhotoUploadScreen({
         contentWidth: 0,
       };
     }
-    const measured = serviceItemWidths.filter((width) => width > 0);
-    const fallbackWidth = measured.length ? Math.max(...measured) : 144 * scale;
-    const widths = activeSlots.map((_, index) => {
-      const width = serviceItemWidths[index];
-      return width && width > 0 ? width : fallbackWidth;
-    });
+    const widths = activeSlots.map(() => serviceSlotWidth);
     return buildCenterSnapMetrics(trackCarouselWidth, widths, serviceChipGap);
-  }, [activeSlots, serviceChipGap, serviceItemWidths, scale, trackCarouselWidth]);
+  }, [activeSlots, serviceChipGap, serviceSlotWidth, trackCarouselWidth]);
 
   serviceMetricsRef.current = serviceMetrics;
 
-  const serviceCenterFrameWidth = useMemo(() => {
-    const measured = serviceItemWidths.filter((width) => width > 0);
-    const maxMeasured = measured.length ? Math.max(...measured) : 0;
-    return Math.max(144 * scale, maxMeasured);
-  }, [scale, serviceItemWidths]);
+  const serviceCenterFrameWidth = serviceSlotWidth;
 
   const activeService = activeSlots[resolvedServiceIndex] ?? activeSlots[0];
   const uploadHint = garmentPhotoUploadHint(activeSlots);
@@ -985,7 +996,9 @@ export function GarmentPhotoUploadScreen({
               horizontal
               showsHorizontalScrollIndicator={false}
               snapToOffsets={
-                serviceMetrics.snapOffsets.length ? serviceMetrics.snapOffsets : undefined
+                Platform.OS !== 'web' && serviceMetrics.snapOffsets.length
+                  ? serviceMetrics.snapOffsets
+                  : undefined
               }
               snapToAlignment="start"
               disableIntervalMomentum
@@ -1021,6 +1034,7 @@ export function GarmentPhotoUploadScreen({
                     }}
                     style={[
                       {
+                        width: serviceSlotWidth,
                         height: serviceChipHeight,
                         alignItems: 'center',
                         justifyContent: 'center',
