@@ -535,15 +535,17 @@ export function GarmentPhotoUploadScreen({
   const garmentActiveInner = 71 * scale;
   const garmentInactiveInner = 56 * scale;
   const garmentSnapStep = garmentRingSize;
+  /** Figma 3399:16790 — edge gap between garment rings (~28px at 412pt artboard). */
+  const garmentChipGap = 28 * scale;
 
   const garmentMetrics = useMemo(
     () =>
       buildCenterSnapMetrics(
         trackCarouselWidth,
         garmentContexts.map(() => garmentSnapStep),
-        0,
+        garmentChipGap,
       ),
-    [garmentContexts.length, garmentSnapStep, trackCarouselWidth],
+    [garmentChipGap, garmentContexts.length, garmentSnapStep, trackCarouselWidth],
   );
 
   garmentMetricsRef.current = garmentMetrics;
