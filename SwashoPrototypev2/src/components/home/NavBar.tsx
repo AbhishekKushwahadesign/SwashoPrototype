@@ -38,6 +38,9 @@ const BLUR_LAYERS = [
   { blurPx: 24, fadeStart: '75%', fadeEnd: '100%' },
 ] as const;
 
+const NAV_BLUR_GRADIENT = ['rgba(255,255,255,0)', 'rgba(255,255,255,0.1)'] as const;
+const NAV_BLUR_GRADIENT_LOCATIONS = [0, 0.75] as const;
+
 const PILL_WIDTH = 238;
 const PILL_HEIGHT = 63;
 const PILL_TOP = 9.03;
@@ -86,7 +89,14 @@ function ProgressiveBlurFade({ scale }: { scale: number }) {
   const fadeStyle = [styles.blurFade, { height }];
 
   if (Platform.OS !== 'web') {
-    return null;
+    return (
+      <LinearGradient
+        colors={[...NAV_BLUR_GRADIENT]}
+        locations={[...NAV_BLUR_GRADIENT_LOCATIONS]}
+        style={fadeStyle}
+        pointerEvents="none"
+      />
+    );
   }
 
   return (
@@ -100,6 +110,12 @@ function ProgressiveBlurFade({ scale }: { scale: number }) {
           height={height}
         />
       ))}
+      <LinearGradient
+        colors={[...NAV_BLUR_GRADIENT]}
+        locations={[...NAV_BLUR_GRADIENT_LOCATIONS]}
+        style={StyleSheet.absoluteFill}
+        pointerEvents="none"
+      />
     </View>
   );
 }
