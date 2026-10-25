@@ -1,4 +1,3 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import { createElement } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
@@ -37,10 +36,6 @@ const BLUR_LAYERS = [
   { blurPx: 14, fadeStart: '55%', fadeEnd: '100%' },
   { blurPx: 24, fadeStart: '75%', fadeEnd: '100%' },
 ] as const;
-
-/** White wash over progressive blur — keep low so content stays visible. */
-const NAV_BLUR_GRADIENT = ['rgba(255,255,255,0)', 'rgba(255,255,255,0.38)'] as const;
-const NAV_BLUR_GRADIENT_LOCATIONS = [0, 0.75] as const;
 
 const PILL_WIDTH = 238;
 const PILL_HEIGHT = 63;
@@ -90,14 +85,7 @@ function ProgressiveBlurFade({ scale }: { scale: number }) {
   const fadeStyle = [styles.blurFade, { height }];
 
   if (Platform.OS !== 'web') {
-    return (
-      <LinearGradient
-        colors={[...NAV_BLUR_GRADIENT]}
-        locations={[...NAV_BLUR_GRADIENT_LOCATIONS]}
-        style={fadeStyle}
-        pointerEvents="none"
-      />
-    );
+    return null;
   }
 
   return (
@@ -111,18 +99,6 @@ function ProgressiveBlurFade({ scale }: { scale: number }) {
           height={height}
         />
       ))}
-      <LinearGradient
-        colors={[...NAV_BLUR_GRADIENT]}
-        locations={[...NAV_BLUR_GRADIENT_LOCATIONS]}
-        style={StyleSheet.absoluteFill}
-        pointerEvents="none"
-      />
-      <LinearGradient
-        colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.01)']}
-        locations={[0.19232, 0.87445]}
-        style={StyleSheet.absoluteFill}
-        pointerEvents="none"
-      />
     </View>
   );
 }
@@ -344,6 +320,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
+    top: 0,
     bottom: 0,
     zIndex: 0,
   },
