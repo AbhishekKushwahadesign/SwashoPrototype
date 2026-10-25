@@ -1206,6 +1206,8 @@ export function GarmentPhotoUploadScreen({
                         height: garmentRingSize,
                         alignItems: 'center',
                         justifyContent: 'center',
+                        marginRight:
+                          index < garmentContexts.length - 1 ? garmentChipGap : 0,
                       },
                       Platform.OS === 'web'
                         ? ({
