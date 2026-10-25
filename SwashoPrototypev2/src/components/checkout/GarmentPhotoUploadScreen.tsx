@@ -183,7 +183,7 @@ function ServiceCarouselCenterFrame({ scale }: { scale: number }) {
         borderRadius: 20 * scale,
         borderWidth: 1.5 * scale,
         borderColor: '#252525',
-        backgroundColor: 'transparent',
+        backgroundColor: SwashoColors.surface,
       }}
     />
   );
