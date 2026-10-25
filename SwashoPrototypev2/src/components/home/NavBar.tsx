@@ -92,8 +92,8 @@ function ProgressiveBlurFade({ scale }: { scale: number }) {
   if (Platform.OS !== 'web') {
     return (
       <LinearGradient
-        colors={['rgba(255,255,255,0.05)', '#ffffff']}
-        locations={[0, 0.75]}
+        colors={[...NAV_BLUR_GRADIENT]}
+        locations={[...NAV_BLUR_GRADIENT_LOCATIONS]}
         style={fadeStyle}
         pointerEvents="none"
       />
@@ -112,8 +112,8 @@ function ProgressiveBlurFade({ scale }: { scale: number }) {
         />
       ))}
       <LinearGradient
-        colors={['rgba(255,255,255,0.05)', '#ffffff']}
-        locations={[0, 0.75]}
+        colors={[...NAV_BLUR_GRADIENT]}
+        locations={[...NAV_BLUR_GRADIENT_LOCATIONS]}
         style={StyleSheet.absoluteFill}
         pointerEvents="none"
       />
