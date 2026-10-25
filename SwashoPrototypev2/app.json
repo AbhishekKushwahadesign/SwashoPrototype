@@ -24,6 +24,13 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Swasho to scan garments with your camera",
+          "recordAudioAndroid": false
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",

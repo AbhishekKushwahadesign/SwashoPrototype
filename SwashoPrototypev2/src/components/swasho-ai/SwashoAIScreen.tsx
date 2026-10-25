@@ -232,6 +232,7 @@ export function SwashoAIScreen() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Scan and recommend"
+          onPress={() => router.push('/swasho-ai/scan')}
           style={[
             styles.scanCard,
             styles.scanCardPositioned,

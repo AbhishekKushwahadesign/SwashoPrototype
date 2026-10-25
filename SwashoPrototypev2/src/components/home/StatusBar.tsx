@@ -5,8 +5,8 @@ import { SwashoColors, SwashoFonts } from '@/constants/swasho-tokens';
 
 type StatusBarProps = {
   scale: number;
-  /** Home header uses purple chrome; Swasho AI matches Figma transparent bar. */
-  tone?: 'purple' | 'light' | 'transparent';
+  /** Home header uses purple chrome; Swasho AI matches Figma transparent bar; camera overlay uses light chrome. */
+  tone?: 'purple' | 'light' | 'transparent' | 'camera';
 };
 
 const ICON_COLOR_PURPLE = '#E6E6E6';
@@ -47,14 +47,15 @@ function BatteryIcon({ size, color }: { size: number; color: string }) {
 export function StatusBar({ scale, tone = 'purple' }: StatusBarProps) {
   const iconSize = 16 * scale;
   const light = tone === 'light' || tone === 'transparent';
-  const iconColor = light ? '#333333' : ICON_COLOR_PURPLE;
+  const cameraOverlay = tone === 'camera';
+  const iconColor = cameraOverlay ? ICON_COLOR_PURPLE : light ? '#333333' : ICON_COLOR_PURPLE;
   const containerStyle =
-    tone === 'transparent'
+    tone === 'transparent' || tone === 'camera'
       ? styles.containerTransparent
       : tone === 'light'
         ? styles.containerLight
         : styles.containerPurple;
-  const timeStyle = light ? styles.timeLight : styles.timePurple;
+  const timeStyle = cameraOverlay ? styles.timeCamera : light ? styles.timeLight : styles.timePurple;
 
   return (
     <View
@@ -98,6 +99,9 @@ const styles = StyleSheet.create({
   },
   timeLight: {
     color: '#333333',
+  },
+  timeCamera: {
+    color: '#E6E6E6',
   },
   icons: {
     flexDirection: 'row',
