@@ -496,6 +496,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     zIndex: 4,
+    ...Platform.select({
+      web: { overflowX: 'auto', overflowY: 'visible' } as object,
+    }),
+  },
+  chipRows: {
+    alignSelf: 'flex-start',
   },
   chipRow: {
     flexDirection: 'row',
@@ -508,6 +514,8 @@ const styles = StyleSheet.create({
   chipScrollContent: {
     flexDirection: 'row',
     alignItems: 'flex-start',
+    justifyContent: 'flex-start',
+    flexGrow: 0,
   },
   chip: {
     backgroundColor: 'rgba(255, 255, 255, 0.35)',
