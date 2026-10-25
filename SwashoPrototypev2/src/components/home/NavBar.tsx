@@ -38,6 +38,10 @@ const BLUR_LAYERS = [
   { blurPx: 24, fadeStart: '75%', fadeEnd: '100%' },
 ] as const;
 
+/** White wash over progressive blur — keep low so content stays visible. */
+const NAV_BLUR_GRADIENT = ['rgba(255,255,255,0)', 'rgba(255,255,255,0.38)'] as const;
+const NAV_BLUR_GRADIENT_LOCATIONS = [0, 0.75] as const;
+
 const PILL_WIDTH = 238;
 const PILL_HEIGHT = 63;
 const PILL_TOP = 9.03;
