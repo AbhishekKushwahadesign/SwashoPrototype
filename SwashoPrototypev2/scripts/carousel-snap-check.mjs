@@ -54,12 +54,41 @@ async function measureSnap(page) {
 
     const emphasized = chipRects.find((c) => Math.abs(c.centerDelta) < 6);
 
+    const clip = scroll.parentElement;
+    const overlay = clip
+      ? [...clip.children].find((el) => {
+          if (el === scroll) return false;
+          const s = getComputedStyle(el);
+          return s.position === 'absolute' && s.zIndex === '2';
+        })
+      : null;
+    const overlayWidth = overlay ? overlay.getBoundingClientRect().width : null;
+
+    let centeredChipContentWidth = null;
+    if (emphasized && slots[emphasized.index]) {
+      const slot = slots[emphasized.index];
+      const inner =
+        slot.querySelector('[class*="css-view"]')?.firstElementChild ?? slot.firstElementChild;
+      const chipEl = inner?.firstElementChild ?? inner;
+      if (chipEl) {
+        centeredChipContentWidth = chipEl.getBoundingClientRect().width;
+      }
+    }
+
+    const capsuleWidthDelta =
+      overlayWidth != null && centeredChipContentWidth != null
+        ? overlayWidth - centeredChipContentWidth
+        : null;
+
     return {
       scrollLeft: scroll.scrollLeft,
       viewportWidth: scroll.clientWidth,
       chipCount: chipRects.length,
       chips: chipRects,
       centered: emphasized ?? null,
+      overlayWidth,
+      centeredChipContentWidth,
+      capsuleWidthDelta,
     };
   });
 }
@@ -101,7 +130,7 @@ async function main() {
   }
 
   const results = [];
-  for (const idx of [0, 2, 4, 5]) {
+  for (const idx of [0, 1, 2, 4, 5]) {
     await tapChipByIndex(page, idx);
     const m = await measureSnap(page);
     results.push({ tappedIndex: idx, ...m });
@@ -109,9 +138,15 @@ async function main() {
 
   console.log(JSON.stringify({ viewport: VIEWPORT_W, results }, null, 2));
 
-  const failed = results.filter(
-    (r) => r.error || !r.centered || Math.abs(r.centered.centerDelta) > 5,
-  );
+  const failed = results.filter((r) => {
+    if (r.error || !r.centered || Math.abs(r.centered.centerDelta) > 5) {
+      return true;
+    }
+    if (r.capsuleWidthDelta == null || Math.abs(r.capsuleWidthDelta) > 2) {
+      return true;
+    }
+    return false;
+  });
 
   await browser.close();
   process.exit(failed.length ? 1 : 0);

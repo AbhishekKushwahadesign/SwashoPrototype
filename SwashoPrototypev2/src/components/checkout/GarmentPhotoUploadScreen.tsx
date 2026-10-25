@@ -475,7 +475,14 @@ export function GarmentPhotoUploadScreen({
 
   serviceMetricsRef.current = serviceMetrics;
 
-  const serviceCenterFrameWidth = serviceSlotWidth;
+  /** Center overlay hugs the active chip; scroll slots stay uniform for snap math. */
+  const serviceCenterFrameWidth = useMemo(() => {
+    const measured = serviceItemWidths[resolvedServiceIndex];
+    if (measured && measured > 0) {
+      return measured;
+    }
+    return Math.max(144 * scale, serviceSlotWidth);
+  }, [resolvedServiceIndex, scale, serviceItemWidths, serviceSlotWidth]);
 
   const activeService = activeSlots[resolvedServiceIndex] ?? activeSlots[0];
   const uploadHint = garmentPhotoUploadHint(activeSlots);
@@ -980,14 +987,23 @@ export function GarmentPhotoUploadScreen({
             {trackCarouselWidth > 0 ? (
               <View
                 pointerEvents="none"
-                style={{
-                  position: 'absolute',
-                  left: trackCarouselWidth / 2 - serviceCenterFrameWidth / 2,
-                  top: 0,
-                  width: serviceCenterFrameWidth,
-                  height: serviceChipHeight,
-                  zIndex: 2,
-                }}>
+                style={[
+                  {
+                    position: 'absolute',
+                    left: trackCarouselWidth / 2 - serviceCenterFrameWidth / 2,
+                    top: 0,
+                    width: serviceCenterFrameWidth,
+                    height: serviceChipHeight,
+                    zIndex: 2,
+                  },
+                  Platform.OS === 'web'
+                    ? ({
+                        transitionProperty: 'width, left',
+                        transitionDuration: '220ms',
+                        transitionTimingFunction: 'ease',
+                      } as object)
+                    : null,
+                ]}>
                 <ServiceCarouselCenterFrame scale={scale} />
               </View>
             ) : null}
