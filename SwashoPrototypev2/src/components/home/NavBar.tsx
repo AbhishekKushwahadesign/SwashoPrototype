@@ -1,3 +1,4 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { createElement } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
