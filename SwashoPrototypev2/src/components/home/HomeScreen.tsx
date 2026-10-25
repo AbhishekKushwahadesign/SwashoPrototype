@@ -18,7 +18,7 @@ import { ScreenHeight, SwashoColors, SwashoRadii, SwashoSpacing } from '@/consta
 import { AddressHeader } from './AddressHeader';
 import { BulkLaundryCard } from './BulkLaundryCard';
 import { HomeIndicator } from './HomeIndicator';
-import { NavBar, NavBarVariant } from './NavBar';
+import { NavBar, NAV_BAR_BOTTOM_INSET, NavBarVariant } from './NavBar';
 import { OrderCard } from './OrderCard';
 import { PromiseSection } from './PromiseSection';
 import { RecommendationCard } from './RecommendationCard';
@@ -186,6 +186,7 @@ export function HomeScreen() {
 
   const frameHeight = contentHeight + safeTop;
   const bottomChromeHeight = (NAV_HEIGHT + HOME_INDICATOR_HEIGHT) * scale;
+  const bottomNavLift = NAV_BAR_BOTTOM_INSET * scale;
   const maxCollapseScroll = HEADER_COLLAPSE_SCROLL * scale;
 
   useEffect(() => {
@@ -409,7 +410,7 @@ export function HomeScreen() {
               {
                 paddingTop: sheetContentPaddingTop * scale,
                 paddingHorizontal: SwashoSpacing.xxl * scale,
-                paddingBottom: 16 * scale + bottomChromeHeight,
+                paddingBottom: 16 * scale + bottomChromeHeight + bottomNavLift,
                 gap: SwashoSpacing.section * scale,
               },
             ]}
@@ -423,7 +424,11 @@ export function HomeScreen() {
           </ScrollView>
         </View>
 
-        <View style={[styles.navBarWrap, { height: bottomChromeHeight }]}>
+        <View
+          style={[
+            styles.navBarWrap,
+            { height: bottomChromeHeight, bottom: bottomNavLift },
+          ]}>
           <NavBar
             variant={navVariant}
             scale={scale}
@@ -528,7 +533,6 @@ const styles = StyleSheet.create({
   },
   navBarWrap: {
     position: 'absolute',
-    bottom: 0,
     left: 0,
     right: 0,
     zIndex: 8,

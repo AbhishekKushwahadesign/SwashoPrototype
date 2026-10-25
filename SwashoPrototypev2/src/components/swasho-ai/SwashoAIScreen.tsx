@@ -16,7 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowLeftIcon, MicrophoneIcon } from '@/components/home/figma-icons';
 import { FigmaShadows, figmaShadow } from '@/components/home/figma-shadows';
 import { HomeIndicator } from '@/components/home/HomeIndicator';
-import { NavBar, SwashoAiIcon } from '@/components/home/NavBar';
+import { NavBar, NAV_BAR_BOTTOM_INSET, SwashoAiIcon } from '@/components/home/NavBar';
 import { StatusBar } from '@/components/home/StatusBar';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { searchFont } from '@/components/search/search-fonts';
@@ -82,7 +82,8 @@ export function SwashoAIScreen() {
 
   const frameHeight = contentHeight + safeTop;
   const bottomChromeHeight = (NAV_HEIGHT + HOME_INDICATOR_HEIGHT) * scale;
-  const composerBottom = bottomChromeHeight + COMPOSER_BOTTOM_GAP * scale;
+  const bottomNavLift = NAV_BAR_BOTTOM_INSET * scale;
+  const composerBottom = bottomChromeHeight + bottomNavLift + COMPOSER_BOTTOM_GAP * scale;
 
   const applySuggestion = (label: string) => {
     setDraft(label);
@@ -370,7 +371,11 @@ export function SwashoAIScreen() {
           </Pressable>
         </View>
 
-        <View style={[styles.navBarWrap, { height: bottomChromeHeight }]}>
+        <View
+          style={[
+            styles.navBarWrap,
+            { height: bottomChromeHeight, bottom: bottomNavLift },
+          ]}>
           <NavBar
             variant="AI"
             scale={scale}
@@ -499,7 +504,6 @@ const styles = StyleSheet.create({
   },
   navBarWrap: {
     position: 'absolute',
-    bottom: 0,
     left: 0,
     right: 0,
     zIndex: 8,

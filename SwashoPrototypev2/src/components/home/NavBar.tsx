@@ -29,6 +29,8 @@ type NavBarProps = {
 };
 
 const NAV_HEIGHT = 101;
+/** Figma bottom nav (3344:8669) — lift pill above home-indicator zone. */
+export const NAV_BAR_BOTTOM_INSET = 80;
 const NAV_BACKDROP_BLUR = 1.5;
 const PILL_WIDTH = 238;
 const PILL_HEIGHT = 63;
