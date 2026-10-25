@@ -84,7 +84,7 @@ function WebBlurLayer({
   });
 }
 
-/** Figma 3344:8669 — stacked backdrop blur fading toward the top of the nav chrome. */
+/** Figma 3344:8669 — stacked backdrop blur across full nav chrome (from top of bar). */
 function ProgressiveBlurFade({ scale }: { scale: number }) {
   const height = NAV_HEIGHT * scale;
   const fadeStyle = [styles.blurFade, { height }];
@@ -345,7 +345,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    top: 0,
     zIndex: 0,
   },
   pill: {
