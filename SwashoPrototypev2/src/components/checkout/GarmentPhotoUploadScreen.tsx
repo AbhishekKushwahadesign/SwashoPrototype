@@ -1,5 +1,13 @@
 import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+  type RefObject,
+} from 'react';
 import {
   Image,
   LayoutChangeEvent,
@@ -171,22 +179,6 @@ function ServiceCarouselCenterFrame({ scale }: { scale: number }) {
   );
 }
 
-function nearestCarouselOffsetIndex(offsetX: number, offsets: number[]): number {
-  if (!offsets.length) {
-    return 0;
-  }
-  let nearest = 0;
-  let minDistance = Math.abs(offsetX - offsets[0]);
-  for (let index = 1; index < offsets.length; index += 1) {
-    const distance = Math.abs(offsetX - offsets[index]);
-    if (distance < minDistance) {
-      minDistance = distance;
-      nearest = index;
-    }
-  }
-  return nearest;
-}
-
 type CenterSnapMetrics = {
   leadingInset: number;
   trailingInset: number;
@@ -228,27 +220,6 @@ function buildCenterSnapMetrics(
     0,
   );
   const contentWidth = leadingInset + itemsWidth + trailingInset;
-
-  return { leadingInset, trailingInset, itemCenters, snapOffsets, contentWidth };
-}
-
-function buildCenterSnapMetricsFromLayouts(
-  viewportWidth: number,
-  layouts: { x: number; width: number }[],
-): CenterSnapMetrics {
-  if (viewportWidth <= 0 || !layouts.length) {
-    return { leadingInset: 0, trailingInset: 0, itemCenters: [], snapOffsets: [], contentWidth: 0 };
-  }
-
-  const itemCenters = layouts.map((layout) => layout.x + layout.width / 2);
-  const snapOffsets = itemCenters.map((center) =>
-    Math.round(Math.max(0, center - viewportWidth / 2)),
-  );
-  const first = layouts[0];
-  const last = layouts[layouts.length - 1];
-  const leadingInset = first.x;
-  const trailingInset = Math.max(0, viewportWidth / 2 - last.width / 2);
-  const contentWidth = last.x + last.width + trailingInset;
 
   return { leadingInset, trailingInset, itemCenters, snapOffsets, contentWidth };
 }
@@ -414,6 +385,7 @@ export function GarmentPhotoUploadScreen({
   const [garmentIndex, setGarmentIndex] = useState(initialGarmentIndex);
   const [serviceIndex, setServiceIndex] = useState(0);
   const garmentScrollRef = useRef<ScrollView>(null);
+  const garmentScrollOffsetRef = useRef(0);
   const serviceScrollRef = useRef<ScrollView>(null);
   const [trackCarouselWidth, setTrackCarouselWidth] = useState(contentWidth);
   const serviceIndexRef = useRef(0);
@@ -467,12 +439,8 @@ export function GarmentPhotoUploadScreen({
   );
   trackCarouselWidthRef.current = trackCarouselWidth;
 
-  const serviceWidthsReady =
-    activeSlots.length > 0 &&
-    activeSlots.every((_, index) => (serviceItemWidths[index] ?? 0) > 0);
-
   const serviceMetrics = useMemo(() => {
-    if (!serviceWidthsReady || trackCarouselWidth <= 0) {
+    if (!activeSlots.length || trackCarouselWidth <= 0) {
       return {
         leadingInset: 0,
         trailingInset: 0,
@@ -481,9 +449,14 @@ export function GarmentPhotoUploadScreen({
         contentWidth: 0,
       };
     }
-    const widths = activeSlots.map((_, index) => serviceItemWidths[index] ?? 0);
+    const measured = serviceItemWidths.filter((width) => width > 0);
+    const fallbackWidth = measured.length ? Math.max(...measured) : 144 * scale;
+    const widths = activeSlots.map((_, index) => {
+      const width = serviceItemWidths[index];
+      return width && width > 0 ? width : fallbackWidth;
+    });
     return buildCenterSnapMetrics(trackCarouselWidth, widths, serviceChipGap);
-  }, [activeSlots, serviceChipGap, serviceItemWidths, serviceWidthsReady, trackCarouselWidth]);
+  }, [activeSlots, serviceChipGap, serviceItemWidths, scale, trackCarouselWidth]);
 
   serviceMetricsRef.current = serviceMetrics;
 
@@ -544,23 +517,31 @@ export function GarmentPhotoUploadScreen({
     serviceOffsetsAlignedRef.current = false;
   }, [trackCarouselWidth, serviceMetrics.snapOffsets.join(',')]);
 
-  const readServiceScrollOffset = useCallback((fallback = 0) => {
-    const tracked = serviceScrollOffsetRef.current;
-    if (Platform.OS === 'web') {
-      const scrollable = (
-        serviceScrollRef.current as unknown as { getScrollableNode?: () => HTMLElement }
-      )?.getScrollableNode?.();
-      const domOffset = scrollable?.scrollLeft ?? 0;
-      if (domOffset > 0) {
-        return domOffset;
-      }
-      if (fallback > 0) {
-        return fallback;
-      }
-      return tracked;
-    }
-    return tracked > 0 ? tracked : fallback;
+  const getScrollableNode = useCallback((ref: RefObject<ScrollView | null>) => {
+    return (ref.current as unknown as { getScrollableNode?: () => HTMLElement })?.getScrollableNode?.();
   }, []);
+
+  const readServiceScrollOffset = useCallback((fallback = 0) => {
+    if (Platform.OS === 'web') {
+      const scrollable = getScrollableNode(serviceScrollRef);
+      if (scrollable) {
+        return scrollable.scrollLeft;
+      }
+    }
+    const tracked = serviceScrollOffsetRef.current;
+    return Number.isFinite(tracked) ? tracked : fallback;
+  }, [getScrollableNode]);
+
+  const readGarmentScrollOffset = useCallback((fallback = 0) => {
+    if (Platform.OS === 'web') {
+      const scrollable = getScrollableNode(garmentScrollRef);
+      if (scrollable) {
+        return scrollable.scrollLeft;
+      }
+    }
+    const tracked = garmentScrollOffsetRef.current;
+    return Number.isFinite(tracked) ? tracked : fallback;
+  }, [getScrollableNode]);
 
   const scrollServiceToOffset = useCallback((offsetX: number, animated: boolean) => {
     const viewport = trackCarouselWidthRef.current;
@@ -569,17 +550,18 @@ export function GarmentPhotoUploadScreen({
     serviceSnapInFlightRef.current = true;
     serviceScrollOffsetRef.current = clamped;
     if (Platform.OS === 'web') {
-      const scrollable = (
-        serviceScrollRef.current as unknown as { getScrollableNode?: () => HTMLElement }
-      )?.getScrollableNode?.();
-      scrollable?.scrollTo({ left: clamped, behavior: animated ? 'smooth' : 'auto' });
+      const scrollable = getScrollableNode(serviceScrollRef);
+      if (scrollable) {
+        // RN Web horizontal ScrollView ignores scrollTo({ left }) on the scroll node.
+        scrollable.scrollLeft = clamped;
+      }
     } else {
       serviceScrollRef.current?.scrollTo({ x: clamped, animated });
     }
     setTimeout(() => {
       serviceSnapInFlightRef.current = false;
     }, animated ? 320 : 48);
-  }, []);
+  }, [getScrollableNode]);
 
   const scrollServiceToIndex = useCallback(
     (index: number, animated: boolean) => {
@@ -595,9 +577,6 @@ export function GarmentPhotoUploadScreen({
 
   const snapServiceToNearest = useCallback(
     (offsetX: number, animated: boolean) => {
-      if (serviceSnapInFlightRef.current) {
-        return;
-      }
       const viewport = trackCarouselWidthRef.current;
       const metrics = serviceMetricsRef.current;
       if (!metrics.snapOffsets.length || viewport <= 0) {
@@ -613,6 +592,10 @@ export function GarmentPhotoUploadScreen({
 
       setServiceIndex(index);
       serviceIndexRef.current = index;
+      if (Math.abs(offsetX - targetX) < 1) {
+        serviceScrollOffsetRef.current = targetX;
+        return;
+      }
       scrollServiceToOffset(targetX, animated);
     },
     [scrollServiceToOffset],
@@ -634,26 +617,27 @@ export function GarmentPhotoUploadScreen({
     serviceIndexRef.current = previewIndex;
   }, []);
 
+  const settleServiceSnap = useCallback(() => {
+    serviceSnapInFlightRef.current = false;
+    const offsetX = readServiceScrollOffset();
+    snapServiceToNearest(offsetX, false);
+  }, [readServiceScrollOffset, snapServiceToNearest]);
+
   const handleServiceScrollEnd = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const eventOffset = event.nativeEvent.contentOffset.x;
-      serviceScrollOffsetRef.current = eventOffset;
+      serviceScrollOffsetRef.current = event.nativeEvent.contentOffset.x;
       if (serviceSnapIdleTimerRef.current) {
         clearTimeout(serviceSnapIdleTimerRef.current);
       }
-      const runSnap = () => {
-        const offsetX = readServiceScrollOffset(eventOffset);
-        snapServiceToNearest(offsetX, false);
-      };
       if (Platform.OS === 'web') {
         requestAnimationFrame(() => {
-          requestAnimationFrame(runSnap);
+          requestAnimationFrame(settleServiceSnap);
         });
       } else {
-        runSnap();
+        settleServiceSnap();
       }
     },
-    [readServiceScrollOffset, snapServiceToNearest],
+    [settleServiceSnap],
   );
 
   const scrollGarmentToIndex = useCallback(
@@ -666,18 +650,20 @@ export function GarmentPhotoUploadScreen({
       }
       const clamped = clampScrollOffset(targetX, metrics.contentWidth, viewport);
       garmentSnapInFlightRef.current = true;
-      garmentScrollRef.current?.scrollTo({ x: clamped, animated });
+      garmentScrollOffsetRef.current = clamped;
       if (Platform.OS === 'web') {
-        const scrollable = (
-          garmentScrollRef.current as unknown as { getScrollableNode?: () => HTMLElement }
-        )?.getScrollableNode?.();
-        scrollable?.scrollTo({ left: clamped, behavior: animated ? 'smooth' : 'auto' });
+        const scrollable = getScrollableNode(garmentScrollRef);
+        if (scrollable) {
+          scrollable.scrollLeft = clamped;
+        }
+      } else {
+        garmentScrollRef.current?.scrollTo({ x: clamped, animated });
       }
       setTimeout(() => {
         garmentSnapInFlightRef.current = false;
       }, animated ? 320 : 48);
     },
-    [],
+    [getScrollableNode],
   );
 
   const garmentInactiveScale = garmentInactiveInner / garmentActiveInner;
@@ -734,7 +720,7 @@ export function GarmentPhotoUploadScreen({
   }, []);
 
   useEffect(() => {
-    if (!serviceWidthsReady || !serviceMetrics.snapOffsets.length || serviceOffsetsAlignedRef.current) {
+    if (!serviceMetrics.snapOffsets.length || serviceOffsetsAlignedRef.current) {
       return;
     }
     serviceOffsetsAlignedRef.current = true;
@@ -742,7 +728,24 @@ export function GarmentPhotoUploadScreen({
     requestAnimationFrame(() => {
       scrollServiceToIndex(idx, false);
     });
-  }, [serviceWidthsReady, serviceMetrics.snapOffsets.join(','), scrollServiceToIndex]);
+  }, [serviceMetrics.snapOffsets.join(','), scrollServiceToIndex]);
+
+  useEffect(() => {
+    if (Platform.OS !== 'web' || !serviceMetrics.snapOffsets.length) {
+      return;
+    }
+    const scrollable = getScrollableNode(serviceScrollRef);
+    if (!scrollable) {
+      return;
+    }
+    const onScrollEnd = () => {
+      settleServiceSnap();
+    };
+    scrollable.addEventListener('scrollend', onScrollEnd);
+    return () => {
+      scrollable.removeEventListener('scrollend', onScrollEnd);
+    };
+  }, [getScrollableNode, serviceMetrics.snapOffsets.join(','), settleServiceSnap]);
 
   useEffect(() => {
     if (!activeSlots.length || appliedInitialServiceRef.current || !serviceMetrics.snapOffsets.length) {
@@ -763,11 +766,18 @@ export function GarmentPhotoUploadScreen({
     };
   }, []);
 
+  const settleGarmentSnap = useCallback(() => {
+    garmentSnapInFlightRef.current = false;
+    const offsetX = readGarmentScrollOffset();
+    snapGarmentToNearest(offsetX, false);
+  }, [readGarmentScrollOffset, snapGarmentToNearest]);
+
   const handleGarmentScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
     if (garmentSnapInFlightRef.current) {
       return;
     }
     const offsetX = event.nativeEvent.contentOffset.x;
+    garmentScrollOffsetRef.current = offsetX;
     const viewport = trackCarouselWidthRef.current;
     const metrics = garmentMetricsRef.current;
     if (!metrics.itemCenters.length || viewport <= 0) {
@@ -786,18 +796,34 @@ export function GarmentPhotoUploadScreen({
 
   const handleGarmentScrollEnd = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const eventOffset = event.nativeEvent.contentOffset.x;
-      const runSnap = () => snapGarmentToNearest(eventOffset, false);
+      garmentScrollOffsetRef.current = event.nativeEvent.contentOffset.x;
       if (Platform.OS === 'web') {
         requestAnimationFrame(() => {
-          requestAnimationFrame(runSnap);
+          requestAnimationFrame(settleGarmentSnap);
         });
       } else {
-        runSnap();
+        settleGarmentSnap();
       }
     },
-    [snapGarmentToNearest],
+    [settleGarmentSnap],
   );
+
+  useEffect(() => {
+    if (Platform.OS !== 'web' || !garmentMetrics.snapOffsets.length) {
+      return;
+    }
+    const scrollable = getScrollableNode(garmentScrollRef);
+    if (!scrollable) {
+      return;
+    }
+    const onScrollEnd = () => {
+      settleGarmentSnap();
+    };
+    scrollable.addEventListener('scrollend', onScrollEnd);
+    return () => {
+      scrollable.removeEventListener('scrollend', onScrollEnd);
+    };
+  }, [garmentMetrics.snapOffsets.join(','), getScrollableNode, settleGarmentSnap]);
 
   useEffect(() => {
     const index = Math.max(
@@ -959,9 +985,7 @@ export function GarmentPhotoUploadScreen({
               horizontal
               showsHorizontalScrollIndicator={false}
               snapToOffsets={
-                Platform.OS === 'web' || !serviceMetrics.snapOffsets.length
-                  ? undefined
-                  : serviceMetrics.snapOffsets
+                serviceMetrics.snapOffsets.length ? serviceMetrics.snapOffsets : undefined
               }
               snapToAlignment="start"
               disableIntervalMomentum
