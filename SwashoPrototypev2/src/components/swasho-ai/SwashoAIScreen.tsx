@@ -2,7 +2,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useState, type ReactNode } from 'react';
 import {
-  Image,
   Platform,
   Pressable,
   ScrollView,
@@ -16,7 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowLeftIcon, MicrophoneIcon } from '@/components/home/figma-icons';
 import { FigmaShadows, figmaShadow } from '@/components/home/figma-shadows';
 import { HomeIndicator } from '@/components/home/HomeIndicator';
-import { NavBar, NAV_BAR_BOTTOM_INSET, SwashoAiIcon } from '@/components/home/NavBar';
+import { SwashoAiIcon } from '@/components/home/NavBar';
 import { StatusBar } from '@/components/home/StatusBar';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { searchFont } from '@/components/search/search-fonts';
@@ -25,7 +24,6 @@ import { ScreenHeight, SwashoColors, SwashoRadii } from '@/constants/swasho-toke
 import { HistoryIcon, ScannerIcon, SparkleBulletIcon } from './swasho-ai-icons';
 
 const STATUS_BAR_HEIGHT = 32;
-const NAV_HEIGHT = 101;
 const HOME_INDICATOR_HEIGHT = 24;
 const COMPOSER_HEIGHT = 45;
 const COMPOSER_BOTTOM_GAP = 12;
@@ -81,9 +79,8 @@ export function SwashoAIScreen() {
   const [draft, setDraft] = useState('');
 
   const frameHeight = contentHeight + safeTop;
-  const bottomChromeHeight = (NAV_HEIGHT + HOME_INDICATOR_HEIGHT) * scale;
-  const bottomNavLift = NAV_BAR_BOTTOM_INSET * scale;
-  const composerBottom = bottomChromeHeight + bottomNavLift + COMPOSER_BOTTOM_GAP * scale;
+  const bottomChromeHeight = HOME_INDICATOR_HEIGHT * scale;
+  const composerBottom = bottomChromeHeight + COMPOSER_BOTTOM_GAP * scale + Math.max(insets.bottom, 8 * scale);
 
   const applySuggestion = (label: string) => {
     setDraft(label);
@@ -108,7 +105,7 @@ export function SwashoAIScreen() {
         />
 
         <View style={[styles.statusBar, { height: STATUS_BAR_HEIGHT * scale }]}>
-          <StatusBar scale={scale} />
+          <StatusBar scale={scale} tone="light" />
         </View>
 
         <View
@@ -135,19 +132,6 @@ export function SwashoAIScreen() {
           </CircleIconButton>
 
           <View style={[styles.headerBrand, { gap: 7 * scale, top: 0 }]}>
-            <View
-              style={{
-                width: 26.09 * scale,
-                height: 26.136 * scale,
-                borderRadius: 151.374 * scale,
-                overflow: 'hidden',
-              }}>
-              <Image
-                source={require('@/assets/images/swasho-ai/camera-avatar.png')}
-                style={{ width: '145.94%', height: '129.82%', marginLeft: '-22.24%', marginTop: '-19.64%' }}
-                resizeMode="cover"
-              />
-            </View>
             <Text
               style={[
                 searchFont('regular'),
@@ -247,64 +231,44 @@ export function SwashoAIScreen() {
               </Text>
             </Pressable>
 
-            <View style={{ gap: 10 * scale }}>
-              <View style={[styles.chipRow, { gap: 10 * scale, paddingHorizontal: 10 * scale, paddingTop: 10 * scale }]}>
-                {SUGGESTION_CHIPS.slice(0, 2).map((chip) => (
-                  <Pressable
-                    key={chip}
-                    accessibilityRole="button"
-                    onPress={() => applySuggestion(chip)}
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={[
+                styles.chipScrollContent,
+                {
+                  gap: 10 * scale,
+                  paddingHorizontal: 10 * scale,
+                  paddingVertical: 10 * scale,
+                },
+              ]}>
+              {SUGGESTION_CHIPS.map((chip) => (
+                <Pressable
+                  key={chip}
+                  accessibilityRole="button"
+                  onPress={() => applySuggestion(chip)}
+                  style={[
+                    styles.chip,
+                    {
+                      padding: 12 * scale,
+                      borderRadius: SwashoRadii.md * scale,
+                    },
+                  ]}>
+                  <Text
                     style={[
-                      styles.chip,
+                      searchFont('regular'),
+                      styles.chipText,
                       {
-                        padding: 12 * scale,
-                        borderRadius: SwashoRadii.md * scale,
+                        fontSize: 15 * scale,
+                        lineHeight: 14 * scale,
+                        letterSpacing: 0.3 * scale,
                       },
                     ]}>
-                    <Text
-                      style={[
-                        searchFont('regular'),
-                        styles.chipText,
-                        {
-                          fontSize: 15 * scale,
-                          lineHeight: 14 * scale,
-                          letterSpacing: 0.3 * scale,
-                        },
-                      ]}>
-                      {chip}
-                    </Text>
-                  </Pressable>
-                ))}
-              </View>
-              <View style={[styles.chipRow, { gap: 10 * scale, paddingHorizontal: 10 * scale, paddingBottom: 10 * scale }]}>
-                {SUGGESTION_CHIPS.slice(2).map((chip) => (
-                  <Pressable
-                    key={chip}
-                    accessibilityRole="button"
-                    onPress={() => applySuggestion(chip)}
-                    style={[
-                      styles.chip,
-                      {
-                        padding: 12 * scale,
-                        borderRadius: SwashoRadii.md * scale,
-                      },
-                    ]}>
-                    <Text
-                      style={[
-                        searchFont('regular'),
-                        styles.chipText,
-                        {
-                          fontSize: 15 * scale,
-                          lineHeight: 14 * scale,
-                          letterSpacing: 0.3 * scale,
-                        },
-                      ]}>
-                      {chip}
-                    </Text>
-                  </Pressable>
-                ))}
-              </View>
-            </View>
+                    {chip}
+                  </Text>
+                </Pressable>
+              ))}
+            </ScrollView>
           </View>
         </ScrollView>
 
@@ -371,21 +335,8 @@ export function SwashoAIScreen() {
           </Pressable>
         </View>
 
-        <View
-          style={[
-            styles.navBarWrap,
-            { height: bottomChromeHeight, bottom: bottomNavLift },
-          ]}>
-          <NavBar
-            variant="AI"
-            scale={scale}
-            onHomePress={() => router.replace('/')}
-            onSubscriptionPress={() => router.replace('/?nav=orders')}
-            onSwashoAiPress={() => undefined}
-          />
-          <View style={styles.homeIndicatorWrap}>
-            <HomeIndicator scale={scale} />
-          </View>
+        <View style={[styles.homeIndicatorWrap, { bottom: Math.max(insets.bottom, 4 * scale) }]}>
+          <HomeIndicator scale={scale} />
         </View>
       </View>
     </View>
@@ -456,9 +407,9 @@ const styles = StyleSheet.create({
     color: SwashoColors.primary600,
     textAlign: 'center',
   },
-  chipRow: {
+  chipScrollContent: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
+    alignItems: 'center',
   },
   chip: {
     backgroundColor: 'rgba(255, 255, 255, 0.35)',
@@ -502,14 +453,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  navBarWrap: {
+  homeIndicatorWrap: {
     position: 'absolute',
     left: 0,
     right: 0,
-    zIndex: 8,
+    alignItems: 'center',
     backgroundColor: 'transparent',
-  },
-  homeIndicatorWrap: {
-    backgroundColor: 'transparent',
+    zIndex: 6,
   },
 });
