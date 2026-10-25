@@ -266,16 +266,22 @@ export function SwashoAIScreen() {
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
+          contentOffset={{ x: 0, y: 0 }}
           style={[
             styles.chipScroll,
             {
               top: chipsTop,
-              left: FIGMA_HORIZONTAL_INSET * scale,
-              width: contentWidth - FIGMA_HORIZONTAL_INSET * scale,
+              width: contentWidth,
             },
           ]}
-          contentContainerStyle={styles.chipScrollContent}>
-          <View style={{ width: FIGMA_CHIPS_WIDTH * scale, gap: 10 * scale }}>
+          contentContainerStyle={[
+            styles.chipScrollContent,
+            {
+              paddingLeft: FIGMA_HORIZONTAL_INSET * scale,
+              paddingRight: FIGMA_HORIZONTAL_INSET * scale,
+            },
+          ]}>
+          <View style={[styles.chipRows, { gap: 10 * scale, minWidth: FIGMA_CHIPS_WIDTH * scale }]}>
             <View style={[styles.chipRow, { gap: 10 * scale, paddingTop: 10 * scale, paddingHorizontal: 10 * scale }]}>
               {SUGGESTION_CHIPS.slice(0, 2).map((chip) => (
                 <Pressable
