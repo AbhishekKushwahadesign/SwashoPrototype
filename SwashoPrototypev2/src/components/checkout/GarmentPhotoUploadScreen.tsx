@@ -187,28 +187,32 @@ function nearestCarouselOffsetIndex(offsetX: number, offsets: number[]): number 
   return nearest;
 }
 
-function resolveServiceCarouselIndex(
-  scrollX: number,
-  step: number,
-  inset: number,
+function estimateServiceChipWidth(slot: GarmentPhotoServiceSlot, scale: number): number {
+  const badgeWidth = 24 * scale + 4 * scale;
+  const horizontalPad = 10 * scale;
+  return slot.title.length * 8.2 * scale + badgeWidth + horizontalPad;
+}
+
+function buildServiceCarouselMetrics(
+  slotWidths: number[],
   viewportWidth: number,
-  slotCount: number,
-): number {
-  if (slotCount <= 0 || step <= 0) {
-    return 0;
+): { snapOffsets: number[]; leadingInset: number; trailingInset: number } {
+  if (!slotWidths.length || viewportWidth <= 0) {
+    return { snapOffsets: [], leadingInset: 0, trailingInset: 0 };
   }
-  const focalX = scrollX + viewportWidth / 2;
-  let nearest = 0;
-  let minDistance = Infinity;
-  for (let index = 0; index < slotCount; index += 1) {
-    const slotCenterX = inset + index * step + step / 2;
-    const distance = Math.abs(focalX - slotCenterX);
-    if (distance < minDistance) {
-      minDistance = distance;
-      nearest = index;
-    }
+  const firstWidth = slotWidths[0] ?? 0;
+  const lastWidth = slotWidths[slotWidths.length - 1] ?? 0;
+  const leadingInset = Math.max(0, (viewportWidth - firstWidth) / 2);
+  const trailingInset = Math.max(0, (viewportWidth - lastWidth) / 2);
+  let x = leadingInset;
+  const snapOffsets: number[] = [];
+  for (let index = 0; index < slotWidths.length; index += 1) {
+    const width = slotWidths[index] ?? 0;
+    const center = x + width / 2;
+    snapOffsets.push(Math.max(0, center - viewportWidth / 2));
+    x += width;
   }
-  return nearest;
+  return { snapOffsets, leadingInset, trailingInset };
 }
 
 function ServiceCarouselChip({
@@ -354,9 +358,10 @@ export function GarmentPhotoUploadScreen({
   const [trackCarouselWidth, setTrackCarouselWidth] = useState(contentWidth);
   const serviceIndexRef = useRef(0);
   const serviceScrollOffsetRef = useRef(0);
-  const serviceSnapIdleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const serviceOffsetsAlignedRef = useRef(false);
+  const serviceSnapInFlightRef = useRef(false);
   const committedGarmentIndexRef = useRef(initialGarmentIndex);
+  const [serviceLayoutVersion, setServiceLayoutVersion] = useState(0);
 
   const activeContext = garmentContexts[garmentIndex] ?? garmentContexts[0];
   const activeLine = activeContext?.line;
@@ -368,26 +373,15 @@ export function GarmentPhotoUploadScreen({
   );
   const serviceChipHeight = 35 * scale;
   const serviceChipWidthsRef = useRef<number[]>([]);
-  const [maxServiceChipWidth, setMaxServiceChipWidth] = useState(0);
-  const serviceSnapStepRef = useRef(0);
   const serviceSnapOffsetsRef = useRef<number[]>([]);
-  const serviceCarouselInsetRef = useRef(0);
   const trackCarouselWidthRef = useRef(0);
-  const activeSlotsLengthRef = useRef(0);
-
-  const estimatedServiceChipWidth = useMemo(() => {
-    const longestTitle = activeSlots.reduce((max, slot) => Math.max(max, slot.title.length), 0);
-    const badgeWidth = 24 * scale + 4 * scale;
-    const horizontalPad = 10 * scale;
-    return longestTitle * 8.2 * scale + badgeWidth + horizontalPad;
-  }, [activeSlots, scale]);
 
   const appliedInitialServiceRef = useRef(false);
 
   useEffect(() => {
     serviceChipWidthsRef.current = [];
-    setMaxServiceChipWidth(0);
     serviceOffsetsAlignedRef.current = false;
+    setServiceLayoutVersion(0);
   }, [activeSlotKey]);
 
   serviceIndexRef.current = serviceIndex;
@@ -396,11 +390,29 @@ export function GarmentPhotoUploadScreen({
     serviceIndex,
     Math.max(0, activeSlots.length - 1),
   );
-  const serviceSnapStep = Math.max(maxServiceChipWidth, estimatedServiceChipWidth, 112 * scale);
-  const serviceCarouselInset = Math.max(0, (trackCarouselWidth - serviceSnapStep) / 2);
-  serviceCarouselInsetRef.current = serviceCarouselInset;
   trackCarouselWidthRef.current = trackCarouselWidth;
-  activeSlotsLengthRef.current = activeSlots.length;
+
+  const serviceSlotWidths = useMemo(
+    () =>
+      activeSlots.map((slot, index) => {
+        const measured = serviceChipWidthsRef.current[index] ?? 0;
+        return measured > 0 ? measured : estimateServiceChipWidth(slot, scale);
+      }),
+    [activeSlots, scale, serviceLayoutVersion],
+  );
+
+  const {
+    snapOffsets: serviceSnapOffsets,
+    leadingInset: serviceLeadingInset,
+    trailingInset: serviceTrailingInset,
+  } = useMemo(
+    () => buildServiceCarouselMetrics(serviceSlotWidths, trackCarouselWidth),
+    [serviceSlotWidths, trackCarouselWidth],
+  );
+
+  const serviceCenterFrameWidth =
+    serviceSlotWidths[resolvedServiceIndex] ?? serviceSlotWidths[0] ?? 112 * scale;
+  const serviceCenterFrameLeft = Math.max(0, (trackCarouselWidth - serviceCenterFrameWidth) / 2);
   const activeService = activeSlots[resolvedServiceIndex] ?? activeSlots[0];
   const uploadHint = garmentPhotoUploadHint(activeSlots);
   const activePhotos = useMemo(() => {
@@ -437,17 +449,9 @@ export function GarmentPhotoUploadScreen({
   const garmentSnapStep = garmentRingSize;
   const garmentCarouselInset = Math.max(0, (trackCarouselWidth - garmentSnapStep) / 2);
 
-  const serviceSnapOffsets = useMemo(
-    () => (activeSlots.length ? activeSlots.map((_, index) => index * serviceSnapStep) : []),
-    [activeSlots.length, serviceSnapStep],
-  );
-
-  useEffect(() => {
-    serviceSnapStepRef.current = serviceSnapStep;
-  }, [serviceSnapStep]);
-
   useEffect(() => {
     serviceSnapOffsetsRef.current = serviceSnapOffsets;
+    serviceOffsetsAlignedRef.current = false;
   }, [serviceSnapOffsets]);
 
   const readServiceScrollOffset = useCallback((fallback = 0) => {
@@ -464,18 +468,12 @@ export function GarmentPhotoUploadScreen({
   }, []);
 
   const resolveServiceIndexFromScroll = useCallback((scrollX: number) => {
-    return resolveServiceCarouselIndex(
-      scrollX,
-      serviceSnapStepRef.current,
-      serviceCarouselInsetRef.current,
-      trackCarouselWidthRef.current,
-      activeSlotsLengthRef.current,
-    );
+    const offsets = serviceSnapOffsetsRef.current;
+    if (!offsets.length) {
+      return 0;
+    }
+    return nearestCarouselOffsetIndex(scrollX, offsets);
   }, []);
-
-  useEffect(() => {
-    serviceOffsetsAlignedRef.current = false;
-  }, [trackCarouselWidth, serviceSnapStep]);
 
   const scrollServiceToOffset = useCallback((offsetX: number, animated: boolean) => {
     serviceScrollRef.current?.scrollTo({ x: offsetX, animated });
@@ -502,30 +500,27 @@ export function GarmentPhotoUploadScreen({
 
   const snapServiceToNearest = useCallback(
     (offsetX: number, animated: boolean) => {
-      const step = serviceSnapStepRef.current;
-      if (!step || !activeSlotsLengthRef.current) {
+      const offsets = serviceSnapOffsetsRef.current;
+      if (!offsets.length || serviceSnapInFlightRef.current) {
         return;
       }
 
-      const index = resolveServiceIndexFromScroll(offsetX);
-      const targetX = index * step;
+      const index = nearestCarouselOffsetIndex(offsetX, offsets);
+      const targetX = offsets[index] ?? 0;
 
       setServiceIndex((prev) => (prev === index ? prev : index));
+      serviceIndexRef.current = index;
+
       if (Math.abs(offsetX - targetX) > 0.5) {
+        serviceSnapInFlightRef.current = true;
         scrollServiceToOffset(targetX, animated);
+        requestAnimationFrame(() => {
+          serviceSnapInFlightRef.current = false;
+        });
       }
     },
-    [resolveServiceIndexFromScroll, scrollServiceToOffset],
+    [scrollServiceToOffset],
   );
-
-  const scheduleServiceSnap = useCallback(() => {
-    if (serviceSnapIdleTimerRef.current) {
-      clearTimeout(serviceSnapIdleTimerRef.current);
-    }
-    serviceSnapIdleTimerRef.current = setTimeout(() => {
-      snapServiceToNearest(readServiceScrollOffset(), false);
-    }, 90);
-  }, [readServiceScrollOffset, snapServiceToNearest]);
 
   const handleServiceScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -533,28 +528,24 @@ export function GarmentPhotoUploadScreen({
       serviceScrollOffsetRef.current = offsetX;
       const index = resolveServiceIndexFromScroll(offsetX);
       setServiceIndex((prev) => (prev === index ? prev : index));
-      scheduleServiceSnap();
     },
-    [resolveServiceIndexFromScroll, scheduleServiceSnap],
+    [resolveServiceIndexFromScroll],
   );
 
   const handleServiceScrollEnd = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       const eventOffset = event.nativeEvent.contentOffset.x;
       serviceScrollOffsetRef.current = eventOffset;
-      if (serviceSnapIdleTimerRef.current) {
-        clearTimeout(serviceSnapIdleTimerRef.current);
-      }
       const runSnap = () => {
         const offsetX = readServiceScrollOffset(eventOffset);
-        snapServiceToNearest(offsetX, false);
+        snapServiceToNearest(offsetX, Platform.OS !== 'web');
       };
       if (Platform.OS === 'web') {
         requestAnimationFrame(() => {
           requestAnimationFrame(runSnap);
         });
       } else {
-        snapServiceToNearest(eventOffset, true);
+        runSnap();
       }
     },
     [readServiceScrollOffset, snapServiceToNearest],
@@ -567,9 +558,10 @@ export function GarmentPhotoUploadScreen({
 
   const scrollGarmentToIndex = useCallback(
     (index: number, animated: boolean) => {
-      garmentScrollRef.current?.scrollTo({ x: index * garmentSnapStep, animated });
+      const targetX = garmentSnapOffsets[index] ?? index * garmentSnapStep;
+      garmentScrollRef.current?.scrollTo({ x: targetX, animated });
     },
-    [garmentSnapStep],
+    [garmentSnapOffsets, garmentSnapStep],
   );
 
   const garmentInactiveScale = garmentInactiveInner / garmentActiveInner;
@@ -583,24 +575,34 @@ export function GarmentPhotoUploadScreen({
       }
       lastGarmentSnapAt.current = now;
 
+      const offsets = garmentSnapOffsets;
       const maxIndex = Math.max(0, garmentContexts.length - 1);
-      const index = Math.max(0, Math.min(maxIndex, Math.round(offsetX / garmentSnapStep)));
-      const targetX = index * garmentSnapStep;
+      const index = Math.max(
+        0,
+        Math.min(maxIndex, nearestCarouselOffsetIndex(offsetX, offsets)),
+      );
+      const targetX = offsets[index] ?? index * garmentSnapStep;
 
       if (committedGarmentIndexRef.current !== index) {
         committedGarmentIndexRef.current = index;
-        setServiceIndex(0);
-        serviceIndexRef.current = 0;
+        const slots = garmentContexts[index]?.slots ?? [];
+        const maxService = Math.max(0, slots.length - 1);
+        const nextService = Math.min(serviceIndexRef.current, maxService);
+        setServiceIndex(nextService);
+        serviceIndexRef.current = nextService;
+        requestAnimationFrame(() => {
+          scrollServiceToIndex(nextService, false);
+        });
       }
       setGarmentIndex(index);
 
-      if (Math.abs(offsetX - targetX) > 0.5 || !animated) {
+      if (Math.abs(offsetX - targetX) > 0.5) {
         requestAnimationFrame(() => {
           garmentScrollRef.current?.scrollTo({ x: targetX, animated });
         });
       }
     },
-    [garmentContexts.length, garmentSnapStep, serviceSnapOffsets],
+    [garmentContexts, garmentSnapOffsets, garmentSnapStep, scrollServiceToIndex],
   );
 
   const handleServiceChipLayout = useCallback(
@@ -609,16 +611,14 @@ export function GarmentPhotoUploadScreen({
       if (!width) {
         return;
       }
-      serviceChipWidthsRef.current[index] = width;
-      const measuredMax = activeSlots.reduce(
-        (max, _, slotIndex) => Math.max(max, serviceChipWidthsRef.current[slotIndex] ?? 0),
-        0,
-      );
-      if (measuredMax > 0) {
-        setMaxServiceChipWidth((previous) => (measuredMax > previous ? measuredMax : previous));
+      const previous = serviceChipWidthsRef.current[index];
+      if (previous === width) {
+        return;
       }
+      serviceChipWidthsRef.current[index] = width;
+      setServiceLayoutVersion((version) => version + 1);
     },
-    [activeSlots],
+    [],
   );
 
   useEffect(() => {
@@ -641,19 +641,14 @@ export function GarmentPhotoUploadScreen({
     scrollServiceToIndex(idx, false);
   }, [scrollServiceToIndex, serviceSnapOffsets]);
 
-  useEffect(() => {
-    return () => {
-      if (serviceSnapIdleTimerRef.current) {
-        clearTimeout(serviceSnapIdleTimerRef.current);
-      }
-    };
-  }, []);
-
   const handleGarmentScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       const offsetX = event.nativeEvent.contentOffset.x;
       const maxIndex = Math.max(0, garmentContexts.length - 1);
-      const index = Math.max(0, Math.min(maxIndex, Math.round(offsetX / garmentSnapStep)));
+      const index = Math.max(
+        0,
+        Math.min(maxIndex, nearestCarouselOffsetIndex(offsetX, garmentSnapOffsets)),
+      );
       setGarmentIndex((prev) => {
         if (prev === index) {
           return prev;
@@ -664,13 +659,11 @@ export function GarmentPhotoUploadScreen({
         return index;
       });
     },
-    [garmentContexts, garmentSnapStep],
+    [garmentContexts, garmentSnapOffsets],
   );
 
   const handleServiceScrollBegin = useCallback(() => {
-    if (serviceSnapIdleTimerRef.current) {
-      clearTimeout(serviceSnapIdleTimerRef.current);
-    }
+    serviceSnapInFlightRef.current = false;
   }, []);
 
   const handleGarmentScrollEnd = useCallback(
@@ -812,14 +805,14 @@ export function GarmentPhotoUploadScreen({
               styles.carouselClip,
               { marginBottom: 20 * scale, height: serviceChipHeight, justifyContent: 'center' },
             ]}>
-            {serviceSnapStep > 0 ? (
+            {serviceCenterFrameWidth > 0 ? (
               <View
                 pointerEvents="none"
                 style={{
                   position: 'absolute',
-                  left: serviceCarouselInset,
+                  left: serviceCenterFrameLeft,
                   top: 0,
-                  width: serviceSnapStep,
+                  width: serviceCenterFrameWidth,
                   height: serviceChipHeight,
                   zIndex: 2,
                 }}>
@@ -830,7 +823,7 @@ export function GarmentPhotoUploadScreen({
               ref={serviceScrollRef}
               horizontal
               showsHorizontalScrollIndicator={false}
-              snapToOffsets={Platform.OS === 'web' ? undefined : serviceSnapOffsets}
+              snapToOffsets={serviceSnapOffsets}
               snapToAlignment="start"
               disableIntervalMomentum
               decelerationRate="fast"
@@ -850,7 +843,7 @@ export function GarmentPhotoUploadScreen({
                 alignItems: 'center',
                 minHeight: serviceChipHeight,
               }}>
-              <View style={{ width: serviceCarouselInset, flexShrink: 0 }} />
+              <View style={{ width: serviceLeadingInset, flexShrink: 0 }} />
               {activeSlots.map((slot, index) => {
                 const isCentered = index === resolvedServiceIndex;
                 return (
@@ -865,19 +858,16 @@ export function GarmentPhotoUploadScreen({
                     }}
                     style={[
                       {
-                        width: serviceSnapStep,
                         height: serviceChipHeight,
                         alignItems: 'center',
                         justifyContent: 'center',
                         flexShrink: 0,
-                        overflow: 'hidden',
                       },
                       Platform.OS === 'web' ? ({ touchAction: 'pan-x', cursor: 'grab' } as object) : null,
                     ]}>
                     <View
                       onLayout={(event) => handleServiceChipLayout(index, event)}
                       style={{
-                        maxWidth: serviceSnapStep - 4 * scale,
                         transform: [{ scale: isCentered ? 1 : 0.94 }],
                       }}>
                       <ServiceCarouselChip scale={scale} slot={slot} emphasized={isCentered} />
@@ -885,7 +875,7 @@ export function GarmentPhotoUploadScreen({
                   </Pressable>
                 );
               })}
-              <View style={{ width: serviceCarouselInset, flexShrink: 0 }} />
+              <View style={{ width: serviceTrailingInset, flexShrink: 0 }} />
             </ScrollView>
           </View>
 
