@@ -127,42 +127,43 @@ export function SwashoAIScreen() {
           <StatusBar scale={scale} tone="light" />
         </View>
 
-        <View
-          style={[
-            styles.headerRow,
-            {
-              top: 21.4 * scale,
-              paddingHorizontal: 20 * scale,
-            },
-          ]}>
+        <View style={[styles.headerRow, { paddingHorizontal: 20 * scale }]}>
           <CircleIconButton
             scale={scale}
             accessibilityLabel="Go back"
             onPress={() => router.back()}
-            style={{ position: 'absolute', left: 20 * scale, top: 36.7 * scale }}>
+            style={{ position: 'absolute', left: 20 * scale, top: figmaY(FIGMA_HEADER_BUTTON_TOP) }}>
             <ArrowLeftIcon width={24 * scale} height={24 * scale} />
           </CircleIconButton>
 
           <CircleIconButton
             scale={scale}
             accessibilityLabel="Conversation history"
-            style={{ position: 'absolute', right: 20 * scale, top: 36.7 * scale }}>
+            style={{ position: 'absolute', right: 20 * scale, top: figmaY(FIGMA_HEADER_BUTTON_TOP) }}>
             <HistoryIcon width={24 * scale} height={24 * scale} />
           </CircleIconButton>
 
-          <View style={[styles.headerBrand, { gap: 7 * scale, top: 0 }]}>
+          <View
+            style={[
+              styles.headerBrand,
+              {
+                top: figmaY(FIGMA_BRAND_TOP),
+                gap: 7 * scale,
+              },
+            ]}>
             <Text
               style={[
                 searchFont('regular'),
                 styles.swashoWordmark,
                 {
                   fontSize: 16 * scale,
+                  lineHeight: 19 * scale,
                   letterSpacing: 0.08 * scale,
                 },
               ]}>
               Swasho
             </Text>
-            <View style={{ height: 23 * scale, transform: [{ scale: 1.2 }] }}>
+            <View style={{ width: 28 * scale, height: 23 * scale, alignItems: 'center', justifyContent: 'center' }}>
               <SwashoAiIcon scale={scale} offsetX={0} />
             </View>
           </View>
@@ -424,11 +425,17 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
+    top: 0,
     zIndex: 5,
-    alignItems: 'center',
+    overflow: 'visible',
   },
   headerBrand: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
     alignItems: 'center',
+    justifyContent: 'flex-end',
+    overflow: 'visible',
   },
   swashoWordmark: {
     color: SwashoColors.neutral800,
