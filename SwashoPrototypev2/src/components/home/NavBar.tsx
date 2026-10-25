@@ -31,7 +31,10 @@ type NavBarProps = {
 const NAV_HEIGHT = 101;
 /** Figma bottom nav (3344:8669) — lift pill above home-indicator zone. */
 export const NAV_BAR_BOTTOM_INSET = 80;
-const NAV_BACKDROP_BLUR = 1.5;
+/** Backdrop blur radius (design px), scaled at runtime on web. */
+const NAV_BACKDROP_BLUR = 12;
+const NAV_GLASS_FILL = 'rgba(255, 255, 255, 0.62)';
+const NAV_PILL_GLASS_FILL = 'rgba(255, 255, 255, 0.78)';
 const PILL_WIDTH = 238;
 const PILL_HEIGHT = 63;
 const PILL_TOP = 9.03;
@@ -42,8 +45,29 @@ const ICON_SIZE = 20.884;
 const CAPSULE_RADIUS = 12.531;
 const CAPSULE_BORDER = 2;
 
-/** Figma home bar — solid white fill (no frosted gradient). */
-const NAV_BAR_FILL = '#ffffff';
+function navGlassBackdropStyle(scale: number): object {
+  const blurPx = NAV_BACKDROP_BLUR * scale;
+  if (Platform.OS === 'web') {
+    return {
+      backgroundColor: NAV_GLASS_FILL,
+      backdropFilter: `blur(${blurPx}px)`,
+      WebkitBackdropFilter: `blur(${blurPx}px)`,
+    };
+  }
+  return { backgroundColor: 'rgba(255, 255, 255, 0.88)' };
+}
+
+function navGlassPillStyle(scale: number): object {
+  const blurPx = Math.max(8, NAV_BACKDROP_BLUR * scale * 0.85);
+  if (Platform.OS === 'web') {
+    return {
+      backgroundColor: NAV_PILL_GLASS_FILL,
+      backdropFilter: `blur(${blurPx}px)`,
+      WebkitBackdropFilter: `blur(${blurPx}px)`,
+    };
+  }
+  return { backgroundColor: SwashoColors.surface };
+}
 
 const CAPSULE_GEOMETRY = {
   Home: {
@@ -83,13 +107,16 @@ function NavBackdrop({ scale }: { variant: NavBarVariant; scale: number }) {
         top: 0,
         height,
         pointerEvents: 'none',
-        backgroundColor: NAV_BAR_FILL,
+        ...navGlassBackdropStyle(scale),
       },
     });
   }
 
   return (
-    <View pointerEvents="none" style={[styles.backdrop, { height, backgroundColor: NAV_BAR_FILL }]} />
+    <View
+      pointerEvents="none"
+      style={[styles.backdrop, { height }, navGlassBackdropStyle(scale)]}
+    />
   );
 }
 
@@ -238,6 +265,7 @@ export function NavBar({
             transform: [{ translateX: (isHome ? 0.5 : 0) * scale }],
           },
           figmaShadow(FigmaShadows.navPill, scale),
+          navGlassPillStyle(scale),
         ]}>
         <SelectedCapsule scale={scale} variant={variant} />
 
@@ -283,7 +311,6 @@ const styles = StyleSheet.create({
     top: 0,
   },
   pill: {
-    backgroundColor: SwashoColors.surface,
     borderColor: SwashoColors.neutral200,
     alignItems: 'center',
     justifyContent: 'center',

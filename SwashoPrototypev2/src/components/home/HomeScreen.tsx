@@ -536,9 +536,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 8,
-    backgroundColor: '#ffffff',
+    backgroundColor: 'transparent',
   },
   homeIndicatorWrap: {
-    backgroundColor: '#ffffff',
+    backgroundColor: 'transparent',
   },
 });
