@@ -173,7 +173,21 @@ function GarmentProgressRing({
   );
 }
 
-function ServiceCarouselCenterFrame({ scale }: { scale: number }) {
+function ServiceCarouselCenterFill({ scale }: { scale: number }) {
+  return (
+    <View
+      pointerEvents="none"
+      style={{
+        width: '100%',
+        height: '100%',
+        borderRadius: 20 * scale,
+        backgroundColor: SwashoColors.surface,
+      }}
+    />
+  );
+}
+
+function ServiceCarouselCenterBorder({ scale }: { scale: number }) {
   return (
     <View
       pointerEvents="none"
@@ -183,7 +197,7 @@ function ServiceCarouselCenterFrame({ scale }: { scale: number }) {
         borderRadius: 20 * scale,
         borderWidth: 1.5 * scale,
         borderColor: '#252525',
-        backgroundColor: SwashoColors.surface,
+        backgroundColor: 'transparent',
       }}
     />
   );
@@ -985,27 +999,50 @@ export function GarmentPhotoUploadScreen({
               { marginBottom: 20 * scale, height: serviceChipHeight, justifyContent: 'center' },
             ]}>
             {trackCarouselWidth > 0 ? (
-              <View
-                pointerEvents="none"
-                style={[
-                  {
-                    position: 'absolute',
-                    left: trackCarouselWidth / 2 - serviceCenterFrameWidth / 2,
-                    top: 0,
-                    width: serviceCenterFrameWidth,
-                    height: serviceChipHeight,
-                    zIndex: 2,
-                  },
-                  Platform.OS === 'web'
-                    ? ({
-                        transitionProperty: 'width, left',
-                        transitionDuration: '220ms',
-                        transitionTimingFunction: 'ease',
-                      } as object)
-                    : null,
-                ]}>
-                <ServiceCarouselCenterFrame scale={scale} />
-              </View>
+              <>
+                <View
+                  pointerEvents="none"
+                  style={[
+                    {
+                      position: 'absolute',
+                      left: trackCarouselWidth / 2 - serviceCenterFrameWidth / 2,
+                      top: 0,
+                      width: serviceCenterFrameWidth,
+                      height: serviceChipHeight,
+                      zIndex: 1,
+                    },
+                    Platform.OS === 'web'
+                      ? ({
+                          transitionProperty: 'width, left',
+                          transitionDuration: '220ms',
+                          transitionTimingFunction: 'ease',
+                        } as object)
+                      : null,
+                  ]}>
+                  <ServiceCarouselCenterFill scale={scale} />
+                </View>
+                <View
+                  pointerEvents="none"
+                  style={[
+                    {
+                      position: 'absolute',
+                      left: trackCarouselWidth / 2 - serviceCenterFrameWidth / 2,
+                      top: 0,
+                      width: serviceCenterFrameWidth,
+                      height: serviceChipHeight,
+                      zIndex: 3,
+                    },
+                    Platform.OS === 'web'
+                      ? ({
+                          transitionProperty: 'width, left',
+                          transitionDuration: '220ms',
+                          transitionTimingFunction: 'ease',
+                        } as object)
+                      : null,
+                  ]}>
+                  <ServiceCarouselCenterBorder scale={scale} />
+                </View>
+              </>
             ) : null}
             <ScrollView
               ref={serviceScrollRef}
@@ -1025,7 +1062,12 @@ export function GarmentPhotoUploadScreen({
               onMomentumScrollEnd={handleServiceScrollEnd}
               onScrollEndDrag={handleServiceScrollEnd}
               style={[
-                { width: '100%', maxHeight: serviceChipHeight },
+                {
+                  width: '100%',
+                  maxHeight: serviceChipHeight,
+                  zIndex: 2,
+                  position: 'relative',
+                },
                 Platform.OS === 'web'
                   ? ({ overflowX: 'auto', touchAction: 'pan-x', overscrollBehaviorX: 'contain' } as object)
                   : null,
