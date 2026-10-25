@@ -28,6 +28,8 @@ const HOME_INDICATOR_HEIGHT = 24;
 const COMPOSER_HEIGHT = 45;
 /** Figma frame 3415:17972 vertical layout (896px artboard height). */
 const FIGMA_FRAME_HEIGHT = 896;
+const FIGMA_BRAND_TOP = 56;
+const FIGMA_HEADER_BUTTON_TOP = 58.1;
 const FIGMA_CONTENT_TOP = 206;
 const FIGMA_SCAN_TOP = 567;
 const FIGMA_SCAN_LEFT = 30;
