@@ -466,15 +466,22 @@ export function GarmentPhotoUploadScreen({
   );
   trackCarouselWidthRef.current = trackCarouselWidth;
 
-  /** Figma — fixed-width capsule slot; every chip scrolls inside the same stride. */
-  const serviceSlotWidth = useMemo(() => {
+  const serviceChipWidthFallback = useMemo(() => {
     const measured = serviceItemWidths.filter((width) => width > 0);
     const maxMeasured = measured.length ? Math.max(...measured) : 0;
     return Math.max(144 * scale, maxMeasured);
   }, [scale, serviceItemWidths]);
 
+  const serviceItemWidthAt = useCallback(
+    (index: number) => {
+      const measured = serviceItemWidths[index];
+      return measured && measured > 0 ? measured : serviceChipWidthFallback;
+    },
+    [serviceChipWidthFallback, serviceItemWidths],
+  );
+
   const serviceMetrics = useMemo(() => {
-    if (!activeSlots.length || trackCarouselWidth <= 0 || serviceSlotWidth <= 0) {
+    if (!activeSlots.length || trackCarouselWidth <= 0 || serviceChipWidthFallback <= 0) {
       return {
         leadingInset: 0,
         trailingInset: 0,
@@ -483,20 +490,16 @@ export function GarmentPhotoUploadScreen({
         contentWidth: 0,
       };
     }
-    const widths = activeSlots.map(() => serviceSlotWidth);
+    const widths = activeSlots.map((_, index) => serviceItemWidthAt(index));
     return buildCenterSnapMetrics(trackCarouselWidth, widths, serviceChipGap);
-  }, [activeSlots, serviceChipGap, serviceSlotWidth, trackCarouselWidth]);
+  }, [activeSlots, serviceChipGap, serviceChipWidthFallback, serviceItemWidthAt, trackCarouselWidth]);
 
   serviceMetricsRef.current = serviceMetrics;
 
-  /** Center overlay hugs the active chip; scroll slots stay uniform for snap math. */
+  /** Center overlay hugs the active chip width. */
   const serviceCenterFrameWidth = useMemo(() => {
-    const measured = serviceItemWidths[resolvedServiceIndex];
-    if (measured && measured > 0) {
-      return measured;
-    }
-    return Math.max(144 * scale, serviceSlotWidth);
-  }, [resolvedServiceIndex, scale, serviceItemWidths, serviceSlotWidth]);
+    return serviceItemWidthAt(resolvedServiceIndex);
+  }, [resolvedServiceIndex, serviceItemWidthAt]);
 
   const activeService = activeSlots[resolvedServiceIndex] ?? activeSlots[0];
   const uploadHint = garmentPhotoUploadHint(activeSlots);
@@ -1092,7 +1095,7 @@ export function GarmentPhotoUploadScreen({
                     }}
                     style={[
                       {
-                        width: serviceSlotWidth,
+                        width: serviceItemWidthAt(index),
                         height: serviceChipHeight,
                         alignItems: 'center',
                         justifyContent: 'center',
