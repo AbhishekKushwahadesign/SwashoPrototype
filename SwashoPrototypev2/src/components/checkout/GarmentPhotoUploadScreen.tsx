@@ -1164,10 +1164,12 @@ export function GarmentPhotoUploadScreen({
                         ? ({
                             outlineStyle: 'none',
                             outlineWidth: 0,
+                            borderStyle: 'none',
+                            borderWidth: 0,
                             touchAction: 'pan-x',
                             cursor: 'grab',
                           } as object)
-                        : null,
+                        : { borderWidth: 0 },
                     ]}>
                     <View
                       style={{
