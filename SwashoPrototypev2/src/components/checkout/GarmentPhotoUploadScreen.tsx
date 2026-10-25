@@ -443,14 +443,23 @@ export function GarmentPhotoUploadScreen({
   );
   trackCarouselWidthRef.current = trackCarouselWidth;
 
+  const serviceWidthsReady =
+    activeSlots.length > 0 &&
+    activeSlots.every((_, index) => (serviceItemWidths[index] ?? 0) > 0);
+
   const serviceMetrics = useMemo(() => {
-    const fallbackWidth = 112 * scale;
-    const widths = activeSlots.map((_, index) => {
-      const measured = serviceItemWidths[index];
-      return measured && measured > 0 ? measured : fallbackWidth;
-    });
+    if (!serviceWidthsReady || trackCarouselWidth <= 0) {
+      return {
+        leadingInset: 0,
+        trailingInset: 0,
+        itemCenters: [],
+        snapOffsets: [],
+        contentWidth: 0,
+      };
+    }
+    const widths = activeSlots.map((_, index) => serviceItemWidths[index] ?? 0);
     return buildCenterSnapMetrics(trackCarouselWidth, widths, serviceChipGap);
-  }, [activeSlots, serviceChipGap, serviceItemWidths, trackCarouselWidth, scale]);
+  }, [activeSlots, serviceChipGap, serviceItemWidths, serviceWidthsReady, trackCarouselWidth]);
 
   serviceMetricsRef.current = serviceMetrics;
 
@@ -511,16 +520,16 @@ export function GarmentPhotoUploadScreen({
   }, [trackCarouselWidth, serviceMetrics.snapOffsets.join(',')]);
 
   const readServiceScrollOffset = useCallback((fallback = 0) => {
-    let domOffset = 0;
     if (Platform.OS === 'web') {
       const scrollable = (
         serviceScrollRef.current as unknown as { getScrollableNode?: () => HTMLElement }
       )?.getScrollableNode?.();
       if (scrollable) {
-        domOffset = scrollable.scrollLeft;
+        return scrollable.scrollLeft;
       }
     }
-    return Math.max(domOffset, serviceScrollOffsetRef.current, fallback);
+    const tracked = serviceScrollOffsetRef.current;
+    return tracked > 0 ? tracked : fallback;
   }, []);
 
   const scrollServiceToOffset = useCallback((offsetX: number, animated: boolean) => {
@@ -528,12 +537,14 @@ export function GarmentPhotoUploadScreen({
     const metrics = serviceMetricsRef.current;
     const clamped = clampScrollOffset(offsetX, metrics.contentWidth, viewport);
     serviceSnapInFlightRef.current = true;
-    serviceScrollRef.current?.scrollTo({ x: clamped, animated });
+    serviceScrollOffsetRef.current = clamped;
     if (Platform.OS === 'web') {
       const scrollable = (
         serviceScrollRef.current as unknown as { getScrollableNode?: () => HTMLElement }
       )?.getScrollableNode?.();
       scrollable?.scrollTo({ left: clamped, behavior: animated ? 'smooth' : 'auto' });
+    } else {
+      serviceScrollRef.current?.scrollTo({ x: clamped, animated });
     }
     setTimeout(() => {
       serviceSnapInFlightRef.current = false;
@@ -578,8 +589,17 @@ export function GarmentPhotoUploadScreen({
   );
 
   const handleServiceScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    serviceScrollOffsetRef.current = event.nativeEvent.contentOffset.x;
-  }, []);
+    const offsetX =
+      Platform.OS === 'web' ? readServiceScrollOffset(event.nativeEvent.contentOffset.x) : event.nativeEvent.contentOffset.x;
+    serviceScrollOffsetRef.current = offsetX;
+    const viewport = trackCarouselWidthRef.current;
+    const metrics = serviceMetricsRef.current;
+    if (!metrics.itemCenters.length || viewport <= 0 || serviceSnapInFlightRef.current) {
+      return;
+    }
+    const previewIndex = nearestIndexByFocal(offsetX, viewport, metrics.itemCenters);
+    setServiceIndex((prev) => (prev === previewIndex ? prev : previewIndex));
+  }, [readServiceScrollOffset]);
 
   const handleServiceScrollEnd = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -590,7 +610,7 @@ export function GarmentPhotoUploadScreen({
       }
       const runSnap = () => {
         const offsetX = readServiceScrollOffset(eventOffset);
-        snapServiceToNearest(offsetX, Platform.OS !== 'web');
+        snapServiceToNearest(offsetX, false);
       };
       if (Platform.OS === 'web') {
         requestAnimationFrame(() => {
@@ -665,7 +685,7 @@ export function GarmentPhotoUploadScreen({
   );
 
   const handleServiceChipLayout = useCallback((index: number, event: LayoutChangeEvent) => {
-    const width = Math.round(event.nativeEvent.layout.width);
+    const width = Math.ceil(event.nativeEvent.layout.width);
     if (!width) {
       return;
     }
@@ -673,11 +693,22 @@ export function GarmentPhotoUploadScreen({
       if (previous[index] === width) {
         return previous;
       }
+      serviceOffsetsAlignedRef.current = false;
       const next = [...previous];
       next[index] = width;
       return next;
     });
   }, []);
+
+  useEffect(() => {
+    if (!serviceWidthsReady || !serviceMetrics.snapOffsets.length) {
+      return;
+    }
+    const idx = Math.min(serviceIndexRef.current, serviceMetrics.snapOffsets.length - 1);
+    requestAnimationFrame(() => {
+      scrollServiceToIndex(idx, false);
+    });
+  }, [serviceWidthsReady, serviceMetrics.snapOffsets, scrollServiceToIndex]);
 
   useEffect(() => {
     if (!activeSlots.length || appliedInitialServiceRef.current || !serviceMetrics.snapOffsets.length) {
@@ -891,7 +922,11 @@ export function GarmentPhotoUploadScreen({
               ref={serviceScrollRef}
               horizontal
               showsHorizontalScrollIndicator={false}
-              snapToOffsets={serviceMetrics.snapOffsets}
+              snapToOffsets={
+                Platform.OS === 'web' || !serviceMetrics.snapOffsets.length
+                  ? undefined
+                  : serviceMetrics.snapOffsets
+              }
               snapToAlignment="start"
               disableIntervalMomentum
               decelerationRate="fast"
@@ -934,12 +969,10 @@ export function GarmentPhotoUploadScreen({
                       },
                       Platform.OS === 'web' ? ({ touchAction: 'pan-x', cursor: 'grab' } as object) : null,
                     ]}>
-                    <View
-                      onLayout={(event) => handleServiceChipLayout(index, event)}
-                      style={{
-                        transform: [{ scale: isCentered ? 1 : 0.94 }],
-                      }}>
-                      <ServiceCarouselChip scale={scale} slot={slot} emphasized={isCentered} />
+                    <View onLayout={(event) => handleServiceChipLayout(index, event)}>
+                      <View style={{ transform: [{ scale: isCentered ? 1 : 0.94 }] }}>
+                        <ServiceCarouselChip scale={scale} slot={slot} emphasized={isCentered} />
+                      </View>
                     </View>
                   </Pressable>
                 );
