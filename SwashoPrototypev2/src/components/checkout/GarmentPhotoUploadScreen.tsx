@@ -276,7 +276,7 @@ function ServiceCarouselChip({
         borderRadius: 20 * scale,
         borderWidth: 0,
         borderColor: 'transparent',
-        backgroundColor: emphasized ? SwashoColors.surface : 'transparent',
+        backgroundColor: 'transparent',
         flexShrink: 0,
       }}>
       <Text
