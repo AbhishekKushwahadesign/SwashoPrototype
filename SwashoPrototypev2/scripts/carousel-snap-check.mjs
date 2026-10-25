@@ -112,7 +112,7 @@ async function tapChipByIndex(page, index) {
       target.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
     }
   }, index);
-  await page.waitForTimeout(900);
+  await page.waitForTimeout(650);
 }
 
 async function main() {
