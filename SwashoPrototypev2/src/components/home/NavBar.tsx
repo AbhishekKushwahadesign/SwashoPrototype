@@ -31,10 +31,13 @@ type NavBarProps = {
 const NAV_HEIGHT = 101;
 /** Figma bottom nav (3344:8669) — lift pill above home-indicator zone. */
 export const NAV_BAR_BOTTOM_INSET = 80;
-/** Backdrop blur radius (design px), scaled at runtime on web. */
-const NAV_BACKDROP_BLUR = 12;
-const NAV_GLASS_FILL = 'rgba(255, 255, 255, 0.62)';
-const NAV_PILL_GLASS_FILL = 'rgba(255, 255, 255, 0.78)';
+const BLUR_LAYERS = [
+  { blurPx: 1.5, fadeStart: '0%', fadeEnd: '100%' },
+  { blurPx: 6, fadeStart: '30%', fadeEnd: '100%' },
+  { blurPx: 14, fadeStart: '55%', fadeEnd: '100%' },
+  { blurPx: 24, fadeStart: '75%', fadeEnd: '100%' },
+] as const;
+
 const PILL_WIDTH = 238;
 const PILL_HEIGHT = 63;
 const PILL_TOP = 9.03;
@@ -45,28 +48,79 @@ const ICON_SIZE = 20.884;
 const CAPSULE_RADIUS = 12.531;
 const CAPSULE_BORDER = 2;
 
-function navGlassBackdropStyle(scale: number): object {
-  const blurPx = NAV_BACKDROP_BLUR * scale;
-  if (Platform.OS === 'web') {
-    return {
-      backgroundColor: NAV_GLASS_FILL,
-      backdropFilter: `blur(${blurPx}px)`,
-      WebkitBackdropFilter: `blur(${blurPx}px)`,
-    };
-  }
-  return { backgroundColor: 'rgba(255, 255, 255, 0.88)' };
+function webBlurLayerStyle(blurPx: number, fadeStart: string, fadeEnd: string, height: number) {
+  const mask = `linear-gradient(to top, black ${fadeStart}, transparent ${fadeEnd})`;
+  return {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height,
+    pointerEvents: 'none',
+    backdropFilter: `blur(${blurPx}px)`,
+    WebkitBackdropFilter: `blur(${blurPx}px)`,
+    maskImage: mask,
+    WebkitMaskImage: mask,
+  } as const;
 }
 
-function navGlassPillStyle(scale: number): object {
-  const blurPx = Math.max(8, NAV_BACKDROP_BLUR * scale * 0.85);
-  if (Platform.OS === 'web') {
-    return {
-      backgroundColor: NAV_PILL_GLASS_FILL,
-      backdropFilter: `blur(${blurPx}px)`,
-      WebkitBackdropFilter: `blur(${blurPx}px)`,
-    };
+function WebBlurLayer({
+  blurPx,
+  fadeStart,
+  fadeEnd,
+  height,
+}: {
+  blurPx: number;
+  fadeStart: string;
+  fadeEnd: string;
+  height: number;
+}) {
+  return createElement('div', {
+    style: webBlurLayerStyle(blurPx, fadeStart, fadeEnd, height),
+  });
+}
+
+/** Figma 3344:8669 — stacked backdrop blur fading toward the top of the nav chrome. */
+function ProgressiveBlurFade({ scale }: { scale: number }) {
+  const height = NAV_HEIGHT * scale;
+  const fadeStyle = [styles.blurFade, { height }];
+
+  if (Platform.OS !== 'web') {
+    return (
+      <LinearGradient
+        colors={['rgba(255,255,255,0.05)', '#ffffff']}
+        locations={[0, 0.75]}
+        style={fadeStyle}
+        pointerEvents="none"
+      />
+    );
   }
-  return { backgroundColor: SwashoColors.surface };
+
+  return (
+    <View pointerEvents="none" style={fadeStyle}>
+      {BLUR_LAYERS.map((layer) => (
+        <WebBlurLayer
+          key={`${layer.blurPx}-${layer.fadeStart}`}
+          blurPx={layer.blurPx * scale}
+          fadeStart={layer.fadeStart}
+          fadeEnd={layer.fadeEnd}
+          height={height}
+        />
+      ))}
+      <LinearGradient
+        colors={['rgba(255,255,255,0.05)', '#ffffff']}
+        locations={[0, 0.75]}
+        style={StyleSheet.absoluteFill}
+        pointerEvents="none"
+      />
+      <LinearGradient
+        colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.01)']}
+        locations={[0.19232, 0.87445]}
+        style={StyleSheet.absoluteFill}
+        pointerEvents="none"
+      />
+    </View>
+  );
 }
 
 const CAPSULE_GEOMETRY = {
@@ -92,32 +146,6 @@ const CAPSULE_GEOMETRY = {
 
 function capsuleGradientXml(width: number, height: number, transform: string) {
   return `<svg viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><defs><radialGradient id="navCapsuleGrad" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="10" gradientTransform="${transform}"><stop stop-color="#7e77ff" offset="0"/><stop stop-color="#7056ff" offset="0.5"/><stop stop-color="#6234ff" offset="1"/></radialGradient></defs><rect x="0" y="0" width="100%" height="100%" fill="url(#navCapsuleGrad)"/></svg>`;
-}
-
-function NavBackdrop({ scale }: { variant: NavBarVariant; scale: number }) {
-  const height = NAV_HEIGHT * scale;
-
-  if (Platform.OS === 'web') {
-    return createElement('div', {
-      'data-testid': 'nav-backdrop',
-      style: {
-        position: 'absolute',
-        left: 0,
-        right: 0,
-        top: 0,
-        height,
-        pointerEvents: 'none',
-        ...navGlassBackdropStyle(scale),
-      },
-    });
-  }
-
-  return (
-    <View
-      pointerEvents="none"
-      style={[styles.backdrop, { height }, navGlassBackdropStyle(scale)]}
-    />
-  );
 }
 
 function SelectedCapsule({ scale, variant }: { scale: number; variant: NavBarVariant }) {
@@ -252,11 +280,12 @@ export function NavBar({
 
   return (
     <View style={[styles.container, { height: NAV_HEIGHT * scale, paddingTop: PILL_TOP * scale }]}>
-      <NavBackdrop variant={variant} scale={scale} />
+      <ProgressiveBlurFade scale={scale} />
 
       <View
         style={[
           styles.pill,
+          styles.pillAboveBlur,
           {
             width: PILL_WIDTH * scale,
             height: PILL_HEIGHT * scale,
@@ -265,7 +294,6 @@ export function NavBar({
             transform: [{ translateX: (isHome ? 0.5 : 0) * scale }],
           },
           figmaShadow(FigmaShadows.navPill, scale),
-          navGlassPillStyle(scale),
         ]}>
         <SelectedCapsule scale={scale} variant={variant} />
 
@@ -303,18 +331,28 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     position: 'relative',
+    ...Platform.select({
+      web: { overflow: 'visible' as const },
+      default: { overflow: 'hidden' as const },
+    }),
   },
-  backdrop: {
+  blurFade: {
     position: 'absolute',
     left: 0,
     right: 0,
+    bottom: 0,
     top: 0,
+    zIndex: 0,
   },
   pill: {
+    backgroundColor: SwashoColors.surface,
     borderColor: SwashoColors.neutral200,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
+  },
+  pillAboveBlur: {
+    zIndex: 2,
   },
   capsule: {
     position: 'absolute',
