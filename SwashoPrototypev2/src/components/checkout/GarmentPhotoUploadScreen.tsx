@@ -787,7 +787,7 @@ export function GarmentPhotoUploadScreen({
   const handleGarmentScrollEnd = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
       const eventOffset = event.nativeEvent.contentOffset.x;
-      const runSnap = () => snapGarmentToNearest(eventOffset, Platform.OS !== 'web');
+      const runSnap = () => snapGarmentToNearest(eventOffset, false);
       if (Platform.OS === 'web') {
         requestAnimationFrame(() => {
           requestAnimationFrame(runSnap);
