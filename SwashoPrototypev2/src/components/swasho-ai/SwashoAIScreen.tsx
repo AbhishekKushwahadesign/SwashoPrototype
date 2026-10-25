@@ -19,7 +19,7 @@ import { SwashoAiIcon } from '@/components/home/NavBar';
 import { StatusBar } from '@/components/home/StatusBar';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { searchFont } from '@/components/search/search-fonts';
-import { ScreenWidth, SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
+import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
 import { HistoryIcon, ScannerIcon, SparkleBulletIcon } from './swasho-ai-icons';
 
@@ -461,13 +461,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  bottomGradient: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 0,
-  },
   scroll: {
     flex: 1,
     backgroundColor: 'transparent',
@@ -519,10 +512,10 @@ const styles = StyleSheet.create({
   chipText: {
     color: SwashoColors.neutral800,
     textAlign: 'center',
+    flexShrink: 0,
   },
   composerRow: {
     position: 'absolute',
-    alignSelf: 'center',
     flexDirection: 'row',
     alignItems: 'center',
     zIndex: 8,
