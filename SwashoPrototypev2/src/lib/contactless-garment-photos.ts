@@ -123,18 +123,41 @@ export function requiredGarmentPhotoSlots(slots: GarmentPhotoServiceSlot[]): Gar
   return slots.filter((slot) => !slot.optional);
 }
 
-/** Basket-level rule: at least one required slot (or any slot when all optional) has a photo. */
+/** Distinct linked service slots that must have photos (any n−1 of n when n > 1). */
+export function garmentLinkedPhotoTargetCount(linkedServiceCount: number): number {
+  if (linkedServiceCount <= 1) {
+    return 0;
+  }
+  return Math.max(1, linkedServiceCount - 1);
+}
+
+function garmentSlotsWithPhotoCount(
+  store: ContactlessGarmentPhotoStore,
+  garmentId: string,
+  slots: GarmentPhotoServiceSlot[],
+): number {
+  return slots.filter((slot) => garmentHasPhoto(store, garmentId, slot.serviceId)).length;
+}
+
+/** Basket-level rule: photos on any (n−1) of n linked services, or none when only one optional slot. */
 export function garmentBasketPhotoSatisfied(
   store: ContactlessGarmentPhotoStore,
   garmentId: string,
   slots: GarmentPhotoServiceSlot[],
 ): boolean {
-  const required = requiredGarmentPhotoSlots(slots);
-  const targets = required.length > 0 ? required : slots;
-  if (targets.length === 0) {
+  const linkedCount = slots.length;
+  if (linkedCount === 0) {
     return true;
   }
-  return targets.some((slot) => garmentHasPhoto(store, garmentId, slot.serviceId));
+  if (linkedCount === 1) {
+    const required = requiredGarmentPhotoSlots(slots);
+    if (required.length === 0) {
+      return true;
+    }
+    return garmentHasPhoto(store, garmentId, required[0].serviceId);
+  }
+  const target = garmentLinkedPhotoTargetCount(linkedCount);
+  return garmentSlotsWithPhotoCount(store, garmentId, slots) >= target;
 }
 
 export function garmentPhotoProgressFraction(
@@ -142,12 +165,20 @@ export function garmentPhotoProgressFraction(
   garmentId: string,
   slots: GarmentPhotoServiceSlot[],
 ): number {
-  const required = requiredGarmentPhotoSlots(slots);
-  if (required.length === 0) {
+  const linkedCount = slots.length;
+  if (linkedCount === 0) {
     return 1;
   }
-  const satisfied = required.filter((slot) => garmentHasPhoto(store, garmentId, slot.serviceId)).length;
-  return satisfied / required.length;
+  if (linkedCount === 1) {
+    const required = requiredGarmentPhotoSlots(slots);
+    if (required.length === 0) {
+      return 1;
+    }
+    return garmentHasPhoto(store, garmentId, required[0].serviceId) ? 1 : 0;
+  }
+  const target = garmentLinkedPhotoTargetCount(linkedCount);
+  const withPhoto = garmentSlotsWithPhotoCount(store, garmentId, slots);
+  return Math.min(1, withPhoto / target);
 }
 
 /** Instruction above the service carousel for the active garment's linked services. */
@@ -159,8 +190,7 @@ export function garmentPhotoUploadHint(slots: GarmentPhotoServiceSlot[]): string
   if (linkedCount === 1) {
     return 'No mandatory uploads required';
   }
-  const required = requiredGarmentPhotoSlots(slots);
-  const photoTargetCount = required.length >= 2 ? required.length : linkedCount;
+  const photoTargetCount = garmentLinkedPhotoTargetCount(linkedCount);
   return `Upload photos for any ${photoTargetCount} services`;
 }
 
