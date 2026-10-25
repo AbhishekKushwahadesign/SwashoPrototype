@@ -1,5 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
+import { Link, router } from 'expo-router';
 import { useState, type ReactNode } from 'react';
 import {
   Platform,
@@ -99,7 +99,6 @@ export function SwashoAIScreen() {
   const scanTop = figmaY(FIGMA_SCAN_TOP);
   const chipsTop = figmaY(FIGMA_CHIPS_TOP);
   const scrollTop = figmaY(FIGMA_CONTENT_TOP);
-  const scrollBottom = layoutHeight - scanTop;
 
   const applySuggestion = (label: string) => {
     setDraft(label);
@@ -182,9 +181,10 @@ export function SwashoAIScreen() {
             styles.scroll,
             {
               marginTop: scrollTop,
-              marginBottom: scrollBottom,
+              maxHeight: scanTop - scrollTop,
             },
           ]}
+          pointerEvents="box-none"
           contentContainerStyle={{
             paddingBottom: 16 * scale,
             alignItems: 'center',
@@ -229,40 +229,42 @@ export function SwashoAIScreen() {
           </View>
         </ScrollView>
 
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Scan and recommend"
-          onPress={() => router.push('/swasho-ai/scan')}
-          style={[
-            styles.scanCard,
-            styles.scanCardPositioned,
-            {
-              top: scanTop,
-              left: FIGMA_SCAN_LEFT * scale,
-              width: 120 * scale,
-              height: 120 * scale,
-              borderRadius: SwashoRadii.xl * scale,
-              padding: 10 * scale,
-              gap: 12 * scale,
-              borderWidth: 1,
-              ...figmaShadow({ offsetX: 0, offsetY: 2, blur: 4, color: '#000000', opacity: 0.15 }, scale),
-            },
-          ]}>
-          <ScannerIcon width={32 * scale} height={32 * scale} />
-          <Text
+        <Link href="/swasho-ai/scan" asChild>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Scan and recommend"
+            onPress={() => router.push('/swasho-ai/scan')}
             style={[
-              searchFont('semibold'),
-              styles.scanLabel,
+              styles.scanCard,
+              styles.scanCardPositioned,
               {
-                fontSize: 14 * scale,
-                lineHeight: 16 * scale,
-                letterSpacing: 0.28 * scale,
-                maxWidth: 101 * scale,
+                top: scanTop,
+                left: FIGMA_SCAN_LEFT * scale,
+                width: 120 * scale,
+                height: 120 * scale,
+                borderRadius: SwashoRadii.xl * scale,
+                padding: 10 * scale,
+                gap: 12 * scale,
+                borderWidth: 1,
+                ...figmaShadow({ offsetX: 0, offsetY: 2, blur: 4, color: '#000000', opacity: 0.15 }, scale),
               },
             ]}>
-            Scan & Recommend
-          </Text>
-        </Pressable>
+            <ScannerIcon width={32 * scale} height={32 * scale} />
+            <Text
+              style={[
+                searchFont('semibold'),
+                styles.scanLabel,
+                {
+                  fontSize: 14 * scale,
+                  lineHeight: 16 * scale,
+                  letterSpacing: 0.28 * scale,
+                  maxWidth: 101 * scale,
+                },
+              ]}>
+              Scan & Recommend
+            </Text>
+          </Pressable>
+        </Link>
 
         <ScrollView
           horizontal
@@ -491,7 +493,11 @@ const styles = StyleSheet.create({
   },
   scanCardPositioned: {
     position: 'absolute',
-    zIndex: 4,
+    zIndex: 12,
+    ...Platform.select({
+      web: { cursor: 'pointer' } as object,
+      android: { elevation: 12 },
+    }),
   },
   chipScroll: {
     position: 'absolute',
