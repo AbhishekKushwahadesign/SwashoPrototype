@@ -1,5 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
   Platform,
@@ -136,13 +136,24 @@ export function HomeScreen() {
   const { scale, contentWidth, contentHeight } = useScreenScale();
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
-  const [navVariant, setNavVariant] = useState<NavBarVariant>('Home');
+  const { nav } = useLocalSearchParams<{ nav?: string }>();
+  const [navVariant, setNavVariant] = useState<NavBarVariant>(() =>
+    nav === 'orders' ? 'Orders' : 'Home',
+  );
   const [collapseScrollY, setCollapseScrollY] = useState(0);
   const collapseScrollYRef = useRef(0);
   const sheetScrollRef = useRef<ScrollView>(null);
   const sheetScrollOffsetRef = useRef(0);
   const ignoreSheetScrollRef = useRef(false);
   const maxCollapseScrollRef = useRef(0);
+
+  useEffect(() => {
+    if (nav === 'orders') {
+      setNavVariant('Orders');
+    } else if (nav === 'home') {
+      setNavVariant('Home');
+    }
+  }, [nav]);
 
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof window === 'undefined') {
@@ -416,7 +427,9 @@ export function HomeScreen() {
           <NavBar
             variant={navVariant}
             scale={scale}
+            onHomePress={() => setNavVariant('Home')}
             onSubscriptionPress={() => setNavVariant('Orders')}
+            onSwashoAiPress={() => router.push('/swasho-ai')}
           />
           <View style={styles.homeIndicatorWrap}>
             <HomeIndicator scale={scale} />

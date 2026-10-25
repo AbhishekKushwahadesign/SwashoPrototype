@@ -18,12 +18,14 @@ import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
 import { FigmaShadows, figmaShadow } from './figma-shadows';
 
-export type NavBarVariant = 'Home' | 'Orders';
+export type NavBarVariant = 'Home' | 'Orders' | 'AI';
 
 type NavBarProps = {
   variant: NavBarVariant;
   scale: number;
+  onHomePress?: () => void;
   onSubscriptionPress?: () => void;
+  onSwashoAiPress?: () => void;
 };
 
 const NAV_HEIGHT = 101;
@@ -53,6 +55,12 @@ const CAPSULE_GEOMETRY = {
     height: 52,
     centerOffsetX: -1,
     gradient: 'matrix(-7.435 3.159 -0.93324 -9.2805 78.9 7.7389)',
+  },
+  AI: {
+    width: 67.874,
+    height: 52.211,
+    centerOffsetX: 77,
+    gradient: 'matrix(-6.08 3.1719 -0.76317 -9.3182 64.521 7.7703)',
   },
 } as const;
 
@@ -91,7 +99,7 @@ function SelectedCapsule({ scale, variant }: { scale: number; variant: NavBarVar
   const innerWidth = (PILL_WIDTH - PILL_BORDER * 2) * scale;
   const innerHeight = (PILL_HEIGHT - PILL_BORDER * 2) * scale;
   const left = innerWidth / 2 + geometry.centerOffsetX * scale - width / 2;
-  const top = variant === 'Home' ? (innerHeight - height) / 2 : 5 * scale;
+  const top = variant === 'Orders' ? 5 * scale : (innerHeight - height) / 2;
 
   return (
     <Animated.View
@@ -121,7 +129,16 @@ function SelectedCapsule({ scale, variant }: { scale: number; variant: NavBarVar
   );
 }
 
-function SwashoAiIcon({ scale, offsetX }: { scale: number; offsetX: number }) {
+export function SwashoAiIcon({
+  scale,
+  offsetX,
+  active = false,
+}: {
+  scale: number;
+  offsetX: number;
+  active?: boolean;
+}) {
+  const markColor = active ? SwashoColors.surface : SwashoColors.neutral500;
   const x = (value: number) => (value + offsetX) * scale;
   return (
     <View style={{ width: 23.345 * scale, height: 19.176 * scale }}>
@@ -161,7 +178,7 @@ function SwashoAiIcon({ scale, offsetX }: { scale: number; offsetX: number }) {
           borderTopRightRadius: 7711.109 * scale,
           borderBottomLeftRadius: 7711.111 * scale,
           borderBottomRightRadius: 620.88 * scale,
-          backgroundColor: SwashoColors.neutral500,
+          backgroundColor: markColor,
         }}
       />
     </View>
@@ -187,13 +204,22 @@ function NavLabel({ label, active, scale }: { label: string; active: boolean; sc
   );
 }
 
-export function NavBar({ variant, scale, onSubscriptionPress }: NavBarProps) {
+export function NavBar({
+  variant,
+  scale,
+  onHomePress,
+  onSubscriptionPress,
+  onSwashoAiPress,
+}: NavBarProps) {
   const isHome = variant === 'Home';
+  const isOrders = variant === 'Orders';
+  const isAi = variant === 'AI';
   const iconSize = ICON_SIZE * scale;
   const itemStyle = (active: boolean, gap = 2.088) => [
     styles.item,
     { width: ITEM_WIDTH * scale, gap: gap * scale, height: (active ? 51 : 47) * scale },
   ];
+  const aiOffsetX = isHome ? 0 : -1;
 
   return (
     <View style={[styles.container, { height: NAV_HEIGHT * scale, paddingTop: PILL_TOP * scale }]}>
@@ -214,28 +240,28 @@ export function NavBar({ variant, scale, onSubscriptionPress }: NavBarProps) {
         <SelectedCapsule scale={scale} variant={variant} />
 
         <View style={[styles.items, { width: ITEMS_WIDTH * scale }]}>
-          <View style={itemStyle(isHome)}>
+          <Pressable onPress={onHomePress} style={itemStyle(isHome)}>
             {isHome ? (
               <HomeSmileIcon width={iconSize} height={iconSize} />
             ) : (
               <HomeSmileLinearIcon width={iconSize} height={iconSize} />
             )}
             <NavLabel label="Home" active={isHome} scale={scale} />
-          </View>
-
-          <Pressable onPress={onSubscriptionPress} style={itemStyle(!isHome)}>
-            {isHome ? (
-              <CalendarLinearIcon width={iconSize} height={iconSize} />
-            ) : (
-              <CalendarBoldIcon width={iconSize} height={iconSize} />
-            )}
-            <NavLabel label="Subscription" active={!isHome} scale={scale} />
           </Pressable>
 
-          <View style={itemStyle(false, 4.177)}>
-            <SwashoAiIcon scale={scale} offsetX={isHome ? 0 : -1} />
-            <NavLabel label="Swasho AI" active={false} scale={scale} />
-          </View>
+          <Pressable onPress={onSubscriptionPress} style={itemStyle(isOrders)}>
+            {isOrders ? (
+              <CalendarBoldIcon width={iconSize} height={iconSize} />
+            ) : (
+              <CalendarLinearIcon width={iconSize} height={iconSize} />
+            )}
+            <NavLabel label="Subscription" active={isOrders} scale={scale} />
+          </Pressable>
+
+          <Pressable onPress={onSwashoAiPress} style={itemStyle(isAi, 4.177)}>
+            <SwashoAiIcon scale={scale} offsetX={aiOffsetX} active={isAi} />
+            <NavLabel label="Swasho AI" active={isAi} scale={scale} />
+          </Pressable>
         </View>
       </View>
     </View>
