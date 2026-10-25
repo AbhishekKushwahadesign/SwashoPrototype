@@ -26,7 +26,13 @@ import { HistoryIcon, ScannerIcon, SparkleBulletIcon } from './swasho-ai-icons';
 const STATUS_BAR_HEIGHT = 32;
 const HOME_INDICATOR_HEIGHT = 24;
 const COMPOSER_HEIGHT = 45;
-const COMPOSER_BOTTOM_GAP = 12;
+/** Figma frame 3415:17972 vertical layout (896px artboard height). */
+const FIGMA_FRAME_HEIGHT = 896;
+const FIGMA_CONTENT_TOP = 206;
+const FIGMA_SCAN_TOP = 567;
+const FIGMA_SCAN_LEFT = 30;
+const FIGMA_CHIPS_TOP = 706;
+const FIGMA_COMPOSER_TOP = 812;
 
 const FEATURE_BULLETS = [
   'Recommend the best service for your garment',
@@ -79,8 +85,13 @@ export function SwashoAIScreen() {
   const [draft, setDraft] = useState('');
 
   const frameHeight = contentHeight + safeTop;
-  const bottomChromeHeight = HOME_INDICATOR_HEIGHT * scale;
-  const composerBottom = bottomChromeHeight + COMPOSER_BOTTOM_GAP * scale + Math.max(insets.bottom, 8 * scale);
+  const figmaY = (y: number) => (y / FIGMA_FRAME_HEIGHT) * frameHeight;
+
+  const composerTop = figmaY(FIGMA_COMPOSER_TOP);
+  const scanTop = figmaY(FIGMA_SCAN_TOP);
+  const chipsTop = figmaY(FIGMA_CHIPS_TOP);
+  const scrollTop = figmaY(FIGMA_CONTENT_TOP);
+  const scrollBottom = frameHeight - scanTop;
 
   const applySuggestion = (label: string) => {
     setDraft(label);
@@ -102,6 +113,12 @@ export function SwashoAIScreen() {
           colors={[SwashoColors.surface, SwashoColors.surface, SwashoColors.primary200]}
           locations={[0, 0.78058, 1]}
           style={StyleSheet.absoluteFill}
+        />
+        <LinearGradient
+          pointerEvents="none"
+          colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.35)', SwashoColors.primary200]}
+          locations={[0, 0.35, 1]}
+          style={[styles.bottomGradient, { top: figmaY(520) }]}
         />
 
         <View style={[styles.statusBar, { height: STATUS_BAR_HEIGHT * scale }]}>
@@ -153,13 +170,13 @@ export function SwashoAIScreen() {
           style={[
             styles.scroll,
             {
-              marginTop: (STATUS_BAR_HEIGHT + 174) * scale,
-              marginBottom: composerBottom + COMPOSER_HEIGHT * scale + 8 * scale,
+              marginTop: scrollTop,
+              marginBottom: scrollBottom,
             },
           ]}
           contentContainerStyle={{
             paddingHorizontal: 20 * scale,
-            paddingBottom: 24 * scale,
+            paddingBottom: 16 * scale,
             gap: 32 * scale,
           }}
           showsVerticalScrollIndicator={false}>
@@ -199,50 +216,58 @@ export function SwashoAIScreen() {
                 </View>
               ))}
             </View>
+          </View>
+        </ScrollView>
 
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Scan and recommend"
-              style={[
-                styles.scanCard,
-                {
-                  width: 120 * scale,
-                  height: 120 * scale,
-                  borderRadius: SwashoRadii.xl * scale,
-                  padding: 10 * scale,
-                  gap: 12 * scale,
-                  borderWidth: 1,
-                  ...figmaShadow({ offsetX: 0, offsetY: 2, blur: 4, color: '#000000', opacity: 0.15 }, scale),
-                },
-              ]}>
-              <ScannerIcon width={32 * scale} height={32 * scale} />
-              <Text
-                style={[
-                  searchFont('semibold'),
-                  styles.scanLabel,
-                  {
-                    fontSize: 14 * scale,
-                    lineHeight: 16 * scale,
-                    letterSpacing: 0.28 * scale,
-                    maxWidth: 101 * scale,
-                  },
-                ]}>
-                Scan & Recommend
-              </Text>
-            </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Scan and recommend"
+          style={[
+            styles.scanCard,
+            styles.scanCardPositioned,
+            {
+              top: scanTop,
+              left: FIGMA_SCAN_LEFT * scale,
+              width: 120 * scale,
+              height: 120 * scale,
+              borderRadius: SwashoRadii.xl * scale,
+              padding: 10 * scale,
+              gap: 12 * scale,
+              borderWidth: 1,
+              ...figmaShadow({ offsetX: 0, offsetY: 2, blur: 4, color: '#000000', opacity: 0.15 }, scale),
+            },
+          ]}>
+          <ScannerIcon width={32 * scale} height={32 * scale} />
+          <Text
+            style={[
+              searchFont('semibold'),
+              styles.scanLabel,
+              {
+                fontSize: 14 * scale,
+                lineHeight: 16 * scale,
+                letterSpacing: 0.28 * scale,
+                maxWidth: 101 * scale,
+              },
+            ]}>
+            Scan & Recommend
+          </Text>
+        </Pressable>
 
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={[
-                styles.chipScrollContent,
-                {
-                  gap: 10 * scale,
-                  paddingHorizontal: 10 * scale,
-                  paddingVertical: 10 * scale,
-                },
-              ]}>
-              {SUGGESTION_CHIPS.map((chip) => (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={[
+            styles.chipScroll,
+            {
+              top: chipsTop,
+              width: contentWidth,
+              paddingLeft: 20 * scale,
+            },
+          ]}
+          contentContainerStyle={styles.chipScrollContent}>
+          <View style={{ gap: 10 * scale }}>
+            <View style={[styles.chipRow, { gap: 10 * scale, paddingTop: 10 * scale, paddingHorizontal: 10 * scale }]}>
+              {SUGGESTION_CHIPS.slice(0, 2).map((chip) => (
                 <Pressable
                   key={chip}
                   accessibilityRole="button"
@@ -268,7 +293,35 @@ export function SwashoAIScreen() {
                   </Text>
                 </Pressable>
               ))}
-            </ScrollView>
+            </View>
+            <View style={[styles.chipRow, { gap: 10 * scale, paddingHorizontal: 10 * scale, paddingBottom: 10 * scale }]}>
+              {SUGGESTION_CHIPS.slice(2).map((chip) => (
+                <Pressable
+                  key={chip}
+                  accessibilityRole="button"
+                  onPress={() => applySuggestion(chip)}
+                  style={[
+                    styles.chip,
+                    {
+                      padding: 12 * scale,
+                      borderRadius: SwashoRadii.md * scale,
+                    },
+                  ]}>
+                  <Text
+                    style={[
+                      searchFont('regular'),
+                      styles.chipText,
+                      {
+                        fontSize: 15 * scale,
+                        lineHeight: 14 * scale,
+                        letterSpacing: 0.3 * scale,
+                      },
+                    ]}>
+                    {chip}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
           </View>
         </ScrollView>
 
@@ -276,7 +329,7 @@ export function SwashoAIScreen() {
           style={[
             styles.composerRow,
             {
-              bottom: composerBottom,
+              top: composerTop,
               width: 372 * scale,
               gap: 4 * scale,
             },
@@ -384,8 +437,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  bottomGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 0,
+  },
   scroll: {
     flex: 1,
+    backgroundColor: 'transparent',
+    zIndex: 1,
   },
   sectionHeading: {
     color: SwashoColors.neutral700,
@@ -403,13 +465,26 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  scanCardPositioned: {
+    position: 'absolute',
+    zIndex: 4,
+  },
+  chipScroll: {
+    position: 'absolute',
+    left: 0,
+    zIndex: 4,
+  },
+  chipRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   scanLabel: {
     color: SwashoColors.primary600,
     textAlign: 'center',
   },
   chipScrollContent: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   chip: {
     backgroundColor: 'rgba(255, 255, 255, 0.35)',
@@ -426,7 +501,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     flexDirection: 'row',
     alignItems: 'center',
-    zIndex: 6,
+    zIndex: 8,
   },
   composerField: {
     flex: 1,
