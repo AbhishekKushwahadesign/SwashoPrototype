@@ -580,25 +580,56 @@ export function GarmentPhotoUploadScreen({
     return Number.isFinite(tracked) ? tracked : fallback;
   }, [getScrollableNode]);
 
-  const scrollServiceToOffset = useCallback((offsetX: number, animated: boolean) => {
-    const viewport = trackCarouselWidthRef.current;
-    const metrics = serviceMetricsRef.current;
-    const clamped = clampScrollOffset(offsetX, metrics.contentWidth, viewport);
-    serviceSnapInFlightRef.current = true;
-    serviceScrollOffsetRef.current = clamped;
-    if (Platform.OS === 'web') {
-      const scrollable = getScrollableNode(serviceScrollRef);
-      if (scrollable) {
-        // RN Web horizontal ScrollView ignores scrollTo({ left }) on the scroll node.
-        scrollable.scrollLeft = clamped;
+  const clearServiceSnapInFlightLater = useCallback(
+    (animated: boolean, scrollable: HTMLElement | undefined) => {
+      if (Platform.OS === 'web' && animated && scrollable) {
+        let cleared = false;
+        const release = () => {
+          if (cleared) {
+            return;
+          }
+          cleared = true;
+          scrollable.removeEventListener('scrollend', release);
+          serviceSnapInFlightRef.current = false;
+        };
+        scrollable.addEventListener('scrollend', release, { once: true });
+        setTimeout(release, 520);
+        return;
       }
-    } else {
-      serviceScrollRef.current?.scrollTo({ x: clamped, animated });
-    }
-    setTimeout(() => {
-      serviceSnapInFlightRef.current = false;
-    }, animated ? 320 : 48);
-  }, [getScrollableNode]);
+      setTimeout(
+        () => {
+          serviceSnapInFlightRef.current = false;
+        },
+        animated ? 360 : 48,
+      );
+    },
+    [],
+  );
+
+  const scrollServiceToOffset = useCallback(
+    (offsetX: number, animated: boolean) => {
+      const viewport = trackCarouselWidthRef.current;
+      const metrics = serviceMetricsRef.current;
+      const clamped = clampScrollOffset(offsetX, metrics.contentWidth, viewport);
+      serviceSnapInFlightRef.current = true;
+      serviceScrollOffsetRef.current = clamped;
+      let scrollable: HTMLElement | undefined;
+      if (Platform.OS === 'web') {
+        scrollable = getScrollableNode(serviceScrollRef) as HTMLElement | undefined;
+        if (scrollable) {
+          if (animated) {
+            scrollable.scrollTo({ left: clamped, behavior: 'smooth' });
+          } else {
+            scrollable.scrollLeft = clamped;
+          }
+        }
+      } else {
+        serviceScrollRef.current?.scrollTo({ x: clamped, animated });
+      }
+      clearServiceSnapInFlightLater(animated, scrollable);
+    },
+    [clearServiceSnapInFlightLater, getScrollableNode],
+  );
 
   const scrollServiceToIndex = useCallback(
     (index: number, animated: boolean) => {
@@ -655,9 +686,11 @@ export function GarmentPhotoUploadScreen({
   }, []);
 
   const settleServiceSnap = useCallback(() => {
-    serviceSnapInFlightRef.current = false;
+    if (serviceSnapInFlightRef.current) {
+      return;
+    }
     const offsetX = readServiceScrollOffset();
-    snapServiceToNearest(offsetX, false);
+    snapServiceToNearest(offsetX, true);
   }, [readServiceScrollOffset, snapServiceToNearest]);
 
   const handleServiceScrollEnd = useCallback(
