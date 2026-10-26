@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, type StyleProp, type ViewStyle } from 'react-native';
 
 import { figmaShadow, FigmaShadows } from '@/components/home/figma-shadows';
@@ -15,6 +16,7 @@ type ServiceSelectionButtonProps = {
   disabled?: boolean;
   loading?: boolean;
   showAddIcon?: boolean;
+  leadingIcon?: ReactNode;
   onPress?: () => void;
   scale: number;
   style?: StyleProp<ViewStyle>;
@@ -28,6 +30,7 @@ export function ServiceSelectionButton({
   disabled = false,
   loading = false,
   showAddIcon = false,
+  leadingIcon,
   onPress,
   scale,
   style,
@@ -78,6 +81,7 @@ export function ServiceSelectionButton({
         />
       ) : (
         <>
+          {leadingIcon}
           <Text
             numberOfLines={1}
             style={[

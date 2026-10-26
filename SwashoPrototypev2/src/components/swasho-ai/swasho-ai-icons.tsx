@@ -22,6 +22,27 @@ const ScannerIconXml = `<svg preserveAspectRatio="none" overflow="visible" style
 </g>
 </svg>`;
 
+/** Figma 3415:17906 — stylized “Ai” mark in the detected pill. */
+const AiDetectedMarkIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="10.7536" height="10.9513" viewBox="0 0 10.7536 10.9513" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M5.62553 1.61598L3.14702 9.35889C2.84334 10.3076 1.96139 10.9513 0.965275 10.9513H0.154215C0.0469128 10.9513 -0.0275316 10.8444 0.00972013 10.7437L3.5452 1.19336C3.89675 0.243705 4.95357 -0.238925 5.90149 0.117283L5.62553 1.61598ZM9.7843 10.9513C8.78617 10.9513 7.90228 10.3067 7.59726 9.35631L5.11304 1.61598L4.81342 0.117283C5.77139 -0.239429 6.83714 0.248044 7.19376 1.20605L10.7437 10.7424C10.7814 10.8436 10.7065 10.9513 10.5985 10.9513H9.7843ZM7.98302 6.67787V8.64113H1.99075V6.67787H7.98302Z" fill="#464646"/>
+</svg>`;
+
+/** Figma footer — 20×20 scanner for “Scan another”. */
+const RecommendationScannerIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_rec_scanner)">
+<path d="M8.33333 18.3333C5.19064 18.3333 3.61929 18.3333 2.64298 17.357C1.66667 16.3807 1.66667 15.6427 1.66667 12.5" stroke-width="1.5" stroke-linecap="round" stroke="#5D30F7"/>
+<path d="M18.3333 12.5C18.3333 15.6427 18.3333 16.3807 17.357 17.357C16.3807 18.3333 14.8094 18.3333 11.6667 18.3333" stroke-width="1.5" stroke-linecap="round" stroke="#5D30F7"/>
+<path d="M11.6667 1.66667C14.8094 1.66667 16.3807 1.66667 17.357 2.64298C18.3333 3.61929 18.3333 4.3573 18.3333 7.5" stroke-width="1.5" stroke-linecap="round" stroke="#5D30F7"/>
+<path d="M8.33333 1.66667C5.19064 1.66667 3.61929 1.66667 2.64298 2.64298C1.66667 3.61929 1.66667 4.3573 1.66667 7.5" stroke-width="1.5" stroke-linecap="round" stroke="#5D30F7"/>
+<path d="M1.66667 10H18.3333" stroke-width="1.5" stroke-linecap="round" stroke="#5D30F7"/>
+</g>
+<defs>
+<clipPath id="clip0_rec_scanner">
+<rect width="20" height="20" rx="5" fill="white"/>
+</clipPath>
+</defs>
+</svg>`;
+
 const SparkleBulletIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20.3471" height="20.231" viewBox="0 0 20.3471 20.231" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M9.05294 1.1669C9.4547 0.128783 10.9308 0.149673 11.303 1.19874L13.0908 6.23744C13.2087 6.56981 13.4669 6.83348 13.7967 6.95839L19.1722 8.99427C20.2158 9.38954 20.202 10.8707 19.1511 11.2464L13.8179 13.1532C13.4757 13.2755 13.2074 13.5463 13.0882 13.8896L11.3056 19.0246C10.9377 20.0841 9.44685 20.1048 9.04969 19.056L7.0815 13.8582C6.95846 13.5332 6.70062 13.2776 6.37464 13.1573L1.18462 11.2424C0.149094 10.8604 0.135131 9.40075 1.16316 8.99894L6.39608 6.95365C6.7094 6.83119 6.95694 6.58282 7.07835 6.26909L9.05294 1.1669Z" fill="url(#paint0_radial_swasho_ai_sparkle)"/>
 <defs>
@@ -38,6 +59,14 @@ export function HistoryIcon({ width, height, style }: IconProps) {
 
 export function ScannerIcon({ width, height, style }: IconProps) {
   return <SvgXml xml={ScannerIconXml} width={width} height={height} style={style} />;
+}
+
+export function AiDetectedMarkIcon({ width, height, style }: IconProps) {
+  return <SvgXml xml={AiDetectedMarkIconXml} width={width} height={height} style={style} />;
+}
+
+export function RecommendationScannerIcon({ width, height, style }: IconProps) {
+  return <SvgXml xml={RecommendationScannerIconXml} width={width} height={height} style={style} />;
 }
 
 export function SparkleBulletIcon({ width, height, style }: IconProps) {

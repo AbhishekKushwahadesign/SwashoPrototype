@@ -3,7 +3,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import {
   Dimensions,
   Modal,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -12,8 +11,10 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { StarRatingIcon } from '@/components/home/figma-icons';
 import { figmaShadow, FigmaShadows } from '@/components/home/figma-shadows';
 import { searchFont } from '@/components/search/search-fonts';
+import { AddSquareIcon } from '@/components/service-selection/service-selection-icons';
 import { ServiceSelectionButton } from '@/components/service-selection/ServiceSelectionButton';
 import {
   SWASHO_AI_DEMO_PROVIDER_IMAGE,
@@ -22,7 +23,7 @@ import {
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
 import { DangerTriangleScan } from './garment-scan-icons';
-import { ScannerIcon, SparkleBulletIcon } from './swasho-ai-icons';
+import { AiDetectedMarkIcon, RecommendationScannerIcon } from './swasho-ai-icons';
 
 /** Figma 3415:17896 — AI Service Recommended sheet (412×607 body @ top 313). */
 const FIGMA_MODAL = {
@@ -50,6 +51,37 @@ type AiServiceRecommendedModalProps = {
   onScanAnother: () => void;
   onGoToCart: () => void;
 };
+
+function ProviderRecommendAddButton({ scale, onPress }: { scale: number; onPress?: () => void }) {
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel="Add to cart"
+      onPress={onPress}
+      style={[
+        styles.addButton,
+        {
+          height: 32 * scale,
+          width: 86 * scale,
+          borderRadius: SwashoRadii.md * scale,
+          paddingHorizontal: 16 * scale,
+          paddingVertical: 8 * scale,
+          gap: 6 * scale,
+          ...figmaShadow(FigmaShadows.search, scale),
+        },
+      ]}>
+      <Text
+        style={[
+          styles.addButtonLabel,
+          searchFont('medium'),
+          { fontSize: 14 * scale, lineHeight: 12 * scale, letterSpacing: 0.5 * scale },
+        ]}>
+        ADD
+      </Text>
+      <AddSquareIcon width={18 * scale} height={18 * scale} />
+    </Pressable>
+  );
+}
 
 function CheckRow({ scale, label }: { scale: number; label: string }) {
   return (
@@ -112,7 +144,6 @@ export function AiServiceRecommendedModal({
             styles.sheetColumn,
             {
               width: contentWidth,
-              paddingBottom: Math.max(insets.bottom, 12 * designScale),
             },
           ]}
           pointerEvents="box-none">
@@ -169,14 +200,14 @@ export function AiServiceRecommendedModal({
                         gap: 6 * designScale,
                       },
                     ]}>
-                    <SparkleBulletIcon width={14 * designScale} height={14 * designScale} />
+                    <AiDetectedMarkIcon width={11 * designScale} height={11 * designScale} />
                     <Text
                       style={[
                         searchFont('medium'),
                         styles.aiDetectedText,
                         { fontSize: 14 * scale, lineHeight: 16 * scale, letterSpacing: 0.28 * scale },
                       ]}>
-                      Ai Detected
+                      Detected
                     </Text>
                   </View>
                   <View
@@ -255,33 +286,53 @@ export function AiServiceRecommendedModal({
                   </Text>
                 </LinearGradient>
 
-                <View style={{ minHeight: 158 * designScale }}>
-                  <View style={{ flexDirection: 'row', gap: 20 * designScale }}>
-                    <View>
-                      <Image
-                        source={SWASHO_AI_DEMO_PROVIDER_IMAGE}
+                <View
+                  style={[
+                    styles.providerCard,
+                    {
+                      borderRadius: SwashoRadii.md * designScale,
+                      borderWidth: 1,
+                      padding: 12 * designScale,
+                      gap: 12 * designScale,
+                    },
+                  ]}>
+                  <View style={{ flexDirection: 'row', gap: 20 * designScale, alignItems: 'flex-start' }}>
+                    <View style={{ width: 78 * designScale, alignItems: 'center' }}>
+                      <View
                         style={{
                           width: 78 * designScale,
                           height: 78 * designScale,
                           borderRadius: SwashoRadii.md * designScale,
-                        }}
-                        contentFit="cover"
-                      />
-                      <View
-                        style={[
-                          styles.ratingBadge,
-                          {
-                            top: 0,
-                            borderTopLeftRadius: SwashoRadii.md * designScale,
-                            borderBottomRightRadius: SwashoRadii.md * designScale,
-                            paddingHorizontal: 5 * designScale,
-                            paddingVertical: 4 * designScale,
-                            gap: 2 * designScale,
-                          },
-                        ]}>
-                        <Text style={[searchFont('semibold'), { fontSize: 12 * designScale, color: SwashoColors.neutral950 }]}>
-                          ★ {recommendation.providerRating}
-                        </Text>
+                          overflow: 'hidden',
+                        }}>
+                        <Image
+                          source={SWASHO_AI_DEMO_PROVIDER_IMAGE}
+                          style={{
+                            width: 78 * designScale,
+                            height: 78 * designScale,
+                          }}
+                          contentFit="cover"
+                        />
+                        <View
+                          style={[
+                            styles.ratingBadge,
+                            {
+                              borderTopLeftRadius: SwashoRadii.md * designScale,
+                              borderBottomRightRadius: SwashoRadii.md * designScale,
+                              paddingHorizontal: 5 * designScale,
+                              paddingVertical: 4 * designScale,
+                              gap: 2 * designScale,
+                            },
+                          ]}>
+                          <StarRatingIcon width={9.59 * designScale} height={9.59 * designScale} />
+                          <Text
+                            style={[
+                              searchFont('semibold'),
+                              { fontSize: 12 * designScale, lineHeight: 12 * designScale, color: SwashoColors.neutral950 },
+                            ]}>
+                            {recommendation.providerRating}
+                          </Text>
+                        </View>
                       </View>
                       <Text
                         style={[
@@ -299,12 +350,12 @@ export function AiServiceRecommendedModal({
                       </Text>
                     </View>
 
-                    <View style={{ flex: 1, gap: 14 * designScale, paddingTop: 8 * designScale }}>
+                    <View style={{ flex: 1, gap: 14 * designScale, paddingTop: 4 * designScale }}>
                       <Text
                         style={[
                           searchFont('medium'),
                           styles.providerName,
-                          { fontSize: 14 * designScale, lineHeight: 12 * designScale, letterSpacing: 0.5 * designScale },
+                          { fontSize: 14 * designScale, lineHeight: 16 * designScale, letterSpacing: 0.5 * designScale },
                         ]}>
                         {recommendation.providerName}
                       </Text>
@@ -312,7 +363,7 @@ export function AiServiceRecommendedModal({
                         style={[
                           searchFont('semibold'),
                           styles.providerService,
-                          { fontSize: 14 * designScale, lineHeight: 14 * designScale, letterSpacing: 0.5 * designScale },
+                          { fontSize: 14 * designScale, lineHeight: 16 * designScale, letterSpacing: 0.5 * designScale },
                         ]}>
                         {recommendation.modalServiceTitle}
                       </Text>
@@ -320,31 +371,11 @@ export function AiServiceRecommendedModal({
                         style={[
                           searchFont('semibold'),
                           styles.providerPrice,
-                          { fontSize: 14 * designScale, lineHeight: 14 * designScale, letterSpacing: 0.5 * designScale },
+                          { fontSize: 14 * designScale, lineHeight: 16 * designScale, letterSpacing: 0.5 * designScale },
                         ]}>
                         ₹ {recommendation.providerPriceInr}
                       </Text>
-                      <View
-                        style={[
-                          styles.qtyStepper,
-                          {
-                            height: 32 * designScale,
-                            borderRadius: SwashoRadii.md * designScale,
-                            paddingHorizontal: 16 * designScale,
-                            gap: 12 * designScale,
-                            ...figmaShadow(FigmaShadows.addButton, designScale),
-                          },
-                        ]}>
-                        <Text style={[searchFont('semibold'), { fontSize: 14 * designScale, color: SwashoColors.surface }]}>
-                          −
-                        </Text>
-                        <Text style={[searchFont('semibold'), { fontSize: 14 * designScale, color: SwashoColors.surface }]}>
-                          1
-                        </Text>
-                        <Text style={[searchFont('semibold'), { fontSize: 14 * designScale, color: SwashoColors.surface }]}>
-                          +
-                        </Text>
-                      </View>
+                      <ProviderRecommendAddButton scale={designScale} onPress={onGoToCart} />
                     </View>
                   </View>
                 </View>
@@ -382,7 +413,8 @@ export function AiServiceRecommendedModal({
                 width: contentWidth,
                 gap: FIGMA_MODAL.footerGap * designScale,
                 paddingHorizontal: ((contentWidth - FIGMA_MODAL.footerButtonWidth * 2 * designScale - FIGMA_MODAL.footerGap * designScale) / 2),
-                marginTop: 8 * designScale,
+                paddingTop: 12 * designScale,
+                paddingBottom: Math.max(insets.bottom, 12 * designScale),
               },
             ]}>
             <ServiceSelectionButton
@@ -390,6 +422,9 @@ export function AiServiceRecommendedModal({
               variant="secondary"
               scale={scale}
               onPress={onScanAnother}
+              leadingIcon={
+                <RecommendationScannerIcon width={20 * scale} height={20 * scale} />
+              }
               style={{ width: FIGMA_MODAL.footerButtonWidth * designScale, flex: 1 }}
             />
             <ServiceSelectionButton
@@ -412,7 +447,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   scrim: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
     backgroundColor: SwashoColors.modalScrim,
   },
   sheetColumn: {
@@ -499,12 +534,30 @@ const styles = StyleSheet.create({
   expertBadgeText: {
     color: '#0070CC',
   },
+  providerCard: {
+    backgroundColor: '#E5F3FF',
+    borderColor: '#0070CC',
+  },
   ratingBadge: {
     position: 'absolute',
+    top: 0,
     left: 0,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#86EFAD',
+  },
+  addButton: {
+    alignSelf: 'flex-start',
+    backgroundColor: SwashoColors.surface,
+    borderWidth: 0.5,
+    borderColor: SwashoColors.primary300,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addButtonLabel: {
+    color: SwashoColors.primary,
+    textAlign: 'center',
   },
   deliveryText: {
     color: '#000000',
@@ -518,14 +571,6 @@ const styles = StyleSheet.create({
   providerPrice: {
     color: SwashoColors.neutral800,
   },
-  qtyStepper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    backgroundColor: SwashoColors.primary600,
-    borderColor: SwashoColors.primary600,
-    borderWidth: 0.5,
-  },
   disclaimer: {
     color: SwashoColors.neutral500,
   },
@@ -533,5 +578,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: SwashoColors.surface,
   },
 });
