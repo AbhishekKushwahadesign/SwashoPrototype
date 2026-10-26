@@ -35,13 +35,11 @@ const FIGMA_PILL = {
   fontSize: 14,
   lineHeight: 16,
   letterSpacing: 0.28,
-  /** #FAFAFA @ 80% opacity (Figma 3415:17879) */
-  innerBackground: '#FAFAFACC',
-  /** One full rotation of the stroke gradient (ms). */
   spinDurationMs: 3200,
 } as const;
 
-export const ANALYZING_STATUS_PILL_FILL = FIGMA_PILL.innerBackground;
+/** Frosted fill for legacy/static pills (e.g. scan failed state). */
+export const ANALYZING_STATUS_PILL_FILL = '#FAFAFACC';
 
 type AnalyzingGradientStatusPillProps = {
   scale: number;
@@ -61,7 +59,6 @@ export function AnalyzingGradientStatusPill({
   const borderWidth = FIGMA_PILL.borderWidth * scale;
   const outerRadius = FIGMA_PILL.radius * scale;
   const innerRadius = Math.max(0, outerRadius - borderWidth);
-  const spinnerSize = 220 * scale;
 
   const rotation = useSharedValue(0);
 
@@ -90,57 +87,41 @@ export function AnalyzingGradientStatusPill({
   }));
 
   return (
-    <View
-      style={[
-        styles.outer,
-        {
-          borderRadius: outerRadius,
-        },
-      ]}>
-      <Animated.View
-        pointerEvents="none"
-        style={[
-          styles.spinner,
-          spinStyle,
-          {
-            width: spinnerSize,
-            height: spinnerSize,
-            marginLeft: -spinnerSize / 2,
-            marginTop: -spinnerSize / 2,
-          },
-        ]}>
+    <View style={[styles.outer, { borderRadius: outerRadius }]}>
+      <Animated.View style={[styles.spinWrap, spinStyle]}>
         <LinearGradient
           colors={[...ANALYZING_STATUS_GRADIENT]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={StyleSheet.absoluteFill}
-        />
+          style={{
+            padding: borderWidth,
+            borderRadius: outerRadius,
+          }}>
+          <View
+            style={{
+              paddingHorizontal: FIGMA_PILL.paddingHorizontal * scale,
+              paddingVertical: FIGMA_PILL.paddingVertical * scale,
+              borderRadius: innerRadius,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: 'transparent',
+            }}>
+            <Text
+              numberOfLines={1}
+              style={[
+                searchFont('medium'),
+                styles.label,
+                {
+                  fontSize: FIGMA_PILL.fontSize * scale,
+                  lineHeight: FIGMA_PILL.lineHeight * scale,
+                  letterSpacing: FIGMA_PILL.letterSpacing * scale,
+                },
+              ]}>
+              {label}
+            </Text>
+          </View>
+        </LinearGradient>
       </Animated.View>
-
-      <View
-        style={{
-          margin: borderWidth,
-          backgroundColor: FIGMA_PILL.innerBackground,
-          paddingHorizontal: FIGMA_PILL.paddingHorizontal * scale,
-          paddingVertical: FIGMA_PILL.paddingVertical * scale,
-          borderRadius: innerRadius,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-        <Text
-          numberOfLines={1}
-          style={[
-            searchFont('medium'),
-            styles.label,
-            {
-              fontSize: FIGMA_PILL.fontSize * scale,
-              lineHeight: FIGMA_PILL.lineHeight * scale,
-              letterSpacing: FIGMA_PILL.letterSpacing * scale,
-            },
-          ]}>
-          {label}
-        </Text>
-      </View>
     </View>
   );
 }
@@ -151,12 +132,9 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     maxWidth: '100%',
     overflow: 'hidden',
-    position: 'relative',
   },
-  spinner: {
-    position: 'absolute',
-    left: '50%',
-    top: '50%',
+  spinWrap: {
+    alignSelf: 'center',
   },
   label: {
     color: SwashoColors.neutral900,

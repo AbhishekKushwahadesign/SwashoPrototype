@@ -356,11 +356,11 @@ export function GarmentScanScreen() {
                 width: contentWidth,
               },
             ]}>
-            <GradientBorderPill
-              scale={scale}
-              label={flow.analyzingLabel}
-              variant={flow.phase === 'failed' ? 'failed' : flow.phase === 'success' ? 'success' : 'analyzing'}
-            />
+            {flow.phase === 'failed' ? (
+              <GradientBorderPill scale={scale} label={flow.analyzingLabel} variant="failed" />
+            ) : (
+              <AnalyzingGradientStatusPill scale={scale} label={flow.analyzingLabel} />
+            )}
           </View>
         ) : null}
 
