@@ -31,7 +31,9 @@ const HOME_INDICATOR_HEIGHT = 24;
 /** Simulated stage labels — not real AI inference. */
 const DEMO_STAGE_LABELS = ['Analyzing garment', 'Analyzing stain', 'Recommending services'] as const;
 
-const STAGE_MS = 1500;
+/** Simulated analysis duration before the recommendation modal (ms). */
+const DEMO_ANALYSIS_TOTAL_MS = 2000;
+const STAGE_MS = DEMO_ANALYSIS_TOTAL_MS / DEMO_STAGE_LABELS.length;
 
 type DemoAnalysisPhase = 'running' | 'complete';
 
@@ -77,7 +79,7 @@ export function DemoGarmentAnalysisScreen() {
 
     const completeTimer = setTimeout(() => {
       setPhase('complete');
-    }, DEMO_STAGE_LABELS.length * STAGE_MS);
+    }, DEMO_ANALYSIS_TOTAL_MS);
     timersRef.current.push(completeTimer);
 
     return () => {
