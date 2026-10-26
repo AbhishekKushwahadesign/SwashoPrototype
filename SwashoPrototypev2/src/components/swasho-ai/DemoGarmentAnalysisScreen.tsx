@@ -32,7 +32,7 @@ const HOME_INDICATOR_HEIGHT = 24;
 const DEMO_STAGE_LABELS = ['Analyzing garment', 'Analyzing stain', 'Recommending services'] as const;
 
 /** Simulated analysis duration before the recommendation modal (ms). */
-const DEMO_ANALYSIS_TOTAL_MS = 2000;
+const DEMO_ANALYSIS_TOTAL_MS = 3500;
 const STAGE_MS = DEMO_ANALYSIS_TOTAL_MS / DEMO_STAGE_LABELS.length;
 
 type DemoAnalysisPhase = 'running' | 'complete';
