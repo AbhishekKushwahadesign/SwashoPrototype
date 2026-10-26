@@ -30,7 +30,7 @@ import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors } from '@/constants/swasho-tokens';
 import { useGarmentScanFlow } from '@/hooks/use-garment-scan-flow';
 
-import { ANALYZING_STATUS_PILL_FILL } from './AnalyzingGradientStatusPill';
+import { ANALYZING_STATUS_PILL_FILL, AnalyzingGradientStatusPill } from './AnalyzingGradientStatusPill';
 import {
   ArrowLeftScan,
   DangerTriangleScan,
@@ -64,8 +64,7 @@ function GradientBorderPill({
   label: string;
   variant?: 'analyzing' | 'failed' | 'success';
 }) {
-  const innerBg =
-    variant === 'failed' ? 'rgba(255, 250, 250, 0.92)' : 'rgba(250, 250, 250, 0.8)';
+  const innerBg = variant === 'failed' ? 'rgba(255, 250, 250, 0.92)' : ANALYZING_STATUS_PILL_FILL;
 
   return (
     <LinearGradient
