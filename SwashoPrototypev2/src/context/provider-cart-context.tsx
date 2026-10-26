@@ -33,7 +33,7 @@ type ProviderCartContextValue = {
     patch: Partial<
       Pick<
         ProviderCheckoutState,
-        'pickupWeekday' | 'pickupTimeSlot' | 'deliverySameAsPickup' | 'deliveryTimeSlot'
+        'pickupWeekday' | 'pickupDayKey' | 'pickupTimeSlot' | 'deliverySameAsPickup' | 'deliveryTimeSlot'
       >
     >,
   ) => void;
@@ -153,7 +153,7 @@ export function ProviderCartProvider({ children }: { children: ReactNode }) {
       patch: Partial<
         Pick<
         ProviderCheckoutState,
-        'pickupWeekday' | 'pickupTimeSlot' | 'deliverySameAsPickup' | 'deliveryTimeSlot'
+        'pickupWeekday' | 'pickupDayKey' | 'pickupTimeSlot' | 'deliverySameAsPickup' | 'deliveryTimeSlot'
       >
       >,
     ) => {

@@ -72,36 +72,41 @@ export function DemoGarmentAnalysisScreen() {
   const [recommendationModalVisible, setRecommendationModalVisible] = useState(false);
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const recommendationModalOpenedRef = useRef(false);
+  const goToCartLockRef = useRef(false);
 
   const {
-    setSelection,
     clearSelection,
     getProviderCartEntries,
-    setOneTimeSchedule,
     setFulfillmentMode,
+    setOneTimeSchedule,
+    setSelection,
   } = useProviderCart();
 
   const commitGoToCart = useCallback(
     (activeScenario: SwashoAiDemoScenario, quantity: number) => {
+      if (goToCartLockRef.current) {
+        return;
+      }
+      goToCartLockRef.current = true;
+
       const providerId = SWASHO_AI_DEMO_PROVIDER_ID;
-      const { recommendation } = activeScenario;
-      const query = recommendation.providerName;
+      const query = activeScenario.recommendation.providerName;
+      const today = buildUpcomingCheckoutDays(14)[0];
 
       for (const entry of getProviderCartEntries(providerId)) {
         clearSelection(providerId, entry.serviceId);
       }
 
       setFulfillmentMode(providerId, 'one-time');
-      const today = buildUpcomingCheckoutDays(1)[0];
       setOneTimeSchedule(providerId, {
         pickupWeekday: today.weekdayId,
+        pickupDayKey: today.key,
         pickupTimeSlot: getNextPickupTimeSlot(),
         deliverySameAsPickup: true,
-        deliveryTimeSlot: undefined,
       });
 
-      setSelection(providerId, recommendation.serviceSelectionId, {
-        quantities: { [recommendation.catalogOptionId]: quantity },
+      setSelection(providerId, activeScenario.catalogServiceId, {
+        quantities: { [activeScenario.catalogOptionId]: quantity },
         savedCombos: [],
       });
 
@@ -112,6 +117,10 @@ export function DemoGarmentAnalysisScreen() {
           fromAiDemo: true,
         }),
       );
+
+      setTimeout(() => {
+        goToCartLockRef.current = false;
+      }, 600);
     },
     [
       clearSelection,
@@ -135,7 +144,7 @@ export function DemoGarmentAnalysisScreen() {
       }
       Alert.alert(
         'Replace cart?',
-        'Your Laundry Pro cart already has items. Replace it with this AI recommendation?',
+        'Your Laundry Pro cart will be replaced with this AI recommendation.',
         [
           { text: 'Cancel', style: 'cancel' },
           {

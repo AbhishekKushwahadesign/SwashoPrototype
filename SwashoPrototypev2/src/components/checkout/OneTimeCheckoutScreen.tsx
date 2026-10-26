@@ -66,6 +66,9 @@ export function OneTimeCheckoutScreen({
   const upcomingDays = useMemo(() => buildUpcomingCheckoutDays(14), []);
   const [weekday, setWeekday] = useState<CheckoutWeekdayId | null>(persisted.pickupWeekday ?? null);
   const [selectedDayKey, setSelectedDayKey] = useState<string | null>(() => {
+    if (persisted.pickupDayKey) {
+      return persisted.pickupDayKey;
+    }
     if (!persisted.pickupWeekday) {
       return null;
     }
@@ -132,6 +135,7 @@ export function OneTimeCheckoutScreen({
     confirmLockRef.current = true;
     setOneTimeSchedule(providerId, {
       pickupWeekday: weekday,
+      pickupDayKey: selectedDayKey ?? undefined,
       pickupTimeSlot: pickupSlot,
       deliverySameAsPickup,
       deliveryTimeSlot: deliverySameAsPickup ? undefined : deliverySlot ?? undefined,
@@ -147,6 +151,7 @@ export function OneTimeCheckoutScreen({
     providerId,
     query,
     router,
+    selectedDayKey,
     setOneTimeSchedule,
     weekday,
   ]);
@@ -154,7 +159,7 @@ export function OneTimeCheckoutScreen({
   const handleWeekdaySelect = (day: CheckoutDayOption) => {
     setSelectedDayKey(day.key);
     setWeekday(day.weekdayId);
-    setOneTimeSchedule(providerId, { pickupWeekday: day.weekdayId });
+    setOneTimeSchedule(providerId, { pickupWeekday: day.weekdayId, pickupDayKey: day.key });
   };
 
   const handleSlotSelect = (id: CheckoutPickupTimeSlotId) => {

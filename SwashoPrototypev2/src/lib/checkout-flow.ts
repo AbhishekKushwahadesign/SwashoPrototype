@@ -31,6 +31,8 @@ export type ProviderCheckoutState = {
   subscriptionDeliveryTimeSlot?: CheckoutPickupTimeSlotId;
   subscriptionStartDateKey?: string;
   pickupWeekday?: CheckoutWeekdayId;
+  /** ISO date key (YYYY-MM-DD) for the selected pickup day chip. */
+  pickupDayKey?: string;
   pickupTimeSlot?: CheckoutPickupTimeSlotId;
   deliverySameAsPickup?: boolean;
   deliveryTimeSlot?: CheckoutPickupTimeSlotId;
@@ -145,12 +147,12 @@ const PICKUP_SLOT_START_HOUR: Record<CheckoutPickupTimeSlotId, number> = {
   '6-8pm': 18,
 };
 
-/** First pickup slot whose window has not started yet today; wraps to earliest if all have passed. */
-export function getNextPickupTimeSlot(now = new Date()): CheckoutPickupTimeSlotId {
-  const minutesNow = now.getHours() * 60 + now.getMinutes();
+/** First pickup slot whose start is strictly after `now` (local); wraps to 6–8 AM if none left today. */
+export function getNextPickupTimeSlot(now: Date = new Date()): CheckoutPickupTimeSlotId {
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
   for (const slot of CHECKOUT_PICKUP_TIME_SLOTS) {
     const startMinutes = PICKUP_SLOT_START_HOUR[slot.id] * 60;
-    if (startMinutes > minutesNow) {
+    if (startMinutes > currentMinutes) {
       return slot.id;
     }
   }

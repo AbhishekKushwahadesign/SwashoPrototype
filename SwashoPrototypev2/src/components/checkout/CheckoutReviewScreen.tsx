@@ -301,6 +301,7 @@ export function CheckoutReviewScreen({
   const [aiDemoPickupNudgeVisible, setAiDemoPickupNudgeVisible] = useState(fromAiDemo);
 
   const cardWidth = CHECKOUT_SCHEDULE_CARD_WIDTH * scale;
+
   const returnToSchedule = useCallback(() => {
     setAiDemoPickupNudgeVisible(false);
     if (isSubscription) {

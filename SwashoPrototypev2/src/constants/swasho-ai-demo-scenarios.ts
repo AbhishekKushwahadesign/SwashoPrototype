@@ -30,6 +30,10 @@ export type SwashoAiDemoRecommendation = {
 
 export type SwashoAiDemoScenario = {
   id: SwashoAiDemoScenarioId;
+  /** Service-selection route id for cart seeding. */
+  catalogServiceId: string;
+  /** Catalog option id within the service (quantities key). */
+  catalogOptionId: string;
   title: string;
   cardImage: ImageSourcePropType;
   analysisImage: ImageSourcePropType;
@@ -63,6 +67,8 @@ export const SWASHO_AI_DEMO_PROVIDER_IMAGE = require('@/assets/images/swasho-ai/
 export const SWASHO_AI_DEMO_SCENARIOS: SwashoAiDemoScenario[] = [
   {
     id: 'white-t-shirt-coffee',
+    catalogServiceId: 'wash-iron',
+    catalogOptionId: 'stain-removal',
     title: 'White T-Shirt',
     cardImage: CARD_WHITE_TSHIRT,
     analysisImage: ANALYSIS_WHITE_TSHIRT,
@@ -89,6 +95,8 @@ export const SWASHO_AI_DEMO_SCENARIOS: SwashoAiDemoScenario[] = [
   },
   {
     id: 'blue-jeans-mud',
+    catalogServiceId: 'wash-iron',
+    catalogOptionId: 'wash-iron',
     title: 'Blue Jeans',
     cardImage: CARD_BLUE_JEANS,
     analysisImage: ANALYSIS_BLUE_JEANS,
@@ -115,6 +123,8 @@ export const SWASHO_AI_DEMO_SCENARIOS: SwashoAiDemoScenario[] = [
   },
   {
     id: 'white-shirt-collar-discoloration',
+    catalogServiceId: 'dry-cleaning',
+    catalogOptionId: 'dry-cleaning',
     title: 'White Dress Shirt',
     cardImage: CARD_WHITE_SHIRT,
     analysisImage: ANALYSIS_WHITE_SHIRT,
