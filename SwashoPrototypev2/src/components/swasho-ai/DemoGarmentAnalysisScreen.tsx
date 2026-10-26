@@ -1,7 +1,6 @@
-import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   Easing,
   cancelAnimation,
@@ -20,6 +19,7 @@ import { searchFont } from '@/components/search/search-fonts';
 import { getSwashoAiDemoScenario } from '@/constants/swasho-ai-demo-scenarios';
 import { SwashoColors } from '@/constants/swasho-tokens';
 
+import { AnalyzingGradientStatusPill } from './AnalyzingGradientStatusPill';
 import { AiServiceRecommendedModal } from './AiServiceRecommendedModal';
 import { Image } from 'expo-image';
 import { ArrowLeftScan, DangerTriangleScan } from './garment-scan-icons';
@@ -28,50 +28,12 @@ const FIGMA_FRAME_HEIGHT = 896;
 const STATUS_BAR_HEIGHT = 32;
 const HOME_INDICATOR_HEIGHT = 24;
 
-const ANALYZING_GRADIENT = ['#E40000', '#5D30F7', '#208AEF', '#00C853', '#FFB300', '#E40000'] as const;
-
 /** Simulated stage labels — not real AI inference. */
 const DEMO_STAGE_LABELS = ['Analyzing garment', 'Analyzing stain', 'Recommending services'] as const;
 
 const STAGE_MS = 1500;
 
 type DemoAnalysisPhase = 'running' | 'complete';
-
-function GradientBorderPill({ scale, label }: { scale: number; label: string }) {
-  const innerBg = 'rgba(250, 250, 250, 0.8)';
-
-  return (
-    <LinearGradient
-      colors={[...ANALYZING_GRADIENT]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={{
-        padding: 1.875 * scale,
-        borderRadius: 9999 * scale,
-      }}>
-      <View
-        style={{
-          backgroundColor: innerBg,
-          paddingHorizontal: 12 * scale,
-          paddingVertical: 12 * scale,
-          borderRadius: 9999 * scale,
-        }}>
-        <Text
-          style={[
-            searchFont('medium'),
-            styles.pillLabel,
-            {
-              fontSize: 14 * scale,
-              lineHeight: 16 * scale,
-              letterSpacing: 0.28 * scale,
-            },
-          ]}>
-          {label}
-        </Text>
-      </View>
-    </LinearGradient>
-  );
-}
 
 export function DemoGarmentAnalysisScreen() {
   const { scenarioId } = useLocalSearchParams<{ scenarioId?: string }>();
@@ -250,16 +212,18 @@ export function DemoGarmentAnalysisScreen() {
           </Text>
         </View>
 
-        <View
-          style={[
-            styles.analyzingPillWrap,
-            {
-              top: figmaY(685),
-              width: contentWidth,
-            },
-          ]}>
-          <GradientBorderPill scale={scale} label={pillLabel} />
-        </View>
+        {!recommendationModalVisible && pillLabel ? (
+          <View
+            style={[
+              styles.analyzingPillWrap,
+              {
+                top: figmaY(685),
+                width: contentWidth,
+              },
+            ]}>
+            <AnalyzingGradientStatusPill scale={scale} label={pillLabel} />
+          </View>
+        ) : null}
 
         <View
           style={[
@@ -336,12 +300,9 @@ const styles = StyleSheet.create({
   },
   analyzingPillWrap: {
     position: 'absolute',
-    zIndex: 12,
+    zIndex: 18,
     alignItems: 'center',
-  },
-  pillLabel: {
-    color: SwashoColors.neutral900,
-    textAlign: 'center',
+    paddingHorizontal: 20,
   },
   scanLine: {
     position: 'absolute',
