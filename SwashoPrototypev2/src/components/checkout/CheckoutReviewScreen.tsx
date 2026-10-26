@@ -62,6 +62,7 @@ import {
 import { ContactlessClothesLocationModal } from './ContactlessClothesLocationModal';
 import { ContactlessBasketPhotoSection } from './ContactlessBasketPhotoSection';
 import { ContactlessHowItWorksModal } from './ContactlessHowItWorksModal';
+import { CheckoutAiDemoPickupNudge } from './CheckoutAiDemoPickupNudge';
 import { CheckoutSectionDivider } from './CheckoutSectionDivider';
 import { CheckoutServiceHandoverSegment } from './CheckoutServiceHandoverSegment';
 import {
@@ -129,6 +130,7 @@ type CheckoutReviewScreenProps = {
   providerId: string;
   query: string;
   isSubscription: boolean;
+  fromAiDemo?: boolean;
 };
 
 type InstructionId = 'call' | 'guard' | 'doorstep' | 'custom';
@@ -222,7 +224,12 @@ function formatStartLabel(dateKey: string | undefined): string | undefined {
   return `${option.dayOfMonth} ${month}`;
 }
 
-export function CheckoutReviewScreen({ providerId, query, isSubscription }: CheckoutReviewScreenProps) {
+export function CheckoutReviewScreen({
+  providerId,
+  query,
+  isSubscription,
+  fromAiDemo = false,
+}: CheckoutReviewScreenProps) {
   const router = useRouter();
   const { scale, contentWidth } = useScreenScale();
   const insets = useSafeAreaInsets();
@@ -291,9 +298,11 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
   const [rememberInstructions, setRememberInstructions] = useState(true);
   const [paymentExpanded, setPaymentExpanded] = useState(true);
   const payLockRef = useRef(false);
+  const [aiDemoPickupNudgeVisible, setAiDemoPickupNudgeVisible] = useState(fromAiDemo);
 
   const cardWidth = CHECKOUT_SCHEDULE_CARD_WIDTH * scale;
   const returnToSchedule = useCallback(() => {
+    setAiDemoPickupNudgeVisible(false);
     if (isSubscription) {
       router.replace(subscriptionSubscribe2Href(providerId, query));
       return;
@@ -685,6 +694,14 @@ export function CheckoutReviewScreen({ providerId, query, isSubscription }: Chec
               onHowItWorksPress={() => setContactlessHowItWorksVisible(true)}
               scale={scale}
             />
+
+            {aiDemoPickupNudgeVisible ? (
+              <CheckoutAiDemoPickupNudge
+                scale={scale}
+                cardWidth={cardWidth}
+                onDismiss={() => setAiDemoPickupNudgeVisible(false)}
+              />
+            ) : null}
 
             <BasketCard
               scale={scale}

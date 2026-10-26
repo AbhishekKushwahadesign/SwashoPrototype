@@ -24,6 +24,8 @@ export type SwashoAiDemoRecommendation = {
   expertBadgeLabel: string;
   /** Optional service-selection route id for primary CTA. */
   serviceSelectionId: string;
+  /** Catalog option id under `serviceSelectionId` for cart seeding. */
+  catalogOptionId: string;
 };
 
 export type SwashoAiDemoScenario = {
@@ -82,6 +84,7 @@ export const SWASHO_AI_DEMO_SCENARIOS: SwashoAiDemoScenario[] = [
       deliveryDays: 2,
       expertBadgeLabel: 'Stain Removal Expert',
       serviceSelectionId: 'wash-iron',
+      catalogOptionId: 'stain-removal',
     },
   },
   {
@@ -107,6 +110,7 @@ export const SWASHO_AI_DEMO_SCENARIOS: SwashoAiDemoScenario[] = [
       deliveryDays: 2,
       expertBadgeLabel: 'Heavy soil specialist',
       serviceSelectionId: 'wash-iron',
+      catalogOptionId: 'wash-iron',
     },
   },
   {
@@ -132,9 +136,12 @@ export const SWASHO_AI_DEMO_SCENARIOS: SwashoAiDemoScenario[] = [
       deliveryDays: 2,
       expertBadgeLabel: 'Stain Removal Expert',
       serviceSelectionId: 'dry-cleaning',
+      catalogOptionId: 'dry-cleaning',
     },
   },
 ];
+
+export const SWASHO_AI_DEMO_PROVIDER_ID = 'laundry-pro';
 
 export function getSwashoAiDemoScenario(id: string | undefined): SwashoAiDemoScenario | undefined {
   return SWASHO_AI_DEMO_SCENARIOS.find((scenario) => scenario.id === id);

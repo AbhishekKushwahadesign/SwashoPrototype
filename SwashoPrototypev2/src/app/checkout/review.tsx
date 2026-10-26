@@ -8,11 +8,12 @@ import { SwashoFonts } from '@/constants/swasho-tokens';
 
 export default function CheckoutReviewRoute() {
   const router = useRouter();
-  const { providerId, q, subscription } = useLocalSearchParams<{
+  const { providerId, q, subscription, fromAiDemo } = useLocalSearchParams<{
     providerId?: string;
     q?: string;
     subscription?: string;
     scheduleConfirmed?: string;
+    fromAiDemo?: string;
   }>();
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
@@ -39,7 +40,14 @@ export default function CheckoutReviewRoute() {
     );
   }
 
-  return <CheckoutReviewScreen providerId={id} query={query} isSubscription={isSubscription} />;
+  return (
+    <CheckoutReviewScreen
+      providerId={id}
+      query={query}
+      isSubscription={isSubscription}
+      fromAiDemo={fromAiDemo === '1'}
+    />
+  );
 }
 
 const styles = StyleSheet.create({

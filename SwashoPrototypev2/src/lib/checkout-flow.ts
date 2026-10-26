@@ -135,6 +135,28 @@ export const CHECKOUT_PICKUP_TIME_SLOTS: { id: CheckoutPickupTimeSlotId; label: 
   { id: '6-8pm', label: '6 - 8 PM' },
 ];
 
+const PICKUP_SLOT_START_HOUR: Record<CheckoutPickupTimeSlotId, number> = {
+  '6-8am': 6,
+  '8-10am': 8,
+  '10-12pm': 10,
+  '12-2pm': 12,
+  '2-4pm': 14,
+  '4-6pm': 16,
+  '6-8pm': 18,
+};
+
+/** First pickup slot whose window has not started yet today; wraps to earliest if all have passed. */
+export function getNextPickupTimeSlot(now = new Date()): CheckoutPickupTimeSlotId {
+  const minutesNow = now.getHours() * 60 + now.getMinutes();
+  for (const slot of CHECKOUT_PICKUP_TIME_SLOTS) {
+    const startMinutes = PICKUP_SLOT_START_HOUR[slot.id] * 60;
+    if (startMinutes > minutesNow) {
+      return slot.id;
+    }
+  }
+  return CHECKOUT_PICKUP_TIME_SLOTS[0].id;
+}
+
 function checkoutQueryString(providerId: string, query: string, extra?: Record<string, string>): string {
   const params = new URLSearchParams({ providerId, q: query });
   if (extra) {
@@ -203,7 +225,7 @@ export function garmentPhotoUploadHref(
 export function checkoutPlaceholderHref(
   providerId: string,
   query: string,
-  options: { subscription?: boolean; scheduleConfirmed?: boolean },
+  options: { subscription?: boolean; scheduleConfirmed?: boolean; fromAiDemo?: boolean },
 ): Href {
   const extra: Record<string, string> = {};
   if (options.subscription) {
@@ -211,6 +233,9 @@ export function checkoutPlaceholderHref(
   }
   if (options.scheduleConfirmed) {
     extra.scheduleConfirmed = '1';
+  }
+  if (options.fromAiDemo) {
+    extra.fromAiDemo = '1';
   }
   return `/checkout/review?${checkoutQueryString(providerId, query, extra)}` as Href;
 }

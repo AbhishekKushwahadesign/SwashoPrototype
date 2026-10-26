@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   Easing,
   cancelAnimation,
@@ -16,8 +16,20 @@ import { HomeIndicator } from '@/components/home/HomeIndicator';
 import { StatusBar } from '@/components/home/StatusBar';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { searchFont } from '@/components/search/search-fonts';
-import { getSwashoAiDemoScenario } from '@/constants/swasho-ai-demo-scenarios';
+import {
+  getSwashoAiDemoScenario,
+  SWASHO_AI_DEMO_PROVIDER_ID,
+  type SwashoAiDemoScenario,
+} from '@/constants/swasho-ai-demo-scenarios';
 import { SwashoColors } from '@/constants/swasho-tokens';
+import { useProviderCart } from '@/context/provider-cart-context';
+import {
+  buildUpcomingCheckoutDays,
+  checkoutPlaceholderHref,
+  getNextPickupTimeSlot,
+} from '@/lib/checkout-flow';
+import { checkoutBasketItemCount } from '@/lib/build-checkout-basket';
+import { hasProviderCartSelection, type ProviderGarmentCartSelection } from '@/lib/provider-cart-selection';
 
 import { AnalyzingGradientStatusPill } from './AnalyzingGradientStatusPill';
 import { AiServiceRecommendedModal } from './AiServiceRecommendedModal';
@@ -37,6 +49,15 @@ const STAGE_MS = DEMO_ANALYSIS_TOTAL_MS / DEMO_STAGE_LABELS.length;
 
 type DemoAnalysisPhase = 'running' | 'complete';
 
+function providerCartHasItems(
+  entries: { serviceId: string; selection: ProviderGarmentCartSelection }[],
+): boolean {
+  if (checkoutBasketItemCount(entries) > 0) {
+    return true;
+  }
+  return entries.some((entry) => hasProviderCartSelection(entry.selection, entry.serviceId));
+}
+
 export function DemoGarmentAnalysisScreen() {
   const { scenarioId } = useLocalSearchParams<{ scenarioId?: string }>();
   const scenario = getSwashoAiDemoScenario(scenarioId);
@@ -51,6 +72,82 @@ export function DemoGarmentAnalysisScreen() {
   const [recommendationModalVisible, setRecommendationModalVisible] = useState(false);
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const recommendationModalOpenedRef = useRef(false);
+
+  const {
+    setSelection,
+    clearSelection,
+    getProviderCartEntries,
+    setOneTimeSchedule,
+    setFulfillmentMode,
+  } = useProviderCart();
+
+  const commitGoToCart = useCallback(
+    (activeScenario: SwashoAiDemoScenario, quantity: number) => {
+      const providerId = SWASHO_AI_DEMO_PROVIDER_ID;
+      const { recommendation } = activeScenario;
+      const query = recommendation.providerName;
+
+      for (const entry of getProviderCartEntries(providerId)) {
+        clearSelection(providerId, entry.serviceId);
+      }
+
+      setFulfillmentMode(providerId, 'one-time');
+      const today = buildUpcomingCheckoutDays(1)[0];
+      setOneTimeSchedule(providerId, {
+        pickupWeekday: today.weekdayId,
+        pickupTimeSlot: getNextPickupTimeSlot(),
+        deliverySameAsPickup: true,
+        deliveryTimeSlot: undefined,
+      });
+
+      setSelection(providerId, recommendation.serviceSelectionId, {
+        quantities: { [recommendation.catalogOptionId]: quantity },
+        savedCombos: [],
+      });
+
+      setRecommendationModalVisible(false);
+      router.push(
+        checkoutPlaceholderHref(providerId, query, {
+          scheduleConfirmed: true,
+          fromAiDemo: true,
+        }),
+      );
+    },
+    [
+      clearSelection,
+      getProviderCartEntries,
+      setFulfillmentMode,
+      setOneTimeSchedule,
+      setSelection,
+    ],
+  );
+
+  const handleGoToCart = useCallback(
+    (quantity: number) => {
+      if (!scenario || quantity <= 0) {
+        return;
+      }
+      const providerId = SWASHO_AI_DEMO_PROVIDER_ID;
+      const existingEntries = getProviderCartEntries(providerId);
+      if (!providerCartHasItems(existingEntries)) {
+        commitGoToCart(scenario, quantity);
+        return;
+      }
+      Alert.alert(
+        'Replace cart?',
+        'Your Laundry Pro cart already has items. Replace it with this AI recommendation?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Replace',
+            style: 'destructive',
+            onPress: () => commitGoToCart(scenario, quantity),
+          },
+        ],
+      );
+    },
+    [commitGoToCart, getProviderCartEntries, scenario],
+  );
 
   const layoutHeight = FIGMA_FRAME_HEIGHT * scale;
   const figmaY = (y: number) => y * scale;
@@ -249,17 +346,7 @@ export function DemoGarmentAnalysisScreen() {
           setRecommendationModalVisible(false);
           router.replace('/swasho-ai/demo-select');
         }}
-        onGoToCart={() => {
-          setRecommendationModalVisible(false);
-          router.push({
-            pathname: '/service-selection/[serviceId]',
-            params: {
-              serviceId: scenario.recommendation.serviceSelectionId,
-              providerId: 'laundry-pro',
-              q: scenario.recommendation.modalServiceTitle,
-            },
-          });
-        }}
+        onGoToCart={handleGoToCart}
       />
     </View>
   );

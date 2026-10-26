@@ -51,7 +51,7 @@ type AiServiceRecommendedModalProps = {
   contentWidth: number;
   onClose: () => void;
   onScanAnother: () => void;
-  onGoToCart: () => void;
+  onGoToCart: (quantity: number) => void;
 };
 
 function ProviderRecommendAddButton({ scale, onPress }: { scale: number; onPress?: () => void }) {
@@ -466,7 +466,7 @@ export function AiServiceRecommendedModal({
                 label="Go to Cart"
                 variant="primary"
                 scale={scale}
-                onPress={onGoToCart}
+                onPress={() => onGoToCart(quantity)}
                 style={{ width: FIGMA_MODAL.footerButtonWidth * designScale, flex: 1 }}
               />
             ) : null}
