@@ -1,5 +1,14 @@
-import { useId, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import Animated, {
+  Easing,
+  cancelAnimation,
+  useAnimatedProps,
+  useReducedMotion,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 import Svg, { Defs, LinearGradient as SvgLinearGradient, Rect, Stop } from 'react-native-svg';
 
 import { searchFont } from '@/components/search/search-fonts';
@@ -26,18 +35,30 @@ const FIGMA_PILL = {
   letterSpacing: 0.28,
   /** #FAFAFA @ 80% opacity (Figma 3415:17879) — SVG fill, not over gradient layer. */
   innerBackground: '#FAFAFACC',
+  strokeSpinDurationMs: 3200,
 } as const;
 
 export const ANALYZING_STATUS_PILL_FILL = FIGMA_PILL.innerBackground;
 
+const AnimatedSvgLinearGradient = Animated.createAnimatedComponent(SvgLinearGradient);
+
 type AnalyzingGradientStatusPillProps = {
   scale: number;
   label: string;
+  /** When false, stroke gradient stays static. */
+  animateStroke?: boolean;
 };
 
 type PillSize = { width: number; height: number };
 
-export function AnalyzingGradientStatusPill({ scale, label }: AnalyzingGradientStatusPillProps) {
+export function AnalyzingGradientStatusPill({
+  scale,
+  label,
+  animateStroke = true,
+}: AnalyzingGradientStatusPillProps) {
+  const reducedMotion = useReducedMotion();
+  const shouldAnimateStroke = animateStroke && !reducedMotion;
+
   const gradientId = useId().replace(/:/g, '');
   const borderWidth = FIGMA_PILL.borderWidth * scale;
   const paddingHorizontal = FIGMA_PILL.paddingHorizontal * scale;
@@ -55,6 +76,32 @@ export function AnalyzingGradientStatusPill({ scale, label }: AnalyzingGradientS
   const cornerRadius = pillHeight / 2;
   const strokeInset = borderWidth / 2;
 
+  const strokeRotation = useSharedValue(0);
+
+  useEffect(() => {
+    if (!shouldAnimateStroke) {
+      cancelAnimation(strokeRotation);
+      strokeRotation.value = 0;
+      return;
+    }
+    strokeRotation.value = 0;
+    strokeRotation.value = withRepeat(
+      withTiming(360, {
+        duration: FIGMA_PILL.strokeSpinDurationMs,
+        easing: Easing.linear,
+      }),
+      -1,
+      false,
+    );
+    return () => {
+      cancelAnimation(strokeRotation);
+    };
+  }, [shouldAnimateStroke, strokeRotation]);
+
+  const animatedGradientProps = useAnimatedProps(() => ({
+    gradientTransform: `rotate(${strokeRotation.value} 0.5 0.5)`,
+  }));
+
   return (
     <View style={[styles.outer, { minWidth: minPillWidth, minHeight: minPillHeight }]}>
       <Svg
@@ -63,7 +110,14 @@ export function AnalyzingGradientStatusPill({ scale, label }: AnalyzingGradientS
         height={pillHeight}
         style={StyleSheet.absoluteFill}>
         <Defs>
-          <SvgLinearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+          <AnimatedSvgLinearGradient
+            id={gradientId}
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="100%"
+            gradientUnits="objectBoundingBox"
+            animatedProps={animatedGradientProps}>
             {ANALYZING_STATUS_GRADIENT.map((color, index) => (
               <Stop
                 key={`${index}-${color}`}
@@ -71,7 +125,7 @@ export function AnalyzingGradientStatusPill({ scale, label }: AnalyzingGradientS
                 stopColor={color}
               />
             ))}
-          </SvgLinearGradient>
+          </AnimatedSvgLinearGradient>
         </Defs>
         <Rect
           x={strokeInset}
