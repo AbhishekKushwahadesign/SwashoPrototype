@@ -20,6 +20,7 @@ import { searchFont } from '@/components/search/search-fonts';
 import { getSwashoAiDemoScenario } from '@/constants/swasho-ai-demo-scenarios';
 import { SwashoColors } from '@/constants/swasho-tokens';
 
+import { AiServiceRecommendedModal } from './AiServiceRecommendedModal';
 import { Image } from 'expo-image';
 import {
   ArrowLeftScan,
@@ -52,15 +53,7 @@ const STAIN_OVERLAYS = [
 
 type DemoAnalysisPhase = 'running' | 'complete';
 
-function GradientBorderPill({
-  scale,
-  label,
-  variant = 'analyzing',
-}: {
-  scale: number;
-  label: string;
-  variant?: 'analyzing' | 'success';
-}) {
+function GradientBorderPill({ scale, label }: { scale: number; label: string }) {
   const innerBg = 'rgba(250, 250, 250, 0.8)';
 
   return (
@@ -107,7 +100,9 @@ export function DemoGarmentAnalysisScreen() {
 
   const [phase, setPhase] = useState<DemoAnalysisPhase>('running');
   const [stageIndex, setStageIndex] = useState(0);
+  const [recommendationModalVisible, setRecommendationModalVisible] = useState(false);
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const recommendationModalOpenedRef = useRef(false);
 
   const layoutHeight = FIGMA_FRAME_HEIGHT * scale;
   const figmaY = (y: number) => y * scale;
@@ -124,6 +119,8 @@ export function DemoGarmentAnalysisScreen() {
     timersRef.current = [];
     setPhase('running');
     setStageIndex(0);
+    setRecommendationModalVisible(false);
+    recommendationModalOpenedRef.current = false;
 
     DEMO_STAGE_LABELS.forEach((_, index) => {
       const timer = setTimeout(() => {
@@ -142,6 +139,14 @@ export function DemoGarmentAnalysisScreen() {
       timersRef.current = [];
     };
   }, [scenario?.id]);
+
+  useEffect(() => {
+    if (phase !== 'complete' || !scenario || recommendationModalOpenedRef.current) {
+      return;
+    }
+    recommendationModalOpenedRef.current = true;
+    setRecommendationModalVisible(true);
+  }, [phase, scenario]);
 
   useEffect(() => {
     if (!isAnalyzing || reducedMotion) {
@@ -291,52 +296,6 @@ export function DemoGarmentAnalysisScreen() {
           <GradientBorderPill scale={scale} label={pillLabel} />
         </View>
 
-        {phase === 'complete' ? (
-          <View
-            style={[
-              styles.resultBlock,
-              {
-                top: figmaY(740),
-                width: contentWidth,
-                paddingHorizontal: 24 * scale,
-                gap: 8 * scale,
-              },
-            ]}>
-            <Text
-              style={[
-                searchFont('semibold'),
-                styles.resultLine,
-                { fontSize: 13 * scale, lineHeight: 18 * scale, textAlign: 'center' },
-              ]}>
-              {scenario.fabricLabel} · {scenario.stainLabel}
-            </Text>
-            <Text
-              style={[
-                searchFont('regular'),
-                styles.resultLine,
-                { fontSize: 13 * scale, lineHeight: 18 * scale, textAlign: 'center' },
-              ]}>
-              {scenario.resultSummary}
-            </Text>
-            <Pressable
-              accessibilityRole="button"
-              onPress={() => router.replace('/swasho-ai')}
-              style={[
-                styles.doneButton,
-                {
-                  marginTop: 6 * scale,
-                  paddingVertical: 10 * scale,
-                  paddingHorizontal: 20 * scale,
-                  borderRadius: 9999 * scale,
-                },
-              ]}>
-              <Text style={[searchFont('semibold'), styles.doneButtonText, { fontSize: 14 * scale }]}>
-                Back to Swasho AI
-              </Text>
-            </Pressable>
-          </View>
-        ) : null}
-
         <View
           style={[
             styles.homeIndicatorWrap,
@@ -348,6 +307,29 @@ export function DemoGarmentAnalysisScreen() {
           <HomeIndicator scale={scale} />
         </View>
       </View>
+
+      <AiServiceRecommendedModal
+        visible={recommendationModalVisible}
+        scenario={scenario}
+        scale={scale}
+        contentWidth={contentWidth}
+        onClose={() => setRecommendationModalVisible(false)}
+        onScanAnother={() => {
+          setRecommendationModalVisible(false);
+          router.replace('/swasho-ai/demo-select');
+        }}
+        onGoToCart={() => {
+          setRecommendationModalVisible(false);
+          router.push({
+            pathname: '/service-selection/[serviceId]',
+            params: {
+              serviceId: scenario.recommendation.serviceSelectionId,
+              providerId: 'laundry-pro',
+              q: scenario.recommendation.modalServiceTitle,
+            },
+          });
+        }}
+      />
     </View>
   );
 }
@@ -401,23 +383,6 @@ const styles = StyleSheet.create({
     left: 0,
     backgroundColor: 'rgba(93, 48, 247, 0.55)',
     zIndex: 8,
-  },
-  resultBlock: {
-    position: 'absolute',
-    alignItems: 'center',
-    zIndex: 13,
-  },
-  resultLine: {
-    color: '#FFFFFF',
-    textShadowColor: 'rgba(0,0,0,0.45)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
-  },
-  doneButton: {
-    backgroundColor: 'rgba(255,255,255,0.92)',
-  },
-  doneButtonText: {
-    color: SwashoColors.neutral900,
   },
   homeIndicatorWrap: {
     position: 'absolute',
