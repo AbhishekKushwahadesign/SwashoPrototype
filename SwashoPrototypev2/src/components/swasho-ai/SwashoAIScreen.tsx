@@ -229,11 +229,11 @@ export function SwashoAIScreen() {
           </View>
         </ScrollView>
 
-        <Link href="/swasho-ai/scan" asChild>
+        <Link href="/swasho-ai/demo-select" asChild>
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Scan and recommend"
-            onPress={() => router.push('/swasho-ai/scan')}
+            onPress={() => router.push('/swasho-ai/demo-select')}
             style={[
               styles.scanCard,
               styles.scanCardPositioned,
