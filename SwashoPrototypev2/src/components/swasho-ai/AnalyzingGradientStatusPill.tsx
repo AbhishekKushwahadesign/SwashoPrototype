@@ -66,7 +66,7 @@ export function AnalyzingGradientStatusPill({ scale, label }: AnalyzingGradientS
           <SvgLinearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
             {ANALYZING_STATUS_GRADIENT.map((color, index) => (
               <Stop
-                key={color}
+                key={`${index}-${color}`}
                 offset={`${(index / (ANALYZING_STATUS_GRADIENT.length - 1)) * 100}%`}
                 stopColor={color}
               />
