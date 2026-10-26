@@ -243,6 +243,10 @@ export function CheckoutReviewScreen({
   } = useProviderCart();
 
   const provider = getProviderResultById(providerId, query);
+  const providerCheckoutTitle = useMemo(
+    () => getProviderCheckoutDisplayName(query, provider),
+    [provider, query],
+  );
   const checkout = getCheckoutState(providerId);
   const cartEntries = useMemo(() => getProviderCartEntries(providerId), [getProviderCartEntries, providerId]);
   const basketGroups = useMemo(
@@ -404,7 +408,7 @@ export function CheckoutReviewScreen({
     payLockRef.current = true;
     Alert.alert(
       'Order placed',
-      `Your ${isSubscription ? 'subscription' : 'order'} with ${provider?.category ?? 'the provider'} is confirmed for ${formatCheckoutInr(totals.totalPrice)} (estimated).`,
+      `Your ${isSubscription ? 'subscription' : 'order'} with ${providerCheckoutTitle} is confirmed for ${formatCheckoutInr(totals.totalPrice)} (estimated).`,
       [
         {
           text: 'OK',
@@ -420,7 +424,7 @@ export function CheckoutReviewScreen({
     contactless,
     isSubscription,
     openClothesLocationSheet,
-    provider?.category,
+    providerCheckoutTitle,
     router,
     totals.itemCount,
     totals.totalPrice,
@@ -577,7 +581,7 @@ export function CheckoutReviewScreen({
             </Pressable>
             <View style={[styles.headerTextCol, { gap: 4 * scale, flex: 1, minWidth: 0 }]}>
               <Text style={[searchFont('medium'), styles.providerCategory, { fontSize: 14 * scale, lineHeight: 12 * scale }]}>
-                {provider?.category ?? 'Laundromat'}
+                {providerCheckoutTitle}
               </Text>
               <View style={[styles.addressRow, { gap: 4 * scale }]}>
                 <View style={[styles.homeChip, { gap: 4 * scale }]}>
