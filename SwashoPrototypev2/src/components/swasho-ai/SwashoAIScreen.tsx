@@ -1,5 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { Link, router } from 'expo-router';
+import { router } from 'expo-router';
 import { useState, type ReactNode } from 'react';
 import {
   Platform,
@@ -229,42 +229,40 @@ export function SwashoAIScreen() {
           </View>
         </ScrollView>
 
-        <Link href="/swasho-ai/demo-select" asChild>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Scan and recommend"
-            onPress={() => router.push('/swasho-ai/demo-select')}
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Scan and recommend"
+          onPress={() => router.push('/swasho-ai/demo-select')}
+          style={StyleSheet.flatten([
+            styles.scanCard,
+            styles.scanCardPositioned,
+            {
+              top: scanTop,
+              left: FIGMA_SCAN_LEFT * scale,
+              width: 120 * scale,
+              height: 120 * scale,
+              borderRadius: SwashoRadii.xl * scale,
+              padding: 10 * scale,
+              gap: 12 * scale,
+              borderWidth: 1,
+              ...figmaShadow({ offsetX: 0, offsetY: 2, blur: 4, color: '#000000', opacity: 0.15 }, scale),
+            },
+          ])}>
+          <ScannerIcon width={32 * scale} height={32 * scale} />
+          <Text
             style={[
-              styles.scanCard,
-              styles.scanCardPositioned,
+              searchFont('semibold'),
+              styles.scanLabel,
               {
-                top: scanTop,
-                left: FIGMA_SCAN_LEFT * scale,
-                width: 120 * scale,
-                height: 120 * scale,
-                borderRadius: SwashoRadii.xl * scale,
-                padding: 10 * scale,
-                gap: 12 * scale,
-                borderWidth: 1,
-                ...figmaShadow({ offsetX: 0, offsetY: 2, blur: 4, color: '#000000', opacity: 0.15 }, scale),
+                fontSize: 14 * scale,
+                lineHeight: 16 * scale,
+                letterSpacing: 0.28 * scale,
+                maxWidth: 101 * scale,
               },
             ]}>
-            <ScannerIcon width={32 * scale} height={32 * scale} />
-            <Text
-              style={[
-                searchFont('semibold'),
-                styles.scanLabel,
-                {
-                  fontSize: 14 * scale,
-                  lineHeight: 16 * scale,
-                  letterSpacing: 0.28 * scale,
-                  maxWidth: 101 * scale,
-                },
-              ]}>
-              Scan & Recommend
-            </Text>
-          </Pressable>
-        </Link>
+            Scan & Recommend
+          </Text>
+        </Pressable>
 
         <ScrollView
           horizontal
