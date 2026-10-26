@@ -164,12 +164,23 @@ export function DemoGarmentAnalysisScreen() {
     transform: [{ translateY: scanLineY.value }],
   }));
 
+  const stagePillLabel = (index: number) => {
+    const label = DEMO_STAGE_LABELS[index] ?? DEMO_STAGE_LABELS[0];
+    if (label === 'Analyzing stain') {
+      return 'Analyzing stain...';
+    }
+    if (label === 'Recommending services') {
+      return 'Recommending services...';
+    }
+    return `${label}...`;
+  };
+
   const pillLabel =
     phase === 'complete' && scenario
-      ? `Recommended: ${scenario.recommendedService.trim()}`
+      ? scenario.recommendedService.trim()
       : phase === 'running'
-        ? DEMO_STAGE_LABELS[stageIndex]
-        : 'Unknown demo scenario';
+        ? stagePillLabel(stageIndex)
+        : '';
 
   const showOverlays = isAnalyzing || phase === 'complete';
 
@@ -196,7 +207,7 @@ export function DemoGarmentAnalysisScreen() {
         <Image
           source={scenario.analysisImage}
           style={StyleSheet.absoluteFill}
-          contentFit="contain"
+          contentFit={scenario.analysisContentFit ?? 'cover'}
         />
 
         {isAnalyzing && !reducedMotion ? (
@@ -277,11 +288,7 @@ export function DemoGarmentAnalysisScreen() {
               width: contentWidth,
             },
           ]}>
-          <GradientBorderPill
-            scale={scale}
-            label={pillLabel}
-            variant={phase === 'complete' ? 'success' : 'analyzing'}
-          />
+          <GradientBorderPill scale={scale} label={pillLabel} />
         </View>
 
         {phase === 'complete' ? (

@@ -19,6 +19,7 @@ export type SwashoAiDemoScenario = {
   cardImage: ImageSourcePropType;
   /** Full-screen analysis image for this scenario. */
   analysisImage: ImageSourcePropType;
+  analysisContentFit?: 'cover' | 'contain';
   thumbnailCrop: SwashoAiDemoFlatLayCrop;
   /** Full-screen analysis uses the shared flat-lay when analysisImage is not set. */
   analysisCrop: SwashoAiDemoFlatLayCrop;
@@ -37,6 +38,11 @@ const CARD_WHITE_TSHIRT = require('@/assets/images/swasho-ai/demo/white-t-shirt-
 const CARD_BLUE_JEANS = require('@/assets/images/swasho-ai/demo/blue-jeans-mud-thumb.png') as ImageSourcePropType;
 const CARD_WHITE_SHIRT = require('@/assets/images/swasho-ai/demo/white-shirt-collar-thumb.png') as ImageSourcePropType;
 
+/** Full-bleed analysis photos (Figma AI Capturing 3415:17875). */
+const ANALYSIS_WHITE_TSHIRT = require('@/assets/images/swasho-ai/demo/demo-analysis-white-tshirt-coffee.png') as ImageSourcePropType;
+const ANALYSIS_BLUE_JEANS = require('@/assets/images/swasho-ai/demo/demo-analysis-blue-jeans-mud.png') as ImageSourcePropType;
+const ANALYSIS_WHITE_SHIRT = require('@/assets/images/swasho-ai/demo/selection-backdrop.png') as ImageSourcePropType;
+
 export const SWASHO_AI_DEMO_FLAT_LAY_THUMB = FLAT_LAY_THUMB;
 export const SWASHO_AI_DEMO_FLAT_LAY_ANALYSIS = FLAT_LAY_ANALYSIS;
 
@@ -46,7 +52,8 @@ export const SWASHO_AI_DEMO_SCENARIOS: SwashoAiDemoScenario[] = [
     id: 'white-t-shirt-coffee',
     title: 'White T-Shirt',
     cardImage: CARD_WHITE_TSHIRT,
-    analysisImage: CARD_WHITE_TSHIRT,
+    analysisImage: ANALYSIS_WHITE_TSHIRT,
+    analysisContentFit: 'cover',
     thumbnailCrop: { imageWidthPercent: 290.65, offsetLeftPercent: 0 },
     analysisCrop: { imageWidthPercent: 300, offsetLeftPercent: 0 },
     fabricLabel: 'Cotton jersey',
@@ -59,7 +66,8 @@ export const SWASHO_AI_DEMO_SCENARIOS: SwashoAiDemoScenario[] = [
     id: 'blue-jeans-mud',
     title: 'Blue Jeans',
     cardImage: CARD_BLUE_JEANS,
-    analysisImage: CARD_BLUE_JEANS,
+    analysisImage: ANALYSIS_BLUE_JEANS,
+    analysisContentFit: 'cover',
     thumbnailCrop: { imageWidthPercent: 341.8, offsetLeftPercent: -121.38 },
     analysisCrop: { imageWidthPercent: 300, offsetLeftPercent: -100 },
     fabricLabel: 'Denim',
@@ -72,7 +80,8 @@ export const SWASHO_AI_DEMO_SCENARIOS: SwashoAiDemoScenario[] = [
     id: 'white-shirt-collar-discoloration',
     title: 'White Dress Shirt',
     cardImage: CARD_WHITE_SHIRT,
-    analysisImage: CARD_WHITE_SHIRT,
+    analysisImage: ANALYSIS_WHITE_SHIRT,
+    analysisContentFit: 'cover',
     thumbnailCrop: { imageWidthPercent: 289.41, offsetLeftPercent: -189.55 },
     analysisCrop: { imageWidthPercent: 300, offsetLeftPercent: -200 },
     fabricLabel: 'Cotton poplin',
