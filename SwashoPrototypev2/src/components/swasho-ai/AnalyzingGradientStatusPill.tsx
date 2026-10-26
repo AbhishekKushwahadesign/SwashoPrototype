@@ -22,8 +22,11 @@ const FIGMA_PILL = {
   fontSize: 14,
   lineHeight: 16,
   letterSpacing: 0.28,
-  innerBackground: 'rgba(250, 250, 250, 0.8)',
+  /** #FAFAFA @ 80% opacity (Figma 3415:17879) */
+  innerBackground: '#FAFAFACC',
 } as const;
+
+export const ANALYZING_STATUS_PILL_FILL = FIGMA_PILL.innerBackground;
 
 type AnalyzingGradientStatusPillProps = {
   scale: number;

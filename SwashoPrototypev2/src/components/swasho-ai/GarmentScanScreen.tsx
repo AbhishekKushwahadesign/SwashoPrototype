@@ -30,6 +30,7 @@ import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors } from '@/constants/swasho-tokens';
 import { useGarmentScanFlow } from '@/hooks/use-garment-scan-flow';
 
+import { ANALYZING_STATUS_PILL_FILL } from './AnalyzingGradientStatusPill';
 import {
   ArrowLeftScan,
   DangerTriangleScan,
