@@ -41,7 +41,7 @@ const CARD_WHITE_SHIRT = require('@/assets/images/swasho-ai/demo/white-shirt-col
 /** Full-bleed analysis photos (Figma AI Capturing 3415:17875). */
 const ANALYSIS_WHITE_TSHIRT = require('@/assets/images/swasho-ai/demo/demo-analysis-white-tshirt-coffee.png') as ImageSourcePropType;
 const ANALYSIS_BLUE_JEANS = require('@/assets/images/swasho-ai/demo/demo-analysis-blue-jeans-mud.png') as ImageSourcePropType;
-const ANALYSIS_WHITE_SHIRT = require('@/assets/images/swasho-ai/demo/selection-backdrop.png') as ImageSourcePropType;
+const ANALYSIS_WHITE_SHIRT = require('@/assets/images/swasho-ai/demo/demo-analysis-white-shirt-collar.png') as ImageSourcePropType;
 
 export const SWASHO_AI_DEMO_FLAT_LAY_THUMB = FLAT_LAY_THUMB;
 export const SWASHO_AI_DEMO_FLAT_LAY_ANALYSIS = FLAT_LAY_ANALYSIS;
