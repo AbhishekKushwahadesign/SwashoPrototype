@@ -227,7 +227,8 @@ export function getProviderResultsForQuery(query: string): ProviderResult[] {
 }
 
 export function getProviderResultById(id: string, query: string): ProviderResult | undefined {
-  return getProviderResultsForQuery(query).find((provider) => provider.id === id);
+  const resolvedId = id === 'laundry-pro' ? 'provider-1' : id;
+  return getProviderResultsForQuery(query).find((provider) => provider.id === resolvedId);
 }
 
 /** Display name for a garment row in the provider catalogue (e.g. Shirt, T-Shirt). */

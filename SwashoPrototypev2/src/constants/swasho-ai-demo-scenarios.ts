@@ -67,7 +67,7 @@ export const SWASHO_AI_DEMO_PROVIDER_IMAGE = require('@/assets/images/swasho-ai/
 export const SWASHO_AI_DEMO_SCENARIOS: SwashoAiDemoScenario[] = [
   {
     id: 'white-t-shirt-coffee',
-    catalogServiceId: 'wash-iron',
+    catalogServiceId: 'mens-tshirt',
     catalogOptionId: 'stain-removal',
     title: 'White T-Shirt',
     cardImage: CARD_WHITE_TSHIRT,
@@ -89,13 +89,13 @@ export const SWASHO_AI_DEMO_SCENARIOS: SwashoAiDemoScenario[] = [
       providerRating: 4.5,
       deliveryDays: 2,
       expertBadgeLabel: 'Stain Removal Expert',
-      serviceSelectionId: 'wash-iron',
+      serviceSelectionId: 'mens-tshirt',
       catalogOptionId: 'stain-removal',
     },
   },
   {
     id: 'blue-jeans-mud',
-    catalogServiceId: 'wash-iron',
+    catalogServiceId: 'mens-jeans',
     catalogOptionId: 'wash-iron',
     title: 'Blue Jeans',
     cardImage: CARD_BLUE_JEANS,
@@ -117,13 +117,13 @@ export const SWASHO_AI_DEMO_SCENARIOS: SwashoAiDemoScenario[] = [
       providerRating: 4.5,
       deliveryDays: 2,
       expertBadgeLabel: 'Heavy soil specialist',
-      serviceSelectionId: 'wash-iron',
+      serviceSelectionId: 'mens-jeans',
       catalogOptionId: 'wash-iron',
     },
   },
   {
     id: 'white-shirt-collar-discoloration',
-    catalogServiceId: 'dry-cleaning',
+    catalogServiceId: 'mens-shirt',
     catalogOptionId: 'dry-cleaning',
     title: 'White Dress Shirt',
     cardImage: CARD_WHITE_SHIRT,
@@ -145,13 +145,14 @@ export const SWASHO_AI_DEMO_SCENARIOS: SwashoAiDemoScenario[] = [
       providerRating: 4.5,
       deliveryDays: 2,
       expertBadgeLabel: 'Stain Removal Expert',
-      serviceSelectionId: 'dry-cleaning',
+      serviceSelectionId: 'mens-shirt',
       catalogOptionId: 'dry-cleaning',
     },
   },
 ];
 
-export const SWASHO_AI_DEMO_PROVIDER_ID = 'laundry-pro';
+/** Provider catalogue row used for cart + checkout (Laundry Pro demo maps here). */
+export const SWASHO_AI_DEMO_PROVIDER_ID = 'provider-1';
 
 export function getSwashoAiDemoScenario(id: string | undefined): SwashoAiDemoScenario | undefined {
   return SWASHO_AI_DEMO_SCENARIOS.find((scenario) => scenario.id === id);

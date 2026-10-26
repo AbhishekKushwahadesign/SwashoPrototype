@@ -116,6 +116,8 @@ export function buildCheckoutBasketGroups(
     groups.push({ sectionId: 'bulk', sectionTitle: 'Bulk', lines: bulkLines });
   }
 
+  const renderedServiceIds = new Set<string>();
+
   if (provider?.serviceSections) {
     for (const section of provider.serviceSections) {
       const lines: CheckoutBasketLine[] = [];
@@ -128,12 +130,31 @@ export function buildCheckoutBasketGroups(
         const line = buildGarmentBasketLine(providerId, query, item.id, garmentName, entry.selection);
         if (line) {
           lines.push(line);
+          renderedServiceIds.add(item.id);
         }
       }
       if (lines.length > 0) {
         groups.push({ sectionId: section.id, sectionTitle: section.title, lines });
       }
     }
+  }
+
+  const fallbackLines: CheckoutBasketLine[] = [];
+  for (const { serviceId, selection } of entries) {
+    if (isBulkServiceId(serviceId) || renderedServiceIds.has(serviceId)) {
+      continue;
+    }
+    if (!hasProviderCartSelection(selection, serviceId)) {
+      continue;
+    }
+    const title = getProviderGarmentName(serviceId, providerId, query) ?? serviceId;
+    const line = buildGarmentBasketLine(providerId, query, serviceId, title, selection);
+    if (line) {
+      fallbackLines.push(line);
+    }
+  }
+  if (fallbackLines.length > 0) {
+    groups.unshift({ sectionId: 'your-items', sectionTitle: 'Your items', lines: fallbackLines });
   }
 
   return groups;
