@@ -168,6 +168,5 @@ const styles = StyleSheet.create({
   },
   tertiaryLabel: {
     color: SwashoColors.neutral950,
-    flexShrink: 1,
   },
 });

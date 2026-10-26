@@ -410,14 +410,15 @@ export function AiServiceRecommendedModal({
                   </View>
                 </View>
 
-                <ServiceSelectionButton
-                  label="Show all providers"
-                  variant="tertiary"
-                  size="compact"
-                  scale={designScale}
-                  onPress={onClose}
-                  style={{ width: '100%' }}
-                />
+                <View style={{ width: '100%', alignItems: 'center' }}>
+                  <ServiceSelectionButton
+                    label="Show all providers"
+                    variant="tertiary"
+                    size="compact"
+                    scale={designScale}
+                    onPress={onClose}
+                  />
+                </View>
 
                 <Text
                   style={[
