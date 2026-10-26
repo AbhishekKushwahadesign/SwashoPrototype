@@ -25,7 +25,7 @@ import { ServiceSelectionButton } from '@/components/service-selection/ServiceSe
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 import { useProviderCart } from '@/context/provider-cart-context';
 import { garmentCatalogIdFromServiceId } from '@/data/garment-pricing';
-import { getProviderResultById } from '@/data/providers';
+import { getProviderCheckoutDisplayName, getProviderResultById } from '@/data/providers';
 import {
   buildCheckoutBasketGroups,
   checkoutBasketItemCount,

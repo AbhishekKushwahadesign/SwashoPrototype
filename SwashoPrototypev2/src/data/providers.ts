@@ -231,6 +231,15 @@ export function getProviderResultById(id: string, query: string): ProviderResult
   return getProviderResultsForQuery(query).find((provider) => provider.id === resolvedId);
 }
 
+/** Checkout review header — same label as the provider result card service line (search `q`). */
+export function getProviderCheckoutDisplayName(query: string, provider?: ProviderResult): string {
+  const trimmed = query.trim();
+  if (trimmed) {
+    return trimmed;
+  }
+  return provider?.serviceName?.trim() || provider?.category || 'Laundromat';
+}
+
 /** Display name for a garment row in the provider catalogue (e.g. Shirt, T-Shirt). */
 export function getProviderGarmentName(
   serviceId: string,

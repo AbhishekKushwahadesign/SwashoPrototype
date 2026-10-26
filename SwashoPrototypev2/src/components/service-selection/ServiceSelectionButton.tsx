@@ -64,6 +64,7 @@ export function ServiceSelectionButton({
         variant === 'secondary' && styles.secondary,
         variant === 'secondaryDashed' && styles.secondaryDashed,
         variant === 'tertiary' && styles.tertiary,
+        isTertiary && styles.tertiaryLayout,
         isDisabled && variant === 'primary' && styles.primaryDisabled,
         isDisabled && variant === 'secondary' && styles.secondaryDisabled,
         isDisabled && variant === 'tertiary' && styles.tertiaryDisabled,
@@ -162,6 +163,10 @@ const styles = StyleSheet.create({
     backgroundColor: SwashoColors.surface,
     borderWidth: 1,
     borderColor: SwashoColors.neutral300,
+  },
+  tertiaryLayout: {
+    alignSelf: 'center',
+    maxWidth: '100%',
   },
   tertiaryDisabled: {
     opacity: 0.5,
