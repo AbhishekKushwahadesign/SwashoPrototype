@@ -22,15 +22,7 @@ import { SwashoColors } from '@/constants/swasho-tokens';
 
 import { AiServiceRecommendedModal } from './AiServiceRecommendedModal';
 import { Image } from 'expo-image';
-import {
-  ArrowLeftScan,
-  DangerTriangleScan,
-  StainOverlay1,
-  StainOverlay2,
-  StainOverlay3,
-  StainOverlay4,
-  StainOverlay5,
-} from './garment-scan-icons';
+import { ArrowLeftScan, DangerTriangleScan } from './garment-scan-icons';
 
 const FIGMA_FRAME_HEIGHT = 896;
 const STATUS_BAR_HEIGHT = 32;
@@ -42,14 +34,6 @@ const ANALYZING_GRADIENT = ['#E40000', '#5D30F7', '#208AEF', '#00C853', '#FFB300
 const DEMO_STAGE_LABELS = ['Analyzing garment', 'Analyzing stain', 'Recommending services'] as const;
 
 const STAGE_MS = 1500;
-
-const STAIN_OVERLAYS = [
-  { Component: StainOverlay1, left: 71.58, top: 246.12, width: 131.504, height: 289.252 },
-  { Component: StainOverlay2, left: 205 - 1.11, top: 554.6, width: 35.105, height: 49.798 },
-  { Component: StainOverlay3, left: 103 + 71.37, top: 609.98, width: 9.387, height: 12.037 },
-  { Component: StainOverlay4, left: 103 + 75.21, top: 657.3, width: 9.387, height: 19.16 },
-  { Component: StainOverlay5, left: 206 + 11.29, top: 416.57, width: 14.393, height: 39.048 },
-] as const;
 
 type DemoAnalysisPhase = 'running' | 'complete';
 
@@ -187,8 +171,6 @@ export function DemoGarmentAnalysisScreen() {
         ? stagePillLabel(stageIndex)
         : '';
 
-  const showOverlays = isAnalyzing || phase === 'complete';
-
   if (!scenario) {
     return (
       <View style={[styles.root, { backgroundColor: SwashoColors.neutral50 }]}>
@@ -221,23 +203,6 @@ export function DemoGarmentAnalysisScreen() {
             style={[styles.scanLine, { width: contentWidth, height: 3 * scale }, scanLineStyle]}
           />
         ) : null}
-
-        {showOverlays
-          ? STAIN_OVERLAYS.map(({ Component, left, top, width, height }, index) => (
-              <View
-                key={index}
-                pointerEvents="none"
-                style={{
-                  position: 'absolute',
-                  left: figmaX(left),
-                  top: figmaY(top),
-                  width: width * scale,
-                  height: height * scale,
-                }}>
-                <Component width="100%" height="100%" />
-              </View>
-            ))
-          : null}
 
         <View style={[styles.statusBar, { height: STATUS_BAR_HEIGHT * scale }]}>
           <StatusBar scale={scale} tone="camera" />
