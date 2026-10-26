@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, type StyleProp, type ViewStyle } from 'react-native';
 
-import { figmaShadow, FigmaShadows } from '@/components/home/figma-shadows';
 import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
@@ -37,9 +36,14 @@ export function ServiceSelectionButton({
   accessibilityLabel,
 }: ServiceSelectionButtonProps) {
   const isDisabled = disabled || loading;
-  const height = (size === 'compact' ? 32 : 45) * scale;
+  const isTertiary = variant === 'tertiary';
+  const height = isTertiary ? undefined : (size === 'compact' ? 32 : 45) * scale;
+  const minHeight = isTertiary ? (size === 'compact' ? 32 : 45) * scale : undefined;
   const fontSize = (size === 'compact' ? 14 : 16) * scale;
   const lineHeight = (size === 'compact' ? 12 : 14) * scale;
+  const borderRadius = (isTertiary ? SwashoRadii.sm : SwashoRadii.md) * scale;
+  const paddingHorizontal = (isTertiary ? 8 : 16) * scale;
+  const paddingVertical = (isTertiary ? 10 : 8) * scale;
 
   const handlePress = () => {
     if (!isDisabled) {
@@ -65,12 +69,12 @@ export function ServiceSelectionButton({
         isDisabled && variant === 'tertiary' && styles.tertiaryDisabled,
         {
           height,
-          borderRadius: SwashoRadii.md * scale,
-          paddingHorizontal: 16 * scale,
-          paddingVertical: 8 * scale,
+          minHeight,
+          borderRadius,
+          paddingHorizontal,
+          paddingVertical,
           gap: 6 * scale,
           opacity: pressed && !isDisabled ? 0.85 : 1,
-          ...(variant === 'tertiary' ? figmaShadow(FigmaShadows.addButton, scale) : {}),
         },
         style,
       ]}>
@@ -85,7 +89,13 @@ export function ServiceSelectionButton({
           <Text
             numberOfLines={1}
             style={[
-              searchFont(variant === 'primary' && !isDisabled ? 'semibold' : 'semibold'),
+              searchFont(
+                variant === 'tertiary'
+                  ? 'medium'
+                  : variant === 'primary' && !isDisabled
+                    ? 'semibold'
+                    : 'semibold',
+              ),
               styles.label,
               variant === 'primary' && !isDisabled && styles.primaryLabel,
               variant === 'primary' && isDisabled && styles.primaryDisabledLabel,
@@ -150,13 +160,14 @@ const styles = StyleSheet.create({
   },
   tertiary: {
     backgroundColor: SwashoColors.surface,
-    borderWidth: 0.5,
-    borderColor: SwashoColors.primary300,
+    borderWidth: 1,
+    borderColor: SwashoColors.neutral300,
   },
   tertiaryDisabled: {
     opacity: 0.5,
   },
   tertiaryLabel: {
-    color: SwashoColors.primary600,
+    color: SwashoColors.neutral950,
+    flexShrink: 1,
   },
 });

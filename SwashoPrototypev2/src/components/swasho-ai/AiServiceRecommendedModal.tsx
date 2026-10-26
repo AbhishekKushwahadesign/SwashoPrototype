@@ -414,9 +414,9 @@ export function AiServiceRecommendedModal({
                   label="Show all providers"
                   variant="tertiary"
                   size="compact"
-                  scale={scale}
+                  scale={designScale}
                   onPress={onClose}
-                  style={{ width: '100%', minHeight: 40 * designScale }}
+                  style={{ width: '100%' }}
                 />
 
                 <Text
