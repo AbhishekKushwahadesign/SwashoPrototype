@@ -1,5 +1,6 @@
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useEffect, useState } from 'react';
 import {
   Dimensions,
   Modal,
@@ -15,6 +16,7 @@ import { StarRatingIcon } from '@/components/home/figma-icons';
 import { figmaShadow, FigmaShadows } from '@/components/home/figma-shadows';
 import { searchFont } from '@/components/search/search-fonts';
 import { AddSquareIcon } from '@/components/service-selection/service-selection-icons';
+import { ServiceQuantitySelector } from '@/components/service-selection/ServiceQuantitySelector';
 import { ServiceSelectionButton } from '@/components/service-selection/ServiceSelectionButton';
 import {
   SWASHO_AI_DEMO_PROVIDER_IMAGE,
@@ -23,7 +25,7 @@ import {
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
 import { DangerTriangleScan } from './garment-scan-icons';
-import { AiDetectedMarkIcon, RecommendationScannerIcon } from './swasho-ai-icons';
+import { RecommendationScannerIcon } from './swasho-ai-icons';
 
 /** Figma 3415:17896 — AI Service Recommended sheet (412×607 body @ top 313). */
 const FIGMA_MODAL = {
@@ -128,6 +130,21 @@ export function AiServiceRecommendedModal({
     FIGMA_MODAL.sheetHeight * designScale,
     windowHeight - insets.top - (FIGMA_MODAL.sheetTop * designScale) * 0.35,
   );
+  const [quantity, setQuantity] = useState(0);
+  const hasAddedService = quantity > 0;
+
+  useEffect(() => {
+    if (!visible) {
+      setQuantity(0);
+    }
+  }, [visible]);
+
+  useEffect(() => {
+    setQuantity(0);
+  }, [scenario.id]);
+
+  const footerHorizontalPadding =
+    (contentWidth - FIGMA_MODAL.contentWidth * designScale) / 2;
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -200,7 +217,14 @@ export function AiServiceRecommendedModal({
                         gap: 6 * designScale,
                       },
                     ]}>
-                    <AiDetectedMarkIcon width={11 * designScale} height={11 * designScale} />
+                    <Text
+                      style={[
+                        searchFont('semibold'),
+                        styles.aiDetectedMark,
+                        { fontSize: 14 * scale, lineHeight: 16 * scale, letterSpacing: 0.28 * scale },
+                      ]}>
+                      Ai
+                    </Text>
                     <Text
                       style={[
                         searchFont('medium'),
@@ -286,16 +310,7 @@ export function AiServiceRecommendedModal({
                   </Text>
                 </LinearGradient>
 
-                <View
-                  style={[
-                    styles.providerCard,
-                    {
-                      borderRadius: SwashoRadii.md * designScale,
-                      borderWidth: 1,
-                      padding: 12 * designScale,
-                      gap: 12 * designScale,
-                    },
-                  ]}>
+                <View style={{ gap: 12 * designScale }}>
                   <View style={{ flexDirection: 'row', gap: 20 * designScale, alignItems: 'flex-start' }}>
                     <View style={{ width: 78 * designScale, alignItems: 'center' }}>
                       <View
@@ -375,7 +390,22 @@ export function AiServiceRecommendedModal({
                         ]}>
                         ₹ {recommendation.providerPriceInr}
                       </Text>
-                      <ProviderRecommendAddButton scale={designScale} onPress={onGoToCart} />
+                      {hasAddedService ? (
+                        <View style={{ alignSelf: 'flex-start' }}>
+                          <ServiceQuantitySelector
+                            scale={designScale}
+                            value={quantity}
+                            min={0}
+                            onDecrement={() => setQuantity((current) => Math.max(0, current - 1))}
+                            onIncrement={() => setQuantity((current) => current + 1)}
+                          />
+                        </View>
+                      ) : (
+                        <ProviderRecommendAddButton
+                          scale={designScale}
+                          onPress={() => setQuantity(1)}
+                        />
+                      )}
                     </View>
                   </View>
                 </View>
@@ -411,8 +441,8 @@ export function AiServiceRecommendedModal({
               styles.footerRow,
               {
                 width: contentWidth,
-                gap: FIGMA_MODAL.footerGap * designScale,
-                paddingHorizontal: ((contentWidth - FIGMA_MODAL.footerButtonWidth * 2 * designScale - FIGMA_MODAL.footerGap * designScale) / 2),
+                gap: hasAddedService ? FIGMA_MODAL.footerGap * designScale : 0,
+                paddingHorizontal: footerHorizontalPadding,
                 paddingTop: 12 * designScale,
                 paddingBottom: Math.max(insets.bottom, 12 * designScale),
               },
@@ -425,15 +455,21 @@ export function AiServiceRecommendedModal({
               leadingIcon={
                 <RecommendationScannerIcon width={20 * scale} height={20 * scale} />
               }
-              style={{ width: FIGMA_MODAL.footerButtonWidth * designScale, flex: 1 }}
+              style={
+                hasAddedService
+                  ? { width: FIGMA_MODAL.footerButtonWidth * designScale, flex: 1 }
+                  : { width: '100%', flex: 1 }
+              }
             />
-            <ServiceSelectionButton
-              label="Go to Cart"
-              variant="primary"
-              scale={scale}
-              onPress={onGoToCart}
-              style={{ width: FIGMA_MODAL.footerButtonWidth * designScale, flex: 1 }}
-            />
+            {hasAddedService ? (
+              <ServiceSelectionButton
+                label="Go to Cart"
+                variant="primary"
+                scale={scale}
+                onPress={onGoToCart}
+                style={{ width: FIGMA_MODAL.footerButtonWidth * designScale, flex: 1 }}
+              />
+            ) : null}
           </View>
         </View>
       </View>
@@ -482,6 +518,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderColor: SwashoColors.neutral200,
     backgroundColor: SwashoColors.surface,
+  },
+  aiDetectedMark: {
+    color: SwashoColors.neutral800,
   },
   aiDetectedText: {
     color: SwashoColors.neutral800,
@@ -533,10 +572,6 @@ const styles = StyleSheet.create({
   },
   expertBadgeText: {
     color: '#0070CC',
-  },
-  providerCard: {
-    backgroundColor: '#E5F3FF',
-    borderColor: '#0070CC',
   },
   ratingBadge: {
     position: 'absolute',
