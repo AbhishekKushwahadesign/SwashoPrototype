@@ -22,10 +22,11 @@ const FIGMA_PILL = {
   fontSize: 14,
   lineHeight: 16,
   letterSpacing: 0.28,
+  /** #FAFAFA @ 80% opacity (Figma 3415:17879) */
+  innerBackground: '#FAFAFACC',
 } as const;
 
-/** Frosted fill for legacy/static pills (e.g. scan failed state). */
-export const ANALYZING_STATUS_PILL_FILL = '#FAFAFACC';
+export const ANALYZING_STATUS_PILL_FILL = FIGMA_PILL.innerBackground;
 
 type AnalyzingGradientStatusPillProps = {
   scale: number;
