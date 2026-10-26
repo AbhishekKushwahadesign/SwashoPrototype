@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import {
   Dimensions,
   Modal,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -15,7 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StarRatingIcon } from '@/components/home/figma-icons';
 import { figmaShadow, FigmaShadows } from '@/components/home/figma-shadows';
 import { searchFont } from '@/components/search/search-fonts';
-import { AddSquareIcon } from '@/components/service-selection/service-selection-icons';
+import { AddSquareIcon, SheetCloseIcon } from '@/components/service-selection/service-selection-icons';
 import { ServiceQuantitySelector } from '@/components/service-selection/ServiceQuantitySelector';
 import { ServiceSelectionButton } from '@/components/service-selection/ServiceSelectionButton';
 import {
@@ -33,9 +34,9 @@ const FIGMA_MODAL = {
   sheetTop: 313,
   sheetHeight: 607,
   sheetRadius: 16,
-  handleWidth: 27.663,
-  handleHeight: 3,
-  handleTop: 9.5,
+  contentTop: 28,
+  closeChipHeight: 35,
+  closeToSheetGap: 12,
   contentWidth: 372,
   contentTop: 28,
   contentGap: 24,
@@ -145,6 +146,7 @@ export function AiServiceRecommendedModal({
 
   const footerHorizontalPadding =
     (contentWidth - FIGMA_MODAL.contentWidth * designScale) / 2;
+  const webOverflowVisible = Platform.OS === 'web' ? ('visible' as const) : undefined;
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -161,6 +163,9 @@ export function AiServiceRecommendedModal({
             styles.sheetColumn,
             {
               width: contentWidth,
+              paddingTop:
+                (FIGMA_MODAL.closeChipHeight + FIGMA_MODAL.closeToSheetGap) * designScale,
+              paddingBottom: Math.max(insets.bottom, 0),
             },
           ]}
           pointerEvents="box-none">
@@ -172,24 +177,34 @@ export function AiServiceRecommendedModal({
                 maxHeight: sheetMaxHeight,
                 borderTopLeftRadius: FIGMA_MODAL.sheetRadius * designScale,
                 borderTopRightRadius: FIGMA_MODAL.sheetRadius * designScale,
-                paddingTop: (FIGMA_MODAL.handleTop + FIGMA_MODAL.handleHeight + 16) * designScale,
+                overflow: webOverflowVisible,
               },
             ]}>
-            <View
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Close"
+              onPress={onClose}
               style={[
-                styles.handle,
+                styles.closeChip,
+                styles.closeOnSheet,
                 {
-                  width: FIGMA_MODAL.handleWidth * designScale,
-                  height: FIGMA_MODAL.handleHeight * designScale,
-                  top: FIGMA_MODAL.handleTop * designScale,
-                  borderRadius: 9999 * designScale,
+                  width: FIGMA_MODAL.closeChipHeight * designScale,
+                  height: FIGMA_MODAL.closeChipHeight * designScale,
+                  borderRadius: 999,
+                  top:
+                    -(
+                      FIGMA_MODAL.closeChipHeight + FIGMA_MODAL.closeToSheetGap
+                    ) * designScale,
+                  marginLeft: (-FIGMA_MODAL.closeChipHeight / 2) * designScale,
                 },
-              ]}
-            />
+              ]}>
+              <SheetCloseIcon width={20 * designScale} height={20 * designScale} />
+            </Pressable>
 
             <ScrollView
               style={styles.scroll}
               contentContainerStyle={{
+                paddingTop: FIGMA_MODAL.contentTop * designScale,
                 paddingHorizontal: ((contentWidth - FIGMA_MODAL.contentWidth * designScale) / 2),
                 paddingBottom: 16 * designScale,
                 gap: FIGMA_MODAL.contentGap * designScale,
@@ -493,14 +508,19 @@ const styles = StyleSheet.create({
   },
   sheet: {
     backgroundColor: SwashoColors.surface,
-    overflow: 'hidden',
+    position: 'relative',
   },
-  handle: {
+  closeChip: {
+    backgroundColor: 'rgba(236, 236, 236, 0.92)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 3,
+    elevation: 4,
+  },
+  closeOnSheet: {
     position: 'absolute',
-    alignSelf: 'center',
     left: '50%',
-    marginLeft: -13.8315,
-    backgroundColor: '#D9D9D9',
+    zIndex: 4,
   },
   scroll: {
     flexGrow: 0,

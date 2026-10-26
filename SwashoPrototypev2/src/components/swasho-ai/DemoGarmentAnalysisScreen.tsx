@@ -131,6 +131,11 @@ export function DemoGarmentAnalysisScreen() {
     ],
   );
 
+  const dismissRecommendationToDemoSelect = useCallback(() => {
+    setRecommendationModalVisible(false);
+    router.replace('/swasho-ai/demo-select');
+  }, [router]);
+
   const handleGoToCart = useCallback(
     (quantity: number) => {
       if (!scenario || quantity <= 0) {

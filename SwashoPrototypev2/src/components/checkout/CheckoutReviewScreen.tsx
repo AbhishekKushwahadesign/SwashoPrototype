@@ -316,8 +316,12 @@ export function CheckoutReviewScreen({
   }, [isSubscription, providerId, query, router]);
 
   const handleBackPress = useCallback(() => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
     returnToSchedule();
-  }, [returnToSchedule]);
+  }, [returnToSchedule, router]);
 
   const handleSharePress = useCallback(() => {
     Alert.alert('Share', 'Sharing is not available in this prototype yet.');
