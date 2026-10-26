@@ -10,14 +10,9 @@ import { HomeIndicator } from '@/components/home/HomeIndicator';
 import { StatusBar } from '@/components/home/StatusBar';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { searchFont } from '@/components/search/search-fonts';
-import {
-  SWASHO_AI_DEMO_FLAT_LAY_THUMB,
-  SWASHO_AI_DEMO_SCENARIOS,
-  type SwashoAiDemoScenarioId,
-} from '@/constants/swasho-ai-demo-scenarios';
+import { SWASHO_AI_DEMO_SCENARIOS, type SwashoAiDemoScenarioId } from '@/constants/swasho-ai-demo-scenarios';
 import { SwashoColors } from '@/constants/swasho-tokens';
 
-import { DemoFlatLayImage } from './DemoFlatLayImage';
 import { ArrowLeftScan } from './garment-scan-icons';
 
 const FIGMA_FRAME_HEIGHT = 896;
@@ -179,11 +174,7 @@ export function DemoGarmentSelectionScreen() {
                   borderRadius: 9.504 * scale,
                 },
               ]}>
-              <DemoFlatLayImage
-                source={SWASHO_AI_DEMO_FLAT_LAY_THUMB}
-                crop={scenario.thumbnailCrop}
-                borderRadius={9.504 * scale}
-              />
+              <Image source={scenario.cardImage} style={StyleSheet.absoluteFill} contentFit="cover" />
             </Pressable>
           ))}
         </View>

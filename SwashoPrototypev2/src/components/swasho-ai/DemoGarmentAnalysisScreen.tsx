@@ -17,13 +17,10 @@ import { HomeIndicator } from '@/components/home/HomeIndicator';
 import { StatusBar } from '@/components/home/StatusBar';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { searchFont } from '@/components/search/search-fonts';
-import {
-  SWASHO_AI_DEMO_FLAT_LAY_ANALYSIS,
-  getSwashoAiDemoScenario,
-} from '@/constants/swasho-ai-demo-scenarios';
+import { getSwashoAiDemoScenario } from '@/constants/swasho-ai-demo-scenarios';
 import { SwashoColors } from '@/constants/swasho-tokens';
 
-import { DemoFlatLayImage } from './DemoFlatLayImage';
+import { Image } from 'expo-image';
 import {
   ArrowLeftScan,
   DangerTriangleScan,
@@ -196,9 +193,11 @@ export function DemoGarmentAnalysisScreen() {
   return (
     <View style={[styles.root, { backgroundColor: SwashoColors.neutral50 }]}>
       <View style={[styles.frame, { width: contentWidth, height: layoutHeight + safeTop, marginTop: safeTop }]}>
-        <View style={StyleSheet.absoluteFill}>
-          <DemoFlatLayImage source={SWASHO_AI_DEMO_FLAT_LAY_ANALYSIS} crop={scenario.analysisCrop} />
-        </View>
+        <Image
+          source={scenario.analysisImage}
+          style={StyleSheet.absoluteFill}
+          contentFit="contain"
+        />
 
         {isAnalyzing && !reducedMotion ? (
           <Animated.View
