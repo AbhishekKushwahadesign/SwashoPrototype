@@ -6,7 +6,6 @@ import { SvgXml } from 'react-native-svg';
 
 import {
   AiAIcon,
-  CalendarBoldIcon,
   CalendarLinearIcon,
   HomeSmileIcon,
   HomeSmileLinearIcon,
@@ -305,11 +304,11 @@ export function NavBar({
           </Pressable>
 
           <Pressable onPress={onSubscriptionPress} style={itemStyle(isOrders)}>
-            {isOrders ? (
-              <CalendarBoldIcon width={iconSize} height={iconSize} />
-            ) : (
-              <CalendarLinearIcon width={iconSize} height={iconSize} />
-            )}
+            <CalendarLinearIcon
+              width={iconSize}
+              height={iconSize}
+              stroke={isOrders ? SwashoColors.surface : '#7C7C7C'}
+            />
             <NavLabel label="Subscription" active={isOrders} scale={scale} />
           </Pressable>
 

@@ -20,7 +20,7 @@ import { StatusBar } from '@/components/home/StatusBar';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { ListServiceIcon } from '@/components/provider-page/provider-page-icons';
 import { ScooterBoldIcon } from '@/components/provider-results/provider-results-icons';
-import { DoubleAltArrowRightIcon } from '@/components/service-selection/service-selection-icons';
+import { TertiaryButton } from '@/components/home/TertiaryButton';
 import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 import {
@@ -365,26 +365,14 @@ function SubscriptionCard({
             </Text>
           </View>
         </View>
-        <Pressable
-          accessibilityRole="button"
+        <TertiaryButton
+          label="Review Order"
+          variant="accent"
+          showTrailingIcon
+          trailingIcon="double-alt-arrow"
+          scale={scale}
           onPress={() => onReviewOrder(subscription)}
-          style={[styles.reviewOrderButton, { gap: 4 * scale, minWidth: 60 * scale }]}>
-          <Text
-            style={[
-              searchFont('medium'),
-              {
-                fontSize: 14 * scale,
-                lineHeight: 12 * scale,
-                letterSpacing: 0.5 * scale,
-                color: SwashoColors.darkHeaderText,
-                flex: 1,
-                textAlign: 'center',
-              },
-            ]}>
-            Review Order
-          </Text>
-          <DoubleAltArrowRightIcon width={20 * scale} height={20 * scale} />
-        </Pressable>
+        />
       </View>
     </View>
   );
@@ -411,8 +399,15 @@ function PickupBanner({
           borderWidth: 1 * scale,
         },
       ]}>
-      <View style={{ width: 33 * scale, height: 30 * scale, transform: [{ rotate: '7.3deg' }] }}>
-        <Image source={riderImage} style={{ width: 30 * scale, height: 26 * scale }} contentFit="contain" />
+      <View
+        style={{
+          width: 33 * scale,
+          height: 30 * scale,
+          transform: [{ rotate: '7.3deg' }],
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+        <Image source={riderImage} style={{ width: 32 * scale, height: 37 * scale }} contentFit="contain" />
       </View>
       <View style={[styles.pickupBannerContent, { gap: 8 * scale }]}>
         <View style={{ flex: 1, gap: 8 * scale }}>
@@ -441,26 +436,14 @@ function PickupBanner({
             Daily Wear Weekly
           </Text>
         </View>
-        <Pressable
-          accessibilityRole="button"
+        <TertiaryButton
+          label="Review Order"
+          variant="accent"
+          showTrailingIcon
+          trailingIcon="double-alt-arrow"
+          scale={scale}
           onPress={() => onReviewOrder(subscription)}
-          style={[styles.reviewOrderButton, { gap: 4 * scale, minWidth: 60 * scale }]}>
-          <Text
-            style={[
-              searchFont('medium'),
-              {
-                fontSize: 14 * scale,
-                lineHeight: 12 * scale,
-                letterSpacing: 0.5 * scale,
-                color: SwashoColors.darkHeaderText,
-                flex: 1,
-                textAlign: 'center',
-              },
-            ]}>
-            Review Order
-          </Text>
-          <DoubleAltArrowRightIcon width={20 * scale} height={20 * scale} />
-        </Pressable>
+        />
       </View>
     </View>
   );
@@ -518,10 +501,11 @@ export function SubscriptionScreen() {
               top: headerTop,
               height: HEADER_HEIGHT * scale,
               paddingHorizontal: 17 * scale,
+              paddingTop: 25 * scale,
               ...figmaShadow({ offsetX: 0, offsetY: 2, blur: 4, color: '#000000', opacity: 0.1 }, scale),
             },
           ]}>
-          <View style={[styles.headerRow, { gap: 12 * scale }]}>
+          <View style={[styles.headerRow, { gap: 12 * scale, height: 34 * scale }]}>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Go back"
@@ -542,7 +526,7 @@ export function SubscriptionScreen() {
               Subscriptions
             </Text>
           </View>
-          <View style={[styles.headerActions, { gap: 12 * scale }]}>
+          <View style={[styles.headerActions, { gap: 12 * scale, height: 34 * scale }]}>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Search subscriptions"

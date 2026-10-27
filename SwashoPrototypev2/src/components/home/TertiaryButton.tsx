@@ -2,13 +2,15 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
+import { DoubleAltArrowRightIcon } from '@/components/service-selection/service-selection-icons';
+
 import { AltArrowRightIcon, ArrowRightIcon } from './figma-icons';
 
 type TertiaryButtonProps = {
   label: string;
   variant?: 'filled' | 'text' | 'accent';
   showTrailingIcon?: boolean;
-  trailingIcon?: 'arrow' | 'alt-arrow';
+  trailingIcon?: 'arrow' | 'alt-arrow' | 'double-alt-arrow';
   onPress?: () => void;
   scale: number;
 };
@@ -23,7 +25,12 @@ export function TertiaryButton({
 }: TertiaryButtonProps) {
   const isFilled = variant === 'filled';
   const isAccent = variant === 'accent';
-  const Icon = trailingIcon === 'alt-arrow' ? AltArrowRightIcon : ArrowRightIcon;
+  const Icon =
+    trailingIcon === 'double-alt-arrow'
+      ? DoubleAltArrowRightIcon
+      : trailingIcon === 'alt-arrow'
+        ? AltArrowRightIcon
+        : ArrowRightIcon;
 
   return (
     <Pressable
@@ -93,6 +100,6 @@ const styles = StyleSheet.create({
     color: SwashoColors.primary600,
     textAlign: 'center',
     letterSpacing: 0.5,
-    flex: 1,
+    flexShrink: 0,
   },
 });
