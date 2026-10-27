@@ -29,8 +29,8 @@ export function CheckoutAiDemoPickupNudge({ scale, cardWidth, onDismiss }: Check
           styles.message,
           { fontSize: 13 * scale, lineHeight: 18 * scale, letterSpacing: 0.26 * scale },
         ]}>
-        We picked today and the next pickup slot for you — use Change on your schedule below if you need a different
-        day or time.
+        We’ve selected the earliest available pickup for you. Need a different day or time? Tap{' '}
+        <Text style={searchFont('semibold')}>Change</Text> in your schedule below.
       </Text>
       <Pressable accessibilityRole="button" accessibilityLabel="Dismiss pickup reminder" onPress={onDismiss}>
         <Text
