@@ -149,7 +149,7 @@ export function HomeScreen() {
 
   useEffect(() => {
     if (nav === 'orders') {
-      setNavVariant('Orders');
+      router.replace('/subscription');
     } else if (nav === 'home') {
       setNavVariant('Home');
     }
@@ -432,8 +432,11 @@ export function HomeScreen() {
           <NavBar
             variant={navVariant}
             scale={scale}
-            onHomePress={() => setNavVariant('Home')}
-            onSubscriptionPress={() => setNavVariant('Orders')}
+            onHomePress={() => {
+              setNavVariant('Home');
+              router.replace('/');
+            }}
+            onSubscriptionPress={() => router.push('/subscription')}
             onSwashoAiPress={() => router.push('/swasho-ai')}
           />
           <View style={styles.homeIndicatorWrap}>

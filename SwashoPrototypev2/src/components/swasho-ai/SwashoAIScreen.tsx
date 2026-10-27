@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowLeftIcon, MicrophoneIcon } from '@/components/home/figma-icons';
 import { FigmaShadows, figmaShadow } from '@/components/home/figma-shadows';
 import { HomeIndicator } from '@/components/home/HomeIndicator';
-import { SwashoAiIcon } from '@/components/home/NavBar';
+import { NavBar, NAV_BAR_BOTTOM_INSET, SwashoAiIcon } from '@/components/home/NavBar';
 import { StatusBar } from '@/components/home/StatusBar';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { searchFont } from '@/components/search/search-fonts';
@@ -25,6 +25,7 @@ import { HistoryIcon, ScannerIcon, SparkleBulletIcon } from './swasho-ai-icons';
 
 const STATUS_BAR_HEIGHT = 32;
 const HOME_INDICATOR_HEIGHT = 24;
+const NAV_HEIGHT = 101;
 const COMPOSER_HEIGHT = 45;
 /** Figma frame 3415:17972 vertical layout (896px artboard height). */
 const FIGMA_FRAME_HEIGHT = 896;
@@ -95,6 +96,8 @@ export function SwashoAIScreen() {
   const contentColumnWidth = FIGMA_CONTENT_WIDTH * scale;
   const contentColumnLeft = (contentWidth - contentColumnWidth) / 2;
 
+  const bottomChromeHeight = (NAV_HEIGHT + HOME_INDICATOR_HEIGHT) * scale;
+  const bottomNavLift = NAV_BAR_BOTTOM_INSET * scale;
   const composerTop = figmaY(FIGMA_COMPOSER_TOP);
   const scanTop = figmaY(FIGMA_SCAN_TOP);
   const chipsTop = figmaY(FIGMA_CHIPS_TOP);
@@ -408,13 +411,19 @@ export function SwashoAIScreen() {
 
         <View
           style={[
-            styles.homeIndicatorWrap,
-            {
-              top: figmaY(FIGMA_HOME_INDICATOR_TOP),
-              height: HOME_INDICATOR_HEIGHT * scale,
-            },
+            styles.navBarWrap,
+            { height: bottomChromeHeight, bottom: bottomNavLift },
           ]}>
-          <HomeIndicator scale={scale} />
+          <NavBar
+            variant="AI"
+            scale={scale}
+            onHomePress={() => router.replace('/')}
+            onSubscriptionPress={() => router.push('/subscription')}
+            onSwashoAiPress={() => {}}
+          />
+          <View style={styles.homeIndicatorWrap}>
+            <HomeIndicator scale={scale} />
+          </View>
         </View>
       </View>
     </View>
@@ -564,12 +573,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  homeIndicatorWrap: {
+  navBarWrap: {
     position: 'absolute',
     left: 0,
     right: 0,
-    alignItems: 'center',
+    zIndex: 10,
     backgroundColor: 'transparent',
-    zIndex: 6,
+  },
+  homeIndicatorWrap: {
+    backgroundColor: 'transparent',
   },
 });

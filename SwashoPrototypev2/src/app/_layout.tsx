@@ -44,6 +44,7 @@ export default function RootLayout() {
     <ProviderCartProvider>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
+        <Stack.Screen name="subscription" />
         <Stack.Screen name="swasho-ai" />
         <Stack.Screen name="search" />
         <Stack.Screen name="provider-results" />
