@@ -2,3 +2,7 @@
 export const CHECKOUT_ORDER_TYPE_SEGMENT_WIDTH = 396.54;
 export const CHECKOUT_ORDER_TYPE_SEGMENT_HEIGHT = 61.04;
 export const CHECKOUT_SCHEDULE_CARD_WIDTH = 395.54;
+/** Figma 59230:3669 — AI demo pickup nudge banner width. */
+export const CHECKOUT_AI_DEMO_PICKUP_NUDGE_WIDTH = 394;
+/** Figma 59230:3669 — AI demo pickup nudge banner height. */
+export const CHECKOUT_AI_DEMO_PICKUP_NUDGE_HEIGHT = 55;
