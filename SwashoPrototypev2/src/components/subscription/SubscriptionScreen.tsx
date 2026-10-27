@@ -168,8 +168,14 @@ function SubscriptionCard({
               ]}>
               {subscription.reference}
             </Text>
-            <View style={{ height: 20 * scale, justifyContent: 'center' }}>
-              <LineDividerIcon width={20 * scale} height={1} />
+            <View
+              style={{
+                width: 1 * scale,
+                height: 20 * scale,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+              <VerticalRuleIcon width={1 * scale} height={20 * scale} />
             </View>
             <Text
               style={[
@@ -367,9 +373,9 @@ function SubscriptionCard({
         </View>
         <TertiaryButton
           label="Review Order"
-          variant="accent"
+          variant="text"
           showTrailingIcon
-          trailingIcon="review-order"
+          trailingIcon="alt-arrow"
           scale={scale}
           onPress={() => onReviewOrder(subscription)}
         />
@@ -399,24 +405,40 @@ function PickupBanner({
           borderWidth: 1 * scale,
         },
       ]}>
-      <View style={{ width: 33.446 * scale, height: 29.624 * scale, overflow: 'visible' }}>
+      <View
+        style={{
+          width: 33.446 * scale,
+          height: 29.624 * scale,
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'visible',
+        }}>
         <View
           style={{
-            position: 'absolute',
-            left: 0.66 * scale,
-            top: -7.45 * scale,
-            width: 35.449 * scale,
-            height: 39.859 * scale,
+            width: 30.392 * scale,
+            height: 25.973 * scale,
+            transform: [{ rotate: '7.3deg' }],
             alignItems: 'center',
             justifyContent: 'center',
           }}>
           <View
             style={{
-              width: 28.841 * scale,
-              height: 34.581 * scale,
-              transform: [{ rotate: '-12.1deg' }],
+              position: 'absolute',
+              left: 0.66 * scale,
+              top: -7.45 * scale,
+              width: 35.449 * scale,
+              height: 39.859 * scale,
+              alignItems: 'center',
+              justifyContent: 'center',
             }}>
-            <Image source={riderImage} style={{ width: '100%', height: '100%' }} contentFit="contain" />
+            <View
+              style={{
+                width: 28.841 * scale,
+                height: 34.581 * scale,
+                transform: [{ rotate: '-12.1deg' }],
+              }}>
+              <Image source={riderImage} style={{ width: '100%', height: '100%' }} contentFit="contain" />
+            </View>
           </View>
         </View>
       </View>
@@ -449,9 +471,9 @@ function PickupBanner({
         </View>
         <TertiaryButton
           label="Review Order"
-          variant="accent"
+          variant="text"
           showTrailingIcon
-          trailingIcon="review-order"
+          trailingIcon="alt-arrow"
           scale={scale}
           onPress={() => onReviewOrder(subscription)}
         />
