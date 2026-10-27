@@ -21,32 +21,38 @@ type CheckoutAiDemoPickupNudgeProps = {
   scale: number;
   cardWidth: number;
   onPress: () => void;
+  onDismiss: () => void;
 };
 
 /** Shown above basket on review when arriving from Swasho AI Go to Cart (Figma 59232:3709). */
-export function CheckoutAiDemoPickupNudge({ scale, cardWidth, onPress }: CheckoutAiDemoPickupNudgeProps) {
+export function CheckoutAiDemoPickupNudge({
+  scale,
+  cardWidth,
+  onPress,
+  onDismiss,
+}: CheckoutAiDemoPickupNudgeProps) {
   const width = cardWidth > 0 ? cardWidth : CHECKOUT_AI_DEMO_PICKUP_NUDGE_WIDTH * scale;
   const height = CHECKOUT_AI_DEMO_PICKUP_NUDGE_HEIGHT * scale;
   const headlineMaxWidth = width - (HEADLINE_LEFT + SPARKLE_RESERVE) * scale;
 
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel="Change pickup schedule"
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.root,
-        {
-          width,
-          height,
-          opacity: pressed ? 0.92 : 1,
-        },
-      ]}>
+    <View style={[styles.root, { width, height }]}>
       <View pointerEvents="none" style={StyleSheet.absoluteFill}>
         <AiDemoPickupNudgeBg width={width} height={height} />
       </View>
 
-      <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Change pickup schedule"
+        onPress={onPress}
+        style={({ pressed }) => [
+          StyleSheet.absoluteFill,
+          styles.scheduleHitArea,
+          {
+            paddingRight: SPARKLE_RESERVE * scale,
+            opacity: pressed ? 0.92 : 1,
+          },
+        ]}>
         <Text
           style={[
             searchFont('semibold'),
@@ -98,17 +104,21 @@ export function CheckoutAiDemoPickupNudge({ scale, cardWidth, onPress }: Checkou
           </View>
           <AiDemoPickupNudgeArrowRight width={20 * scale} height={20 * scale} />
         </View>
-      </View>
+      </Pressable>
 
-      <View
-        pointerEvents="none"
-        style={[
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Dismiss pickup reminder"
+        onPress={onDismiss}
+        hitSlop={8 * scale}
+        style={({ pressed }) => [
           styles.sparkleWrap,
           {
             right: 6 * scale,
             top: (height - 28.279 * scale) / 2,
             width: 28.279 * scale,
             height: 28.279 * scale,
+            opacity: pressed ? 0.88 : 1,
           },
         ]}>
         <View
@@ -131,14 +141,17 @@ export function CheckoutAiDemoPickupNudge({ scale, cardWidth, onPress }: Checkou
             }}
           />
         </View>
-      </View>
-    </Pressable>
+      </Pressable>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   root: {
     alignSelf: 'center',
+    justifyContent: 'center',
+  },
+  scheduleHitArea: {
     justifyContent: 'center',
   },
   headline: {
@@ -161,6 +174,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 2,
   },
   sparkleRotate: {
     backgroundColor: SwashoColors.surface,

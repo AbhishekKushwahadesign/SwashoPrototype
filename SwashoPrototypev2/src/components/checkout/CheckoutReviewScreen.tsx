@@ -705,7 +705,12 @@ export function CheckoutReviewScreen({
             />
 
             {aiDemoPickupNudgeVisible ? (
-              <CheckoutAiDemoPickupNudge scale={scale} cardWidth={cardWidth} onPress={returnToSchedule} />
+              <CheckoutAiDemoPickupNudge
+                scale={scale}
+                cardWidth={cardWidth}
+                onPress={returnToSchedule}
+                onDismiss={() => setAiDemoPickupNudgeVisible(false)}
+              />
             ) : null}
 
             <BasketCard
