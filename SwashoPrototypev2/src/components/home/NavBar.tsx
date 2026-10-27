@@ -155,6 +155,9 @@ function SelectedCapsule({ scale, variant }: { scale: number; variant: NavBarVar
   const left = innerWidth / 2 + geometry.centerOffsetX * scale - width / 2;
   const top = variant === 'Orders' ? 5 * scale : (innerHeight - height) / 2;
 
+  const borderWidth = CAPSULE_BORDER * scale;
+  const innerRadius = Math.max(0, borderRadius - borderWidth);
+
   return (
     <Animated.View
       key={variant}
@@ -163,9 +166,19 @@ function SelectedCapsule({ scale, variant }: { scale: number; variant: NavBarVar
       pointerEvents="none"
       style={[
         styles.capsule,
-        { width, height, borderRadius, left, top, borderWidth: CAPSULE_BORDER * scale },
+        { width, height, borderRadius, left, top, borderWidth },
       ]}>
-      <View style={[StyleSheet.absoluteFill, { borderRadius, overflow: 'hidden' }]}>
+      <View
+        style={[
+          styles.capsuleFill,
+          {
+            borderRadius: innerRadius,
+            top: borderWidth,
+            left: borderWidth,
+            right: borderWidth,
+            bottom: borderWidth,
+          },
+        ]}>
         <SvgXml
           xml={capsuleGradientXml(geometry.width, geometry.height, geometry.gradient)}
           width="100%"
@@ -353,6 +366,15 @@ const styles = StyleSheet.create({
   capsule: {
     position: 'absolute',
     borderColor: SwashoColors.surface,
+    borderStyle: 'solid',
+    backgroundColor: 'transparent',
+    ...Platform.select({
+      web: { boxSizing: 'border-box' as const },
+      default: {},
+    }),
+  },
+  capsuleFill: {
+    position: 'absolute',
     overflow: 'hidden',
   },
   capsuleInsetShadow: {
