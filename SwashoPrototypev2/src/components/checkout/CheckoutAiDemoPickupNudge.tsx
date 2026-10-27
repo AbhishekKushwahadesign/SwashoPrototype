@@ -53,7 +53,7 @@ export function CheckoutAiDemoPickupNudge({ scale, cardWidth: _cardWidth, onPres
               maxWidth: 335 * scale,
             },
           ]}>
-          We&apos;ve selected the earliest available pickup for you.
+          We’ve selected the earliest available pickup
         </Text>
 
         <View
@@ -63,6 +63,7 @@ export function CheckoutAiDemoPickupNudge({ scale, cardWidth: _cardWidth, onPres
               position: 'absolute',
               left: 12 * scale,
               top: 31 * scale,
+              gap: 6 * scale,
             },
           ]}>
           <View
