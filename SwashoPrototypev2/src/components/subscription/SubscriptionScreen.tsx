@@ -36,7 +36,8 @@ import { checkoutPlaceholderHref } from '@/lib/checkout-flow';
 import { BillListIcon, VerticalRuleIcon } from './subscription-icons';
 
 const STATUS_BAR_HEIGHT = 32;
-const HEADER_HEIGHT = 101;
+/** Figma frame 3409:16955 is 101px tall; status bar occupies 32px → 69px toolbar block below it. */
+const HEADER_HEIGHT = 69;
 const HOME_INDICATOR_HEIGHT = 24;
 const PAGE_BG = '#f2f2f2';
 const PICKUP_BANNER_BORDER = '#6155f5';
