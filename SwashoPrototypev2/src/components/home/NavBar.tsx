@@ -6,6 +6,7 @@ import { SvgXml } from 'react-native-svg';
 
 import {
   AiAIcon,
+  CalendarBoldAddIcon,
   CalendarLinearIcon,
   HomeSmileIcon,
   HomeSmileLinearIcon,
@@ -241,7 +242,6 @@ export function SwashoAiIcon({
 function NavLabel({ label, active, scale }: { label: string; active: boolean; scale: number }) {
   return (
     <Text
-      numberOfLines={1}
       style={[
         styles.navLabel,
         {
@@ -304,11 +304,11 @@ export function NavBar({
           </Pressable>
 
           <Pressable onPress={onSubscriptionPress} style={itemStyle(isOrders)}>
-            <CalendarLinearIcon
-              width={iconSize}
-              height={iconSize}
-              stroke={isOrders ? SwashoColors.surface : '#7C7C7C'}
-            />
+            {isOrders ? (
+              <CalendarBoldAddIcon width={iconSize} height={iconSize} />
+            ) : (
+              <CalendarLinearIcon width={iconSize} height={iconSize} stroke="#7C7C7C" />
+            )}
             <NavLabel label="Subscription" active={isOrders} scale={scale} />
           </Pressable>
 
@@ -369,6 +369,7 @@ const styles = StyleSheet.create({
   },
   navLabel: {
     textAlign: 'center',
+    flexShrink: 0,
   },
   clip: {
     position: 'absolute',

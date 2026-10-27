@@ -12,7 +12,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CheckoutEditPenSquareIcon } from '@/components/checkout/checkout-review-icons';
-import { ArrowLeftIcon, LineDividerIcon, MagnifierIcon } from '@/components/home/figma-icons';
+import { ArrowLeftIcon, MagnifierIcon } from '@/components/home/figma-icons';
 import { FigmaShadows, figmaShadow } from '@/components/home/figma-shadows';
 import { HomeIndicator } from '@/components/home/HomeIndicator';
 import { NavBar, NAV_BAR_BOTTOM_INSET } from '@/components/home/NavBar';
@@ -38,6 +38,7 @@ import { BillListIcon, VerticalRuleIcon } from './subscription-icons';
 const STATUS_BAR_HEIGHT = 32;
 /** Figma frame 3409:16955 is 101px tall; status bar occupies 32px → 69px toolbar block below it. */
 const HEADER_HEIGHT = 69;
+const FILTER_BAR_HEIGHT = 52;
 const HOME_INDICATOR_HEIGHT = 24;
 const PAGE_BG = '#f2f2f2';
 const PICKUP_BANNER_BORDER = '#6155f5';
@@ -493,6 +494,8 @@ export function SubscriptionScreen() {
   const bottomChromeHeight = (101 + HOME_INDICATOR_HEIGHT) * scale;
   const bottomNavLift = NAV_BAR_BOTTOM_INSET * scale;
   const headerTop = STATUS_BAR_HEIGHT * scale;
+  const filterBarTop = headerTop + HEADER_HEIGHT * scale;
+  const scrollTop = filterBarTop + FILTER_BAR_HEIGHT * scale;
 
   const visibleSubscriptions = useMemo(() => subscriptionsForFilter(filter), [filter]);
 
@@ -537,7 +540,8 @@ export function SubscriptionScreen() {
               paddingTop: 25 * scale,
               paddingRight: 18 * scale,
               paddingLeft: 17 * scale,
-              paddingBottom: 10 * scale,
+              paddingBottom: 0,
+              alignItems: 'flex-start',
               ...figmaShadow({ offsetX: 0, offsetY: 2, blur: 4, color: '#000000', opacity: 0.1 }, scale),
             },
           ]}>
@@ -609,8 +613,40 @@ export function SubscriptionScreen() {
           </View>
         </View>
 
+        <View
+          style={[
+            styles.filterBar,
+            {
+              top: filterBarTop,
+              height: FILTER_BAR_HEIGHT * scale,
+              paddingHorizontal: 20 * scale,
+              paddingVertical: 13 * scale,
+              gap: 8 * scale,
+            },
+          ]}>
+          <SubscriptionFilterChip
+            label="All"
+            active={filter === 'all'}
+            scale={scale}
+            onPress={() => setFilter('all')}
+          />
+          <View style={{ width: 1 * scale, height: 26 * scale, alignItems: 'center', justifyContent: 'center' }}>
+            <VerticalRuleIcon width={1 * scale} height={26 * scale} />
+          </View>
+          {SUBSCRIPTION_FILTERS.slice(1).map((chip) => (
+            <SubscriptionFilterChip
+              key={chip.id}
+              label={chip.label}
+              active={filter === chip.id}
+              flex
+              scale={scale}
+              onPress={() => setFilter(chip.id)}
+            />
+          ))}
+        </View>
+
         <ScrollView
-          style={[styles.scroll, { marginTop: headerTop + HEADER_HEIGHT * scale }]}
+          style={[styles.scroll, { marginTop: scrollTop }]}
           contentContainerStyle={{
             paddingBottom: bottomChromeHeight + bottomNavLift + 24 * scale,
             paddingTop: 8 * scale,
@@ -618,38 +654,6 @@ export function SubscriptionScreen() {
             gap: 16 * scale,
           }}
           showsVerticalScrollIndicator={false}>
-          <View
-            style={[
-              styles.filterRow,
-              {
-                width: contentWidth,
-                paddingHorizontal: 20 * scale,
-                gap: 8 * scale,
-                minHeight: 52 * scale,
-                paddingVertical: 8 * scale,
-              },
-            ]}>
-            <SubscriptionFilterChip
-              label="All"
-              active={filter === 'all'}
-              scale={scale}
-              onPress={() => setFilter('all')}
-            />
-            <View style={{ width: 1 * scale, height: 26 * scale, justifyContent: 'center' }}>
-              <LineDividerIcon width={26 * scale} height={1} />
-            </View>
-            {SUBSCRIPTION_FILTERS.slice(1).map((chip) => (
-              <SubscriptionFilterChip
-                key={chip.id}
-                label={chip.label}
-                active={filter === chip.id}
-                flex
-                scale={scale}
-                onPress={() => setFilter(chip.id)}
-              />
-            ))}
-          </View>
-
           {visibleSubscriptions.length > 0 ? (
             <>
               <PickupBanner
@@ -733,7 +737,6 @@ const styles = StyleSheet.create({
     zIndex: 11,
     backgroundColor: SwashoColors.surface,
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
   },
   headerRow: {
@@ -756,6 +759,15 @@ const styles = StyleSheet.create({
   scroll: {
     flex: 1,
     width: '100%',
+  },
+  filterBar: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    zIndex: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: SwashoColors.surface,
   },
   filterRow: {
     flexDirection: 'row',

@@ -1,6 +1,8 @@
 import type { StyleProp, ViewStyle } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
+import CalendarBoldAddSvg from '@/assets/images/home/icons/calendar-bold-active.svg';
+
 type IconProps = {
   width: number;
   height: number;
@@ -102,6 +104,11 @@ const CalendarBoldIconXml = `<svg preserveAspectRatio="none" overflow="visible" 
 
 export function CalendarBoldIcon({ width, height, style }: IconProps) {
   return <SvgXml xml={CalendarBoldIconXml} width={width} height={height} style={style} />;
+}
+
+/** Figma NavBar Orders — Bold / Time / Calendar Add (20.884). */
+export function CalendarBoldAddIcon({ width, height, style }: IconProps) {
+  return <CalendarBoldAddSvg width={width} height={height} style={style} />;
 }
 
 const calendarLinearIconXml = (stroke: string) =>
