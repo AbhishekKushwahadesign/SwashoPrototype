@@ -1,6 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import AiDemoPickupNudgeArrowRight from '@/assets/checkout/ai-demo-pickup-nudge-arrow-right.svg';
 import AiDemoPickupNudgeBg from '@/assets/checkout/ai-demo-pickup-nudge-bg.svg';
+import AiDemoPickupNudgeSparkle from '@/assets/checkout/ai-demo-pickup-nudge-sparkle.svg';
 import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors } from '@/constants/swasho-tokens';
 import {
@@ -8,19 +10,13 @@ import {
   CHECKOUT_AI_DEMO_PICKUP_NUDGE_WIDTH,
 } from '@/lib/checkout-figma-layout';
 
-/** Figma 59230:3669 layout — message inset and Change control. */
-const MESSAGE_LEFT = 13.02;
-const MESSAGE_MAX_WIDTH = 266.789;
-const CHANGE_MIN_WIDTH = 60;
-const CHANGE_PADDING_H = 4;
-
 type CheckoutAiDemoPickupNudgeProps = {
   scale: number;
   cardWidth: number;
   onPress: () => void;
 };
 
-/** Shown above basket on review when arriving from Swasho AI Go to Cart. Figma 59230:3669. */
+/** Shown above basket on review when arriving from Swasho AI Go to Cart (Figma 59232:3709). */
 export function CheckoutAiDemoPickupNudge({ scale, cardWidth: _cardWidth, onPress }: CheckoutAiDemoPickupNudgeProps) {
   const width = CHECKOUT_AI_DEMO_PICKUP_NUDGE_WIDTH * scale;
   const height = CHECKOUT_AI_DEMO_PICKUP_NUDGE_HEIGHT * scale;
@@ -28,54 +24,104 @@ export function CheckoutAiDemoPickupNudge({ scale, cardWidth: _cardWidth, onPres
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel="Change pickup date, time, or subscription"
+      accessibilityLabel="Change pickup schedule"
       onPress={onPress}
-      style={({ pressed }) => [styles.root, { width, height, opacity: pressed ? 0.92 : 1 }]}>
+      style={({ pressed }) => [
+        styles.root,
+        {
+          width,
+          height,
+          opacity: pressed ? 0.92 : 1,
+        },
+      ]}>
       <View pointerEvents="none" style={StyleSheet.absoluteFill}>
         <AiDemoPickupNudgeBg width={width} height={height} />
       </View>
-      <View
-        style={[
-          styles.content,
-          {
-            paddingLeft: MESSAGE_LEFT * scale,
-            paddingRight: CHANGE_PADDING_H * scale,
-            minHeight: height,
-          },
-        ]}>
+
+      <View pointerEvents="none" style={StyleSheet.absoluteFill}>
         <Text
           style={[
             searchFont('semibold'),
             styles.message,
             {
-              fontSize: 13 * scale,
+              position: 'absolute',
+              left: 15.77 * scale,
+              top: 7.98 * scale,
+              fontSize: 14 * scale,
               lineHeight: 20 * scale,
               letterSpacing: 0.5 * scale,
-              maxWidth: MESSAGE_MAX_WIDTH * scale,
+              maxWidth: 335 * scale,
             },
           ]}>
-          We’ve selected the earliest available pickup for you.
+          We&apos;ve selected the earliest available pickup for you.
         </Text>
+
         <View
           style={[
-            styles.changeButton,
+            styles.changeRow,
             {
-              minWidth: CHANGE_MIN_WIDTH * scale,
-              paddingHorizontal: CHANGE_PADDING_H * scale,
+              position: 'absolute',
+              left: 12 * scale,
+              top: 31 * scale,
             },
           ]}>
-          <Text
+          <View
             style={[
-              searchFont('medium'),
-              styles.changeLabel,
+              styles.changeButton,
               {
-                fontSize: 14 * scale,
-                lineHeight: 12 * scale,
-                letterSpacing: 0.5 * scale,
+                minWidth: 60 * scale,
+                paddingHorizontal: 4 * scale,
+                height: 18 * scale,
               },
             ]}>
-            Change
-          </Text>
+            <Text
+              style={[
+                searchFont('medium'),
+                styles.changeLabel,
+                {
+                  fontSize: 14 * scale,
+                  lineHeight: 12 * scale,
+                  letterSpacing: 0.5 * scale,
+                },
+              ]}>
+              Change
+            </Text>
+          </View>
+          <AiDemoPickupNudgeArrowRight width={20 * scale} height={20 * scale} />
+        </View>
+      </View>
+
+      <View
+        pointerEvents="none"
+        style={[
+          styles.sparkleWrap,
+          {
+            left: 359.87 * scale,
+            top: height / 2,
+            width: 28.279 * scale,
+            height: 28.279 * scale,
+            marginTop: (-28.279 / 2) * scale,
+          },
+        ]}>
+        <View
+          style={[
+            styles.sparkleRotate,
+            {
+              width: 20 * scale,
+              height: 20 * scale,
+              borderRadius: 11 * scale,
+              transform: [{ rotate: '43.88deg' }],
+            },
+          ]}>
+          <AiDemoPickupNudgeSparkle
+            width={40 * scale}
+            height={40 * scale}
+            style={{
+              position: 'absolute',
+              left: -10 * scale,
+              top: -10 * scale,
+            }}
+          />
         </View>
       </View>
     </Pressable>
@@ -85,23 +131,34 @@ export function CheckoutAiDemoPickupNudge({ scale, cardWidth: _cardWidth, onPres
 const styles = StyleSheet.create({
   root: {
     alignSelf: 'center',
-    justifyContent: 'center',
-  },
-  content: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    overflow: 'visible',
   },
   message: {
-    flex: 1,
     color: SwashoColors.neutral50,
   },
+  changeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   changeButton: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
   },
   changeLabel: {
     color: SwashoColors.neutral50,
     textAlign: 'center',
+    flex: 1,
+  },
+  sparkleWrap: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sparkleRotate: {
+    backgroundColor: SwashoColors.surface,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
