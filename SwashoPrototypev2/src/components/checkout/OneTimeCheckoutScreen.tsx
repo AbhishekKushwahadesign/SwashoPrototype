@@ -12,7 +12,6 @@ import {
   buildUpcomingCheckoutDays,
   checkoutDayOptionFromKey,
   checkoutPlaceholderHref,
-  moveCheckoutDayToFront,
   subscriptionSubscribe2Href,
   CHECKOUT_PICKUP_TIME_SLOTS,
   providerPageHref,
@@ -97,15 +96,6 @@ export function OneTimeCheckoutScreen({
   const confirmLockRef = useRef(false);
   const subscribeNavigateLockRef = useRef(false);
   const [subscribeBannerAnimSession, setSubscribeBannerAnimSession] = useState(0);
-
-  const displayDays = useMemo(() => {
-    if (!selectedDayKey) {
-      return upcomingDays;
-    }
-    const fromList = upcomingDays.find((day) => day.key === selectedDayKey);
-    const selected = fromList ?? checkoutDayOptionFromKey(selectedDayKey);
-    return moveCheckoutDayToFront(upcomingDays, selected);
-  }, [selectedDayKey, upcomingDays]);
 
   useFocusEffect(
     useCallback(() => {
@@ -332,7 +322,7 @@ export function OneTimeCheckoutScreen({
                 Choose Pickup Day
               </Text>
               <CheckoutWeekdayScrollRow
-                days={displayDays}
+                days={upcomingDays}
                 selectedKey={selectedDayKey}
                 onSelectDay={handleWeekdaySelect}
                 scale={scale}
