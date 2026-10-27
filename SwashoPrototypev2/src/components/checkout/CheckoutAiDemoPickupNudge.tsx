@@ -10,6 +10,8 @@ import {
   CHECKOUT_AI_DEMO_PICKUP_NUDGE_WIDTH,
 } from '@/lib/checkout-figma-layout';
 
+const CONTENT_PADDING_LEFT = 15.77;
+const CONTENT_PADDING_RIGHT = 40;
 type CheckoutAiDemoPickupNudgeProps = {
   scale: number;
   cardWidth: number;
@@ -30,7 +32,7 @@ export function CheckoutAiDemoPickupNudge({ scale, cardWidth: _cardWidth, onPres
         styles.root,
         {
           width,
-          height,
+          minHeight: height,
           opacity: pressed ? 0.92 : 1,
         },
       ]}>
@@ -38,58 +40,42 @@ export function CheckoutAiDemoPickupNudge({ scale, cardWidth: _cardWidth, onPres
         <AiDemoPickupNudgeBg width={width} height={height} />
       </View>
 
-      <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+      <View
+        pointerEvents="none"
+        style={[
+          styles.contentRow,
+          {
+            minHeight: height,
+            paddingLeft: CONTENT_PADDING_LEFT * scale,
+            paddingRight: CONTENT_PADDING_RIGHT * scale,
+            gap: 8 * scale,
+          },
+        ]}>
         <Text
           style={[
             searchFont('semibold'),
             styles.message,
             {
-              position: 'absolute',
-              left: 15.77 * scale,
-              top: 7.98 * scale,
               fontSize: 14 * scale,
               lineHeight: 20 * scale,
               letterSpacing: 0.5 * scale,
-              maxWidth: 335 * scale,
             },
           ]}>
-          We’ve selected the earliest available pickup
-        </Text>
-
-        <View
-          style={[
-            styles.changeRow,
-            {
-              position: 'absolute',
-              left: 12 * scale,
-              top: 31 * scale,
-              gap: 6 * scale,
-            },
-          ]}>
-          <View
+          We’ve selected the earliest available pickup{' '}
+          <Text
             style={[
-              styles.changeButton,
+              searchFont('medium'),
+              styles.changeInline,
               {
-                minWidth: 60 * scale,
-                paddingHorizontal: 4 * scale,
-                height: 18 * scale,
+                fontSize: 14 * scale,
+                lineHeight: 20 * scale,
+                letterSpacing: 0.5 * scale,
               },
             ]}>
-            <Text
-              style={[
-                searchFont('medium'),
-                styles.changeLabel,
-                {
-                  fontSize: 14 * scale,
-                  lineHeight: 12 * scale,
-                  letterSpacing: 0.5 * scale,
-                },
-              ]}>
-              Change
-            </Text>
-          </View>
-          <AiDemoPickupNudgeArrowRight width={20 * scale} height={20 * scale} />
-        </View>
+            Change
+          </Text>
+        </Text>
+        <AiDemoPickupNudgeArrowRight width={20 * scale} height={20 * scale} />
       </View>
 
       <View
@@ -97,11 +83,10 @@ export function CheckoutAiDemoPickupNudge({ scale, cardWidth: _cardWidth, onPres
         style={[
           styles.sparkleWrap,
           {
-            left: 359.87 * scale,
-            top: height / 2,
+            right: 6 * scale,
+            top: (height - 28.279 * scale) / 2,
             width: 28.279 * scale,
             height: 28.279 * scale,
-            marginTop: (-28.279 / 2) * scale,
           },
         ]}>
         <View
@@ -132,24 +117,19 @@ export function CheckoutAiDemoPickupNudge({ scale, cardWidth: _cardWidth, onPres
 const styles = StyleSheet.create({
   root: {
     alignSelf: 'center',
-    overflow: 'visible',
-  },
-  message: {
-    color: SwashoColors.neutral50,
-  },
-  changeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  changeButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
   },
-  changeLabel: {
-    color: SwashoColors.neutral50,
-    textAlign: 'center',
+  contentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  message: {
     flex: 1,
+    flexShrink: 1,
+    color: SwashoColors.neutral50,
+  },
+  changeInline: {
+    color: SwashoColors.neutral50,
   },
   sparkleWrap: {
     position: 'absolute',
