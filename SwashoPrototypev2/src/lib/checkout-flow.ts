@@ -73,6 +73,13 @@ export type CheckoutDayOption = {
   dateLine: string;
 };
 
+function localDateKey(date: Date): string {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, '0');
+  const day = `${date.getDate()}`.padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 /** Upcoming calendar days for Figma 58965:2680 scroll row (starts today). */
 export function buildUpcomingCheckoutDays(count = 14): CheckoutDayOption[] {
   const start = new Date();
@@ -85,7 +92,7 @@ export function buildUpcomingCheckoutDays(count = 14): CheckoutDayOption[] {
     const weekdayId = WEEKDAY_ID_BY_JS_DAY[date.getDay()];
     const label = CHECKOUT_WEEKDAY_OPTIONS.find((day) => day.id === weekdayId)?.label ?? weekdayId;
     options.push({
-      key: date.toISOString().slice(0, 10),
+      key: localDateKey(date),
       weekdayId,
       label,
       dayOfMonth: date.getDate(),

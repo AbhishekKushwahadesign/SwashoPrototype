@@ -10,7 +10,9 @@ import { ServiceCheckbox } from '@/components/service-selection/ServiceCheckbox'
 import { useProviderCart } from '@/context/provider-cart-context';
 import {
   buildUpcomingCheckoutDays,
+  checkoutDayOptionFromKey,
   checkoutPlaceholderHref,
+  moveCheckoutDayToFront,
   subscriptionSubscribe2Href,
   CHECKOUT_PICKUP_TIME_SLOTS,
   providerPageHref,
@@ -64,7 +66,15 @@ export function OneTimeCheckoutScreen({
   );
 
   const upcomingDays = useMemo(() => buildUpcomingCheckoutDays(14), []);
-  const [weekday, setWeekday] = useState<CheckoutWeekdayId | null>(persisted.pickupWeekday ?? null);
+  const [weekday, setWeekday] = useState<CheckoutWeekdayId | null>(() => {
+    if (persisted.pickupWeekday) {
+      return persisted.pickupWeekday;
+    }
+    if (persisted.pickupDayKey) {
+      return checkoutDayOptionFromKey(persisted.pickupDayKey).weekdayId;
+    }
+    return null;
+  });
   const [selectedDayKey, setSelectedDayKey] = useState<string | null>(() => {
     if (persisted.pickupDayKey) {
       return persisted.pickupDayKey;
@@ -88,10 +98,44 @@ export function OneTimeCheckoutScreen({
   const subscribeNavigateLockRef = useRef(false);
   const [subscribeBannerAnimSession, setSubscribeBannerAnimSession] = useState(0);
 
+  const displayDays = useMemo(() => {
+    if (!selectedDayKey) {
+      return upcomingDays;
+    }
+    const fromList = upcomingDays.find((day) => day.key === selectedDayKey);
+    const selected = fromList ?? checkoutDayOptionFromKey(selectedDayKey);
+    return moveCheckoutDayToFront(upcomingDays, selected);
+  }, [selectedDayKey, upcomingDays]);
+
   useFocusEffect(
     useCallback(() => {
       setSubscribeBannerAnimSession((session) => session + 1);
-    }, []),
+      const latest = getCheckoutState(providerId);
+      if (latest.pickupDayKey) {
+        setSelectedDayKey(latest.pickupDayKey);
+        const fromList = upcomingDays.find((day) => day.key === latest.pickupDayKey);
+        setWeekday(
+          latest.pickupWeekday ??
+            fromList?.weekdayId ??
+            checkoutDayOptionFromKey(latest.pickupDayKey).weekdayId,
+        );
+      } else if (latest.pickupWeekday) {
+        setWeekday(latest.pickupWeekday);
+        const key = upcomingDays.find((day) => day.weekdayId === latest.pickupWeekday)?.key ?? null;
+        if (key) {
+          setSelectedDayKey(key);
+        }
+      }
+      if (latest.pickupTimeSlot) {
+        setPickupSlot(latest.pickupTimeSlot);
+      }
+      if (latest.deliverySameAsPickup != null) {
+        setDeliverySameAsPickup(latest.deliverySameAsPickup);
+      }
+      if (latest.deliveryTimeSlot != null) {
+        setDeliverySlot(latest.deliveryTimeSlot);
+      }
+    }, [getCheckoutState, providerId, upcomingDays]),
   );
 
   const handleBackPress = useCallback(() => {
@@ -288,7 +332,7 @@ export function OneTimeCheckoutScreen({
                 Choose Pickup Day
               </Text>
               <CheckoutWeekdayScrollRow
-                days={upcomingDays}
+                days={displayDays}
                 selectedKey={selectedDayKey}
                 onSelectDay={handleWeekdaySelect}
                 scale={scale}
