@@ -1,6 +1,6 @@
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   Easing,
   cancelAnimation,
@@ -28,9 +28,6 @@ import {
   checkoutPlaceholderHref,
   getNextPickupTimeSlot,
 } from '@/lib/checkout-flow';
-import { checkoutBasketItemCount } from '@/lib/build-checkout-basket';
-import { hasProviderCartSelection, type ProviderGarmentCartSelection } from '@/lib/provider-cart-selection';
-
 import { AnalyzingGradientStatusPill } from './AnalyzingGradientStatusPill';
 import { AiServiceRecommendedModal } from './AiServiceRecommendedModal';
 import { Image } from 'expo-image';
@@ -111,7 +108,7 @@ export function DemoGarmentAnalysisScreen() {
       });
 
       setRecommendationModalVisible(false);
-      router.push(
+      router.replace(
         checkoutPlaceholderHref(providerId, query, {
           scheduleConfirmed: true,
           fromAiDemo: true,
@@ -131,6 +128,12 @@ export function DemoGarmentAnalysisScreen() {
     ],
   );
 
+  useFocusEffect(
+    useCallback(() => {
+      goToCartLockRef.current = false;
+    }, []),
+  );
+
   const dismissRecommendationToDemoSelect = useCallback(() => {
     setRecommendationModalVisible(false);
     router.replace('/swasho-ai/demo-select');
@@ -141,26 +144,9 @@ export function DemoGarmentAnalysisScreen() {
       if (!scenario || quantity <= 0) {
         return;
       }
-      const providerId = SWASHO_AI_DEMO_PROVIDER_ID;
-      const existingEntries = getProviderCartEntries(providerId);
-      if (!providerCartHasItems(existingEntries)) {
-        commitGoToCart(scenario, quantity);
-        return;
-      }
-      Alert.alert(
-        'Replace cart?',
-        'Your Laundry Pro cart will be replaced with this AI recommendation.',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Replace',
-            style: 'destructive',
-            onPress: () => commitGoToCart(scenario, quantity),
-          },
-        ],
-      );
+      commitGoToCart(scenario, quantity);
     },
-    [commitGoToCart, getProviderCartEntries, scenario],
+    [commitGoToCart, scenario],
   );
 
   const layoutHeight = FIGMA_FRAME_HEIGHT * scale;
