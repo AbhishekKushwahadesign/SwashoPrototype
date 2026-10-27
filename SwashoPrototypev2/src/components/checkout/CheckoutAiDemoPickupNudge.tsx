@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import AiDemoPickupNudgeArrowRight from '@/assets/checkout/ai-demo-pickup-nudge-arrow-right.svg';
 import AiDemoPickupNudgeBg from '@/assets/checkout/ai-demo-pickup-nudge-bg.svg';
@@ -10,8 +10,13 @@ import {
   CHECKOUT_AI_DEMO_PICKUP_NUDGE_WIDTH,
 } from '@/lib/checkout-figma-layout';
 
-const CONTENT_PADDING_LEFT = 15.77;
-const CONTENT_PADDING_RIGHT = 40;
+/** Figma 59232:3709 — headline and Change row insets. */
+const HEADLINE_LEFT = 15.77;
+const HEADLINE_TOP = 7.98;
+const CHANGE_ROW_LEFT = 12;
+const CHANGE_ROW_TOP = 31;
+const SPARKLE_RESERVE = 44;
+
 type CheckoutAiDemoPickupNudgeProps = {
   scale: number;
   cardWidth: number;
@@ -22,6 +27,7 @@ type CheckoutAiDemoPickupNudgeProps = {
 export function CheckoutAiDemoPickupNudge({ scale, cardWidth: _cardWidth, onPress }: CheckoutAiDemoPickupNudgeProps) {
   const width = CHECKOUT_AI_DEMO_PICKUP_NUDGE_WIDTH * scale;
   const height = CHECKOUT_AI_DEMO_PICKUP_NUDGE_HEIGHT * scale;
+  const headlineMaxWidth = width - (HEADLINE_LEFT + SPARKLE_RESERVE) * scale;
 
   return (
     <Pressable
@@ -32,7 +38,7 @@ export function CheckoutAiDemoPickupNudge({ scale, cardWidth: _cardWidth, onPres
         styles.root,
         {
           width,
-          minHeight: height,
+          height,
           opacity: pressed ? 0.92 : 1,
         },
       ]}>
@@ -40,42 +46,61 @@ export function CheckoutAiDemoPickupNudge({ scale, cardWidth: _cardWidth, onPres
         <AiDemoPickupNudgeBg width={width} height={height} />
       </View>
 
-      <View
-        pointerEvents="none"
-        style={[
-          styles.contentRow,
-          {
-            minHeight: height,
-            paddingLeft: CONTENT_PADDING_LEFT * scale,
-            paddingRight: CONTENT_PADDING_RIGHT * scale,
-            gap: 8 * scale,
-          },
-        ]}>
+      <View pointerEvents="none" style={StyleSheet.absoluteFill}>
         <Text
+          numberOfLines={1}
+          ellipsizeMode="clip"
           style={[
             searchFont('semibold'),
-            styles.message,
+            styles.headline,
             {
+              position: 'absolute',
+              left: HEADLINE_LEFT * scale,
+              top: HEADLINE_TOP * scale,
+              maxWidth: headlineMaxWidth,
               fontSize: 14 * scale,
               lineHeight: 20 * scale,
               letterSpacing: 0.5 * scale,
+              ...(Platform.OS === 'web' ? ({ whiteSpace: 'nowrap' } as object) : null),
             },
           ]}>
-          We’ve selected the earliest available pickup{' '}
-          <Text
+          We’ve selected the earliest available pickup
+        </Text>
+
+        <View
+          style={[
+            styles.changeRow,
+            {
+              position: 'absolute',
+              left: CHANGE_ROW_LEFT * scale,
+              top: CHANGE_ROW_TOP * scale,
+              gap: 6 * scale,
+            },
+          ]}>
+          <View
             style={[
-              searchFont('medium'),
-              styles.changeInline,
+              styles.changeButton,
               {
-                fontSize: 14 * scale,
-                lineHeight: 20 * scale,
-                letterSpacing: 0.5 * scale,
+                minWidth: 60 * scale,
+                paddingHorizontal: 4 * scale,
+                height: 18 * scale,
               },
             ]}>
-            Change
-          </Text>
-        </Text>
-        <AiDemoPickupNudgeArrowRight width={20 * scale} height={20 * scale} />
+            <Text
+              style={[
+                searchFont('medium'),
+                styles.changeLabel,
+                {
+                  fontSize: 14 * scale,
+                  lineHeight: 12 * scale,
+                  letterSpacing: 0.5 * scale,
+                },
+              ]}>
+              Change
+            </Text>
+          </View>
+          <AiDemoPickupNudgeArrowRight width={20 * scale} height={20 * scale} />
+        </View>
       </View>
 
       <View
@@ -119,17 +144,20 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     justifyContent: 'center',
   },
-  contentRow: {
+  headline: {
+    color: SwashoColors.neutral50,
+  },
+  changeRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  message: {
-    flex: 1,
-    flexShrink: 1,
-    color: SwashoColors.neutral50,
+  changeButton: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  changeInline: {
+  changeLabel: {
     color: SwashoColors.neutral50,
+    textAlign: 'center',
   },
   sparkleWrap: {
     position: 'absolute',
