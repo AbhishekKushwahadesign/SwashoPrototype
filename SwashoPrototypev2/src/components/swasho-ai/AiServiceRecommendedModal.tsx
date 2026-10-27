@@ -219,6 +219,7 @@ export function AiServiceRecommendedModal({
                 paddingHorizontal: ((contentWidth - FIGMA_MODAL.contentWidth * designScale) / 2),
                 paddingBottom: 16 * designScale,
                 gap: FIGMA_MODAL.contentGap * designScale,
+                borderWidth: 0,
               }}
               showsVerticalScrollIndicator={false}>
               <View
@@ -472,42 +473,42 @@ export function AiServiceRecommendedModal({
                 </Text>
               </View>
             </ScrollView>
-          </View>
 
-          <View
-            style={[
-              styles.footerRow,
-              {
-                width: contentWidth,
-                gap: hasAddedService ? FIGMA_MODAL.footerGap * designScale : 0,
-                paddingHorizontal: footerHorizontalPadding,
-                paddingTop: 12 * designScale,
-                paddingBottom: Math.max(insets.bottom, 12 * designScale),
-              },
-            ]}>
-            <ServiceSelectionButton
-              label="Scan another"
-              variant="secondary"
-              scale={scale}
-              onPress={onScanAnother}
-              leadingIcon={
-                <RecommendationScannerIcon width={20 * scale} height={20 * scale} />
-              }
-              style={
-                hasAddedService
-                  ? { width: FIGMA_MODAL.footerButtonWidth * designScale, flex: 1 }
-                  : { width: '100%', flex: 1 }
-              }
-            />
-            {hasAddedService ? (
+            <View
+              style={[
+                styles.footerRow,
+                {
+                  width: contentWidth,
+                  gap: hasAddedService ? FIGMA_MODAL.footerGap * designScale : 0,
+                  paddingHorizontal: footerHorizontalPadding,
+                  paddingTop: 12 * designScale,
+                  paddingBottom: Math.max(insets.bottom, 12 * designScale),
+                },
+              ]}>
               <ServiceSelectionButton
-                label="Go to Cart"
-                variant="primary"
+                label="Scan another"
+                variant="secondary"
                 scale={scale}
-                onPress={() => onGoToCart(quantity)}
-                style={{ width: FIGMA_MODAL.footerButtonWidth * designScale, flex: 1 }}
+                onPress={onScanAnother}
+                leadingIcon={
+                  <RecommendationScannerIcon width={20 * scale} height={20 * scale} />
+                }
+                style={
+                  hasAddedService
+                    ? { width: FIGMA_MODAL.footerButtonWidth * designScale, flex: 1 }
+                    : { width: '100%', flex: 1 }
+                }
               />
-            ) : null}
+              {hasAddedService ? (
+                <ServiceSelectionButton
+                  label="Go to Cart"
+                  variant="primary"
+                  scale={scale}
+                  onPress={() => onGoToCart(quantity)}
+                  style={{ width: FIGMA_MODAL.footerButtonWidth * designScale, flex: 1 }}
+                />
+              ) : null}
+            </View>
           </View>
         </View>
       </View>
@@ -657,5 +658,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: SwashoColors.surface,
+    borderWidth: 0,
   },
 });
