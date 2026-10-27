@@ -17,16 +17,20 @@ const CHANGE_PADDING_H = 4;
 type CheckoutAiDemoPickupNudgeProps = {
   scale: number;
   cardWidth: number;
-  onDismiss: () => void;
+  onPress: () => void;
 };
 
 /** Shown above basket on review when arriving from Swasho AI Go to Cart. Figma 59230:3669. */
-export function CheckoutAiDemoPickupNudge({ scale, cardWidth: _cardWidth, onDismiss }: CheckoutAiDemoPickupNudgeProps) {
+export function CheckoutAiDemoPickupNudge({ scale, cardWidth: _cardWidth, onPress }: CheckoutAiDemoPickupNudgeProps) {
   const width = CHECKOUT_AI_DEMO_PICKUP_NUDGE_WIDTH * scale;
   const height = CHECKOUT_AI_DEMO_PICKUP_NUDGE_HEIGHT * scale;
 
   return (
-    <View style={[styles.root, { width, height }]}>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel="Change pickup date, time, or subscription"
+      onPress={onPress}
+      style={({ pressed }) => [styles.root, { width, height, opacity: pressed ? 0.92 : 1 }]}>
       <View pointerEvents="none" style={StyleSheet.absoluteFill}>
         <AiDemoPickupNudgeBg width={width} height={height} />
       </View>
@@ -52,16 +56,12 @@ export function CheckoutAiDemoPickupNudge({ scale, cardWidth: _cardWidth, onDism
           ]}>
           We’ve selected the earliest available pickup for you.
         </Text>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Dismiss pickup reminder"
-          onPress={onDismiss}
-          style={({ pressed }) => [
+        <View
+          style={[
             styles.changeButton,
             {
               minWidth: CHANGE_MIN_WIDTH * scale,
               paddingHorizontal: CHANGE_PADDING_H * scale,
-              opacity: pressed ? 0.88 : 1,
             },
           ]}>
           <Text
@@ -76,9 +76,9 @@ export function CheckoutAiDemoPickupNudge({ scale, cardWidth: _cardWidth, onDism
             ]}>
             Change
           </Text>
-        </Pressable>
+        </View>
       </View>
-    </View>
+    </Pressable>
   );
 }
 

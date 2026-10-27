@@ -705,11 +705,7 @@ export function CheckoutReviewScreen({
             />
 
             {aiDemoPickupNudgeVisible ? (
-              <CheckoutAiDemoPickupNudge
-                scale={scale}
-                cardWidth={cardWidth}
-                onDismiss={() => setAiDemoPickupNudgeVisible(false)}
-              />
+              <CheckoutAiDemoPickupNudge scale={scale} cardWidth={cardWidth} onPress={returnToSchedule} />
             ) : null}
 
             <BasketCard
