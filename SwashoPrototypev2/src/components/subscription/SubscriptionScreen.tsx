@@ -533,10 +533,10 @@ export function SubscriptionScreen() {
             {
               top: headerTop,
               height: HEADER_HEIGHT * scale,
-              paddingTop: 23.301 * scale,
-              paddingRight: 16.7767 * scale,
-              paddingLeft: 10 * scale,
-              paddingBottom: 9.32039 * scale,
+              paddingTop: 25 * scale,
+              paddingRight: 18 * scale,
+              paddingLeft: 17 * scale,
+              paddingBottom: 10 * scale,
               ...figmaShadow({ offsetX: 0, offsetY: 2, blur: 4, color: '#000000', opacity: 0.1 }, scale),
             },
           ]}>
