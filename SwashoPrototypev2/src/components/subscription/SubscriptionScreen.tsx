@@ -38,7 +38,15 @@ import { BillListIcon, VerticalRuleIcon } from './subscription-icons';
 const STATUS_BAR_HEIGHT = 32;
 /** Figma frame 3409:16955 is 101px tall; status bar occupies 32px → 69px toolbar block below it. */
 const HEADER_HEIGHT = 69;
+/** Figma Search filters (3409:16933) top edge. */
+const FILTER_BAR_TOP = 102;
 const FILTER_BAR_HEIGHT = 52;
+/** Scroll region begins where the filter bar ends (154px in the 412px frame). */
+const SCROLL_CONTENT_START_Y = FILTER_BAR_TOP + FILTER_BAR_HEIGHT;
+/** Pickup banner (3409:16943) y minus scroll start — filter bottom → banner top. */
+const SCROLL_PADDING_TOP_AFTER_FILTER = 11.884765625;
+/** Subscription card (3409:16868) y minus pickup banner bottom. */
+const SCROLL_SECTION_GAP = 11.837890625;
 const HOME_INDICATOR_HEIGHT = 24;
 const PAGE_BG = '#f2f2f2';
 const PICKUP_BANNER_BORDER = '#6155f5';
@@ -494,8 +502,8 @@ export function SubscriptionScreen() {
   const bottomChromeHeight = (101 + HOME_INDICATOR_HEIGHT) * scale;
   const bottomNavLift = NAV_BAR_BOTTOM_INSET * scale;
   const headerTop = STATUS_BAR_HEIGHT * scale;
-  const filterBarTop = headerTop + HEADER_HEIGHT * scale;
-  const scrollTop = filterBarTop + FILTER_BAR_HEIGHT * scale;
+  const filterBarTop = FILTER_BAR_TOP * scale;
+  const scrollTop = SCROLL_CONTENT_START_Y * scale;
 
   const visibleSubscriptions = useMemo(() => subscriptionsForFilter(filter), [filter]);
 
@@ -649,9 +657,9 @@ export function SubscriptionScreen() {
           style={[styles.scroll, { marginTop: scrollTop }]}
           contentContainerStyle={{
             paddingBottom: bottomChromeHeight + bottomNavLift + 24 * scale,
-            paddingTop: 8 * scale,
+            paddingTop: SCROLL_PADDING_TOP_AFTER_FILTER * scale,
             alignItems: 'center',
-            gap: 16 * scale,
+            gap: SCROLL_SECTION_GAP * scale,
           }}
           showsVerticalScrollIndicator={false}>
           {visibleSubscriptions.length > 0 ? (
