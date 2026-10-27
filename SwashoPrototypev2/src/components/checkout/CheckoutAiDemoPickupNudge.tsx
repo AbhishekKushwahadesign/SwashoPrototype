@@ -1,4 +1,4 @@
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import AiDemoPickupNudgeArrowRight from '@/assets/checkout/ai-demo-pickup-nudge-arrow-right.svg';
 import AiDemoPickupNudgeBg from '@/assets/checkout/ai-demo-pickup-nudge-bg.svg';
@@ -24,8 +24,8 @@ type CheckoutAiDemoPickupNudgeProps = {
 };
 
 /** Shown above basket on review when arriving from Swasho AI Go to Cart (Figma 59232:3709). */
-export function CheckoutAiDemoPickupNudge({ scale, cardWidth: _cardWidth, onPress }: CheckoutAiDemoPickupNudgeProps) {
-  const width = CHECKOUT_AI_DEMO_PICKUP_NUDGE_WIDTH * scale;
+export function CheckoutAiDemoPickupNudge({ scale, cardWidth, onPress }: CheckoutAiDemoPickupNudgeProps) {
+  const width = cardWidth > 0 ? cardWidth : CHECKOUT_AI_DEMO_PICKUP_NUDGE_WIDTH * scale;
   const height = CHECKOUT_AI_DEMO_PICKUP_NUDGE_HEIGHT * scale;
   const headlineMaxWidth = width - (HEADLINE_LEFT + SPARKLE_RESERVE) * scale;
 
@@ -48,8 +48,6 @@ export function CheckoutAiDemoPickupNudge({ scale, cardWidth: _cardWidth, onPres
 
       <View pointerEvents="none" style={StyleSheet.absoluteFill}>
         <Text
-          numberOfLines={1}
-          ellipsizeMode="clip"
           style={[
             searchFont('semibold'),
             styles.headline,
@@ -61,7 +59,6 @@ export function CheckoutAiDemoPickupNudge({ scale, cardWidth: _cardWidth, onPres
               fontSize: 14 * scale,
               lineHeight: 20 * scale,
               letterSpacing: 0.5 * scale,
-              ...(Platform.OS === 'web' ? ({ whiteSpace: 'nowrap' } as object) : null),
             },
           ]}>
           We’ve selected the earliest available pickup
@@ -146,6 +143,7 @@ const styles = StyleSheet.create({
   },
   headline: {
     color: SwashoColors.neutral50,
+    flexShrink: 1,
   },
   changeRow: {
     flexDirection: 'row',
