@@ -34,12 +34,23 @@ const FIGMA_MODAL = {
   sheetTop: 313,
   sheetHeight: 607,
   sheetRadius: 16,
-  contentTop: 28,
+  /** Figma 3415:17902 — sheet content inset from top (no drag handle). */
+  contentInsetTop: 22,
   closeChipHeight: 35,
   closeToSheetGap: 12,
   contentWidth: 372,
-  contentTop: 28,
+  /** Gap between detect card and recommendation block (3415:17902). */
   contentGap: 24,
+  /** 3415:17923 — service block vs provider block. */
+  recommendationSectionGap: 20,
+  /** 3415:17924 / 17931 — within service or provider sections. */
+  recommendationSubsectionGap: 16,
+  /** 3415:17930 — provider body vs tertiary button. */
+  providerFooterGap: 20,
+  /** 3415:17936 — provider name vs service/price group. */
+  providerDetailsGap: 14,
+  /** 3415:17939 — service title vs price. */
+  providerServiceLinesGap: 12,
   footerButtonWidth: 178,
   footerButtonHeight: 45,
   footerGap: 16,
@@ -204,7 +215,7 @@ export function AiServiceRecommendedModal({
             <ScrollView
               style={styles.scroll}
               contentContainerStyle={{
-                paddingTop: FIGMA_MODAL.contentTop * designScale,
+                paddingTop: FIGMA_MODAL.contentInsetTop * designScale,
                 paddingHorizontal: ((contentWidth - FIGMA_MODAL.contentWidth * designScale) / 2),
                 paddingBottom: 16 * designScale,
                 gap: FIGMA_MODAL.contentGap * designScale,
@@ -263,70 +274,80 @@ export function AiServiceRecommendedModal({
                 </View>
               </View>
 
-              <View style={{ gap: 16 * designScale }}>
-                <Text
-                  style={[
-                    searchFont('medium'),
-                    styles.sectionLabel,
-                    { fontSize: 16 * designScale, lineHeight: 14 * designScale, letterSpacing: 1 * designScale },
-                  ]}>
-                  AI Recommended Service
-                </Text>
-                <View style={[styles.serviceTitleRow, { gap: 4 * designScale }]}>
-                  <Text
-                    style={[
-                      searchFont('semibold'),
-                      styles.serviceTitle,
-                      {
-                        fontSize: 14 * designScale,
-                        lineHeight: 14 * designScale,
-                        letterSpacing: 0.5 * designScale,
-                      },
-                    ]}>
-                    {recommendation.modalServiceTitle}
-                  </Text>
-                  <View
-                    style={[
-                      styles.infoDot,
-                      {
-                        width: 20 * designScale,
-                        height: 20 * designScale,
-                        borderRadius: 10 * designScale,
-                      },
-                    ]}>
-                    <Text style={[searchFont('semibold'), { fontSize: 12 * designScale, color: SwashoColors.neutral600 }]}>
-                      i
-                    </Text>
-                  </View>
-                </View>
-                <View style={[styles.divider, { height: StyleSheet.hairlineWidth }]} />
-
-                <Text
-                  style={[
-                    searchFont('medium'),
-                    styles.sectionLabel,
-                    { fontSize: 16 * designScale, lineHeight: 14 * designScale, letterSpacing: 1 * designScale },
-                  ]}>
-                  Recommended provider
-                </Text>
-
-                <LinearGradient
-                  colors={['rgba(229, 243, 255, 0)', 'rgb(229, 243, 255)', 'rgba(229, 243, 255, 0)']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={[styles.expertBadge, { paddingVertical: 4 * designScale, paddingRight: 6 * designScale }]}>
+              <View style={{ gap: FIGMA_MODAL.recommendationSectionGap * designScale }}>
+                <View style={{ gap: FIGMA_MODAL.recommendationSubsectionGap * designScale }}>
                   <Text
                     style={[
                       searchFont('medium'),
-                      styles.expertBadgeText,
-                      { fontSize: 12 * designScale, lineHeight: 16 * designScale, letterSpacing: 1 * designScale },
+                      styles.sectionLabel,
+                      { fontSize: 16 * designScale, lineHeight: 14 * designScale, letterSpacing: 1 * designScale },
                     ]}>
-                    {recommendation.expertBadgeLabel}
+                    AI Recommended Service
                   </Text>
-                </LinearGradient>
+                  <View style={[styles.serviceTitleRow, { gap: 4 * designScale }]}>
+                    <Text
+                      style={[
+                        searchFont('semibold'),
+                        styles.serviceTitle,
+                        {
+                          fontSize: 14 * designScale,
+                          lineHeight: 14 * designScale,
+                          letterSpacing: 0.5 * designScale,
+                        },
+                      ]}>
+                      {recommendation.modalServiceTitle}
+                    </Text>
+                    <View
+                      style={[
+                        styles.infoDot,
+                        {
+                          width: 20 * designScale,
+                          height: 20 * designScale,
+                          borderRadius: 10 * designScale,
+                        },
+                      ]}>
+                      <Text
+                        style={[searchFont('semibold'), { fontSize: 12 * designScale, color: SwashoColors.neutral600 }]}>
+                        i
+                      </Text>
+                    </View>
+                  </View>
+                </View>
 
-                <View style={{ gap: 12 * designScale }}>
-                  <View style={{ flexDirection: 'row', gap: 20 * designScale, alignItems: 'flex-start' }}>
+                <View style={[styles.divider, { height: StyleSheet.hairlineWidth }]} />
+
+                <View
+                  style={{
+                    gap: FIGMA_MODAL.providerFooterGap * designScale,
+                    alignItems: 'center',
+                    width: '100%',
+                  }}>
+                  <View style={{ gap: FIGMA_MODAL.recommendationSubsectionGap * designScale, width: '100%' }}>
+                    <Text
+                      style={[
+                        searchFont('medium'),
+                        styles.sectionLabel,
+                        { fontSize: 16 * designScale, lineHeight: 14 * designScale, letterSpacing: 1 * designScale },
+                      ]}>
+                      Recommended provider
+                    </Text>
+
+                    <LinearGradient
+                      colors={['rgba(229, 243, 255, 0)', 'rgb(229, 243, 255)', 'rgba(229, 243, 255, 0)']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                      style={[styles.expertBadge, { paddingVertical: 4 * designScale, paddingRight: 6 * designScale }]}>
+                      <Text
+                        style={[
+                          searchFont('medium'),
+                          styles.expertBadgeText,
+                          { fontSize: 12 * designScale, lineHeight: 16 * designScale, letterSpacing: 1 * designScale },
+                        ]}>
+                        {recommendation.expertBadgeLabel}
+                      </Text>
+                    </LinearGradient>
+
+                    <View style={{ flexDirection: 'row', gap: 20 * designScale, alignItems: 'flex-start' }}>
                     <View style={{ width: 78 * designScale, alignItems: 'center' }}>
                       <View
                         style={{
@@ -380,52 +401,53 @@ export function AiServiceRecommendedModal({
                       </Text>
                     </View>
 
-                    <View style={{ flex: 1, gap: 14 * designScale, paddingTop: 4 * designScale }}>
+                    <View style={{ flex: 1, gap: FIGMA_MODAL.providerDetailsGap * designScale, paddingTop: 4 * designScale }}>
                       <Text
                         style={[
                           searchFont('medium'),
                           styles.providerName,
-                          { fontSize: 14 * designScale, lineHeight: 16 * designScale, letterSpacing: 0.5 * designScale },
+                          { fontSize: 14 * designScale, lineHeight: 12 * designScale, letterSpacing: 0.5 * designScale },
                         ]}>
                         {recommendation.providerName}
                       </Text>
-                      <Text
-                        style={[
-                          searchFont('semibold'),
-                          styles.providerService,
-                          { fontSize: 14 * designScale, lineHeight: 16 * designScale, letterSpacing: 0.5 * designScale },
-                        ]}>
-                        {recommendation.modalServiceTitle}
-                      </Text>
-                      <Text
-                        style={[
-                          searchFont('semibold'),
-                          styles.providerPrice,
-                          { fontSize: 14 * designScale, lineHeight: 16 * designScale, letterSpacing: 0.5 * designScale },
-                        ]}>
-                        ₹ {recommendation.providerPriceInr}
-                      </Text>
-                      {hasAddedService ? (
-                        <View style={{ alignSelf: 'flex-start' }}>
-                          <ServiceQuantitySelector
+                      <View style={{ gap: FIGMA_MODAL.providerServiceLinesGap * designScale, width: '100%' }}>
+                        <Text
+                          style={[
+                            searchFont('semibold'),
+                            styles.providerService,
+                            { fontSize: 14 * designScale, lineHeight: 14 * designScale, letterSpacing: 0.5 * designScale },
+                          ]}>
+                          {recommendation.modalServiceTitle}
+                        </Text>
+                        <Text
+                          style={[
+                            searchFont('semibold'),
+                            styles.providerPrice,
+                            { fontSize: 14 * designScale, lineHeight: 14 * designScale, letterSpacing: 0.5 * designScale },
+                          ]}>
+                          ₹ {recommendation.providerPriceInr}
+                        </Text>
+                        {hasAddedService ? (
+                          <View style={{ alignSelf: 'flex-start' }}>
+                            <ServiceQuantitySelector
+                              scale={designScale}
+                              value={quantity}
+                              min={0}
+                              onDecrement={() => setQuantity((current) => Math.max(0, current - 1))}
+                              onIncrement={() => setQuantity((current) => current + 1)}
+                            />
+                          </View>
+                        ) : (
+                          <ProviderRecommendAddButton
                             scale={designScale}
-                            value={quantity}
-                            min={0}
-                            onDecrement={() => setQuantity((current) => Math.max(0, current - 1))}
-                            onIncrement={() => setQuantity((current) => current + 1)}
+                            onPress={() => setQuantity(1)}
                           />
-                        </View>
-                      ) : (
-                        <ProviderRecommendAddButton
-                          scale={designScale}
-                          onPress={() => setQuantity(1)}
-                        />
-                      )}
+                        )}
+                      </View>
                     </View>
                   </View>
-                </View>
+                  </View>
 
-                <View style={{ width: '100%', alignItems: 'center' }}>
                   <ServiceSelectionButton
                     label="Show all providers"
                     variant="tertiary"

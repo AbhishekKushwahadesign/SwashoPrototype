@@ -355,7 +355,7 @@ export function DemoGarmentAnalysisScreen() {
         scenario={scenario}
         scale={scale}
         contentWidth={contentWidth}
-        onClose={() => setRecommendationModalVisible(false)}
+        onClose={dismissRecommendationToDemoSelect}
         onScanAnother={() => {
           setRecommendationModalVisible(false);
           router.replace('/swasho-ai/demo-select');
