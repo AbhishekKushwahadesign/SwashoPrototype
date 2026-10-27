@@ -369,7 +369,7 @@ function SubscriptionCard({
           label="Review Order"
           variant="accent"
           showTrailingIcon
-          trailingIcon="double-alt-arrow"
+          trailingIcon="review-order"
           scale={scale}
           onPress={() => onReviewOrder(subscription)}
         />
@@ -399,15 +399,26 @@ function PickupBanner({
           borderWidth: 1 * scale,
         },
       ]}>
-      <View
-        style={{
-          width: 33 * scale,
-          height: 30 * scale,
-          transform: [{ rotate: '7.3deg' }],
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}>
-        <Image source={riderImage} style={{ width: 32 * scale, height: 37 * scale }} contentFit="contain" />
+      <View style={{ width: 33.446 * scale, height: 29.624 * scale, overflow: 'visible' }}>
+        <View
+          style={{
+            position: 'absolute',
+            left: 0.66 * scale,
+            top: -7.45 * scale,
+            width: 35.449 * scale,
+            height: 39.859 * scale,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <View
+            style={{
+              width: 28.841 * scale,
+              height: 34.581 * scale,
+              transform: [{ rotate: '-12.1deg' }],
+            }}>
+            <Image source={riderImage} style={{ width: '100%', height: '100%' }} contentFit="contain" />
+          </View>
+        </View>
       </View>
       <View style={[styles.pickupBannerContent, { gap: 8 * scale }]}>
         <View style={{ flex: 1, gap: 8 * scale }}>
@@ -440,7 +451,7 @@ function PickupBanner({
           label="Review Order"
           variant="accent"
           showTrailingIcon
-          trailingIcon="double-alt-arrow"
+          trailingIcon="review-order"
           scale={scale}
           onPress={() => onReviewOrder(subscription)}
         />
@@ -500,8 +511,10 @@ export function SubscriptionScreen() {
             {
               top: headerTop,
               height: HEADER_HEIGHT * scale,
-              paddingHorizontal: 17 * scale,
-              paddingTop: 25 * scale,
+              paddingTop: 23.3 * scale,
+              paddingRight: 15.8447 * scale,
+              paddingLeft: 8 * scale,
+              paddingBottom: 0,
               ...figmaShadow({ offsetX: 0, offsetY: 2, blur: 4, color: '#000000', opacity: 0.1 }, scale),
             },
           ]}>

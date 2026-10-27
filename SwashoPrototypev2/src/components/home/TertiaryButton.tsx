@@ -1,16 +1,24 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { ReviewOrderArrowIcon } from '@/components/subscription/subscription-icons';
+import { DoubleAltArrowRightIcon } from '@/components/service-selection/service-selection-icons';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
-import { DoubleAltArrowRightIcon } from '@/components/service-selection/service-selection-icons';
-
 import { AltArrowRightIcon, ArrowRightIcon } from './figma-icons';
+
+function ReviewOrderTrailingIcon({ scale }: { scale: number }) {
+  return (
+    <View style={{ width: 20 * scale, height: 20 * scale }}>
+      <ReviewOrderArrowIcon width={20 * scale} height={20 * scale} />
+    </View>
+  );
+}
 
 type TertiaryButtonProps = {
   label: string;
   variant?: 'filled' | 'text' | 'accent';
   showTrailingIcon?: boolean;
-  trailingIcon?: 'arrow' | 'alt-arrow' | 'double-alt-arrow';
+  trailingIcon?: 'arrow' | 'alt-arrow' | 'double-alt-arrow' | 'review-order';
   onPress?: () => void;
   scale: number;
 };
@@ -30,7 +38,9 @@ export function TertiaryButton({
       ? DoubleAltArrowRightIcon
       : trailingIcon === 'alt-arrow'
         ? AltArrowRightIcon
-        : ArrowRightIcon;
+        : trailingIcon === 'review-order'
+          ? null
+          : ArrowRightIcon;
 
   return (
     <Pressable
@@ -59,11 +69,13 @@ export function TertiaryButton({
         ]}>
         {label}
       </Text>
-      {showTrailingIcon && (
+      {showTrailingIcon && trailingIcon === 'review-order' ? (
+        <ReviewOrderTrailingIcon scale={scale} />
+      ) : showTrailingIcon && Icon ? (
         <View style={{ width: 20 * scale, height: 20 * scale }}>
           <Icon width={20 * scale} height={20 * scale} />
         </View>
-      )}
+      ) : null}
     </Pressable>
   );
 }

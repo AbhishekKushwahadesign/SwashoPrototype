@@ -1,6 +1,7 @@
 import { SvgXml } from 'react-native-svg';
 
 import BillListSvg from '@/assets/images/subscription/bill-list.svg';
+import ReviewOrderArrowSvg from '@/assets/images/subscription/review-order-arrow.svg';
 
 type IconProps = {
   width: number;
@@ -9,6 +10,11 @@ type IconProps = {
 
 export function BillListIcon({ width, height }: IconProps) {
   return <BillListSvg width={width} height={height} />;
+}
+
+/** Figma tertiary “Review Order” trailing icon (3409:16954). */
+export function ReviewOrderArrowIcon({ width, height }: IconProps) {
+  return <ReviewOrderArrowSvg width={width} height={height} />;
 }
 
 const verticalRuleXml = `<svg width="1" height="18" viewBox="0 0 1 18" fill="none" xmlns="http://www.w3.org/2000/svg">
