@@ -153,7 +153,7 @@ function ServiceTile({
         </View>
       </View>
       {showDividerAfter ? (
-        <View style={{ width: 1 * scale, height: 74.744 * scale, backgroundColor: SwashoColors.neutral300 }} />
+        <View style={{ width: 1 * scale, height: 74.744 * scale, backgroundColor: SwashoColors.neutral200 }} />
       ) : null}
     </>
   );
