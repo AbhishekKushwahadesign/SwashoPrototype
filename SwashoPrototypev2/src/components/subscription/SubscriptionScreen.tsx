@@ -31,7 +31,7 @@ import {
   type SubscriptionGarmentLine,
   type SubscriptionSummary,
 } from '@/data/subscriptions';
-import { checkoutPlaceholderHref } from '@/lib/checkout-flow';
+import { subscriptionOrderReviewHrefFromSummary } from '@/lib/subscription-order-review-flow';
 
 import { BillListIcon, VerticalRuleIcon } from './subscription-icons';
 
@@ -516,12 +516,7 @@ export function SubscriptionScreen() {
   }, []);
 
   const handleReviewOrder = useCallback((item: SubscriptionSummary) => {
-    router.push(
-      checkoutPlaceholderHref(item.providerId, item.searchQuery, {
-        subscription: true,
-        scheduleConfirmed: true,
-      }),
-    );
+    router.push(subscriptionOrderReviewHrefFromSummary(item));
   }, []);
 
   return (
