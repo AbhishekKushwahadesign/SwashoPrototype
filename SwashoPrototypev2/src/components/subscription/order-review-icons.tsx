@@ -23,11 +23,12 @@ export function OrderReviewMapPointIcon({ width, height, style }: IconProps) {
   return svgIcon(mapPointXml, { width, height, style });
 }
 
-/** Figma 3409:17169 — Linear / Time / History 2. */
+/** Figma 3409:17169 — Linear / Time / History 2 (dashed arc + counter-clockwise hand). */
 const historyXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g id="Linear / Time / History 2">
-<path id="Vector" d="M10 18.3333C14.6024 18.3333 18.3333 14.6024 18.3333 10C18.3333 5.39763 14.6024 1.66667 10 1.66667C5.39763 1.66667 1.66667 5.39763 1.66667 10C1.66667 14.6024 5.39763 18.3333 10 18.3333Z" stroke="#656565" stroke-width="1.25"/>
-<path id="Vector_2" d="M10 5.83333V10L12.9167 12.9167" stroke="#656565" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector" d="M1.66667 10C1.66667 14.6024 5.39763 18.3333 10 18.3333C14.6024 18.3333 18.3333 14.6024 18.3333 10C18.3333 5.39763 14.6024 1.66667 10 1.66667" stroke-width="1.25" stroke-linecap="round" stroke="#656565"/>
+<path id="Vector_2" d="M10 7.5V10.8333H13.3333" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" stroke="#656565"/>
+<circle id="Vector_3" cx="10" cy="10" r="8.33333" stroke="#656565" stroke-width="1.25" stroke-linecap="round" stroke-dasharray="0.42 2.92"/>
 </g>
 </svg>`;
 
