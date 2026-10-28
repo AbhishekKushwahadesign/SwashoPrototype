@@ -44,7 +44,7 @@ export type SubscriptionUpcomingOrder = {
 const washFoldThumb = require('@/assets/subscription/order-review/service-wash-fold.png');
 const dryCleanThumb = require('@/assets/subscription/order-review/service-dry-cleaning.png');
 const dryCleanIronThumb = require('@/assets/subscription/order-review/service-dry-clean-iron.png');
-const laundryChipThumb = require('@/assets/checkout/contactless-workflow-upload.png');
+const laundryChipThumb = require('@/assets/subscription/order-review/laundry-detergent-chip.png');
 
 /** Figma 3409:16981 — upcoming order for prototype subscription #9632. */
 export const DEMO_UPCOMING_ORDER: SubscriptionUpcomingOrder = {
