@@ -53,7 +53,8 @@ const STATUS_BAR_HEIGHT = 32;
 const HEADER_HEIGHT = 69;
 const HEADER_TOTAL = 101;
 const POLICY_ROW_HEIGHT = 28;
-const SCROLL_TOP = HEADER_TOTAL + POLICY_ROW_HEIGHT;
+/** Scroll begins below fixed header; policy banner scrolls with content. */
+const SCROLL_TOP = HEADER_TOTAL;
 const HOME_INDICATOR_HEIGHT = 24;
 const BOTTOM_ACTIONS_HEIGHT = 98;
 const PAGE_BG = '#f2f2f2';
@@ -312,33 +313,6 @@ export function OrderReviewScreen() {
           </Pressable>
         </View>
 
-        <View
-          style={[
-            styles.policyRow,
-            {
-              top: HEADER_TOTAL * scale,
-              height: POLICY_ROW_HEIGHT * scale,
-              gap: 6 * scale,
-              paddingHorizontal: 12 * scale,
-            },
-          ]}>
-          <OrderReviewHistoryIcon width={20 * scale} height={20 * scale} />
-          <Text
-            style={[
-              searchFont('semibold'),
-              {
-                fontSize: 12 * scale,
-                lineHeight: 20 * scale,
-                letterSpacing: 0.5 * scale,
-                color: SwashoColors.neutral600,
-                flexShrink: 1,
-                textAlign: 'center',
-              },
-            ]}>
-            Changes allowed until 2 hours before pickup
-          </Text>
-        </View>
-
         <ScrollView
           style={[styles.scroll, { marginTop: SCROLL_TOP * scale }]}
           contentContainerStyle={{
@@ -348,6 +322,32 @@ export function OrderReviewScreen() {
             paddingBottom: bottomInset + 16 * scale,
           }}
           showsVerticalScrollIndicator={false}>
+          <View
+            style={[
+              styles.policyRow,
+              {
+                width: '100%',
+                minHeight: POLICY_ROW_HEIGHT * scale,
+                gap: 6 * scale,
+                paddingHorizontal: 12 * scale,
+              },
+            ]}>
+            <OrderReviewHistoryIcon width={20 * scale} height={20 * scale} />
+            <Text
+              style={[
+                searchFont('semibold'),
+                {
+                  fontSize: 12 * scale,
+                  lineHeight: 20 * scale,
+                  letterSpacing: 0.5 * scale,
+                  color: SwashoColors.neutral600,
+                  flexShrink: 1,
+                  textAlign: 'center',
+                },
+              ]}>
+              Changes allowed until 2 hours before pickup
+            </Text>
+          </View>
           {/* Address + schedule card */}
           <View
             style={[
@@ -989,13 +989,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   policyRow: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    zIndex: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    alignSelf: 'stretch',
   },
   scroll: {
     flex: 1,
