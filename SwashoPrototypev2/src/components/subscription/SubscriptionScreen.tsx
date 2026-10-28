@@ -45,8 +45,8 @@ const FILTER_BAR_HEIGHT = 52;
 const SCROLL_CONTENT_START_Y = FILTER_BAR_TOP + FILTER_BAR_HEIGHT;
 /** Pickup banner (3409:16943) y minus scroll start — filter bottom → banner top. */
 const SCROLL_PADDING_TOP_AFTER_FILTER = 11.884765625;
-/** Subscription card (3409:16868) y minus pickup banner bottom. */
-const SCROLL_SECTION_GAP = 11.837890625;
+/** Vertical gap between pickup banner and subscription card (design: 12px). */
+const SCROLL_SECTION_GAP = 12;
 const HOME_INDICATOR_HEIGHT = 24;
 const PAGE_BG = '#f2f2f2';
 const PICKUP_BANNER_BORDER = '#6155f5';
