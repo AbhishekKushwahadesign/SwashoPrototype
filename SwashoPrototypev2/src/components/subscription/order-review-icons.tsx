@@ -36,8 +36,8 @@ export function OrderReviewHistoryIcon({ width, height, style }: IconProps) {
 }
 
 /** Small check for contactless “Enabled” row (Figma 3409:17014). */
-const enabledCheckXml = `<svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M1 4L4.5 7L11 1" stroke="#22C55E" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+const enabledCheckXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="13.1018" height="9.54534" viewBox="0 0 13.1018 9.54534" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M1 5.81719L3.4351 8.25243C3.82563 8.64297 4.45881 8.64298 4.84934 8.25245L12.1018 1" stroke="#16a34a" stroke-width="2" stroke-linecap="round"/>
 </svg>`;
 
 export function OrderReviewEnabledCheckIcon({ width, height, style }: IconProps) {

@@ -3,7 +3,6 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import {
   Image as RNImage,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -239,7 +238,7 @@ function GarmentBasketBlock({
 
 export function OrderReviewScreen() {
   const { subscriptionId } = useLocalSearchParams<{ subscriptionId?: string }>();
-  const { scale, contentWidth, contentHeight } = useScreenScale();
+  const { scale, contentWidth } = useScreenScale();
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
 
@@ -254,7 +253,6 @@ export function OrderReviewScreen() {
     [instructionTab, order.deliveryInstructionIds, order.pickupInstructionIds],
   );
 
-  const frameHeight = contentHeight + safeTop;
   const cardWidth = 390 * scale;
   const bottomInset = BOTTOM_ACTIONS_HEIGHT * scale + HOME_INDICATOR_HEIGHT * scale + insets.bottom;
 
@@ -271,16 +269,8 @@ export function OrderReviewScreen() {
   }, [handleBack]);
 
   return (
-    <View style={[styles.root, { backgroundColor: PAGE_BG }]}>
-      <View
-        style={[
-          styles.frame,
-          {
-            width: contentWidth,
-            height: frameHeight,
-            marginTop: safeTop,
-          },
-        ]}>
+    <View style={[styles.root, { backgroundColor: PAGE_BG, paddingTop: safeTop }]}>
+      <View style={[styles.frame, { width: contentWidth }]}>
         <View style={[styles.statusBar, { height: STATUS_BAR_HEIGHT * scale }]}>
           <StatusBar scale={scale} tone="transparent" />
         </View>
@@ -493,7 +483,7 @@ export function OrderReviewScreen() {
                     Contactless Pickup
                   </Text>
                   <View style={[styles.row, { gap: 8 * scale, alignItems: 'center' }]}>
-                    <OrderReviewEnabledCheckIcon width={12 * scale} height={8 * scale} />
+                    <OrderReviewEnabledCheckIcon width={11.102 * scale} height={7.96 * scale} />
                     <Text
                       style={[
                         searchFont('medium'),
@@ -519,7 +509,7 @@ export function OrderReviewScreen() {
                       },
                     ]}>
                     <Image
-                      source={require('@/assets/checkout/contactless-workflow-pickup.png')}
+                      source={require('@/assets/subscription/order-review/contactless-security-guard.png')}
                       style={{ width: 20 * scale, height: 20 * scale }}
                       contentFit="cover"
                     />
@@ -908,45 +898,58 @@ export function OrderReviewScreen() {
           style={[
             styles.bottomBar,
             {
-              height: BOTTOM_ACTIONS_HEIGHT * scale + HOME_INDICATOR_HEIGHT * scale,
+              bottom: HOME_INDICATOR_HEIGHT * scale,
+              height: BOTTOM_ACTIONS_HEIGHT * scale,
               paddingTop: 8 * scale,
-              paddingBottom: HOME_INDICATOR_HEIGHT * scale,
               ...figmaShadow({ offsetX: 0, offsetY: -2, blur: 8, color: '#000000', opacity: 0.08 }, scale),
             },
           ]}>
-          <Text
+          <View style={{ width: 372 * scale, paddingHorizontal: 4 * scale, alignItems: 'center' }}>
+            <Text
+              style={[
+                searchFont('regular'),
+                {
+                  fontSize: 12 * scale,
+                  lineHeight: 16 * scale,
+                  letterSpacing: 0.5 * scale,
+                  color: SwashoColors.neutral600,
+                  textAlign: 'center',
+                },
+              ]}>
+              Changes will only apply to this order
+            </Text>
+          </View>
+          <View
             style={[
-              searchFont('regular'),
+              styles.row,
               {
-                fontSize: 12 * scale,
-                lineHeight: 16 * scale,
-                letterSpacing: 0.5 * scale,
-                color: SwashoColors.neutral600,
-                textAlign: 'center',
-                marginBottom: 8 * scale,
+                flex: 1,
+                gap: 16 * scale,
+                paddingHorizontal: 10 * scale,
+                paddingVertical: 10 * scale,
+                justifyContent: 'center',
+                alignItems: 'center',
               },
             ]}>
-            Changes will only apply to this order
-          </Text>
-          <View style={[styles.row, { gap: 16 * scale, paddingHorizontal: 10 * scale, justifyContent: 'center' }]}>
             <ServiceSelectionButton
               label="Skip Pickup"
               variant="secondary"
               scale={scale}
-              style={{ width: 175 * scale }}
+              style={{ width: 175 * scale, minHeight: 45 * scale }}
               onPress={() => {}}
             />
             <ServiceSelectionButton
               label="Looks Good"
               variant="primary"
               scale={scale}
-              style={{ width: 175 * scale }}
+              style={{ width: 175 * scale, minHeight: 45 * scale }}
               onPress={handleLooksGood}
             />
           </View>
-          <View style={styles.homeIndicatorWrap} pointerEvents="none">
-            <HomeIndicator scale={scale} />
-          </View>
+        </View>
+
+        <View style={styles.homeIndicatorWrap} pointerEvents="none">
+          <HomeIndicator scale={scale} />
         </View>
       </View>
     </View>
@@ -959,13 +962,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   frame: {
+    flex: 1,
     backgroundColor: PAGE_BG,
     overflow: 'hidden',
-    ...Platform.select({
-      web: {
-        maxHeight: 1000,
-      },
-    }),
   },
   statusBar: {
     position: 'absolute',

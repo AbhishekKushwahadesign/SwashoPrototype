@@ -41,8 +41,9 @@ export type SubscriptionUpcomingOrder = {
   estimatedBillInr: number;
 };
 
-const washFoldThumb = require('@/assets/images/home/wash-fold.png');
-const dryCleanThumb = require('@/assets/images/home/dry-cleaning.png');
+const washFoldThumb = require('@/assets/subscription/order-review/service-wash-fold.png');
+const dryCleanThumb = require('@/assets/subscription/order-review/service-dry-cleaning.png');
+const dryCleanIronThumb = require('@/assets/subscription/order-review/service-dry-clean-iron.png');
 const laundryChipThumb = require('@/assets/checkout/contactless-workflow-upload.png');
 
 /** Figma 3409:16981 — upcoming order for prototype subscription #9632. */
@@ -87,14 +88,14 @@ export const DEMO_UPCOMING_ORDER: SubscriptionUpcomingOrder = {
           id: 'or-g1-s2',
           serviceName: 'Dry Cleaning',
           itemCount: 2,
-          useGalleryPlaceholder: true,
+          photo: dryCleanThumb,
         },
         {
           id: 'or-g1-s3',
           serviceName: 'Dry Cleaning',
           serviceNameSuffix: '+ Iron',
           itemCount: 2,
-          photo: dryCleanThumb,
+          photo: dryCleanIronThumb,
         },
       ],
     },
@@ -129,7 +130,7 @@ export const DEMO_UPCOMING_ORDER: SubscriptionUpcomingOrder = {
           serviceName: 'Dry Cleaning',
           serviceNameSuffix: '+ Iron',
           itemCount: 2,
-          photo: dryCleanThumb,
+          photo: dryCleanIronThumb,
         },
       ],
     },
@@ -143,7 +144,7 @@ export const DEMO_UPCOMING_ORDER: SubscriptionUpcomingOrder = {
           id: 'or-g4-s1',
           serviceName: 'Dry Cleaning',
           itemCount: 2,
-          useGalleryPlaceholder: true,
+          photo: dryCleanThumb,
         },
       ],
     },
