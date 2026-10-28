@@ -341,7 +341,8 @@ export function OrderReviewScreen() {
                 lineHeight: 20 * scale,
                 letterSpacing: 0.5 * scale,
                 color: SwashoColors.neutral600,
-                flex: 1,
+                flexShrink: 1,
+                textAlign: 'center',
               },
             ]}>
             Changes allowed until 2 hours before pickup
