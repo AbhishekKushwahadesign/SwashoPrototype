@@ -167,7 +167,7 @@ function LineItemRow({ item, scale, showDividerAfter }: { item: PastOrderLineIte
   if (item.kind === 'extra_garments') {
     return (
       <View style={{ width: '100%', gap: 12 * scale }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12 * scale }}>
           <View style={{ width: 75 * scale, height: 33 * scale, position: 'relative' }}>
             {[0, 20.76, 41.52].map((left, index) => (
               <View
@@ -457,7 +457,7 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
 
       <CheckoutSectionDivider width={innerWidth} scale={scale} />
 
-      <View style={{ width: innerWidth, gap: 12 * scale }}>
+      <View style={{ width: innerWidth, gap: 12 * scale, padding: 12 * scale }}>
         {order.lineItems.map((line, index) => (
           <LineItemRow
             key={line.id}
@@ -476,7 +476,8 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
           flexDirection: 'row',
           alignItems: 'flex-start',
           justifyContent: 'space-between',
-          paddingRight: 4 * scale,
+          paddingTop: 12 * scale,
+          paddingLeft: 12 * scale,
         }}>
         <View style={{ gap: 8 * scale, maxWidth: 89 * scale }}>
           <Text
