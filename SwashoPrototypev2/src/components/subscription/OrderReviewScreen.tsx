@@ -330,6 +330,7 @@ export function OrderReviewScreen() {
                 minHeight: POLICY_ROW_HEIGHT * scale,
                 gap: 6 * scale,
                 paddingHorizontal: 12 * scale,
+                paddingTop: 4 * scale,
               },
             ]}>
             <OrderReviewHistoryIcon width={20 * scale} height={20 * scale} />
