@@ -442,7 +442,9 @@ export function HomeScreen() {
                 router.replace('/');
               }}
               onSubscriptionPress={() => router.push('/subscription')}
-              onSwashoAiPress={() => router.push('/swasho-ai')}
+              onSwashoAiPress={() =>
+                router.push({ pathname: '/swasho-ai', params: { returnTo: '/' } })
+              }
             />
             <View style={styles.homeIndicatorWrap}>
               <HomeIndicator scale={scale} />

@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
-import { useCallback, useState, type ReactNode } from 'react';
+import { Href, Link, router, useLocalSearchParams } from 'expo-router';
+import { useMemo, useState, type ReactNode } from 'react';
 import {
   Platform,
   Pressable,
@@ -40,6 +40,14 @@ const FIGMA_CONTENT_WIDTH = 372;
 const FIGMA_CHIPS_WIDTH = 451;
 const FIGMA_HORIZONTAL_INSET = 20;
 
+function resolveReturnToHref(value: string | string[] | undefined): Href {
+  const raw = Array.isArray(value) ? value[0] : value;
+  if (raw && raw.startsWith('/')) {
+    return raw as Href;
+  }
+  return '/';
+}
+
 const FEATURE_BULLETS = [
   'Recommend the best service for your garment',
   'Reschedule, skip, or cancel orders and subscriptions',
@@ -68,11 +76,30 @@ function CircleIconButton({
 }) {
   const hitSize = 36 * scale;
 
+  if (!onPress) {
+    return (
+      <View
+        accessibilityLabel={accessibilityLabel}
+        style={[
+          styles.circleButton,
+          {
+            width: hitSize,
+            height: hitSize,
+            padding: 6 * scale,
+            borderRadius: 9999 * scale,
+            zIndex: 20,
+          },
+          style,
+        ]}>
+        {children}
+      </View>
+    );
+  }
+
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      disabled={!onPress}
       onPress={onPress}
       hitSlop={8}
       style={[
@@ -95,6 +122,8 @@ export function SwashoAIScreen() {
   const { scale, contentWidth } = useScreenScale();
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
+  const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
+  const backHref = useMemo(() => resolveReturnToHref(returnTo), [returnTo]);
   const [draft, setDraft] = useState('');
 
   const layoutHeight = FIGMA_FRAME_HEIGHT * scale;
@@ -111,14 +140,6 @@ export function SwashoAIScreen() {
   const applySuggestion = (label: string) => {
     setDraft(label);
   };
-
-  const handleBack = useCallback(() => {
-    if (router.canGoBack()) {
-      router.back();
-      return;
-    }
-    router.replace('/');
-  }, []);
 
   return (
     <View style={[styles.root, { backgroundColor: SwashoColors.surface }]}>
@@ -382,17 +403,28 @@ export function SwashoAIScreen() {
         <View
           style={[styles.headerRow, { height: scrollTop }]}
           pointerEvents="box-none">
-          <CircleIconButton
-            scale={scale}
-            accessibilityLabel="Go back"
-            onPress={handleBack}
-            style={{
-              position: 'absolute',
-              left: FIGMA_HORIZONTAL_INSET * scale,
-              top: figmaY(FIGMA_HEADER_BUTTON_TOP),
-            }}>
-            <ArrowLeftIcon width={24 * scale} height={24 * scale} />
-          </CircleIconButton>
+          <Link href={backHref} replace asChild>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
+              onPress={() => router.replace(backHref)}
+              hitSlop={8}
+              style={[
+                styles.circleButton,
+                {
+                  position: 'absolute',
+                  left: FIGMA_HORIZONTAL_INSET * scale,
+                  top: figmaY(FIGMA_HEADER_BUTTON_TOP),
+                  width: 36 * scale,
+                  height: 36 * scale,
+                  padding: 6 * scale,
+                  borderRadius: 9999 * scale,
+                  zIndex: 21,
+                },
+              ]}>
+              <ArrowLeftIcon width={24 * scale} height={24 * scale} />
+            </Pressable>
+          </Link>
 
           <CircleIconButton
             scale={scale}
