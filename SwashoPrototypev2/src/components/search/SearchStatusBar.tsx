@@ -5,6 +5,7 @@ import { SwashoFonts } from '@/constants/swasho-tokens';
 
 type SearchStatusBarProps = {
   scale: number;
+  backgroundColor?: string;
 };
 
 const ICON_COLOR = '#333333';
@@ -42,14 +43,19 @@ function BatteryIcon({ size }: { size: number }) {
   );
 }
 
-export function SearchStatusBar({ scale }: SearchStatusBarProps) {
+export function SearchStatusBar({ scale, backgroundColor = '#f5f5f5' }: SearchStatusBarProps) {
   const iconSize = 16 * scale;
 
   return (
     <View
       style={[
         styles.container,
-        { height: 32 * scale, paddingHorizontal: 8 * scale, paddingVertical: 4 * scale },
+        {
+          height: 32 * scale,
+          paddingHorizontal: 8 * scale,
+          paddingVertical: 4 * scale,
+          backgroundColor,
+        },
       ]}>
       <Text style={[styles.time, { fontSize: 12 * scale }]}>11:07</Text>
       <View style={[styles.icons, { gap: 4 * scale }]}>
@@ -63,7 +69,6 @@ export function SearchStatusBar({ scale }: SearchStatusBarProps) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#f5f5f5',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

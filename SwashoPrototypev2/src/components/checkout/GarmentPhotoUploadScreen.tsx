@@ -8,6 +8,7 @@ import {
   type ReactNode,
   type RefObject,
 } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
 import {
   Image,
   LayoutChangeEvent,
@@ -49,6 +50,9 @@ import { demoGarmentPhotoUriForSlot } from '@/lib/demo-garment-photo-uri';
 const DEFAULT_GARMENT_HERO = require('@/assets/checkout/garment-photo-upload-hero.png');
 const STATUS_BAR_HEIGHT = 32;
 const BOTTOM_PANEL_HEIGHT = 310;
+/** Figma 3399:16792 — header chrome band (412×93, y=-9) over hero. */
+const HEADER_CHROME_TOP_FIGMA = -9;
+const HEADER_CHROME_HEIGHT_FIGMA = 93;
 
 /** Dev / QA fixture — six distinct service widths (contactless multi-service garment). */
 const SNAP_TEST_MULTI_SERVICE_SLOTS: GarmentPhotoServiceSlot[] = [
@@ -899,17 +903,16 @@ export function GarmentPhotoUploadScreen({
 
   const headerTop = safeTop + 27 * scale;
 
+  const headerChromeTop = safeTop + HEADER_CHROME_TOP_FIGMA * scale;
+  const headerChromeHeight = HEADER_CHROME_HEIGHT_FIGMA * scale;
+
   return (
     <View style={styles.root}>
-      <View style={[styles.statusBar, { top: safeTop, height: STATUS_BAR_HEIGHT * scale }]}>
-        <SearchStatusBar scale={scale} />
-      </View>
-
       <View
         style={[
           styles.heroRegion,
           {
-            top: safeTop + STATUS_BAR_HEIGHT * scale,
+            top: headerChromeTop,
             bottom: bottomPanelHeight + insets.bottom,
           },
         ]}>
@@ -919,6 +922,32 @@ export function GarmentPhotoUploadScreen({
           resizeMode="cover"
           accessibilityIgnoresInvertColors
         />
+      </View>
+
+      <LinearGradient
+        pointerEvents="none"
+        colors={['#FFFFFF', '#FFFFFF', 'rgba(255,255,255,0)']}
+        locations={[0, STATUS_BAR_HEIGHT / HEADER_CHROME_HEIGHT_FIGMA, 0.72]}
+        style={[
+          styles.headerBackdrop,
+          {
+            top: headerChromeTop,
+            height: headerChromeHeight,
+          },
+          Platform.OS === 'web' ? ({ backdropFilter: 'blur(4px)' } as object) : null,
+        ]}
+      />
+
+      <View
+        style={[
+          styles.statusBar,
+          {
+            top: safeTop,
+            height: STATUS_BAR_HEIGHT * scale,
+            backgroundColor: SwashoColors.surface,
+          },
+        ]}>
+        <SearchStatusBar scale={scale} backgroundColor={SwashoColors.surface} />
       </View>
 
       <View
@@ -1323,6 +1352,12 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     zIndex: 30,
+  },
+  headerBackdrop: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    zIndex: 12,
   },
   headerRow: {
     position: 'absolute',
