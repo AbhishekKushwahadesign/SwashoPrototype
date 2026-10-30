@@ -52,7 +52,13 @@ import {
   contactlessClothesLocationChipText,
   isContactlessClothesLocationValid,
 } from '@/lib/contactless-clothes-location';
-import type { ContactlessGarmentPhotoStore } from '@/lib/contactless-garment-photos';
+import {
+  garmentBasketPhotoSatisfied,
+  garmentHasPhoto,
+  garmentPhotoSlotsFromBasketLine,
+  garmentPhotoUploadMandatory,
+  type ContactlessGarmentPhotoStore,
+} from '@/lib/contactless-garment-photos';
 import { isBulkServiceId, type ProviderGarmentCartSelection } from '@/lib/provider-cart-selection';
 
 import {
@@ -60,6 +66,7 @@ import {
   ClothesLocationPencilIcon,
 } from './clothes-location-sheet-icons';
 import { ContactlessClothesLocationModal } from './ContactlessClothesLocationModal';
+import { ContactlessPayPhotoRequiredModal } from './ContactlessPayPhotoRequiredModal';
 import { ContactlessBasketPhotoSection } from './ContactlessBasketPhotoSection';
 import { ContactlessHowItWorksModal } from './ContactlessHowItWorksModal';
 import { CheckoutAiDemoPickupNudge } from './CheckoutAiDemoPickupNudge';
@@ -239,6 +246,7 @@ export function CheckoutReviewScreen({
     getProviderCartTotals,
     getProviderCartEntries,
     getContactlessGarmentPhotos,
+    getSelection,
     setContactlessCheckout,
   } = useProviderCart();
 
@@ -303,6 +311,36 @@ export function CheckoutReviewScreen({
   const [paymentExpanded, setPaymentExpanded] = useState(true);
   const payLockRef = useRef(false);
   const [aiDemoPickupNudgeVisible, setAiDemoPickupNudgeVisible] = useState(fromAiDemo);
+  const [payPhotoRequiredModalVisible, setPayPhotoRequiredModalVisible] = useState(false);
+
+  const contactlessPhotoStore = useMemo(
+    () => getContactlessGarmentPhotos(providerId),
+    [getContactlessGarmentPhotos, providerId],
+  );
+
+  const unsatisfiedMandatoryPhotoUpload = useMemo(() => {
+    if (!contactless) {
+      return null;
+    }
+    for (const group of basketGroups) {
+      for (const line of group.lines) {
+        const selection = getSelection(providerId, line.serviceId);
+        const slots = garmentPhotoSlotsFromBasketLine(line, selection);
+        if (
+          garmentPhotoUploadMandatory(slots) &&
+          !garmentBasketPhotoSatisfied(contactlessPhotoStore, line.serviceId, slots)
+        ) {
+          const serviceId =
+            slots.find((slot) => !garmentHasPhoto(contactlessPhotoStore, line.serviceId, slot.serviceId))
+              ?.serviceId ?? slots[0]?.serviceId;
+          if (serviceId) {
+            return { garmentId: line.serviceId, serviceId };
+          }
+        }
+      }
+    }
+    return null;
+  }, [basketGroups, contactless, contactlessPhotoStore, getSelection, providerId]);
 
   const cardWidth = CHECKOUT_SCHEDULE_CARD_WIDTH * scale;
 
@@ -401,12 +439,31 @@ export function CheckoutReviewScreen({
     [providerId, setContactlessCheckout],
   );
 
+  const handleUploadPhotoFromPayGuard = useCallback(() => {
+    if (!unsatisfiedMandatoryPhotoUpload) {
+      setPayPhotoRequiredModalVisible(false);
+      return;
+    }
+    setPayPhotoRequiredModalVisible(false);
+    router.push(
+      garmentPhotoUploadHref(providerId, query, {
+        garmentId: unsatisfiedMandatoryPhotoUpload.garmentId,
+        serviceId: unsatisfiedMandatoryPhotoUpload.serviceId,
+        subscription: isSubscription,
+      }),
+    );
+  }, [isSubscription, providerId, query, router, unsatisfiedMandatoryPhotoUpload]);
+
   const handlePayPress = useCallback(() => {
     if (payLockRef.current || totals.itemCount <= 0) {
       return;
     }
     if (contactless && !clothesLocationValid) {
       openClothesLocationSheet();
+      return;
+    }
+    if (contactless && unsatisfiedMandatoryPhotoUpload) {
+      setPayPhotoRequiredModalVisible(true);
       return;
     }
     payLockRef.current = true;
@@ -432,6 +489,7 @@ export function CheckoutReviewScreen({
     router,
     totals.itemCount,
     totals.totalPrice,
+    unsatisfiedMandatoryPhotoUpload,
   ]);
 
   const subscriptionFrequencyTitle =
@@ -723,7 +781,7 @@ export function CheckoutReviewScreen({
               providerId={providerId}
               query={query}
               isSubscription={isSubscription}
-              contactlessPhotoStore={getContactlessGarmentPhotos(providerId)}
+              contactlessPhotoStore={contactlessPhotoStore}
               onEditLine={handleEditService}
               onAddGarment={handleAddGarment}
             />
@@ -797,6 +855,12 @@ export function CheckoutReviewScreen({
           selectedId={checkout.contactlessClothesLocationId}
           otherText={checkout.contactlessClothesLocationOther}
           onConfirm={handleConfirmClothesLocation}
+        />
+        <ContactlessPayPhotoRequiredModal
+          visible={payPhotoRequiredModalVisible}
+          scale={scale}
+          onUploadPhoto={handleUploadPhotoFromPayGuard}
+          onCancel={() => setPayPhotoRequiredModalVisible(false)}
         />
       </View>
     </View>
