@@ -63,8 +63,7 @@ export function Search1Screen() {
   const safeTop = useSafeTopInset(insets.top);
   const frameHeight = contentHeight + safeTop;
   const offerColumns = buildOfferColumns();
-  const offersHeaderWidth = contentWidth - OFFERS_SECTION_PADDING_X * 2 * scale;
-  const offersViewportWidth = contentWidth - OFFERS_SECTION_PADDING_X * scale;
+  const offersEdgePadding = OFFERS_SECTION_PADDING_X * scale;
 
   const handleBackPress = useCallback(() => {
     if (router.canGoBack()) {
@@ -185,7 +184,7 @@ export function Search1Screen() {
             style={[
               styles.offersSection,
               {
-                paddingLeft: OFFERS_SECTION_PADDING_X * scale,
+                width: contentWidth,
                 gap: OFFERS_HEADER_TO_GRID_GAP * scale,
               },
             ]}>
@@ -193,8 +192,9 @@ export function Search1Screen() {
               style={[
                 styles.offersHeader,
                 {
-                  width: offersHeaderWidth,
+                  width: contentWidth,
                   height: OFFERS_HEADER_HEIGHT * scale,
+                  paddingHorizontal: offersEdgePadding,
                 },
               ]}>
               <Text
@@ -245,7 +245,7 @@ export function Search1Screen() {
               style={[
                 styles.offersGrid,
                 {
-                  width: offersViewportWidth,
+                  width: contentWidth,
                   height: GRID_HEIGHT * scale,
                 },
                 Platform.OS === 'web' ? styles.offersGridWeb : null,
@@ -254,7 +254,8 @@ export function Search1Screen() {
                 flexDirection: 'row',
                 alignItems: 'flex-end',
                 gap: CARD_GAP * scale,
-                paddingRight: OFFERS_SECTION_PADDING_X * scale,
+                paddingLeft: offersEdgePadding,
+                paddingRight: offersEdgePadding,
               }}>
               {offerColumns.map((column, columnIndex) => (
                 <View
@@ -314,8 +315,11 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   offersSection: {
-    width: '100%',
-    overflow: 'hidden',
+    alignSelf: 'stretch',
+    ...Platform.select({
+      web: { overflow: 'visible' as const },
+      default: { overflow: 'hidden' as const },
+    }),
   },
   offersGrid: {
     flexGrow: 0,
