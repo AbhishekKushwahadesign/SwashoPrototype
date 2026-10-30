@@ -155,46 +155,32 @@ function SelectedCapsule({ scale, variant }: { scale: number; variant: NavBarVar
   const top = variant === 'Orders' ? 5 * scale : (innerHeight - height) / 2;
 
   const borderWidth = CAPSULE_BORDER * scale;
-  const innerRadius = Math.max(0, borderRadius - borderWidth);
 
   return (
     <View
       pointerEvents="none"
       style={[
         styles.capsule,
-        { width, height, borderRadius, left, top, borderWidth },
+        {
+          width,
+          height,
+          borderRadius,
+          left,
+          top,
+          borderWidth,
+          overflow: 'hidden',
+        },
       ]}>
+      <SvgXml
+        xml={capsuleGradientXml(geometry.width, geometry.height, geometry.gradient)}
+        width={width}
+        height={height}
+        style={StyleSheet.absoluteFillObject}
+      />
       <View
-        style={[
-          styles.capsuleFill,
-          {
-            borderRadius: innerRadius,
-            top: borderWidth,
-            left: borderWidth,
-            right: borderWidth,
-            bottom: borderWidth,
-          },
-        ]}>
-        <SvgXml
-          xml={capsuleGradientXml(geometry.width, geometry.height, geometry.gradient)}
-          width="100%"
-          height="100%"
-        />
-        <View
-          pointerEvents="none"
-          style={[
-            styles.capsuleInsetShadow,
-            {
-              borderRadius: innerRadius,
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-            },
-            figmaShadow(FigmaShadows.selectedNavCapsule, scale),
-          ]}
-        />
-      </View>
+        pointerEvents="none"
+        style={[styles.capsuleInsetShadow, figmaShadow(FigmaShadows.selectedNavCapsule, scale)]}
+      />
     </View>
   );
 }
@@ -368,7 +354,7 @@ const styles = StyleSheet.create({
   },
   capsule: {
     position: 'absolute',
-    borderColor: '#FFFFFF',
+    borderColor: SwashoColors.surface,
     borderStyle: 'solid',
     backgroundColor: 'transparent',
     zIndex: 3,
@@ -376,10 +362,6 @@ const styles = StyleSheet.create({
       web: { boxSizing: 'border-box' as const },
       default: {},
     }),
-  },
-  capsuleFill: {
-    position: 'absolute',
-    overflow: 'hidden',
   },
   capsuleInsetShadow: {
     ...StyleSheet.absoluteFillObject,
