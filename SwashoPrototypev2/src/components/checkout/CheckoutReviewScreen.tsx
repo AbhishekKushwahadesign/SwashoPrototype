@@ -537,7 +537,9 @@ export function CheckoutReviewScreen({
       : undefined
     : checkout.pickupWeekday
       ? CHECKOUT_WEEKDAY_OPTIONS.find((d) => d.id === checkout.pickupWeekday)?.label ?? checkout.pickupWeekday
-      : undefined;
+      : checkout.pickupDayKey
+        ? checkoutDayOptionFromKey(checkout.pickupDayKey).dateLine
+        : undefined;
 
   const activeInstruction = instructionTab === 'pickup' ? pickupInstruction : deliveryInstruction;
   const setActiveInstruction = instructionTab === 'pickup' ? setPickupInstruction : setDeliveryInstruction;
@@ -813,9 +815,9 @@ export function CheckoutReviewScreen({
               subscriptionFrequencyTitle={subscriptionFrequencyTitle}
               startLabel={startLabel}
               pickupLine={pickupLine}
-              pickupSlot={formatSlotCompact(pickupSlot)}
+              pickupSlot={pickupSlot}
               deliverySame={deliverySame}
-              deliverySlot={formatSlotCompact(deliverySlot)}
+              deliverySlot={deliverySlot}
               onChangePress={returnToSchedule}
             />
 
@@ -928,9 +930,9 @@ function ScheduleCard({
   subscriptionFrequencyTitle: string;
   startLabel?: string;
   pickupLine?: string;
-  pickupSlot: string;
+  pickupSlot: string | undefined;
   deliverySame: boolean;
-  deliverySlot: string;
+  deliverySlot: string | undefined;
   onChangePress: () => void;
 }) {
   const cardShadow = isSubscription
@@ -1005,7 +1007,7 @@ function ScheduleCard({
           <CalendarLinearIcon width={24 * scale} height={24 * scale} stroke={SwashoColors.neutral950} />
         </IconTile>
         <View style={{ flex: 1, minWidth: 0, gap: 12 * scale }}>
-          {pickupLine ? (
+          {pickupLine || pickupSlot ? (
             <ScheduleTimingRow
               label="Pickup:"
               parts={[pickupLine, formatSlotCompact(pickupSlot)].filter(Boolean)}
