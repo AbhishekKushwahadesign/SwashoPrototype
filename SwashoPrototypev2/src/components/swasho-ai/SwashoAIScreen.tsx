@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { useState, type ReactNode } from 'react';
+import { useCallback, useState, type ReactNode } from 'react';
 import {
   Platform,
   Pressable,
@@ -76,6 +76,7 @@ function CircleIconButton({
         {
           padding: 6 * scale,
           borderRadius: 9999 * scale,
+          zIndex: 20,
         },
         style,
       ]}>
@@ -105,6 +106,14 @@ export function SwashoAIScreen() {
     setDraft(label);
   };
 
+  const handleBack = useCallback(() => {
+    if (router.canGoBack()) {
+      router.back();
+      return;
+    }
+    router.replace('/');
+  }, []);
+
   return (
     <View style={[styles.root, { backgroundColor: SwashoColors.surface }]}>
       <View
@@ -127,11 +136,11 @@ export function SwashoAIScreen() {
           <StatusBar scale={scale} tone="transparent" />
         </View>
 
-        <View style={styles.headerRow}>
+        <View style={styles.headerRow} pointerEvents="box-none">
           <CircleIconButton
             scale={scale}
             accessibilityLabel="Go back"
-            onPress={() => router.back()}
+            onPress={handleBack}
             style={{
               position: 'absolute',
               left: FIGMA_HORIZONTAL_INSET * scale,
@@ -152,6 +161,7 @@ export function SwashoAIScreen() {
           </CircleIconButton>
 
           <View
+            pointerEvents="none"
             style={[
               styles.headerBrand,
               {
