@@ -1,5 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { Href, Link, router, useLocalSearchParams } from 'expo-router';
+import { Href, router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState, type ReactNode } from 'react';
 import {
   Platform,
@@ -408,28 +408,26 @@ export function SwashoAIScreen() {
         <View
           style={[styles.headerRow, { height: scrollTop }]}
           pointerEvents="box-none">
-          <Link href={backHref} replace asChild>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Go home"
-              onPress={() => router.replace(backHref)}
-              hitSlop={8}
-              style={StyleSheet.flatten([
-                styles.circleButton,
-                {
-                  position: 'absolute',
-                  left: FIGMA_HORIZONTAL_INSET * scale,
-                  top: figmaY(FIGMA_HEADER_BUTTON_TOP),
-                  width: 36 * scale,
-                  height: 36 * scale,
-                  padding: 6 * scale,
-                  borderRadius: 9999 * scale,
-                  zIndex: 21,
-                },
-              ])}>
-              <HomeSmileAngleBoldIcon width={24 * scale} height={24 * scale} />
-            </Pressable>
-          </Link>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Go home"
+            onPress={() => router.replace(backHref)}
+            hitSlop={8}
+            style={StyleSheet.flatten([
+              styles.circleButton,
+              {
+                position: 'absolute',
+                left: FIGMA_HORIZONTAL_INSET * scale,
+                top: figmaY(FIGMA_HEADER_BUTTON_TOP),
+                width: 36 * scale,
+                height: 36 * scale,
+                padding: 6 * scale,
+                borderRadius: 9999 * scale,
+                zIndex: 21,
+              },
+            ])}>
+            <HomeSmileAngleBoldIcon width={24 * scale} height={24 * scale} />
+          </Pressable>
 
           <CircleIconButton
             scale={scale}
