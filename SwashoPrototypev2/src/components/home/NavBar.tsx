@@ -155,32 +155,44 @@ function SelectedCapsule({ scale, variant }: { scale: number; variant: NavBarVar
   const top = variant === 'Orders' ? 5 * scale : (innerHeight - height) / 2;
 
   const borderWidth = CAPSULE_BORDER * scale;
+  const innerRadius = Math.max(0, borderRadius - borderWidth);
+  const innerWidth = Math.max(0, width - borderWidth * 2);
+  const innerHeight = Math.max(0, height - borderWidth * 2);
 
   return (
     <View
       pointerEvents="none"
       style={[
-        styles.capsule,
+        styles.capsuleRing,
         {
           width,
           height,
           borderRadius,
           left,
           top,
-          borderWidth,
-          overflow: 'hidden',
+          padding: borderWidth,
         },
       ]}>
-      <SvgXml
-        xml={capsuleGradientXml(geometry.width, geometry.height, geometry.gradient)}
-        width={width}
-        height={height}
-        style={StyleSheet.absoluteFillObject}
-      />
       <View
-        pointerEvents="none"
-        style={[styles.capsuleInsetShadow, figmaShadow(FigmaShadows.selectedNavCapsule, scale)]}
-      />
+        style={[
+          styles.capsuleInner,
+          {
+            width: innerWidth,
+            height: innerHeight,
+            borderRadius: innerRadius,
+          },
+        ]}>
+        <SvgXml
+          xml={capsuleGradientXml(geometry.width, geometry.height, geometry.gradient)}
+          width={innerWidth}
+          height={innerHeight}
+          style={StyleSheet.absoluteFillObject}
+        />
+        <View
+          pointerEvents="none"
+          style={[styles.capsuleInsetShadow, figmaShadow(FigmaShadows.selectedNavCapsule, scale)]}
+        />
+      </View>
     </View>
   );
 }
@@ -352,16 +364,19 @@ const styles = StyleSheet.create({
   pillAboveBlur: {
     zIndex: 2,
   },
-  capsule: {
+  /** Figma 3344:8846 — 2px white ring via padding (reliable on RN Web; CSS border gets covered by gradient). */
+  capsuleRing: {
     position: 'absolute',
-    borderColor: SwashoColors.surface,
-    borderStyle: 'solid',
-    backgroundColor: 'transparent',
+    backgroundColor: SwashoColors.surface,
     zIndex: 3,
     ...Platform.select({
       web: { boxSizing: 'border-box' as const },
       default: {},
     }),
+  },
+  capsuleInner: {
+    overflow: 'hidden',
+    position: 'relative',
   },
   capsuleInsetShadow: {
     ...StyleSheet.absoluteFillObject,
