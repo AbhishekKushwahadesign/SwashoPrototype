@@ -373,18 +373,19 @@ function DeliveringOrderFooter({ order, scale }: { order: PastOrderSummary; scal
           alignItems: 'center',
           gap: 6 * scale,
           paddingHorizontal: 4 * scale,
-          minWidth: 60 * scale,
-          height: 18 * scale,
+          flexShrink: 0,
         }}>
         <PastOrderTrackRiderIcon width={20 * scale} height={20 * scale} />
         <Text
+          numberOfLines={1}
           style={[
             searchFont('medium'),
             {
               fontSize: 12 * scale,
-              lineHeight: 10 * scale,
+              lineHeight: 14 * scale,
               letterSpacing: 0.5 * scale,
               color: SwashoColors.primary600,
+              flexShrink: 0,
             },
           ]}>
           Track Rider
