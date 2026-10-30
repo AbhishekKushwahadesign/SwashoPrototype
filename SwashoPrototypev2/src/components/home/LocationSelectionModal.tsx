@@ -18,8 +18,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useServiceLocation } from '@/context/service-location-context';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
-import { SheetCloseIcon } from '@/components/service-selection/service-selection-icons';
-
 import {
   LocationModalAddSquareIcon,
   LocationModalCloudAccent,
@@ -32,8 +30,6 @@ import {
 const LOCATION_MODAL_FIGMA = {
   frameWidth: 412,
   sheetHeightAt412: 381,
-  closeChipHeight: 35,
-  closeToSheetGap: 21,
   sheetRadius: 24,
   heroSize: 152,
   heroTopOverlap: 89,
@@ -83,10 +79,9 @@ export function LocationSelectionModal({
   const designScale = contentWidth / LOCATION_MODAL_FIGMA.frameWidth;
   const sheetHeightTarget = LOCATION_MODAL_FIGMA.sheetHeightAt412 * designScale;
   const windowHeight = Dimensions.get('window').height;
-  const closeStackHeight =
-    (LOCATION_MODAL_FIGMA.closeChipHeight + LOCATION_MODAL_FIGMA.closeToSheetGap) * designScale;
+  const heroReserveHeight = LOCATION_MODAL_FIGMA.heroTopOverlap * designScale;
   const availableForSheet =
-    windowHeight - insets.top - closeStackHeight - Math.max(insets.bottom, 12 * designScale);
+    windowHeight - insets.top - heroReserveHeight - Math.max(insets.bottom, 12 * designScale);
   const maxSheetHeight = Math.min(sheetHeightTarget, Math.max(availableForSheet, 0));
   const horizontalPad = LOCATION_MODAL_FIGMA.contentPaddingHorizontal * designScale;
   const webOverflowVisible = Platform.OS === 'web' ? ('visible' as const) : undefined;
@@ -138,7 +133,7 @@ export function LocationSelectionModal({
             {
               width: contentWidth,
               maxHeight: windowHeight - insets.top,
-              paddingTop: closeStackHeight,
+              paddingTop: heroReserveHeight,
               paddingBottom: Math.max(insets.bottom, 12 * designScale),
             },
           ]}
@@ -156,27 +151,6 @@ export function LocationSelectionModal({
                 ...figmaSheetShadow(designScale),
               },
             ]}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Close"
-              onPress={onClose}
-              style={[
-                styles.closeChip,
-                styles.closeOnSheet,
-                {
-                  width: LOCATION_MODAL_FIGMA.closeChipHeight * designScale,
-                  height: LOCATION_MODAL_FIGMA.closeChipHeight * designScale,
-                  borderRadius: 999,
-                  top:
-                    -(
-                      LOCATION_MODAL_FIGMA.closeChipHeight + LOCATION_MODAL_FIGMA.closeToSheetGap
-                    ) * designScale,
-                  marginLeft: (-LOCATION_MODAL_FIGMA.closeChipHeight / 2) * designScale,
-                },
-              ]}>
-              <SheetCloseIcon width={20 * designScale} height={20 * designScale} />
-            </Pressable>
-
             <LinearGradient
               colors={[...SHEET_GRADIENT.colors]}
               locations={[...SHEET_GRADIENT.locations]}
@@ -461,22 +435,6 @@ const styles = StyleSheet.create({
     backgroundColor: SwashoColors.surface,
     alignSelf: 'center',
     position: 'relative',
-  },
-  closeChip: {
-    position: 'absolute',
-    alignSelf: 'center',
-    zIndex: 5,
-    backgroundColor: SwashoColors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
-    elevation: 4,
-  },
-  closeOnSheet: {
-    left: '50%',
   },
   heroWrap: {
     position: 'absolute',
