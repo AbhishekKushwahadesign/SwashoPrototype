@@ -8,3 +8,25 @@ export const DEMO_USER = {
 } as const;
 
 export type DemoUser = typeof DEMO_USER;
+
+export type SavedServiceAddress = {
+  id: string;
+  label: string;
+  /** Short single-line label on Home header. */
+  headerLine: string;
+  /** Full address row in location modal (Figma 3445:11082). */
+  fullLine: string;
+};
+
+/** Saved service addresses for Home location selection (Figma 3445:11076). */
+export const DEMO_SAVED_SERVICE_ADDRESSES: SavedServiceAddress[] = [
+  {
+    id: 'home',
+    label: 'Home',
+    headerLine: '2O1, lodha luxuria, kolshet road',
+    fullLine:
+      '2O1, Lodha Luxuria, kolshet road Dhokali, Thane West  400607  | XXXXX 12345',
+  },
+];
+
+export const DEFAULT_SERVICE_ADDRESS_ID = 'home';

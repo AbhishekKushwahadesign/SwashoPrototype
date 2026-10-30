@@ -16,6 +16,7 @@ import { SubtractIcon } from './figma-icons';
 import { ScreenHeight, SwashoColors, SwashoRadii, SwashoSpacing } from '@/constants/swasho-tokens';
 
 import { AddressHeader } from './AddressHeader';
+import { LocationSelectionModal } from './LocationSelectionModal';
 import { BulkLaundryCard } from './BulkLaundryCard';
 import { HomeIndicator } from './HomeIndicator';
 import { NavBar, NAV_BAR_BOTTOM_INSET, NavBarVariant } from './NavBar';
@@ -147,6 +148,7 @@ export function HomeScreen() {
   const [navVariant, setNavVariant] = useState<NavBarVariant>(() =>
     nav === 'orders' ? 'Orders' : 'Home',
   );
+  const [locationModalVisible, setLocationModalVisible] = useState(false);
   const [collapseScrollY, setCollapseScrollY] = useState(0);
   const collapseScrollYRef = useRef(0);
   const sheetScrollRef = useRef<ScrollView>(null);
@@ -364,7 +366,11 @@ export function HomeScreen() {
                     zIndex: 3,
                   },
                 ]}>
-                <AddressHeader scale={scale} onAvatarPress={() => router.push('/profile')} />
+                <AddressHeader
+                  scale={scale}
+                  onAvatarPress={() => router.push('/profile')}
+                  onAddressPress={() => setLocationModalVisible(true)}
+                />
               </View>
               <View
                 style={[
@@ -449,6 +455,13 @@ export function HomeScreen() {
             {sheetSections}
           </ScrollView>
         </View>
+
+        <LocationSelectionModal
+          visible={locationModalVisible}
+          onClose={() => setLocationModalVisible(false)}
+          scale={scale}
+          contentWidth={contentWidth}
+        />
 
         {showBottomNav ? (
           <View

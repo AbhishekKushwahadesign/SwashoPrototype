@@ -16,6 +16,7 @@ import { useEffect } from 'react';
 import { View } from 'react-native';
 
 import { ProviderCartProvider } from '@/context/provider-cart-context';
+import { ServiceLocationProvider } from '@/context/service-location-context';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -42,6 +43,7 @@ export default function RootLayout() {
 
   return (
     <ProviderCartProvider>
+      <ServiceLocationProvider>
       <Stack
         screenOptions={{
           headerShown: false,
@@ -67,6 +69,7 @@ export default function RootLayout() {
         <Stack.Screen name="checkout" />
         <Stack.Screen name="order-tracking" options={{ animation: 'slide_from_right' }} />
       </Stack>
+      </ServiceLocationProvider>
     </ProviderCartProvider>
   );
 }

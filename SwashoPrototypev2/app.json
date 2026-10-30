@@ -31,6 +31,12 @@
           "recordAudioAndroid": false
         }
       ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow Swasho to use your location to show accurate pickup addresses."
+        }
+      ],
       "expo-router",
       [
         "expo-splash-screen",

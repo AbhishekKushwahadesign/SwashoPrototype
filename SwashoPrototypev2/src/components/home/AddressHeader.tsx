@@ -1,7 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { SwashoFonts } from '@/constants/swasho-tokens';
-import { DEMO_USER } from '@/data/mock-user';
+import { useServiceLocation } from '@/context/service-location-context';
 
 import { AltArrowDownIcon } from './figma-icons';
 import { UserAvatar } from './UserAvatar';
@@ -9,9 +8,11 @@ import { UserAvatar } from './UserAvatar';
 type AddressHeaderProps = {
   scale: number;
   onAvatarPress?: () => void;
+  onAddressPress?: () => void;
 };
 
-export function AddressHeader({ scale, onAvatarPress }: AddressHeaderProps) {
+export function AddressHeader({ scale, onAvatarPress, onAddressPress }: AddressHeaderProps) {
+  const { homeLabel, homeAddressLine } = useServiceLocation();
   return (
     <View style={[styles.row, { width: 372 * scale, gap: 36 * scale, alignSelf: 'center' }]}>
       <View style={[styles.left, { gap: 8 * scale }]}>
@@ -24,10 +25,20 @@ export function AddressHeader({ scale, onAvatarPress }: AddressHeaderProps) {
           style={({ pressed }) => [pressed && onAvatarPress ? { opacity: 0.85 } : null]}>
           <UserAvatar scale={scale} size={45} />
         </Pressable>
-        <View style={[styles.textBlock, { gap: 4 * scale }]}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Choose service location"
+          disabled={!onAddressPress}
+          onPress={onAddressPress}
+          hitSlop={8}
+          style={({ pressed }) => [
+            styles.textBlock,
+            { gap: 4 * scale },
+            pressed && onAddressPress ? { opacity: 0.85 } : null,
+          ]}>
           <View style={[styles.homeRow, { gap: 4 * scale }]}>
             <Text style={[styles.homeLabel, { fontSize: 18 * scale, lineHeight: 16 * scale }]}>
-              {DEMO_USER.homeLabel}
+              {homeLabel}
             </Text>
             <AltArrowDownIcon width={20 * scale} height={20 * scale} />
           </View>
@@ -35,9 +46,9 @@ export function AddressHeader({ scale, onAvatarPress }: AddressHeaderProps) {
             numberOfLines={1}
             ellipsizeMode="tail"
             style={[styles.address, { fontSize: 14 * scale, lineHeight: 12 * scale, maxWidth: 240 * scale }]}>
-            {DEMO_USER.homeAddressLine}
+            {homeAddressLine}
           </Text>
-        </View>
+        </Pressable>
       </View>
       <View style={{ width: 43 * scale, height: 43 * scale }} />
     </View>
