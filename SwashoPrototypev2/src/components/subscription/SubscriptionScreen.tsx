@@ -727,7 +727,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     ...Platform.select({
       web: {
-        maxHeight: 1000,
+        maxHeight: '100%',
+        minHeight: 0,
+        flex: 1,
       },
     }),
   },

@@ -459,8 +459,10 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     ...Platform.select({
       web: {
-        maxHeight: ScreenHeight,
-        overflow: 'visible',
+        maxHeight: '100%',
+        minHeight: 0,
+        flex: 1,
+        overflow: 'hidden',
       },
     }),
   },
