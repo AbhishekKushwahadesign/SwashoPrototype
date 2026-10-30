@@ -1,4 +1,3 @@
-import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Href, Link, router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState, type ReactNode } from 'react';
@@ -13,7 +12,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ArrowLeftIcon, MicrophoneIcon } from '@/components/home/figma-icons';
+import { MicrophoneIcon } from '@/components/home/figma-icons';
 import { FigmaShadows, figmaShadow } from '@/components/home/figma-shadows';
 import { HomeIndicator } from '@/components/home/HomeIndicator';
 import { SwashoAiIcon } from '@/components/home/NavBar';
@@ -40,6 +39,7 @@ const FIGMA_HOME_INDICATOR_TOP = 896;
 const FIGMA_CONTENT_WIDTH = 372;
 const FIGMA_CHIPS_WIDTH = 451;
 const FIGMA_HORIZONTAL_INSET = 20;
+const headerHomeIcon = require('@/assets/images/swasho-ai/header-home-icon.png');
 
 function resolveReturnToHref(value: string | string[] | undefined): Href {
   const raw = Array.isArray(value) ? value[0] : value;
@@ -407,7 +407,7 @@ export function SwashoAIScreen() {
           <Link href={backHref} replace asChild>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Go back"
+              accessibilityLabel="Go home"
               onPress={() => router.replace(backHref)}
               hitSlop={8}
               style={[
@@ -423,7 +423,12 @@ export function SwashoAIScreen() {
                   zIndex: 21,
                 },
               ]}>
-              <ArrowLeftIcon width={24 * scale} height={24 * scale} />
+              <Image
+                source={headerHomeIcon}
+                style={{ width: 24 * scale, height: 24 * scale }}
+                contentFit="contain"
+                accessibilityIgnoresInvertColors
+              />
             </Pressable>
           </Link>
 
