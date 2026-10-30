@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, type LayoutChangeEvent } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -48,14 +48,11 @@ const SCROLL_PADDING_TOP = 14;
 const HOME_INDICATOR_HEIGHT = 24;
 const PAGE_BG = '#f2f2f2';
 const SUCCESS_600 = '#16a34a';
-/** Figma 3429:18167 delivering order card shell */
-const DELIVERING_ORDER_CARD_HEIGHT = 410;
-const DELIVERING_ORDER_FOOTER_TOP = 332;
+/** Figma 3429:18167 delivering footer strip */
 const DELIVERING_ORDER_FOOTER_HEIGHT = 68;
 const DELIVERING_ORDER_FOOTER_WIDTH = 371;
-const DELIVERING_ORDER_FOOTER_LEFT = 13;
+const DELIVERING_ORDER_FOOTER_INSET_LEFT = 13;
 const DELIVERING_RIDER_ART_LEFT = 6.28;
-const DELIVERING_RIDER_ART_TOP = 338.62;
 
 const riderImage = require('@/assets/images/subscription/rider-with-bike.png');
 
@@ -270,14 +267,26 @@ function LineItemRow({ item, scale, showDividerAfter }: { item: PastOrderLineIte
 }
 
 function DeliveringOrderFooter({ order, scale }: { order: PastOrderSummary; scale: number }) {
+  const footerOffsetLeft = (DELIVERING_ORDER_FOOTER_INSET_LEFT - 16) * scale;
+  const riderOffsetLeft = (DELIVERING_RIDER_ART_LEFT - DELIVERING_ORDER_FOOTER_INSET_LEFT) * scale;
+
   return (
-    <>
+    <View
+      style={{
+        marginLeft: footerOffsetLeft,
+        width: DELIVERING_ORDER_FOOTER_WIDTH * scale,
+        minHeight: DELIVERING_ORDER_FOOTER_HEIGHT * scale,
+        justifyContent: 'center',
+        paddingTop: 12 * scale,
+        paddingLeft: 90 * scale,
+        paddingRight: 80 * scale,
+      }}>
       <View
-        pointerEvents="box-none"
+        pointerEvents="none"
         style={{
           position: 'absolute',
-          left: DELIVERING_RIDER_ART_LEFT * scale,
-          top: DELIVERING_RIDER_ART_TOP * scale,
+          left: riderOffsetLeft,
+          bottom: 0,
           width: 93.76 * scale,
           height: 61.661 * scale,
           transform: [{ rotate: '7.3deg' }],
@@ -305,79 +314,74 @@ function DeliveringOrderFooter({ order, scale }: { order: PastOrderSummary; scal
           contentFit="contain"
         />
       </View>
-      <View
+      <View style={{ gap: 8 * scale }}>
+        <Text
+          style={[
+            searchFont('semibold'),
+            {
+              fontSize: 15 * scale,
+              lineHeight: 14 * scale,
+              letterSpacing: 0.3 * scale,
+              color: 'rgba(0,0,0,0.85)',
+            },
+          ]}>
+          {order.deliveryEtaLabel}
+        </Text>
+        <Text
+          style={[
+            searchFont('regular'),
+            {
+              fontSize: 13 * scale,
+              lineHeight: 16 * scale,
+              color: '#000000',
+            },
+          ]}>
+          {order.deliveryPhaseLabel}
+        </Text>
+      </View>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Track rider"
         style={{
           position: 'absolute',
-          left: DELIVERING_ORDER_FOOTER_LEFT * scale,
-          top: DELIVERING_ORDER_FOOTER_TOP * scale,
-          width: DELIVERING_ORDER_FOOTER_WIDTH * scale,
-          height: DELIVERING_ORDER_FOOTER_HEIGHT * scale,
-          justifyContent: 'center',
-          paddingTop: 12 * scale,
-          paddingLeft: 90 * scale,
-          paddingRight: 80 * scale,
+          right: 4 * scale,
+          top: 29 * scale,
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 6 * scale,
+          paddingHorizontal: 4 * scale,
+          minWidth: 60 * scale,
         }}>
-        <View style={{ gap: 8 * scale }}>
-          <Text
-            style={[
-              searchFont('semibold'),
-              {
-                fontSize: 15 * scale,
-                lineHeight: 14 * scale,
-                letterSpacing: 0.3 * scale,
-                color: 'rgba(0,0,0,0.85)',
-              },
-            ]}>
-            {order.deliveryEtaLabel}
-          </Text>
-          <Text
-            style={[
-              searchFont('regular'),
-              {
-                fontSize: 13 * scale,
-                lineHeight: 16 * scale,
-                color: '#000000',
-              },
-            ]}>
-            {order.deliveryPhaseLabel}
-          </Text>
-        </View>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Track rider"
-          style={{
-            position: 'absolute',
-            right: 4 * scale,
-            top: 29 * scale,
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 6 * scale,
-            paddingHorizontal: 4 * scale,
-            minWidth: 60 * scale,
-          }}>
-          <PastOrderTrackRiderIcon width={20 * scale} height={20 * scale} />
-          <Text
-            style={[
-              searchFont('medium'),
-              {
-                fontSize: 12 * scale,
-                lineHeight: 10 * scale,
-                letterSpacing: 0.5 * scale,
-                color: SwashoColors.primary600,
-              },
-            ]}>
-            Track Rider
-          </Text>
-        </Pressable>
-      </View>
-    </>
+        <PastOrderTrackRiderIcon width={20 * scale} height={20 * scale} />
+        <Text
+          style={[
+            searchFont('medium'),
+            {
+              fontSize: 12 * scale,
+              lineHeight: 10 * scale,
+              letterSpacing: 0.5 * scale,
+              color: SwashoColors.primary600,
+            },
+          ]}>
+          Track Rider
+        </Text>
+      </Pressable>
+    </View>
   );
 }
 
 function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; scale: number; cardWidth: number }) {
   const isDelivering = order.lifecycleStatus === 'delivering';
   const innerWidth = 368 * scale;
-  const deliveringCardHeight = DELIVERING_ORDER_CARD_HEIGHT * scale;
+  const [cardHeight, setCardHeight] = useState(0);
+
+  const handleCardLayout = useCallback((event: LayoutChangeEvent) => {
+    if (!isDelivering) {
+      return;
+    }
+    const nextHeight = event.nativeEvent.layout.height;
+    setCardHeight((prev) => (prev === nextHeight ? prev : nextHeight));
+  }, [isDelivering]);
 
   const cardBody = (
     <>
@@ -516,7 +520,9 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
 
       <CheckoutSectionDivider width={innerWidth} scale={scale} />
 
-      {!isDelivering ? (
+      {isDelivering ? (
+        <DeliveringOrderFooter order={order} scale={scale} />
+      ) : (
         <View style={{ width: innerWidth, alignItems: 'center', gap: 16 * scale, paddingTop: 12 * scale, paddingHorizontal: 80 * scale }}>
           <Text
             style={[
@@ -533,12 +539,15 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
           </Text>
           <PastOrderExperienceStarsIcon width={220 * scale} height={24 * scale} />
         </View>
-      ) : null}
+      )}
     </>
   );
 
+  const deliveringCardFallbackHeight = 410 * scale;
+
   return (
     <View
+      onLayout={handleCardLayout}
       style={[
         styles.orderCard,
         {
@@ -550,18 +559,17 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
           gap: 16 * scale,
           overflow: 'hidden',
           ...(isDelivering
-            ? {
-                minHeight: deliveringCardHeight,
-                ...figmaShadow({ offsetX: 0, offsetY: 0, blur: 8, color: '#000000', opacity: 0.1 }, scale),
-              }
+            ? figmaShadow({ offsetX: 0, offsetY: 0, blur: 8, color: '#000000', opacity: 0.1 }, scale)
             : figmaShadow(FigmaShadows.checkoutScheduleCard, scale)),
         },
       ]}>
       {isDelivering ? (
-        <PastOrderDeliveringCardBackground width={cardWidth} height={deliveringCardHeight} />
+        <PastOrderDeliveringCardBackground
+          width={cardWidth}
+          height={cardHeight > 0 ? cardHeight : deliveringCardFallbackHeight}
+        />
       ) : null}
       <View style={{ zIndex: 1 }}>{cardBody}</View>
-      {isDelivering ? <DeliveringOrderFooter order={order} scale={scale} /> : null}
     </View>
   );
 }
@@ -696,18 +704,14 @@ export function PastOrdersScreen() {
             },
           ]}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 * scale, alignItems: 'center' }}>
-            {PAST_ORDER_FILTERS.map((chip, index) => (
-              <View key={chip.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8 * scale }}>
-                {index > 0 ? (
-                  <View style={{ width: 1 * scale, height: 26 * scale, backgroundColor: SwashoColors.neutral300 }} />
-                ) : null}
-                <OrderFilterChip
-                  label={chip.label}
-                  active={filter === chip.id}
-                  scale={scale}
-                  onPress={() => setFilter(chip.id)}
-                />
-              </View>
+            {PAST_ORDER_FILTERS.map((chip) => (
+              <OrderFilterChip
+                key={chip.id}
+                label={chip.label}
+                active={filter === chip.id}
+                scale={scale}
+                onPress={() => setFilter(chip.id)}
+              />
             ))}
           </ScrollView>
         </View>
