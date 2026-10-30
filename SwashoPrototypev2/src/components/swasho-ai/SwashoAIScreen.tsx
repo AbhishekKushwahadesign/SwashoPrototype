@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ArrowLeftIcon, MicrophoneIcon } from '@/components/home/figma-icons';
 import { FigmaShadows, figmaShadow } from '@/components/home/figma-shadows';
 import { HomeIndicator } from '@/components/home/HomeIndicator';
-import { NavBar, NAV_BAR_BOTTOM_INSET, SwashoAiIcon } from '@/components/home/NavBar';
+import { SwashoAiIcon } from '@/components/home/NavBar';
 import { StatusBar } from '@/components/home/StatusBar';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { searchFont } from '@/components/search/search-fonts';
@@ -25,7 +25,6 @@ import { HistoryIcon, ScannerIcon, SparkleBulletIcon } from './swasho-ai-icons';
 
 const STATUS_BAR_HEIGHT = 32;
 const HOME_INDICATOR_HEIGHT = 24;
-const NAV_HEIGHT = 101;
 const COMPOSER_HEIGHT = 45;
 /** Figma frame 3415:17972 vertical layout (896px artboard height). */
 const FIGMA_FRAME_HEIGHT = 896;
@@ -96,8 +95,7 @@ export function SwashoAIScreen() {
   const contentColumnWidth = FIGMA_CONTENT_WIDTH * scale;
   const contentColumnLeft = (contentWidth - contentColumnWidth) / 2;
 
-  const bottomChromeHeight = (NAV_HEIGHT + HOME_INDICATOR_HEIGHT) * scale;
-  const bottomNavLift = NAV_BAR_BOTTOM_INSET * scale;
+  const bottomChromeHeight = HOME_INDICATOR_HEIGHT * scale + insets.bottom;
   const composerTop = figmaY(FIGMA_COMPOSER_TOP);
   const scanTop = figmaY(FIGMA_SCAN_TOP);
   const chipsTop = figmaY(FIGMA_CHIPS_TOP);
@@ -409,21 +407,8 @@ export function SwashoAIScreen() {
           </Pressable>
         </View>
 
-        <View
-          style={[
-            styles.navBarWrap,
-            { height: bottomChromeHeight, bottom: bottomNavLift },
-          ]}>
-          <NavBar
-            variant="AI"
-            scale={scale}
-            onHomePress={() => router.replace('/')}
-            onSubscriptionPress={() => router.push('/subscription')}
-            onSwashoAiPress={() => {}}
-          />
-          <View style={styles.homeIndicatorWrap}>
-            <HomeIndicator scale={scale} />
-          </View>
+        <View style={[styles.homeIndicatorWrap, { height: bottomChromeHeight, bottom: 0 }]}>
+          <HomeIndicator scale={scale} />
         </View>
       </View>
     </View>
@@ -573,14 +558,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  navBarWrap: {
+  homeIndicatorWrap: {
     position: 'absolute',
     left: 0,
     right: 0,
+    bottom: 0,
     zIndex: 10,
-    backgroundColor: 'transparent',
-  },
-  homeIndicatorWrap: {
+    alignItems: 'center',
+    justifyContent: 'flex-end',
     backgroundColor: 'transparent',
   },
 });

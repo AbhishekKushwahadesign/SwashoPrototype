@@ -1,5 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useIsFocused, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
   Platform,
@@ -137,6 +137,7 @@ export function HomeScreen() {
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
   const { nav } = useLocalSearchParams<{ nav?: string }>();
+  const isFocused = useIsFocused();
   const [navVariant, setNavVariant] = useState<NavBarVariant>(() =>
     nav === 'orders' ? 'Orders' : 'Home',
   );
@@ -424,25 +425,27 @@ export function HomeScreen() {
           </ScrollView>
         </View>
 
-        <View
-          style={[
-            styles.navBarWrap,
-            { height: bottomChromeHeight, bottom: bottomNavLift },
-          ]}>
-          <NavBar
-            variant={navVariant}
-            scale={scale}
-            onHomePress={() => {
-              setNavVariant('Home');
-              router.replace('/');
-            }}
-            onSubscriptionPress={() => router.push('/subscription')}
-            onSwashoAiPress={() => router.push('/swasho-ai')}
-          />
-          <View style={styles.homeIndicatorWrap}>
-            <HomeIndicator scale={scale} />
+        {isFocused ? (
+          <View
+            style={[
+              styles.navBarWrap,
+              { height: bottomChromeHeight, bottom: bottomNavLift },
+            ]}>
+            <NavBar
+              variant={navVariant}
+              scale={scale}
+              onHomePress={() => {
+                setNavVariant('Home');
+                router.replace('/');
+              }}
+              onSubscriptionPress={() => router.push('/subscription')}
+              onSwashoAiPress={() => router.push('/swasho-ai')}
+            />
+            <View style={styles.homeIndicatorWrap}>
+              <HomeIndicator scale={scale} />
+            </View>
           </View>
-        </View>
+        ) : null}
       </View>
     </View>
   );
