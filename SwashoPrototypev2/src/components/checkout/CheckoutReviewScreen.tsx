@@ -66,6 +66,10 @@ import {
   ClothesLocationPencilIcon,
 } from './clothes-location-sheet-icons';
 import { ContactlessClothesLocationModal } from './ContactlessClothesLocationModal';
+import {
+  CheckoutPayPrototypeOverlay,
+  type CheckoutPayPrototypePhase,
+} from './CheckoutPayPrototypeOverlay';
 import { ContactlessPayPhotoRequiredModal } from './ContactlessPayPhotoRequiredModal';
 import { ContactlessBasketPhotoSection } from './ContactlessBasketPhotoSection';
 import { ContactlessHowItWorksModal } from './ContactlessHowItWorksModal';
@@ -120,6 +124,9 @@ const COMPENSATION_SHIELD_IMAGE_WIDTH_RATIO = 1.141;
 const COMPENSATION_SHIELD_IMAGE_HEIGHT_RATIO = 1.7119;
 const COMPENSATION_SHIELD_IMAGE_LEFT_RATIO = -0.0705;
 const COMPENSATION_SHIELD_IMAGE_TOP_RATIO = -0.3033;
+/** Prototype Pay — fake loading then success before home redirect. */
+const PAY_PROTOTYPE_LOADING_MS = 1500;
+const PAY_PROTOTYPE_SUCCESS_MS = 1400;
 
 const WEEKDAY_EVERY_LABEL: Record<CheckoutWeekdayId, string> = {
   mon: 'Monday',
@@ -312,6 +319,7 @@ export function CheckoutReviewScreen({
   const payLockRef = useRef(false);
   const [aiDemoPickupNudgeVisible, setAiDemoPickupNudgeVisible] = useState(fromAiDemo);
   const [payPhotoRequiredModalVisible, setPayPhotoRequiredModalVisible] = useState(false);
+  const [payPrototypePhase, setPayPrototypePhase] = useState<CheckoutPayPrototypePhase | null>(null);
 
   const contactlessPhotoStore = useMemo(
     () => getContactlessGarmentPhotos(providerId),
@@ -454,8 +462,34 @@ export function CheckoutReviewScreen({
     );
   }, [isSubscription, providerId, query, router, unsatisfiedMandatoryPhotoUpload]);
 
+  useEffect(() => {
+    if (payPrototypePhase !== 'loading') {
+      return;
+    }
+    const timer = setTimeout(() => setPayPrototypePhase('success'), PAY_PROTOTYPE_LOADING_MS);
+    return () => clearTimeout(timer);
+  }, [payPrototypePhase]);
+
+  useEffect(() => {
+    if (payPrototypePhase !== 'success') {
+      return;
+    }
+    const timer = setTimeout(() => {
+      setPayPrototypePhase(null);
+      payLockRef.current = false;
+      router.replace('/');
+    }, PAY_PROTOTYPE_SUCCESS_MS);
+    return () => clearTimeout(timer);
+  }, [payPrototypePhase, router]);
+
+  const paySuccessMessage = useMemo(
+    () =>
+      `Your ${isSubscription ? 'subscription' : 'order'} with ${providerCheckoutTitle} is confirmed for ${formatCheckoutInr(paymentDisplay.payLabelAmount)} (estimated). Taking you home…`,
+    [isSubscription, paymentDisplay.payLabelAmount, providerCheckoutTitle],
+  );
+
   const handlePayPress = useCallback(() => {
-    if (payLockRef.current || totals.itemCount <= 0) {
+    if (payLockRef.current || payPrototypePhase != null || totals.itemCount <= 0) {
       return;
     }
     if (contactless && !clothesLocationValid) {
@@ -467,28 +501,13 @@ export function CheckoutReviewScreen({
       return;
     }
     payLockRef.current = true;
-    Alert.alert(
-      'Order placed',
-      `Your ${isSubscription ? 'subscription' : 'order'} with ${providerCheckoutTitle} is confirmed for ${formatCheckoutInr(totals.totalPrice)} (estimated).`,
-      [
-        {
-          text: 'OK',
-          onPress: () => router.replace('/'),
-        },
-      ],
-    );
-    setTimeout(() => {
-      payLockRef.current = false;
-    }, 800);
+    setPayPrototypePhase('loading');
   }, [
     clothesLocationValid,
     contactless,
-    isSubscription,
     openClothesLocationSheet,
-    providerCheckoutTitle,
-    router,
+    payPrototypePhase,
     totals.itemCount,
-    totals.totalPrice,
     unsatisfiedMandatoryPhotoUpload,
   ]);
 
@@ -603,7 +622,8 @@ export function CheckoutReviewScreen({
         <ServiceSelectionButton
           label={`Pay ${formatCheckoutInr(paymentDisplay.payLabelAmount)}`}
           variant="primary"
-          disabled={totals.itemCount <= 0}
+          disabled={totals.itemCount <= 0 || payPrototypePhase != null}
+          loading={payPrototypePhase === 'loading'}
           onPress={handlePayPress}
           scale={scale}
           style={{ width: 199 * scale, minHeight: 52 * scale }}
@@ -861,6 +881,12 @@ export function CheckoutReviewScreen({
           scale={scale}
           onUploadPhoto={handleUploadPhotoFromPayGuard}
           onCancel={() => setPayPhotoRequiredModalVisible(false)}
+        />
+        <CheckoutPayPrototypeOverlay
+          phase={payPrototypePhase}
+          scale={scale}
+          title="Order placed"
+          message={paySuccessMessage}
         />
       </View>
     </View>
