@@ -384,6 +384,7 @@ function DeliveringOrderFooter({
           gap: 6 * scale,
           paddingHorizontal: 4 * scale,
           flexShrink: 0,
+          zIndex: 3,
         }}>
         <PastOrderTrackRiderIcon width={20 * scale} height={20 * scale} />
         <Text

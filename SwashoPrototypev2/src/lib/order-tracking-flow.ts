@@ -2,11 +2,9 @@ import type { Href } from 'expo-router';
 
 import { HOME_ACTIVE_ORDER_ID } from '@/data/order-tracking';
 
+/** Root-stack route — use query string so navigation works from nested stacks (e.g. past-orders) on web. */
 export function orderTrackingHref(orderId: string): Href {
-  return {
-    pathname: '/order-tracking',
-    params: { orderId },
-  };
+  return `/order-tracking?orderId=${encodeURIComponent(orderId)}`;
 }
 
 export function orderTrackingHrefFromHome(): Href {

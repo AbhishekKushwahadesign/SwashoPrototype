@@ -90,7 +90,13 @@ function TrackingCard({
 }
 
 export function OrderTrackingScreen() {
-  const { orderId } = useLocalSearchParams<{ orderId?: string }>();
+  const { orderId: orderIdParam } = useLocalSearchParams<{ orderId?: string | string[] }>();
+  const orderId = useMemo(() => {
+    if (orderIdParam == null) {
+      return undefined;
+    }
+    return Array.isArray(orderIdParam) ? orderIdParam[0] : orderIdParam;
+  }, [orderIdParam]);
   const { scale, contentWidth } = useScreenScale();
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);

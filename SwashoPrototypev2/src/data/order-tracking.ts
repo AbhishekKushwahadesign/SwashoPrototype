@@ -121,11 +121,21 @@ for (const order of DEMO_PAST_ORDERS) {
   trackingById[model.shortOrderId] = model;
 }
 
-export function orderTrackingForId(orderId: string | undefined): OrderTrackingViewModel | null {
-  if (!orderId) {
+function normalizeOrderIdParam(orderId: string | string[] | undefined): string | undefined {
+  if (orderId == null) {
+    return undefined;
+  }
+  return Array.isArray(orderId) ? orderId[0] : orderId;
+}
+
+export function orderTrackingForId(
+  orderId: string | string[] | undefined,
+): OrderTrackingViewModel | null {
+  const id = normalizeOrderIdParam(orderId);
+  if (!id) {
     return null;
   }
-  return trackingById[orderId] ?? null;
+  return trackingById[id] ?? null;
 }
 
 export function defaultDeliveringOrderTracking(): OrderTrackingViewModel {
