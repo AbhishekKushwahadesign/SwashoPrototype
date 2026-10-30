@@ -410,7 +410,7 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
 
   const cardBody = (
     <>
-      <View style={{ width: innerWidth, gap: 8 * scale, position: 'relative' }}>
+      <View style={{ width: innerWidth, gap: 8 * scale, position: 'relative', padding: 12 * scale }}>
         <Text
           style={[
             searchFont(isDelivering ? 'semibold' : 'medium'),
