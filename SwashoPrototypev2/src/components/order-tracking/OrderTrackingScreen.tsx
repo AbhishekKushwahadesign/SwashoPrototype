@@ -39,7 +39,12 @@ import { OrderTrackingTimeline } from './OrderTrackingTimeline';
 
 const STATUS_BAR_HEIGHT = 32;
 const HEADER_GRADIENT_HEIGHT = 103;
+const TOP_TIME_SECTION_TOP = 48.5;
+const MAP_TOP = 102.5;
 const MAP_HEIGHT = 472;
+const MAP_SCREENSHOT_HEIGHT_RATIO = 1.9425;
+const MAP_SCREENSHOT_TOP_RATIO = -0.4328;
+const SCROLL_CONTENT_TOP = MAP_TOP + MAP_HEIGHT - 42;
 const PAGE_BG = '#f2f2f2';
 const SUCCESS_200 = '#bbf7d0';
 const SUCCESS_600 = '#16a34a';
@@ -128,62 +133,11 @@ export function OrderTrackingScreen() {
         <ScrollView
           style={styles.scroll}
           contentContainerStyle={{
+            paddingTop: SCROLL_CONTENT_TOP * scale,
             paddingBottom: HOME_INDICATOR_HEIGHT * scale + insets.bottom + 24 * scale,
           }}
           showsVerticalScrollIndicator={false}>
-          <View style={{ height: MAP_HEIGHT * scale, width: '100%', marginTop: HEADER_GRADIENT_HEIGHT * scale }}>
-            <RNImage source={mapScreenshot} style={StyleSheet.absoluteFillObject} resizeMode="cover" />
-            <LinearGradient
-              colors={['rgba(255,255,255,0)', PAGE_BG]}
-              locations={[0.8528, 1]}
-              style={StyleSheet.absoluteFillObject}
-            />
-            <View
-              style={{
-                position: 'absolute',
-                left: 154.5 * scale,
-                top: 135.5 * scale,
-                width: 115 * scale,
-                height: 172.5 * scale,
-              }}>
-              <OrderTrackingRoutePathIcon width={115 * scale} height={172.5 * scale} />
-            </View>
-            <View
-              style={{
-                position: 'absolute',
-                left: 160 * scale,
-                top: 102 * scale,
-                width: 58.924 * scale,
-                height: 58.924 * scale,
-                alignItems: 'center',
-                justifyContent: 'center',
-                transform: [{ rotate: '141.24deg' }],
-              }}>
-              <RNImage
-                source={mapPinRider}
-                style={{ width: 41.914 * scale, height: 41.914 * scale }}
-                resizeMode="cover"
-              />
-            </View>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Focus map on rider"
-              style={{
-                position: 'absolute',
-                left: 348 * scale,
-                top: 304 * scale,
-                backgroundColor: SwashoColors.surface,
-                borderWidth: 1 * scale,
-                borderColor: SwashoColors.neutral300,
-                borderRadius: 9999 * scale,
-                padding: 6 * scale,
-                ...figmaShadow({ offsetX: 0, offsetY: 0, blur: 3, color: '#000000', opacity: 0.15 }, scale),
-              }}>
-              <RNImage source={mapPinDestination} style={{ width: 24 * scale, height: 24 * scale }} resizeMode="cover" />
-            </Pressable>
-          </View>
-
-          <View style={{ marginTop: -42 * scale, paddingHorizontal: horizontalPad, gap: 20 * scale }}>
+          <View style={{ paddingHorizontal: horizontalPad, gap: 20 * scale }}>
             <TrackingCard scale={scale} style={{ gap: 12 * scale, width: cardWidth, alignSelf: 'center' }}>
               <View style={[styles.row, { gap: 12 * scale }]}>
                 <RNImage
@@ -443,6 +397,91 @@ export function OrderTrackingScreen() {
           </View>
         </ScrollView>
 
+        <View
+          pointerEvents="none"
+          style={{
+            position: 'absolute',
+            top: HEADER_GRADIENT_HEIGHT * scale,
+            left: 0,
+            right: 0,
+            height: MAP_HEIGHT * scale,
+            backgroundColor: PAGE_BG,
+            zIndex: 1,
+          }}
+        />
+
+        <View
+          style={{
+            position: 'absolute',
+            top: MAP_TOP * scale,
+            left: 0,
+            right: 0,
+            height: MAP_HEIGHT * scale,
+            overflow: 'hidden',
+            zIndex: 2,
+          }}>
+          <RNImage
+            source={mapScreenshot}
+            style={{
+              position: 'absolute',
+              left: 0,
+              width: '100%',
+              height: MAP_HEIGHT * MAP_SCREENSHOT_HEIGHT_RATIO * scale,
+              top: MAP_HEIGHT * MAP_SCREENSHOT_TOP_RATIO * scale,
+            }}
+            resizeMode="cover"
+          />
+          <LinearGradient
+            colors={['rgba(255,255,255,0)', PAGE_BG]}
+            locations={[0.85275, 1]}
+            style={StyleSheet.absoluteFillObject}
+            pointerEvents="none"
+          />
+          <View
+            style={{
+              position: 'absolute',
+              left: 154.5 * scale,
+              top: 135.5 * scale,
+              width: 115 * scale,
+              height: 172.5 * scale,
+            }}>
+            <OrderTrackingRoutePathIcon width={115 * scale} height={172.5 * scale} />
+          </View>
+          <View
+            style={{
+              position: 'absolute',
+              left: 160 * scale,
+              top: 102 * scale,
+              width: 58.924 * scale,
+              height: 58.924 * scale,
+              alignItems: 'center',
+              justifyContent: 'center',
+              transform: [{ rotate: '141.24deg' }],
+            }}>
+            <RNImage
+              source={mapPinRider}
+              style={{ width: 41.914 * scale, height: 41.914 * scale }}
+              resizeMode="cover"
+            />
+          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Focus map on rider"
+            style={{
+              position: 'absolute',
+              left: 348 * scale,
+              top: 304 * scale,
+              backgroundColor: SwashoColors.surface,
+              borderWidth: 1 * scale,
+              borderColor: SwashoColors.neutral300,
+              borderRadius: 9999 * scale,
+              padding: 6 * scale,
+              ...figmaShadow({ offsetX: 0, offsetY: 0, blur: 3, color: '#000000', opacity: 0.15 }, scale),
+            }}>
+            <RNImage source={mapPinDestination} style={{ width: 24 * scale, height: 24 * scale }} resizeMode="cover" />
+          </Pressable>
+        </View>
+
         <LinearGradient
           colors={[SwashoColors.surface, SUCCESS_200]}
           start={{ x: 0, y: 0.5 }}
@@ -459,15 +498,24 @@ export function OrderTrackingScreen() {
           <View style={[styles.statusBar, { height: STATUS_BAR_HEIGHT * scale }]}>
             <StatusBar scale={scale} tone="transparent" />
           </View>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'flex-start',
+        </LinearGradient>
+
+        <LinearGradient
+          colors={[SwashoColors.surface, SUCCESS_200]}
+          start={{ x: 0, y: 0.5 }}
+          end={{ x: 1, y: 0.5 }}
+          locations={[0.5008, 0.9999]}
+          style={[
+            styles.topTimeSection,
+            {
+              top: TOP_TIME_SECTION_TOP * scale,
               paddingLeft: 48 * scale,
               paddingRight: 37 * scale,
               paddingVertical: 8 * scale,
-              gap: 8 * scale,
-            }}>
+            },
+          ]}
+          pointerEvents="box-none">
+          <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 * scale }}>
             <View style={{ width: 36.884 * scale, height: 35.162 * scale, transform: [{ rotate: '1.87deg' }] }}>
               <Image
                 source={headerRider}
@@ -475,7 +523,7 @@ export function OrderTrackingScreen() {
                 contentFit="contain"
               />
             </View>
-            <View style={{ flex: 1, gap: 6 * scale }}>
+            <View style={{ gap: 6 * scale, flexShrink: 1 }}>
               <Text
                 style={[
                   searchFont('medium'),
@@ -507,21 +555,31 @@ export function OrderTrackingScreen() {
                 />
               </Pressable>
             </View>
-            <View style={[styles.row, { gap: 4 * scale, alignItems: 'center' }]}>
-              <OrderTrackingVerifiedCheckIcon width={18 * scale} height={18 * scale} />
-              <Text
-                style={[
-                  searchFont('medium'),
-                  {
-                    fontSize: 13 * scale,
-                    lineHeight: 12 * scale,
-                    letterSpacing: 0.5 * scale,
-                    color: SUCCESS_600,
-                  },
-                ]}>
-                {order.onTimeLabel}
-              </Text>
-            </View>
+          </View>
+          <View
+            style={{
+              position: 'absolute',
+              left: 311.88 * scale,
+              top: '50%',
+              marginTop: 1.49 * scale,
+              transform: [{ translateY: -9 * scale }],
+              flexDirection: 'row',
+              gap: 4 * scale,
+              alignItems: 'center',
+            }}>
+            <OrderTrackingVerifiedCheckIcon width={18 * scale} height={18 * scale} />
+            <Text
+              style={[
+                searchFont('medium'),
+                {
+                  fontSize: 13 * scale,
+                  lineHeight: 12 * scale,
+                  letterSpacing: 0.5 * scale,
+                  color: SUCCESS_600,
+                },
+              ]}>
+              {order.onTimeLabel}
+            </Text>
           </View>
         </LinearGradient>
 
@@ -576,10 +634,17 @@ const styles = StyleSheet.create({
   },
   scroll: {
     flex: 1,
+    zIndex: 3,
   },
   headerGradient: {
     position: 'absolute',
     top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+  },
+  topTimeSection: {
+    position: 'absolute',
     left: 0,
     right: 0,
     zIndex: 10,
