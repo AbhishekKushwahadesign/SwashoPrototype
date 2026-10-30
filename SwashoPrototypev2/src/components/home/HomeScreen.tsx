@@ -324,7 +324,7 @@ export function HomeScreen() {
             styles.headerLayer,
             {
               top: HEADER_REGION_TOP * scale,
-              zIndex: 4,
+              zIndex: 2,
             },
           ]}>
           <LinearGradient
@@ -337,7 +337,6 @@ export function HomeScreen() {
                 height: HEADER_GRADIENT_HEIGHT * scale,
                 borderBottomLeftRadius: SwashoRadii.header * scale,
                 borderBottomRightRadius: SwashoRadii.header * scale,
-                zIndex: 4,
               },
             ]}>
             <View
@@ -395,7 +394,7 @@ export function HomeScreen() {
             {
               top: sheetTop,
               height: sheetHeight,
-              zIndex: 3,
+              zIndex: 4,
             },
           ]}
         >
