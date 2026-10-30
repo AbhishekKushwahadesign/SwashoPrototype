@@ -57,6 +57,7 @@ export function Search1Screen() {
   const router = useRouter();
   const searchBarRef = useRef<SearchNavigationBarHandle>(null);
   const [query, setQuery] = useState('');
+  const [searchInputKey, setSearchInputKey] = useState(0);
   const { scale, contentWidth, contentHeight } = useScreenScale();
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
@@ -95,8 +96,21 @@ export function Search1Screen() {
 
   useFocusEffect(
     useCallback(() => {
-      const timer = setTimeout(() => searchBarRef.current?.focus(), 100);
-      return () => clearTimeout(timer);
+      setSearchInputKey((key) => key + 1);
+      let cancelled = false;
+      const focusInput = () => {
+        if (!cancelled) {
+          searchBarRef.current?.focus();
+        }
+      };
+      const t1 = setTimeout(focusInput, 50);
+      const t2 = setTimeout(focusInput, 250);
+      return () => {
+        cancelled = true;
+        clearTimeout(t1);
+        clearTimeout(t2);
+        searchBarRef.current?.blur();
+      };
     }, []),
   );
 
@@ -115,30 +129,30 @@ export function Search1Screen() {
           <SearchStatusBar scale={scale} />
         </View>
 
-        <TouchableWithoutFeedback onPress={dismissKeyboard} accessible={false}>
-          <ScrollView
-            style={[styles.scroll, { marginTop: STATUS_BAR_HEIGHT * scale }]}
-            contentContainerStyle={[
-              styles.scrollContent,
-              {
-                paddingTop: SEARCH_BELOW_STATUS_GAP * scale,
-                paddingBottom: 24 * scale,
-              },
-            ]}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-            keyboardDismissMode="on-drag"
-            onScrollBeginDrag={dismissKeyboard}>
-            <View style={[styles.searchBlock, { gap: SEARCH_INTERNAL_GAP * scale, width: contentWidth }]}>
-              <SearchNavigationBar
-                ref={searchBarRef}
-                scale={scale}
-                value={query}
-                onChangeText={setQuery}
-                onSubmit={handleSubmit}
-                onBackPress={handleBackPress}
-                autoFocus
-              />
+        <ScrollView
+          style={[styles.scroll, { marginTop: STATUS_BAR_HEIGHT * scale }]}
+          contentContainerStyle={[
+            styles.scrollContent,
+            {
+              paddingTop: SEARCH_BELOW_STATUS_GAP * scale,
+              paddingBottom: 24 * scale,
+            },
+          ]}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+          onScrollBeginDrag={dismissKeyboard}>
+          <View style={[styles.searchBlock, { gap: SEARCH_INTERNAL_GAP * scale, width: contentWidth }]}>
+            <SearchNavigationBar
+              ref={searchBarRef}
+              scale={scale}
+              value={query}
+              onChangeText={setQuery}
+              onSubmit={handleSubmit}
+              onBackPress={handleBackPress}
+              autoFocus
+              inputKey={searchInputKey}
+            />
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -163,6 +177,8 @@ export function Search1Screen() {
             </ScrollView>
           </View>
 
+          <TouchableWithoutFeedback onPress={dismissKeyboard} accessible={false}>
+            <View>
           <View style={{ height: SEARCH_TO_OFFERS_GAP * scale }} />
 
           <View
@@ -254,8 +270,9 @@ export function Search1Screen() {
               ))}
             </ScrollView>
           </View>
-          </ScrollView>
-        </TouchableWithoutFeedback>
+            </View>
+          </TouchableWithoutFeedback>
+        </ScrollView>
 
         <View style={styles.homeIndicatorWrap}>
           <HomeIndicator scale={scale} />

@@ -20,6 +20,8 @@ type SearchNavigationBarProps = {
   onBackPress?: () => void;
   onMicrophonePress?: () => void;
   autoFocus?: boolean;
+  /** Remount input when search screen refocuses (fixes RN Web after cancel/back). */
+  inputKey?: number;
 };
 
 export const SearchNavigationBar = forwardRef<SearchNavigationBarHandle, SearchNavigationBarProps>(
@@ -32,6 +34,7 @@ export const SearchNavigationBar = forwardRef<SearchNavigationBarHandle, SearchN
       onBackPress,
       onMicrophonePress,
       autoFocus = false,
+      inputKey = 0,
     },
     ref,
   ) {
@@ -72,6 +75,7 @@ export const SearchNavigationBar = forwardRef<SearchNavigationBarHandle, SearchN
             </View>
           </View>
           <TextInput
+            key={`search-input-${inputKey}`}
             ref={inputRef}
             value={value}
             onChangeText={onChangeText}
@@ -79,6 +83,7 @@ export const SearchNavigationBar = forwardRef<SearchNavigationBarHandle, SearchN
             placeholder="Search"
             placeholderTextColor={SwashoColors.neutral500}
             autoFocus={autoFocus}
+            editable
             returnKeyType="search"
             style={[
               styles.input,
