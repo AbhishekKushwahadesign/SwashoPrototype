@@ -999,7 +999,7 @@ export function GarmentPhotoUploadScreen({
               alignItems: 'center',
               gap: 8 * scale,
               paddingLeft: 22 * scale,
-              paddingBottom: 31 * scale,
+              paddingBottom: 11 * scale,
             }}
             style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }}>
             {activePhotos.map((uri) => (
