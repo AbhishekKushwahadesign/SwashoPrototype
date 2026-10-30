@@ -1276,7 +1276,7 @@ export function GarmentPhotoUploadScreen({
               gap: 12 * scale,
               paddingHorizontal: 24 * scale,
               marginTop: 'auto',
-              paddingBottom: 8 * scale,
+              paddingBottom: 32 * scale,
             }}>
             <Pressable
               accessibilityRole="button"
