@@ -6,7 +6,12 @@ import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
 import { AddSquareIcon } from './service-selection-icons';
 
-export type ServiceSelectionButtonVariant = 'primary' | 'secondary' | 'secondaryDashed' | 'tertiary';
+export type ServiceSelectionButtonVariant =
+  | 'primary'
+  | 'secondary'
+  | 'secondaryBrand'
+  | 'secondaryDashed'
+  | 'tertiary';
 
 type ServiceSelectionButtonProps = {
   label: string;
@@ -62,11 +67,13 @@ export function ServiceSelectionButton({
         styles.base,
         variant === 'primary' && styles.primary,
         variant === 'secondary' && styles.secondary,
+        variant === 'secondaryBrand' && styles.secondaryBrand,
         variant === 'secondaryDashed' && styles.secondaryDashed,
         variant === 'tertiary' && styles.tertiary,
         isTertiary && styles.tertiaryLayout,
         isDisabled && variant === 'primary' && styles.primaryDisabled,
         isDisabled && variant === 'secondary' && styles.secondaryDisabled,
+        isDisabled && variant === 'secondaryBrand' && styles.secondaryDisabled,
         isDisabled && variant === 'tertiary' && styles.tertiaryDisabled,
         {
           height,
@@ -101,6 +108,7 @@ export function ServiceSelectionButton({
               variant === 'primary' && !isDisabled && styles.primaryLabel,
               variant === 'primary' && isDisabled && styles.primaryDisabledLabel,
               variant === 'secondary' && styles.secondaryLabel,
+              variant === 'secondaryBrand' && styles.secondaryBrandLabel,
               variant === 'secondaryDashed' && styles.dashedLabel,
               variant === 'tertiary' && styles.tertiaryLabel,
               { fontSize, lineHeight, letterSpacing: 0.5 * scale },
@@ -149,6 +157,15 @@ const styles = StyleSheet.create({
   },
   secondaryLabel: {
     color: SwashoColors.neutral600,
+  },
+  /** Outlined secondary with brand stroke + label (active combo CTA). */
+  secondaryBrand: {
+    backgroundColor: SwashoColors.surface,
+    borderWidth: 1,
+    borderColor: SwashoColors.primary600,
+  },
+  secondaryBrandLabel: {
+    color: SwashoColors.primary600,
   },
   secondaryDashed: {
     backgroundColor: SwashoColors.surface,
