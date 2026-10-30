@@ -31,6 +31,7 @@ import {
   type SubscriptionGarmentLine,
   type SubscriptionSummary,
 } from '@/data/subscriptions';
+import { subscriptionPastOrdersHref } from '@/lib/subscription-past-orders-flow';
 import { subscriptionOrderReviewHrefFromSummary } from '@/lib/subscription-order-review-flow';
 
 import { BillListIcon, VerticalRuleIcon } from './subscription-icons';
@@ -589,6 +590,7 @@ export function SubscriptionScreen() {
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Past orders"
+              onPress={() => router.push(subscriptionPastOrdersHref())}
               style={[
                 styles.iconPill,
                 {

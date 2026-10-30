@@ -5,6 +5,7 @@ export default function SubscriptionLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
       <Stack.Screen name="order-review" options={{ animation: 'slide_from_right' }} />
+      <Stack.Screen name="past-orders" options={{ animation: 'slide_from_right' }} />
     </Stack>
   );
 }
