@@ -42,7 +42,12 @@ export default function RootLayout() {
 
   return (
     <ProviderCartProvider>
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          // Unmount Home/Subscription when pushing Swasho AI so bottom nav cannot bleed through.
+          detachInactiveScreens: true,
+        }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="subscription" />
         <Stack.Screen name="swasho-ai" />
