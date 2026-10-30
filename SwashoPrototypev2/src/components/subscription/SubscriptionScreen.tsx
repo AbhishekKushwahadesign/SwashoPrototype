@@ -709,9 +709,7 @@ export function SubscriptionScreen() {
               scale={scale}
               onHomePress={() => router.replace('/')}
               onSubscriptionPress={() => {}}
-              onSwashoAiPress={() =>
-                router.push({ pathname: '/swasho-ai', params: { returnTo: '/subscription' } })
-              }
+              onSwashoAiPress={() => router.push('/swasho-ai')}
             />
             <View style={styles.homeIndicatorWrap}>
               <HomeIndicator scale={scale} />

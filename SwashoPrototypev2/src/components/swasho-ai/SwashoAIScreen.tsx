@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { Href, router, useLocalSearchParams } from 'expo-router';
-import { useMemo, useState, type ReactNode } from 'react';
+import { router } from 'expo-router';
+import { useCallback, useState, type ReactNode } from 'react';
 import {
   Platform,
   Pressable,
@@ -44,14 +44,6 @@ const FIGMA_HOME_INDICATOR_TOP = 896;
 const FIGMA_CONTENT_WIDTH = 372;
 const FIGMA_CHIPS_WIDTH = 451;
 const FIGMA_HORIZONTAL_INSET = 20;
-
-function resolveReturnToHref(value: string | string[] | undefined): Href {
-  const raw = Array.isArray(value) ? value[0] : value;
-  if (raw && raw.startsWith('/')) {
-    return raw as Href;
-  }
-  return '/';
-}
 
 const FEATURE_BULLETS = [
   'Recommend the best service for your garment',
@@ -127,9 +119,11 @@ export function SwashoAIScreen() {
   const { scale, contentWidth } = useScreenScale();
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
-  const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
-  const backHref = useMemo(() => resolveReturnToHref(returnTo), [returnTo]);
   const [draft, setDraft] = useState('');
+
+  const goHome = useCallback(() => {
+    router.replace('/');
+  }, []);
 
   const layoutHeight = FIGMA_FRAME_HEIGHT * scale;
   const figmaY = (y: number) => y * scale;
@@ -411,7 +405,7 @@ export function SwashoAIScreen() {
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Go home"
-            onPress={() => router.replace(backHref)}
+            onPress={goHome}
             hitSlop={8}
             style={StyleSheet.flatten([
               styles.circleButton,
