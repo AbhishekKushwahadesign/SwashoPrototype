@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { router, useIsFocused } from 'expo-router';
+import { router, useIsFocused, useSegments } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import {
   Platform,
@@ -498,6 +498,10 @@ export function SubscriptionScreen() {
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
   const isFocused = useIsFocused();
+  const segments = useSegments();
+  const isSubscriptionRoot =
+    segments.length === 1 && (segments[0] === 'subscription' || segments[0] === '(subscription)');
+  const showBottomNav = isFocused && isSubscriptionRoot;
   const [filter, setFilter] = useState<SubscriptionFilterId>('all');
 
   const frameHeight = contentHeight + safeTop;
@@ -694,7 +698,7 @@ export function SubscriptionScreen() {
           )}
         </ScrollView>
 
-        {isFocused ? (
+        {showBottomNav ? (
           <View
             style={[
               styles.navBarWrap,

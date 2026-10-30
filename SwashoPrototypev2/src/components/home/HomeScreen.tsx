@@ -1,5 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { router, useIsFocused, useLocalSearchParams } from 'expo-router';
+import { router, useIsFocused, useLocalSearchParams, usePathname } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
   Platform,
@@ -138,6 +138,9 @@ export function HomeScreen() {
   const safeTop = useSafeTopInset(insets.top);
   const { nav } = useLocalSearchParams<{ nav?: string }>();
   const isFocused = useIsFocused();
+  const pathname = usePathname();
+  const isHomeRoot = pathname === '/' || pathname === '';
+  const showBottomNav = isFocused && isHomeRoot;
   const [navVariant, setNavVariant] = useState<NavBarVariant>(() =>
     nav === 'orders' ? 'Orders' : 'Home',
   );
@@ -425,7 +428,7 @@ export function HomeScreen() {
           </ScrollView>
         </View>
 
-        {isFocused ? (
+        {showBottomNav ? (
           <View
             style={[
               styles.navBarWrap,
