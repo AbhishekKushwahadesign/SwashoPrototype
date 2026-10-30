@@ -145,8 +145,8 @@ function BulkLoadStickyFooter({
         },
       ]}>
       <ServiceSelectionStickyDeleteButton scale={scale} onPress={onDelete} />
-      <View style={[styles.stickyFooterMain, { gap: 20 * scale }]}>
-      <View style={[styles.stickySummary, { gap: 4 * scale, width: 156 * scale }]}>
+      <View style={[styles.stickyFooterMain, { gap: 12 * scale }]}>
+      <View style={[styles.stickySummary, { gap: 4 * scale }]}>
         <Text
           style={[
             searchFont('semibold'),
