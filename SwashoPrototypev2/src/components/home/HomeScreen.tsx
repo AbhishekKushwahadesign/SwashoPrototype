@@ -125,8 +125,6 @@ const SHEET_COLLAPSE_DISTANCE = SHEET_REGION_TOP - SHEET_STICKY_TOP;
 const HEADER_COLLAPSE_SCROLL = Math.max(SEARCH_COLLAPSE_DISTANCE, SHEET_COLLAPSE_DISTANCE);
 
 const SHEET_STICKY_PADDING = 120;
-/** Extra inset when collapsed so sheet content can scroll under the purple search chrome. */
-const SCROLL_UNDER_PURPLE_INSET = 28;
 const SUBTRACT_TOP = 57.5;
 const SUBTRACT_HEIGHT = 908.1035;
 
@@ -225,11 +223,7 @@ export function HomeScreen() {
     1,
   );
   const subtractTop = SUBTRACT_TOP * (1 - sheetTravelDone);
-  const sheetContentPaddingTop =
-    SHEET_STICKY_PADDING -
-    SUBTRACT_TOP * sheetTravelDone -
-    SCROLL_UNDER_PURPLE_INSET * sheetTravelDone;
-  const subtractOpacity = 1 - sheetTravelDone;
+  const sheetContentPaddingTop = SHEET_STICKY_PADDING - SUBTRACT_TOP * sheetTravelDone;
 
   const applyCollapse = (nextY: number) => {
     const clamped = Math.max(0, Math.min(nextY, maxCollapseScroll));
@@ -386,23 +380,10 @@ export function HomeScreen() {
             styles.searchLayer,
             {
               top: searchTop,
-              zIndex: 7,
+              zIndex: 6,
             },
           ]}>
-          <LinearGradient
-            colors={[SwashoColors.primary500, SwashoColors.primary100]}
-            locations={[0.003, 1]}
-            pointerEvents="box-none"
-            style={[
-              styles.searchChrome,
-              {
-                paddingTop: 8 * scale,
-                paddingBottom: SEARCH_BAR_BOTTOM_GAP * scale,
-                paddingHorizontal: SwashoSpacing.xxl * scale,
-              },
-            ]}>
-            <SearchField scale={scale} onPress={() => router.push('/search')} />
-          </LinearGradient>
+          <SearchField scale={scale} onPress={() => router.push('/search')} />
         </View>
 
         {/* White sheet — pins so the concave notch wraps the stuck search */}
@@ -425,7 +406,6 @@ export function HomeScreen() {
               {
                 top: subtractTop * scale,
                 height: SUBTRACT_HEIGHT * scale,
-                opacity: subtractOpacity,
               },
             ]}>
             <SubtractIcon width={contentWidth} height={SUBTRACT_HEIGHT * scale} />
@@ -530,12 +510,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    alignItems: 'stretch',
-    backgroundColor: 'transparent',
-  },
-  searchChrome: {
-    width: '100%',
     alignItems: 'center',
+    backgroundColor: 'transparent',
   },
   sheetContainer: {
     position: 'absolute',
