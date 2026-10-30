@@ -43,7 +43,7 @@ import {
 import { CheckoutGarmentThumbIcon, CheckoutInfoIcon } from './checkout-review-icons';
 import { ContactlessGalleryAddPrimaryIcon } from './contactless-basket-photo-icons';
 import { ContactlessHowItWorksModal } from './ContactlessHowItWorksModal';
-import { usePickGarmentPhoto } from './use-pick-garment-photo';
+import { demoGarmentPhotoUriForSlot } from '@/lib/demo-garment-photo-uri';
 
 /** Figma 3399:16791 — reference garment on hanger (not contactless workflow art). */
 const DEFAULT_GARMENT_HERO = require('@/assets/checkout/garment-photo-upload-hero.png');
@@ -345,7 +345,6 @@ export function GarmentPhotoUploadScreen({
   const safeTop = useSafeTopInset(insets.top);
   const { getProviderCartEntries, getSelection, getContactlessGarmentPhotos, addContactlessGarmentPhoto } =
     useProviderCart();
-  const { pickPhoto } = usePickGarmentPhoto();
   const [guideVisible, setGuideVisible] = useState(false);
 
   const photoStore = getContactlessGarmentPhotos(providerId);
@@ -518,18 +517,15 @@ export function GarmentPhotoUploadScreen({
     router.replace('/');
   }, [router]);
 
-  const handleUploadPress = useCallback(async () => {
+  const handleUploadPress = useCallback(() => {
     if (!activeLine || !activeService) {
       return;
     }
     const captureGarmentId = activeLine.serviceId;
     const captureServiceId = activeService.serviceId;
-    const uri = await pickPhoto();
-    if (!uri) {
-      return;
-    }
+    const uri = demoGarmentPhotoUriForSlot(captureGarmentId, captureServiceId);
     addContactlessGarmentPhoto(providerId, captureGarmentId, captureServiceId, uri);
-  }, [activeLine, activeService, addContactlessGarmentPhoto, pickPhoto, providerId]);
+  }, [activeLine, activeService, addContactlessGarmentPhoto, providerId]);
 
   const garmentRingSize = 81 * scale;
   const garmentActiveInner = 71 * scale;
