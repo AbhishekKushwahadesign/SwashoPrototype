@@ -114,6 +114,30 @@ export function SheetCloseIcon({ width, height, style }: IconProps) {
   return <SvgXml xml={SheetCloseIconXml} width={width} height={height} style={style} />;
 }
 
+/** Figma 59340:4844 — Linear / Security / Shield Cross (delete garment line). */
+const SheetDeleteShieldCrossIconXml = `<svg preserveAspectRatio="xMidYMid meet" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 64.8 64.8" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Linear / Security / Shield Cross">
+<path d="M56.7 32.3767C56.7 30.8432 56.7 29.4291 56.7 28.125C56.7 19.4915 56.7 15.1748 55.6807 13.7225C54.6614 12.2703 50.6025 10.8809 42.4847 8.10214L40.9382 7.57274C36.7066 6.12425 34.5907 5.4 32.4 5.4C30.2093 5.4 28.0935 6.12425 23.8619 7.57274L22.3153 8.10214C14.1975 10.8809 10.1386 12.2703 9.11929 13.7225C8.1 15.1748 8.1 19.4915 8.1 28.125C8.1 29.4291 8.1 30.8432 8.1 32.3767C8.1 47.5995 19.5452 54.9868 26.7261 58.1236C28.674 58.9746 29.648 59.4 32.4 59.4C35.152 59.4 36.126 58.9746 38.0739 58.1237C45.2548 54.9868 56.7 47.5995 56.7 32.3767Z" stroke="#5D30F7" stroke-width="5.4"/>
+<path d="M39.15 25.65L32.4 32.4M32.4 32.4L25.6501 39.1499M32.4 32.4L25.65 25.6499M32.4 32.4L39.1499 39.1499" stroke="#292929" stroke-width="2.4" stroke-linecap="round"/>
+</g>
+</svg>`;
+
+export function SheetDeleteShieldCrossIcon({ width, height, style }: IconProps) {
+  return <SvgXml xml={SheetDeleteShieldCrossIconXml} width={width} height={height} style={style} />;
+}
+
+/** Figma 59340:4908 — Bold / Arrows Action / Upload Minimalistic (sticky footer remove). */
+const ServiceSelectionRemoveIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Bold / Arrows Action / Upload Minimalistic">
+<path d="M10.4613 2.07827C10.3429 1.94876 10.1755 1.875 10 1.875C9.82453 1.875 9.65714 1.94876 9.53873 2.07827L6.2054 5.7241C5.97248 5.97885 5.99018 6.37419 6.24494 6.6071C6.49969 6.84002 6.89502 6.82231 7.12793 6.56756L9.375 4.10984V13.3333C9.375 13.6785 9.65482 13.9583 10 13.9583C10.3452 13.9583 10.625 13.6785 10.625 13.3333V4.10984L12.8721 6.56756C13.105 6.82231 13.5003 6.84002 13.7551 6.6071C14.0098 6.37419 14.0275 5.97885 13.7946 5.7241L10.4613 2.07827Z" fill="#EF4444"/>
+<path d="M3.125 12.5C3.125 12.1548 2.84518 11.875 2.5 11.875C2.15482 11.875 1.875 12.1548 1.875 12.5V12.5457C1.87498 13.6854 1.87497 14.604 1.9721 15.3265C2.07295 16.0765 2.28869 16.7081 2.79029 17.2097C3.29189 17.7113 3.92345 17.927 4.67354 18.0279C5.39601 18.125 6.31462 18.125 7.45428 18.125H12.5457C13.6854 18.125 14.604 18.125 15.3265 18.0279C16.0765 17.927 16.7081 17.7113 17.2097 17.2097C17.7113 16.7081 17.9271 16.0765 18.0279 15.3265C18.125 14.604 18.125 13.6854 18.125 12.5457V12.5C18.125 12.1548 17.8452 11.875 17.5 11.875C17.1548 11.875 16.875 12.1548 16.875 12.5C16.875 13.6962 16.8737 14.5304 16.789 15.1599C16.7068 15.7714 16.5565 16.0952 16.3258 16.3258C16.0952 16.5565 15.7714 16.7068 15.1599 16.789C14.5304 16.8737 13.6962 16.875 12.5 16.875H7.5C6.30382 16.875 5.46956 16.8737 4.8401 16.789C4.22862 16.7068 3.90481 16.5565 3.67417 16.3258C3.44354 16.0952 3.29317 15.7714 3.21096 15.1599C3.12633 14.5304 3.125 13.6962 3.125 12.5Z" fill="#EF4444"/>
+</g>
+</svg>`;
+
+export function ServiceSelectionRemoveIcon({ width, height, style }: IconProps) {
+  return <SvgXml xml={ServiceSelectionRemoveIconXml} width={width} height={height} style={style} />;
+}
+
 const DoubleAltArrowRightIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M4.5 4.5L8.5 10L4.5 15.5" stroke="#5D30F7" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
 <path d="M10.5 4.5L14.5 10L10.5 15.5" stroke="#5D30F7" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>

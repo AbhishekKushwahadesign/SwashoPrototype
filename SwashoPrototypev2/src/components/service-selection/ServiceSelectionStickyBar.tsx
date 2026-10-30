@@ -4,6 +4,7 @@ import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors } from '@/constants/swasho-tokens';
 
 import { ServiceSelectionButton } from './ServiceSelectionButton';
+import { ServiceSelectionStickyDeleteButton } from './ServiceSelectionStickyDeleteButton';
 
 type ServiceSelectionStickyBarProps = {
   itemCount: number;
@@ -14,6 +15,7 @@ type ServiceSelectionStickyBarProps = {
   disabled?: boolean;
   loading?: boolean;
   onConfirm?: () => void;
+  onDelete?: () => void;
   scale: number;
 };
 
@@ -34,6 +36,7 @@ export function ServiceSelectionStickyBar({
   disabled,
   loading,
   onConfirm,
+  onDelete,
   scale,
 }: ServiceSelectionStickyBarProps) {
   const confirmDisabled = disabled ?? itemCount <= 0;
@@ -43,12 +46,13 @@ export function ServiceSelectionStickyBar({
       style={[
         styles.bar,
         {
-          paddingLeft: 20 * scale,
-          paddingRight: 11 * scale,
+          paddingHorizontal: 16 * scale,
           paddingVertical: 8 * scale,
-          gap: 20 * scale,
+          gap: 22 * scale,
         },
       ]}>
+      {onDelete ? <ServiceSelectionStickyDeleteButton scale={scale} onPress={onDelete} /> : null}
+      <View style={[styles.barMain, { gap: 20 * scale }]}>
       <View style={[styles.summary, { gap: 4 * scale, width: 156 * scale }]}>
         <Text
           style={[
@@ -78,6 +82,7 @@ export function ServiceSelectionStickyBar({
         scale={scale}
         style={{ width: 199 * scale, flexShrink: 0 }}
       />
+      </View>
     </View>
   );
 }
@@ -87,8 +92,15 @@ const styles = StyleSheet.create({
     backgroundColor: SwashoColors.surface,
     flexDirection: 'row',
     alignItems: 'center',
-    flexWrap: 'wrap',
     width: '100%',
+  },
+  barMain: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    minWidth: 0,
   },
   summary: {
     justifyContent: 'center',

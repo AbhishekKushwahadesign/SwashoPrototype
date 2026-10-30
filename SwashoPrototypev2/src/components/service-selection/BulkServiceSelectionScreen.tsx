@@ -35,7 +35,8 @@ import { BulkInfoCardsCarousel } from './BulkInfoCardsCarousel';
 import { BulkLoadPileIllustration } from './BulkLoadPileIllustration';
 import { ServiceSelectionButton } from './ServiceSelectionButton';
 import { ServiceSheetTitle } from './ServiceSheetTitle';
-import { SheetCloseIcon } from './service-selection-icons';
+import { ServiceSelectionSheetChrome } from './ServiceSelectionSheetChrome';
+import { ServiceSelectionStickyDeleteButton } from './ServiceSelectionStickyDeleteButton';
 
 const BULK_SUBTITLE = 'Choose the pile that looks closest to yours. No weighing needed';
 
@@ -46,6 +47,7 @@ type BulkServiceSelectionScreenProps = {
   initialSelection?: ProviderGarmentCartSelection;
   onConfirm: (selection: ProviderGarmentCartSelection) => void;
   onClose: () => void;
+  onDelete: () => void;
 };
 
 function BulkLoadOptionRow({
@@ -117,12 +119,14 @@ function BulkLoadStickyFooter({
   totalPrice,
   disabled,
   onConfirm,
+  onDelete,
   scale,
 }: {
   tierId: BulkLoadTierId | null;
   totalPrice?: number;
   disabled: boolean;
   onConfirm: () => void;
+  onDelete: () => void;
   scale: number;
 }) {
   const confirmLabel =
@@ -135,12 +139,13 @@ function BulkLoadStickyFooter({
       style={[
         styles.stickyFooter,
         {
-          paddingLeft: 20 * scale,
-          paddingRight: 12 * scale,
+          paddingHorizontal: 16 * scale,
           paddingVertical: 8 * scale,
-          gap: 20 * scale,
+          gap: 22 * scale,
         },
       ]}>
+      <ServiceSelectionStickyDeleteButton scale={scale} onPress={onDelete} />
+      <View style={[styles.stickyFooterMain, { gap: 20 * scale }]}>
       <View style={[styles.stickySummary, { gap: 4 * scale, width: 156 * scale }]}>
         <Text
           style={[
@@ -167,6 +172,7 @@ function BulkLoadStickyFooter({
         scale={scale}
         style={{ width: 199 * scale, flexShrink: 0 }}
       />
+      </View>
     </View>
   );
 }
@@ -178,6 +184,7 @@ export function BulkServiceSelectionScreen({
   initialSelection,
   onConfirm,
   onClose,
+  onDelete,
 }: BulkServiceSelectionScreenProps) {
   const { scale, contentWidth, contentHeight } = useScreenScale();
   const insets = useSafeAreaInsets();
@@ -216,21 +223,7 @@ export function BulkServiceSelectionScreen({
   return (
     <ProviderPageModalShell onDismiss={onClose}>
       <View style={[styles.sheetColumn, { width: contentWidth, paddingBottom: insets.bottom }]}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Close"
-          onPress={onClose}
-          style={[
-            styles.closeChip,
-            {
-              width: 35 * scale,
-              height: 35 * scale,
-              borderRadius: 999,
-              marginBottom: 8 * scale,
-            },
-          ]}>
-          <SheetCloseIcon width={20 * scale} height={20 * scale} />
-        </Pressable>
+        <ServiceSelectionSheetChrome scale={scale} onClose={onClose} onDelete={onDelete} />
 
         <View
           style={[
@@ -279,6 +272,7 @@ export function BulkServiceSelectionScreen({
               totalPrice={totalPrice}
               disabled={!selectedTier}
               onConfirm={handleConfirmPress}
+              onDelete={onDelete}
               scale={scale}
             />
           </View>
@@ -293,11 +287,6 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'flex-end',
     alignItems: 'center',
-  },
-  closeChip: {
-    backgroundColor: 'rgba(236, 236, 236, 0.92)',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   sheet: {
     backgroundColor: SwashoColors.surface,
@@ -342,8 +331,15 @@ const styles = StyleSheet.create({
     backgroundColor: SwashoColors.surface,
     flexDirection: 'row',
     alignItems: 'center',
-    flexWrap: 'wrap',
     width: '100%',
+  },
+  stickyFooterMain: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    minWidth: 0,
   },
   stickySummary: {
     justifyContent: 'center',

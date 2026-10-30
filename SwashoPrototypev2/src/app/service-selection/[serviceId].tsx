@@ -31,6 +31,13 @@ export default function ServiceSelectionRoute() {
     });
   };
 
+  const handleDelete = () => {
+    if (resolvedProviderId) {
+      clearSelection(resolvedProviderId, resolvedServiceId);
+    }
+    handleClose();
+  };
+
   const handleConfirm = (selection: ReturnType<typeof emptyProviderGarmentCartSelection>) => {
     if (resolvedProviderId) {
       if (hasProviderCartSelection(selection, resolvedServiceId)) {
@@ -51,6 +58,7 @@ export default function ServiceSelectionRoute() {
         initialSelection={initialSelection ?? emptyProviderGarmentCartSelection()}
         onConfirm={handleConfirm}
         onClose={handleClose}
+        onDelete={handleDelete}
       />
     </View>
   );

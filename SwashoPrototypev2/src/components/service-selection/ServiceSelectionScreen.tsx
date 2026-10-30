@@ -45,7 +45,7 @@ import {
 } from '@/lib/provider-cart-selection';
 
 import { BulkServiceSelectionScreen } from './BulkServiceSelectionScreen';
-import { SheetCloseIcon } from './service-selection-icons';
+import { ServiceSelectionSheetChrome } from './ServiceSelectionSheetChrome';
 
 type ServiceSelectionScreenProps = {
   serviceId: string;
@@ -54,6 +54,7 @@ type ServiceSelectionScreenProps = {
   initialSelection?: ProviderGarmentCartSelection;
   onConfirm: (selection: ProviderGarmentCartSelection) => void;
   onClose: () => void;
+  onDelete: () => void;
 };
 
 type MultiFlow = 'create' | 'list';
@@ -110,6 +111,7 @@ function GarmentServiceSelectionScreen({
   initialSelection,
   onConfirm,
   onClose,
+  onDelete,
 }: ServiceSelectionScreenProps) {
   const { scale, contentWidth, contentHeight } = useScreenScale();
   const insets = useSafeAreaInsets();
@@ -500,21 +502,7 @@ function GarmentServiceSelectionScreen({
   return (
     <ProviderPageModalShell onDismiss={onClose}>
       <View style={[styles.sheetColumn, { width: contentWidth, paddingBottom: insets.bottom }]}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Close"
-          onPress={onClose}
-          style={[
-            styles.closeChip,
-            {
-              width: 35 * scale,
-              height: 35 * scale,
-              borderRadius: 999,
-              marginBottom: 8 * scale,
-            },
-          ]}>
-          <SheetCloseIcon width={20 * scale} height={20 * scale} />
-        </Pressable>
+        <ServiceSelectionSheetChrome scale={scale} onClose={onClose} onDelete={onDelete} />
 
         <View
           style={[
@@ -596,6 +584,7 @@ function GarmentServiceSelectionScreen({
                   summaryLine={stickyMetrics.summaryLine}
                   totalPrice={stickyMetrics.count > 0 ? stickyMetrics.total : undefined}
                   onConfirm={handleConfirmPress}
+                  onDelete={onDelete}
                   scale={scale}
                 />
               </View>
@@ -612,11 +601,6 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'flex-end',
     alignItems: 'center',
-  },
-  closeChip: {
-    backgroundColor: 'rgba(236, 236, 236, 0.92)',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   sheet: {
     backgroundColor: SwashoColors.surface,
