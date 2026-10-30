@@ -31,15 +31,19 @@ import { HomeIndicator } from '@/components/home/HomeIndicator';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { SearchStatusBar } from '@/components/search/SearchStatusBar';
 import { searchFont } from '@/components/search/search-fonts';
+import { ServiceSelectionButton } from '@/components/service-selection/ServiceSelectionButton';
 import { SwashoColors } from '@/constants/swasho-tokens';
 import { useProviderCart } from '@/context/provider-cart-context';
 import { buildCheckoutBasketGroups, type CheckoutBasketLine } from '@/lib/build-checkout-basket';
 import { getProviderGarmentName } from '@/data/providers';
+import { checkoutPlaceholderHref } from '@/lib/checkout-flow';
 import {
   basketGarmentThumbVariant,
+  garmentBasketPhotoSatisfied,
   garmentPhotoProgressFraction,
   garmentPhotoSlotsFromBasketLine,
   garmentPhotoUploadHint,
+  garmentPhotoUploadMandatory,
   type GarmentPhotoServiceSlot,
 } from '@/lib/contactless-garment-photos';
 import { CheckoutGarmentThumbIcon, CheckoutInfoIcon } from './checkout-review-icons';
@@ -48,6 +52,7 @@ import {
   ContactlessUploadMinimalisticIcon,
 } from './contactless-basket-photo-icons';
 import { ContactlessHowItWorksModal } from './ContactlessHowItWorksModal';
+import { ContactlessRequiredPhotoSuccessModal } from './ContactlessRequiredPhotoSuccessModal';
 import { demoGarmentPhotoUriForSlot } from '@/lib/demo-garment-photo-uri';
 
 /** Figma 3399:16791 — reference garment on hanger (not contactless workflow art). */
@@ -362,6 +367,9 @@ export function GarmentPhotoUploadScreen({
   const { getProviderCartEntries, getSelection, getContactlessGarmentPhotos, addContactlessGarmentPhoto } =
     useProviderCart();
   const [guideVisible, setGuideVisible] = useState(false);
+  const [requiredPhotoSuccessVisible, setRequiredPhotoSuccessVisible] = useState(false);
+  const [inlineSaveCtaGarmentIds, setInlineSaveCtaGarmentIds] = useState<Set<string>>(() => new Set());
+  const requiredPhotoModalShownRef = useRef<Set<string>>(new Set());
 
   const photoStore = getContactlessGarmentPhotos(providerId);
   const entries = getProviderCartEntries(providerId);
@@ -533,15 +541,61 @@ export function GarmentPhotoUploadScreen({
     router.replace('/');
   }, [router]);
 
+  const handleSaveAndGoToCart = useCallback(() => {
+    setRequiredPhotoSuccessVisible(false);
+    router.replace(checkoutPlaceholderHref(providerId, query, {}));
+  }, [providerId, query, router]);
+
   const handleUploadPress = useCallback(() => {
     if (!activeLine || !activeService) {
       return;
     }
     const captureGarmentId = activeLine.serviceId;
     const captureServiceId = activeService.serviceId;
+    const captureSlots = activeSlots;
+    const wasSatisfied = garmentBasketPhotoSatisfied(photoStore, captureGarmentId, captureSlots);
     const uri = demoGarmentPhotoUriForSlot(captureGarmentId, captureServiceId);
     addContactlessGarmentPhoto(providerId, captureGarmentId, captureServiceId, uri);
-  }, [activeLine, activeService, addContactlessGarmentPhoto, providerId]);
+    const nextStore = {
+      ...photoStore,
+      [captureGarmentId]: {
+        ...(photoStore[captureGarmentId] ?? {}),
+        [captureServiceId]: [...(photoStore[captureGarmentId]?.[captureServiceId] ?? []), uri],
+      },
+    };
+    const nowSatisfied = garmentBasketPhotoSatisfied(nextStore, captureGarmentId, captureSlots);
+    if (
+      garmentPhotoUploadMandatory(captureSlots) &&
+      !wasSatisfied &&
+      nowSatisfied &&
+      !requiredPhotoModalShownRef.current.has(captureGarmentId)
+    ) {
+      requiredPhotoModalShownRef.current.add(captureGarmentId);
+      setRequiredPhotoSuccessVisible(true);
+    }
+  }, [activeLine, activeService, activeSlots, addContactlessGarmentPhoto, photoStore, providerId]);
+
+  const handleRequiredPhotoUploadMore = useCallback(() => {
+    setRequiredPhotoSuccessVisible(false);
+    if (activeGarmentId) {
+      setInlineSaveCtaGarmentIds((previous) => {
+        if (previous.has(activeGarmentId)) {
+          return previous;
+        }
+        const next = new Set(previous);
+        next.add(activeGarmentId);
+        return next;
+      });
+    }
+  }, [activeGarmentId]);
+
+  const activeGarmentPhotoSatisfied = useMemo(
+    () => garmentBasketPhotoSatisfied(photoStore, activeGarmentId, activeSlots),
+    [activeGarmentId, activeSlots, photoStore],
+  );
+
+  const showInlineSaveAndGoCart =
+    activeGarmentPhotoSatisfied && inlineSaveCtaGarmentIds.has(activeGarmentId);
 
   const garmentRingSize = 81 * scale;
   const garmentActiveInner = 71 * scale;
@@ -1349,42 +1403,71 @@ export function GarmentPhotoUploadScreen({
             </ScrollView>
           </View>
 
-          <View
-            style={{
-              marginTop: 'auto',
-              paddingHorizontal: 20 * scale,
-              paddingBottom: 32 * scale,
-            }}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Upload"
-              onPress={handleUploadPress}
+          {showInlineSaveAndGoCart ? (
+            <View
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
-                justifyContent: 'center',
                 gap: 10 * scale,
-                height: 45 * scale,
-                paddingHorizontal: 10 * scale,
-                borderRadius: 8 * scale,
-                backgroundColor: SwashoColors.surface,
-                alignSelf: 'flex-start',
+                paddingHorizontal: 20 * scale,
+                marginTop: 'auto',
+                paddingVertical: 10 * scale,
+                paddingBottom: 32 * scale,
               }}>
-              <ContactlessUploadMinimalisticIcon width={20 * scale} height={20 * scale} />
-              <Text
-                style={[
-                  searchFont('semibold'),
-                  {
-                    fontSize: 16 * scale,
-                    lineHeight: 14 * scale,
-                    letterSpacing: 0.5 * scale,
-                    color: SwashoColors.primary600,
-                  },
-                ]}>
-                Upload
-              </Text>
-            </Pressable>
-          </View>
+              <ServiceSelectionButton
+                label="Upload"
+                variant="secondary"
+                scale={scale}
+                onPress={handleUploadPress}
+                leadingIcon={<ContactlessUploadMinimalisticIcon width={20 * scale} height={20 * scale} />}
+                style={{ width: 122 * scale, flexShrink: 0 }}
+              />
+              <ServiceSelectionButton
+                label="Save & Go to cart"
+                variant="primary"
+                scale={scale}
+                onPress={handleSaveAndGoToCart}
+                style={{ flex: 1 }}
+              />
+            </View>
+          ) : (
+            <View
+              style={{
+                marginTop: 'auto',
+                paddingHorizontal: 20 * scale,
+                paddingBottom: 32 * scale,
+              }}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Upload"
+                onPress={handleUploadPress}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 10 * scale,
+                  height: 45 * scale,
+                  paddingHorizontal: 10 * scale,
+                  borderRadius: 8 * scale,
+                  backgroundColor: SwashoColors.surface,
+                  alignSelf: 'flex-start',
+                }}>
+                <ContactlessUploadMinimalisticIcon width={20 * scale} height={20 * scale} />
+                <Text
+                  style={[
+                    searchFont('semibold'),
+                    {
+                      fontSize: 16 * scale,
+                      lineHeight: 14 * scale,
+                      letterSpacing: 0.5 * scale,
+                      color: SwashoColors.primary600,
+                    },
+                  ]}>
+                  Upload
+                </Text>
+              </Pressable>
+            </View>
+          )}
         </View>
 
       <View style={styles.homeIndicatorWrap} pointerEvents="none">
@@ -1396,6 +1479,13 @@ export function GarmentPhotoUploadScreen({
         onClose={() => setGuideVisible(false)}
         scale={scale}
         contentWidth={contentWidth}
+      />
+
+      <ContactlessRequiredPhotoSuccessModal
+        visible={requiredPhotoSuccessVisible}
+        scale={scale}
+        onSaveAndGoToCart={handleSaveAndGoToCart}
+        onUploadMore={handleRequiredPhotoUploadMore}
       />
     </View>
   );

@@ -123,6 +123,17 @@ export function requiredGarmentPhotoSlots(slots: GarmentPhotoServiceSlot[]): Gar
   return slots.filter((slot) => !slot.optional);
 }
 
+/** Whether capturing photos can satisfy a mandatory threshold (excludes optional-only single service). */
+export function garmentPhotoUploadMandatory(slots: GarmentPhotoServiceSlot[]): boolean {
+  if (slots.length === 0) {
+    return false;
+  }
+  if (slots.length === 1) {
+    return requiredGarmentPhotoSlots(slots).length > 0;
+  }
+  return garmentLinkedPhotoTargetCount(slots.length) > 0;
+}
+
 /** Distinct linked service slots that must have photos (any n−1 of n when n > 1). */
 export function garmentLinkedPhotoTargetCount(linkedServiceCount: number): number {
   if (linkedServiceCount <= 1) {

@@ -5,6 +5,7 @@ import {
   garmentLinkedPhotoTargetCount,
   garmentPhotoProgressFraction,
   garmentPhotoUploadHint,
+  garmentPhotoUploadMandatory,
   type ContactlessGarmentPhotoStore,
   type GarmentPhotoServiceSlot,
 } from './contactless-garment-photos';
@@ -23,6 +24,8 @@ const garmentId = 'garment-a';
 // Hint strings
 assert.equal(garmentPhotoUploadHint([]), null);
 assert.equal(garmentPhotoUploadHint(makeSlots(1)), 'No mandatory uploads required');
+assert.equal(garmentPhotoUploadMandatory(makeSlots(1)), false);
+assert.equal(garmentPhotoUploadMandatory(makeSlots(3)), true);
 assert.equal(
   garmentPhotoUploadHint(makeSlots(2)),
   'Upload photos for any 1 services',
