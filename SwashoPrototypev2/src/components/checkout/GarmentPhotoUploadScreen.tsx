@@ -19,6 +19,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
@@ -61,6 +62,8 @@ const CAMERA_OVERLAY_TOP_FIGMA = 84;
 const CAMERA_OVERLAY_HEIGHT_FIGMA = 536;
 const UPLOAD_THUMB_SIZE_FIGMA = 45;
 const UPLOAD_THUMB_RADIUS_FIGMA = 4.8;
+/** Figma 3399:16790 — footer / hint panel fill (neutral beige). */
+const BOTTOM_PANEL_BG = '#f5f0e8';
 
 /** Dev / QA fixture — six distinct service widths (contactless multi-service garment). */
 const SNAP_TEST_MULTI_SERVICE_SLOTS: GarmentPhotoServiceSlot[] = [
@@ -353,6 +356,7 @@ export function GarmentPhotoUploadScreen({
 }: GarmentPhotoUploadScreenProps) {
   const router = useRouter();
   const { scale, contentWidth } = useScreenScale();
+  const { height: windowHeight } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
   const { getProviderCartEntries, getSelection, getContactlessGarmentPhotos, addContactlessGarmentPhoto } =
@@ -914,7 +918,10 @@ export function GarmentPhotoUploadScreen({
   const headerChromeTop = safeTop + HEADER_CHROME_TOP_FIGMA * scale;
   const headerChromeHeight = HEADER_CHROME_HEIGHT_FIGMA * scale;
   const cameraOverlayTop = safeTop + CAMERA_OVERLAY_TOP_FIGMA * scale;
-  const cameraOverlayHeight = CAMERA_OVERLAY_HEIGHT_FIGMA * scale;
+  const bottomPanelTotal = bottomPanelHeight + insets.bottom;
+  const panelTopY = windowHeight - bottomPanelTotal;
+  const maxCameraOverlayHeight = Math.max(0, panelTopY - cameraOverlayTop);
+  const cameraOverlayHeight = Math.min(CAMERA_OVERLAY_HEIGHT_FIGMA * scale, maxCameraOverlayHeight);
   const uploadThumbSize = UPLOAD_THUMB_SIZE_FIGMA * scale;
   const uploadThumbRadius = UPLOAD_THUMB_RADIUS_FIGMA * scale;
 
@@ -1066,9 +1073,10 @@ export function GarmentPhotoUploadScreen({
         style={[
           styles.bottomPanel,
           {
-            height: bottomPanelHeight + insets.bottom,
+            height: bottomPanelTotal,
             paddingTop: 12 * scale,
             paddingBottom: insets.bottom,
+            backgroundColor: BOTTOM_PANEL_BG,
           },
         ]}>
           {uploadHint ? (
