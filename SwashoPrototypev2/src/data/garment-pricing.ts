@@ -1,3 +1,5 @@
+import { resolveSearchServiceQuery, searchServiceColumnFromLabel } from '@/lib/search-service-query';
+
 export type GarmentCatalogId =
   | 'shirt'
   | 'tshirt'
@@ -131,20 +133,7 @@ export function garmentCatalogIdFromServiceId(serviceId: string): GarmentCatalog
 }
 
 export function normalizeSearchServiceColumn(query: string): GarmentServiceColumn {
-  const normalized = query.trim().toLowerCase().replace(/\s+/g, ' ');
-  if (normalized.includes('iron') && !normalized.includes('wash')) {
-    return 'onlyIron';
-  }
-  if (normalized.includes('fold')) {
-    return 'washFold';
-  }
-  if (normalized.includes('wash') && normalized.includes('iron')) {
-    return 'washIron';
-  }
-  if (normalized.includes('dry')) {
-    return 'dryClean';
-  }
-  return 'dryClean';
+  return searchServiceColumnFromLabel(resolveSearchServiceQuery(query));
 }
 
 export function formatGarmentPriceDisplay(value: GarmentPriceValue): number | string {

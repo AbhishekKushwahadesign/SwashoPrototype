@@ -6,6 +6,7 @@ import {
   type GarmentCatalogId,
 } from '@/data/garment-pricing';
 import { formatBulkServicePriceLabel } from '@/lib/bulk-load-tiers';
+import { resolveSearchServiceQuery } from '@/lib/search-service-query';
 
 export type ProviderOffer = {
   id: string;
@@ -175,7 +176,7 @@ function buildProviderServices() {
 }
 
 export function getProviderResultsForQuery(query: string): ProviderResult[] {
-  const serviceName = query.trim() || 'Dry Cleaning';
+  const serviceName = resolveSearchServiceQuery(query);
   const pricing = buildProviderCardPricing(serviceName);
 
   return [
@@ -235,7 +236,7 @@ export function getProviderResultById(id: string, query: string): ProviderResult
 export function getProviderCheckoutDisplayName(query: string, provider?: ProviderResult): string {
   const trimmed = query.trim();
   if (trimmed) {
-    return trimmed;
+    return resolveSearchServiceQuery(trimmed);
   }
   return provider?.serviceName?.trim() || provider?.category || 'Laundromat';
 }

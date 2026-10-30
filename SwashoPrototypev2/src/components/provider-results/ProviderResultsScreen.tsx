@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -7,6 +7,7 @@ import { HomeIndicator } from '@/components/home/HomeIndicator';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { SearchStatusBar } from '@/components/search/SearchStatusBar';
 import { getProviderResultsForQuery, PROVIDER_RESULT_FILTERS } from '@/data/providers';
+import { resolveSearchServiceQuery } from '@/lib/search-service-query';
 
 import { FilterChip } from './FilterChip';
 import { ProviderResultCard } from './ProviderResultCard';
@@ -36,8 +37,19 @@ export function ProviderResultsScreen({ query }: ProviderResultsScreenProps) {
   const frameHeight = PROVIDER_RESULTS_HEIGHT * scale + safeTop;
   const scrollBottomSpacer = SCROLL_BOTTOM_GAP * scale;
   const scrollBottomInset = HOME_INDICATOR_HEIGHT * scale;
-  const providers = getProviderResultsForQuery(query);
-  const displayQuery = query.trim() || 'Dry Cleaning';
+  const displayQuery = resolveSearchServiceQuery(query);
+  const providers = getProviderResultsForQuery(displayQuery);
+
+  useEffect(() => {
+    const trimmed = query.trim();
+    if (!trimmed || displayQuery === trimmed) {
+      return;
+    }
+    router.replace({
+      pathname: '/provider-results',
+      params: { q: displayQuery },
+    });
+  }, [displayQuery, query, router]);
 
   const handleBackPress = useCallback(() => {
     if (router.canGoBack()) {

@@ -18,6 +18,7 @@ import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { ProviderCard } from '@/components/provider/ProviderCard';
 import { SwashoColors } from '@/constants/swasho-tokens';
 import { RECENT_SEARCHES, SEARCH_OFFERS } from '@/data/providers';
+import { resolveSearchServiceQuery } from '@/lib/search-service-query';
 
 import { searchFont } from '@/components/search/search-fonts';
 
@@ -80,7 +81,7 @@ export function Search1Screen() {
     }
     router.push({
       pathname: '/provider-results',
-      params: { q: trimmed },
+      params: { q: resolveSearchServiceQuery(trimmed) },
     });
   }, [query, router]);
 
