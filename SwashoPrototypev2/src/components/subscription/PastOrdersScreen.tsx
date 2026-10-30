@@ -52,10 +52,15 @@ const SUCCESS_600 = '#16a34a';
 const DELIVERING_ORDER_FOOTER_HEIGHT = 68;
 const DELIVERING_ORDER_FOOTER_WIDTH = 371;
 const DELIVERING_ORDER_FOOTER_INSET_LEFT = 13;
-const DELIVERING_RIDER_ART_LEFT = 6.28;
-/** Rider art vs footer frame (3429:18168 vs 3429:18229 on card 3429:18167). */
+const DELIVERING_ORDER_FOOTER_TOP = 332;
+/** Figma 3429:18168 Frame 503 on card 3429:18167. */
+const DELIVERING_RIDER_ART_LEFT = 12.748;
+const DELIVERING_RIDER_ART_TOP = 338.615;
+const DELIVERING_RIDER_FRAME_WIDTH = 93.76;
+const DELIVERING_RIDER_FRAME_HEIGHT = 61.661;
+/** Rider art vs footer frame 3429:18229. */
 const DELIVERING_RIDER_LEFT_IN_FOOTER = DELIVERING_RIDER_ART_LEFT - DELIVERING_ORDER_FOOTER_INSET_LEFT;
-const DELIVERING_RIDER_TOP_IN_FOOTER = 338.62 - 332;
+const DELIVERING_RIDER_TOP_IN_FOOTER = DELIVERING_RIDER_ART_TOP - DELIVERING_ORDER_FOOTER_TOP;
 const DELIVERING_TRACK_RIDER_LEFT = 266;
 const DELIVERING_TRACK_RIDER_TOP = 29;
 
@@ -279,8 +284,8 @@ function DeliveringOrderRiderArt({ scale }: { scale: number }) {
         position: 'absolute',
         left: DELIVERING_RIDER_LEFT_IN_FOOTER * scale,
         top: DELIVERING_RIDER_TOP_IN_FOOTER * scale,
-        width: 93.76 * scale,
-        height: 61.661 * scale,
+        width: DELIVERING_RIDER_FRAME_WIDTH * scale,
+        height: DELIVERING_RIDER_FRAME_HEIGHT * scale,
         zIndex: 1,
         transform: [{ rotate: '7.3deg' }],
       }}>
@@ -299,9 +304,9 @@ function DeliveringOrderRiderArt({ scale }: { scale: number }) {
         style={{
           position: 'absolute',
           left: -0.75 * scale,
-          top: -7.04 * scale,
-          width: 49 * scale,
-          height: 59 * scale,
+          top: 3.23 * scale,
+          width: 53.75 * scale,
+          height: 62.65 * scale,
           transform: [{ rotate: '-12.1deg' }],
         }}
         contentFit="contain"
