@@ -501,8 +501,7 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
           flexDirection: 'row',
           alignItems: 'flex-start',
           justifyContent: 'space-between',
-          paddingTop: 12 * scale,
-          paddingLeft: 12 * scale,
+          padding: 12 * scale,
         }}>
         <View style={{ gap: 8 * scale, maxWidth: 89 * scale }}>
           <Text
