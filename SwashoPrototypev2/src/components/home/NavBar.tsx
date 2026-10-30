@@ -156,8 +156,8 @@ function SelectedCapsule({ scale, variant }: { scale: number; variant: NavBarVar
 
   const borderWidth = CAPSULE_BORDER * scale;
   const innerRadius = Math.max(0, borderRadius - borderWidth);
-  const innerWidth = Math.max(0, width - borderWidth * 2);
-  const innerHeight = Math.max(0, height - borderWidth * 2);
+  const capsuleInnerWidth = Math.max(0, width - borderWidth * 2);
+  const capsuleInnerHeight = Math.max(0, height - borderWidth * 2);
 
   return (
     <View
@@ -177,8 +177,8 @@ function SelectedCapsule({ scale, variant }: { scale: number; variant: NavBarVar
         style={[
           styles.capsuleInner,
           {
-            width: innerWidth,
-            height: innerHeight,
+            width: capsuleInnerWidth,
+            height: capsuleInnerHeight,
             borderRadius: innerRadius,
           },
         ]}>
