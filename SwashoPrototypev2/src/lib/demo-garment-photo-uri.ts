@@ -1,4 +1,5 @@
-import { Image, type ImageSourcePropType } from 'react-native';
+import resolveAssetSource from 'expo-asset/build/resolveAssetSource';
+import type { ImageSourcePropType } from 'react-native';
 
 import { CONTACTLESS_BAG_SERVICE_ID } from '@/lib/contactless-garment-photos';
 
@@ -12,7 +13,7 @@ export const PROTOTYPE_LAUNDRY_BAG_PHOTO = require('@/assets/images/checkout/pro
 
 /** Bundled demo asset → URI string for `<Image source={{ uri }}>` on native and web. */
 export function resolveDemoGarmentPhotoUri(source: ImageSourcePropType): string {
-  const resolved = Image.resolveAssetSource(source);
+  const resolved = resolveAssetSource(source);
   if (!resolved?.uri) {
     throw new Error('Unable to resolve demo garment photo asset');
   }
