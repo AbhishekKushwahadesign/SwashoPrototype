@@ -502,7 +502,7 @@ function GarmentServiceSelectionScreen({
   return (
     <ProviderPageModalShell onDismiss={onClose}>
       <View style={[styles.sheetColumn, { width: contentWidth, paddingBottom: insets.bottom }]}>
-        <ServiceSelectionSheetChrome scale={scale} onClose={onClose} onDelete={onDelete} />
+        <ServiceSelectionSheetChrome scale={scale} onClose={onClose} />
 
         <View
           style={[

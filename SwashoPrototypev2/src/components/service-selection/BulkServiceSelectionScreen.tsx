@@ -223,7 +223,7 @@ export function BulkServiceSelectionScreen({
   return (
     <ProviderPageModalShell onDismiss={onClose}>
       <View style={[styles.sheetColumn, { width: contentWidth, paddingBottom: insets.bottom }]}>
-        <ServiceSelectionSheetChrome scale={scale} onClose={onClose} onDelete={onDelete} />
+        <ServiceSelectionSheetChrome scale={scale} onClose={onClose} />
 
         <View
           style={[
@@ -338,10 +338,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    flexWrap: 'wrap',
+    flexWrap: 'nowrap',
     minWidth: 0,
   },
   stickySummary: {
+    flex: 1,
+    flexShrink: 1,
+    minWidth: 0,
     justifyContent: 'center',
   },
   stickyTitle: {
