@@ -268,7 +268,7 @@ function LineItemRow({ item, scale, showDividerAfter }: { item: PastOrderLineIte
 
 function DeliveringOrderFooter({ order, scale }: { order: PastOrderSummary; scale: number }) {
   const footerOffsetLeft = (DELIVERING_ORDER_FOOTER_INSET_LEFT - 16) * scale;
-  const riderOffsetLeft = (DELIVERING_RIDER_ART_LEFT - DELIVERING_ORDER_FOOTER_INSET_LEFT) * scale;
+  const riderSlotLeft = (DELIVERING_RIDER_ART_LEFT - DELIVERING_ORDER_FOOTER_INSET_LEFT) * scale;
 
   return (
     <View
@@ -276,45 +276,55 @@ function DeliveringOrderFooter({ order, scale }: { order: PastOrderSummary; scal
         marginLeft: footerOffsetLeft,
         width: DELIVERING_ORDER_FOOTER_WIDTH * scale,
         minHeight: DELIVERING_ORDER_FOOTER_HEIGHT * scale,
-        justifyContent: 'center',
         paddingTop: 12 * scale,
-        paddingLeft: 90 * scale,
         paddingRight: 80 * scale,
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        overflow: 'visible',
       }}>
       <View
         pointerEvents="none"
         style={{
-          position: 'absolute',
-          left: riderOffsetLeft,
-          bottom: 0,
-          width: 93.76 * scale,
-          height: 61.661 * scale,
-          transform: [{ rotate: '7.3deg' }],
+          width: 90 * scale,
+          height: 56 * scale,
+          marginBottom: -4 * scale,
+          overflow: 'visible',
         }}>
-        <PastOrderRiderScribbleBgIcon
-          width={88 * scale}
-          height={51 * scale}
-          style={{ position: 'absolute', left: 0, top: 20 * scale, transform: [{ rotate: '-10.27deg' }] }}
-        />
-        <PastOrderRiderScribbleLineIcon
-          width={143 * scale}
-          height={1 * scale}
-          style={{ position: 'absolute', left: -8 * scale, top: 43 * scale }}
-        />
-        <Image
-          source={riderImage}
+        <View
           style={{
             position: 'absolute',
-            left: -0.75 * scale,
-            top: -7.04 * scale,
-            width: 49 * scale,
-            height: 59 * scale,
-            transform: [{ rotate: '-12.1deg' }],
-          }}
-          contentFit="contain"
-        />
+            left: riderSlotLeft,
+            bottom: 0,
+            width: 93.76 * scale,
+            height: 61.661 * scale,
+            transform: [{ rotate: '7.3deg' }],
+          }}>
+          <PastOrderRiderScribbleBgIcon
+            width={88 * scale}
+            height={51 * scale}
+            style={{ position: 'absolute', left: 0, top: 20 * scale, transform: [{ rotate: '-10.27deg' }] }}
+          />
+          <PastOrderRiderScribbleLineIcon
+            width={143 * scale}
+            height={1 * scale}
+            style={{ position: 'absolute', left: -8 * scale, top: 43 * scale }}
+          />
+          <Image
+            source={riderImage}
+            style={{
+              position: 'absolute',
+              left: -0.75 * scale,
+              top: -7.04 * scale,
+              width: 49 * scale,
+              height: 59 * scale,
+              transform: [{ rotate: '-12.1deg' }],
+            }}
+            contentFit="contain"
+          />
+        </View>
       </View>
-      <View style={{ gap: 8 * scale }}>
+
+      <View style={{ flex: 1, gap: 8 * scale, justifyContent: 'center', minHeight: 44 * scale, zIndex: 1 }}>
         <Text
           style={[
             searchFont('semibold'),
@@ -339,6 +349,7 @@ function DeliveringOrderFooter({ order, scale }: { order: PastOrderSummary; scal
           {order.deliveryPhaseLabel}
         </Text>
       </View>
+
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Track rider"
@@ -351,6 +362,7 @@ function DeliveringOrderFooter({ order, scale }: { order: PastOrderSummary; scal
           gap: 6 * scale,
           paddingHorizontal: 4 * scale,
           minWidth: 60 * scale,
+          zIndex: 2,
         }}>
         <PastOrderTrackRiderIcon width={20 * scale} height={20 * scale} />
         <Text
