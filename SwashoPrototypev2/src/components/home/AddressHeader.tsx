@@ -20,7 +20,8 @@ export function AddressHeader({ scale, onAvatarPress }: AddressHeaderProps) {
           accessibilityLabel="Open profile"
           disabled={!onAvatarPress}
           onPress={onAvatarPress}
-          hitSlop={8}>
+          hitSlop={8}
+          style={({ pressed }) => [pressed && onAvatarPress ? { opacity: 0.85 } : null]}>
           <UserAvatar scale={scale} size={45} />
         </Pressable>
         <View style={[styles.textBlock, { gap: 4 * scale }]}>

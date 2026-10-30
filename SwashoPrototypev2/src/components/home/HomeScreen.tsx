@@ -319,7 +319,7 @@ export function HomeScreen() {
 
         {/* Header gradient — fixed background shared by address, search, and promise */}
         <View
-          pointerEvents="none"
+          pointerEvents="box-none"
           style={[
             styles.headerLayer,
             {
@@ -340,6 +340,7 @@ export function HomeScreen() {
               },
             ]}>
             <View
+              pointerEvents="box-none"
               style={[
                 styles.headerContent,
                 {
@@ -347,11 +348,13 @@ export function HomeScreen() {
                 },
               ]}>
               <View
+                pointerEvents="auto"
                 style={[
                   styles.headerAddress,
                   {
                     top: 5.5 * scale,
                     transform: [{ translateY: addressTranslateY }],
+                    zIndex: 3,
                   },
                 ]}>
                 <AddressHeader scale={scale} onAvatarPress={() => router.push('/profile')} />
