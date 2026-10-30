@@ -1,5 +1,4 @@
 import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -22,6 +21,7 @@ import {
 } from '@/data/subscription-past-orders';
 import { DEMO_SUBSCRIPTION } from '@/data/subscriptions';
 import { subscriptionUpcomingFromPastOrdersHref } from '@/lib/subscription-past-orders-flow';
+import { PastOrderDeliveringCardBackground } from '@/components/subscription/PastOrderDeliveringCardBackground';
 
 import {
   PastOrderDeliveredCheckIcon,
@@ -264,6 +264,7 @@ function LineItemRow({ item, scale, showDividerAfter }: { item: PastOrderLineIte
 function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; scale: number; cardWidth: number }) {
   const isDelivering = order.lifecycleStatus === 'delivering';
   const innerWidth = 368 * scale;
+  const [cardHeight, setCardHeight] = useState(0);
 
   const cardBody = (
     <>
@@ -510,8 +511,18 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
     </>
   );
 
+  const deliveringCardFallbackHeight = 410 * scale;
+
   return (
     <View
+      onLayout={
+        isDelivering
+          ? (event) => {
+              const nextHeight = event.nativeEvent.layout.height;
+              setCardHeight((prev) => (prev === nextHeight ? prev : nextHeight));
+            }
+          : undefined
+      }
       style={[
         styles.orderCard,
         {
@@ -528,15 +539,12 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
         },
       ]}>
       {isDelivering ? (
-        <LinearGradient
-          colors={['#d8ccff', '#ffffff', '#ffffff']}
-          locations={[0, 0.29, 1]}
-          start={{ x: 0.02, y: 1 }}
-          end={{ x: 0.85, y: 0 }}
-          style={StyleSheet.absoluteFill}
+        <PastOrderDeliveringCardBackground
+          width={cardWidth}
+          height={cardHeight > 0 ? cardHeight : deliveringCardFallbackHeight}
         />
       ) : null}
-      {cardBody}
+      <View style={{ zIndex: 1 }}>{cardBody}</View>
     </View>
   );
 }
