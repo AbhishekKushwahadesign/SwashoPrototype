@@ -2,6 +2,7 @@ import type { StyleProp, ViewStyle } from 'react-native';
 import { SvgXml } from 'react-native-svg';
 
 import CalendarBoldAddSvg from '@/assets/images/home/icons/calendar-bold-active.svg';
+import HomeSmileAngleBoldSvg from '@/assets/images/home/icons/home-smile-angle-bold.svg';
 
 type IconProps = {
   width: number;
@@ -159,6 +160,11 @@ const HomeSmileIconXml = `<svg preserveAspectRatio="none" overflow="visible" sty
 
 export function HomeSmileIcon({ width, height, style }: IconProps) {
   return <SvgXml xml={HomeSmileIconXml} width={width} height={height} style={style} />;
+}
+
+/** Figma 59289:3674 (frame 3415:17972) — Bold / Essentional, UI / Home Smile Angle. */
+export function HomeSmileAngleBoldIcon({ width, height, style }: IconProps) {
+  return <HomeSmileAngleBoldSvg width={width} height={height} style={style} />;
 }
 
 const HomeSmileLinearIconXml = `<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20.8844" height="20.8844" viewBox="0 0 20.8844 20.8844" fill="none" xmlns="http://www.w3.org/2000/svg">
