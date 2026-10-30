@@ -53,6 +53,9 @@ const DELIVERING_ORDER_FOOTER_HEIGHT = 68;
 const DELIVERING_ORDER_FOOTER_WIDTH = 371;
 const DELIVERING_ORDER_FOOTER_INSET_LEFT = 13;
 const DELIVERING_RIDER_ART_LEFT = 6.28;
+const DELIVERING_RIDER_ART_BOTTOM = 10;
+const DELIVERING_TRACK_RIDER_LEFT = 266;
+const DELIVERING_TRACK_RIDER_TOP = 29;
 
 const riderImage = require('@/assets/images/subscription/rider-with-bike.png');
 
@@ -266,103 +269,99 @@ function LineItemRow({ item, scale, showDividerAfter }: { item: PastOrderLineIte
   );
 }
 
+function DeliveringOrderRiderArt({ scale }: { scale: number }) {
+  return (
+    <View
+      pointerEvents="none"
+      style={{
+        position: 'absolute',
+        left: DELIVERING_RIDER_ART_LEFT * scale,
+        bottom: DELIVERING_RIDER_ART_BOTTOM * scale,
+        width: 93.76 * scale,
+        height: 61.661 * scale,
+        zIndex: 1,
+        transform: [{ rotate: '7.3deg' }],
+      }}>
+      <PastOrderRiderScribbleBgIcon
+        width={88 * scale}
+        height={51 * scale}
+        style={{ position: 'absolute', left: 0, top: 20 * scale, transform: [{ rotate: '-10.27deg' }] }}
+      />
+      <PastOrderRiderScribbleLineIcon
+        width={143 * scale}
+        height={1 * scale}
+        style={{ position: 'absolute', left: -8 * scale, top: 43 * scale }}
+      />
+      <Image
+        source={riderImage}
+        style={{
+          position: 'absolute',
+          left: -0.75 * scale,
+          top: -7.04 * scale,
+          width: 49 * scale,
+          height: 59 * scale,
+          transform: [{ rotate: '-12.1deg' }],
+        }}
+        contentFit="contain"
+      />
+    </View>
+  );
+}
+
+/** Figma 3429:18229 — text + Track Rider; rider art is card-level (3429:18168). */
 function DeliveringOrderFooter({ order, scale }: { order: PastOrderSummary; scale: number }) {
   const footerOffsetLeft = (DELIVERING_ORDER_FOOTER_INSET_LEFT - 16) * scale;
-  const riderSlotLeft = (DELIVERING_RIDER_ART_LEFT - DELIVERING_ORDER_FOOTER_INSET_LEFT) * scale;
 
   return (
     <View
       style={{
+        position: 'relative',
         marginLeft: footerOffsetLeft,
         width: DELIVERING_ORDER_FOOTER_WIDTH * scale,
         minHeight: DELIVERING_ORDER_FOOTER_HEIGHT * scale,
         paddingTop: 12 * scale,
+        paddingLeft: 90 * scale,
         paddingRight: 80 * scale,
-        flexDirection: 'row',
-        alignItems: 'flex-end',
-        overflow: 'visible',
+        justifyContent: 'center',
+        gap: 8 * scale,
+        zIndex: 2,
       }}>
-      <View
-        pointerEvents="none"
-        style={{
-          width: 90 * scale,
-          height: 56 * scale,
-          marginBottom: -4 * scale,
-          overflow: 'visible',
-        }}>
-        <View
-          style={{
-            position: 'absolute',
-            left: riderSlotLeft,
-            bottom: 0,
-            width: 93.76 * scale,
-            height: 61.661 * scale,
-            transform: [{ rotate: '7.3deg' }],
-          }}>
-          <PastOrderRiderScribbleBgIcon
-            width={88 * scale}
-            height={51 * scale}
-            style={{ position: 'absolute', left: 0, top: 20 * scale, transform: [{ rotate: '-10.27deg' }] }}
-          />
-          <PastOrderRiderScribbleLineIcon
-            width={143 * scale}
-            height={1 * scale}
-            style={{ position: 'absolute', left: -8 * scale, top: 43 * scale }}
-          />
-          <Image
-            source={riderImage}
-            style={{
-              position: 'absolute',
-              left: -0.75 * scale,
-              top: -7.04 * scale,
-              width: 49 * scale,
-              height: 59 * scale,
-              transform: [{ rotate: '-12.1deg' }],
-            }}
-            contentFit="contain"
-          />
-        </View>
-      </View>
-
-      <View style={{ flex: 1, gap: 8 * scale, justifyContent: 'center', minHeight: 44 * scale, zIndex: 1 }}>
-        <Text
-          style={[
-            searchFont('semibold'),
-            {
-              fontSize: 15 * scale,
-              lineHeight: 14 * scale,
-              letterSpacing: 0.3 * scale,
-              color: 'rgba(0,0,0,0.85)',
-            },
-          ]}>
-          {order.deliveryEtaLabel}
-        </Text>
-        <Text
-          style={[
-            searchFont('regular'),
-            {
-              fontSize: 13 * scale,
-              lineHeight: 16 * scale,
-              color: '#000000',
-            },
-          ]}>
-          {order.deliveryPhaseLabel}
-        </Text>
-      </View>
-
+      <Text
+        style={[
+          searchFont('semibold'),
+          {
+            fontSize: 15 * scale,
+            lineHeight: 14 * scale,
+            letterSpacing: 0.3 * scale,
+            color: 'rgba(0,0,0,0.85)',
+          },
+        ]}>
+        {order.deliveryEtaLabel}
+      </Text>
+      <Text
+        style={[
+          searchFont('regular'),
+          {
+            fontSize: 13 * scale,
+            lineHeight: 16 * scale,
+            color: '#000000',
+          },
+        ]}>
+        {order.deliveryPhaseLabel}
+      </Text>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Track rider"
         style={{
           position: 'absolute',
-          right: 4 * scale,
-          top: 29 * scale,
+          left: DELIVERING_TRACK_RIDER_LEFT * scale,
+          top: DELIVERING_TRACK_RIDER_TOP * scale,
           flexDirection: 'row',
           alignItems: 'center',
           gap: 6 * scale,
           paddingHorizontal: 4 * scale,
           minWidth: 60 * scale,
-          zIndex: 2,
+          height: 18 * scale,
         }}>
         <PastOrderTrackRiderIcon width={20 * scale} height={20 * scale} />
         <Text
@@ -582,7 +581,8 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
           height={cardHeight > 0 ? cardHeight : deliveringCardFallbackHeight}
         />
       ) : null}
-      <View style={{ zIndex: 1 }}>{cardBody}</View>
+      {isDelivering ? <DeliveringOrderRiderArt scale={scale} /> : null}
+      <View style={{ zIndex: 2 }}>{cardBody}</View>
     </View>
   );
 }
