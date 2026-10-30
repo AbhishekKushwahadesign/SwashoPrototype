@@ -64,6 +64,7 @@ export default function RootLayout() {
           }}
         />
         <Stack.Screen name="checkout" />
+        <Stack.Screen name="order-tracking" options={{ animation: 'slide_from_right' }} />
       </Stack>
     </ProviderCartProvider>
   );

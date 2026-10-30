@@ -28,6 +28,7 @@ import { ServiceTile, ServiceTileLayout } from './ServiceTile';
 import { StatusBar } from './StatusBar';
 import { FigmaShadows, figmaShadow } from './figma-shadows';
 import { useSafeTopInset, useScreenScale } from './scale';
+import { orderTrackingHrefFromHome } from '@/lib/order-tracking-flow';
 
 const SERVICES: ServiceTileLayout[] = [
   {
@@ -295,7 +296,7 @@ export function HomeScreen() {
 
       <View style={[styles.section, { width: 372 * scale, gap: 12 * scale }]}>
         <SectionTitle title="Your Orders" actionLabel="All" onActionPress={() => undefined} scale={scale} />
-        <OrderCard scale={scale} onTrackPress={() => undefined} />
+        <OrderCard scale={scale} onTrackPress={() => router.push(orderTrackingHrefFromHome())} />
       </View>
     </>
   );

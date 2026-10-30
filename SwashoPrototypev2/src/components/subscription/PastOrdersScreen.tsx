@@ -20,6 +20,7 @@ import {
   type PastOrderSummary,
 } from '@/data/subscription-past-orders';
 import { DEMO_SUBSCRIPTION } from '@/data/subscriptions';
+import { orderTrackingHrefFromPastOrder } from '@/lib/order-tracking-flow';
 import { subscriptionUpcomingFromPastOrdersHref } from '@/lib/subscription-past-orders-flow';
 import { PastOrderDeliveringCardBackground } from '@/components/subscription/PastOrderDeliveringCardBackground';
 
@@ -316,7 +317,15 @@ function DeliveringOrderRiderArt({ scale }: { scale: number }) {
 }
 
 /** Figma 3429:18229 footer + 3429:18168 rider anchored to the footer frame. */
-function DeliveringOrderFooter({ order, scale }: { order: PastOrderSummary; scale: number }) {
+function DeliveringOrderFooter({
+  order,
+  scale,
+  onTrackPress,
+}: {
+  order: PastOrderSummary;
+  scale: number;
+  onTrackPress: () => void;
+}) {
   const footerOffsetLeft = (DELIVERING_ORDER_FOOTER_INSET_LEFT - 16) * scale;
 
   return (
@@ -365,6 +374,7 @@ function DeliveringOrderFooter({ order, scale }: { order: PastOrderSummary; scal
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Track rider"
+        onPress={onTrackPress}
         style={{
           position: 'absolute',
           left: DELIVERING_TRACK_RIDER_LEFT * scale,
@@ -400,6 +410,10 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
   const isDelivering = order.lifecycleStatus === 'delivering';
   const innerWidth = 368 * scale;
   const [cardHeight, setCardHeight] = useState(0);
+
+  const handleTrackPress = useCallback(() => {
+    router.push(orderTrackingHrefFromPastOrder(order.id));
+  }, [order.id]);
 
   const handleCardLayout = useCallback((event: LayoutChangeEvent) => {
     if (!isDelivering) {
@@ -547,7 +561,7 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
       <CheckoutSectionDivider width={innerWidth} scale={scale} />
 
       {isDelivering ? (
-        <DeliveringOrderFooter order={order} scale={scale} />
+        <DeliveringOrderFooter order={order} scale={scale} onTrackPress={handleTrackPress} />
       ) : (
         <View style={{ width: innerWidth, alignItems: 'center', gap: 16 * scale, paddingTop: 12 * scale, paddingHorizontal: 80 * scale }}>
           <Text
