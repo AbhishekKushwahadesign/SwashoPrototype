@@ -39,7 +39,6 @@ const FIGMA_HOME_INDICATOR_TOP = 896;
 const FIGMA_CONTENT_WIDTH = 372;
 const FIGMA_CHIPS_WIDTH = 451;
 const FIGMA_HORIZONTAL_INSET = 20;
-const headerHomeIcon = require('@/assets/images/swasho-ai/header-home-icon.png');
 
 function resolveReturnToHref(value: string | string[] | undefined): Href {
   const raw = Array.isArray(value) ? value[0] : value;
@@ -423,12 +422,7 @@ export function SwashoAIScreen() {
                   zIndex: 21,
                 },
               ]}>
-              <Image
-                source={headerHomeIcon}
-                style={{ width: 24 * scale, height: 24 * scale }}
-                contentFit="contain"
-                accessibilityIgnoresInvertColors
-              />
+              <HomeSmileLinearIcon width={24 * scale} height={24 * scale} />
             </Pressable>
           </Link>
 

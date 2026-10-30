@@ -57,6 +57,17 @@ export function HistoryIcon({ width, height, style }: IconProps) {
   return <SvgXml xml={HistoryIconXml} width={width} height={height} style={style} />;
 }
 
+/** Figma 3415:18011 / 59289:3674 — Bold / Essentional, UI / Home Smile Angle (24px). */
+const HomeSmileAngleBoldIconXml = `<svg preserveAspectRatio="xMidYMid meet" overflow="visible" style="display: block;" width="16.6667" height="16.6667" viewBox="0 0 16.6667 16.6667" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Bold / Essentional, UI / Home Smile Angle">
+<path fill-rule="evenodd" clip-rule="evenodd" d="M9.25506 16.6667H7.4116C4.53947 16.6667 3.10341 16.6667 2.12419 15.8235C1.14497 14.9803 0.941879 13.5689 0.535698 10.746L0.303394 9.13155C-0.0128102 6.93401 -0.170912 5.83524 0.279472 4.89579C0.729856 3.95633 1.68849 3.38528 3.60576 2.24318L4.75979 1.55573C6.50087 0.518575 7.37141 0 8.33333 0C9.29526 0 10.1658 0.518575 11.9069 1.55572L13.0609 2.24317C14.9782 3.38528 15.9368 3.95633 16.3872 4.89579C16.8376 5.83524 16.6795 6.93401 16.3633 9.13156L16.131 10.746C15.7248 13.5689 15.5217 14.9803 14.5425 15.8235C13.5633 16.6667 12.1272 16.6667 9.25506 16.6667ZM5.33131 11.2943C5.53686 11.017 5.92829 10.9588 6.20559 11.1644C6.81254 11.6143 7.54517 11.8748 8.33342 11.8748C9.12167 11.8748 9.85429 11.6143 10.4612 11.1644C10.7385 10.9588 11.13 11.017 11.3355 11.2943C11.5411 11.5716 11.4829 11.963 11.2056 12.1686C10.3953 12.7692 9.40423 13.1248 8.33342 13.1248C7.26261 13.1248 6.27158 12.7692 5.46124 12.1686C5.18393 11.963 5.12576 11.5716 5.33131 11.2943Z" fill="#151515"/>
+</g>
+</svg>`;
+
+export function HomeSmileAngleBoldIcon({ width, height, style }: IconProps) {
+  return <SvgXml xml={HomeSmileAngleBoldIconXml} width={width} height={height} style={style} />;
+}
+
 export function ScannerIcon({ width, height, style }: IconProps) {
   return <SvgXml xml={ScannerIconXml} width={width} height={height} style={style} />;
 }
