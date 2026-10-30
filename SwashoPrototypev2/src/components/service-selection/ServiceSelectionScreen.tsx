@@ -560,7 +560,7 @@ function GarmentServiceSelectionScreen({
             {showCreateComboCta ? (
               <ServiceSelectionButton
                 label="Add as combo"
-                variant={comboDraftIds.length >= 2 ? 'primary' : 'secondary'}
+                variant="secondary"
                 disabled={comboDraftIds.length < 2}
                 onPress={handleAddCombo}
                 scale={scale}
