@@ -1,7 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { createElement } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { SvgXml } from 'react-native-svg';
 
 import {
@@ -159,10 +158,7 @@ function SelectedCapsule({ scale, variant }: { scale: number; variant: NavBarVar
   const innerRadius = Math.max(0, borderRadius - borderWidth);
 
   return (
-    <Animated.View
-      key={variant}
-      entering={FadeIn.duration(300)}
-      exiting={FadeOut.duration(200)}
+    <View
       pointerEvents="none"
       style={[
         styles.capsule,
@@ -199,7 +195,7 @@ function SelectedCapsule({ scale, variant }: { scale: number; variant: NavBarVar
           ]}
         />
       </View>
-    </Animated.View>
+    </View>
   );
 }
 

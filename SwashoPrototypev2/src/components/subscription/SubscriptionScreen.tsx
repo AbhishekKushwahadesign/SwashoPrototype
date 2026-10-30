@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
+import { router, useIsFocused } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import {
   Platform,
@@ -497,6 +497,7 @@ export function SubscriptionScreen() {
   const { scale, contentWidth, contentHeight } = useScreenScale();
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
+  const isFocused = useIsFocused();
   const [filter, setFilter] = useState<SubscriptionFilterId>('all');
 
   const frameHeight = contentHeight + safeTop;
@@ -693,22 +694,24 @@ export function SubscriptionScreen() {
           )}
         </ScrollView>
 
-        <View
-          style={[
-            styles.navBarWrap,
-            { height: bottomChromeHeight, bottom: bottomNavLift },
-          ]}>
-          <NavBar
-            variant="Orders"
-            scale={scale}
-            onHomePress={() => router.replace('/')}
-            onSubscriptionPress={() => {}}
-            onSwashoAiPress={() => router.push('/swasho-ai')}
-          />
-          <View style={styles.homeIndicatorWrap}>
-            <HomeIndicator scale={scale} />
+        {isFocused ? (
+          <View
+            style={[
+              styles.navBarWrap,
+              { height: bottomChromeHeight, bottom: bottomNavLift },
+            ]}>
+            <NavBar
+              variant="Orders"
+              scale={scale}
+              onHomePress={() => router.replace('/')}
+              onSubscriptionPress={() => {}}
+              onSwashoAiPress={() => router.push('/swasho-ai')}
+            />
+            <View style={styles.homeIndicatorWrap}>
+              <HomeIndicator scale={scale} />
+            </View>
           </View>
-        </View>
+        ) : null}
       </View>
     </View>
   );
