@@ -184,14 +184,21 @@ function SelectedCapsule({ scale, variant }: { scale: number; variant: NavBarVar
           width="100%"
           height="100%"
         />
+        <View
+          pointerEvents="none"
+          style={[
+            styles.capsuleInsetShadow,
+            {
+              borderRadius: innerRadius,
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+            },
+            figmaShadow(FigmaShadows.selectedNavCapsule, scale),
+          ]}
+        />
       </View>
-      <View
-        style={[
-          styles.capsuleInsetShadow,
-          { borderRadius, top: -scale, left: -scale, right: -scale, bottom: -scale },
-          figmaShadow(FigmaShadows.selectedNavCapsule, scale),
-        ]}
-      />
     </Animated.View>
   );
 }
@@ -365,9 +372,10 @@ const styles = StyleSheet.create({
   },
   capsule: {
     position: 'absolute',
-    borderColor: SwashoColors.surface,
+    borderColor: '#FFFFFF',
     borderStyle: 'solid',
     backgroundColor: 'transparent',
+    zIndex: 3,
     ...Platform.select({
       web: { boxSizing: 'border-box' as const },
       default: {},
@@ -378,7 +386,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   capsuleInsetShadow: {
-    position: 'absolute',
+    ...StyleSheet.absoluteFillObject,
   },
   items: {
     flexDirection: 'row',
