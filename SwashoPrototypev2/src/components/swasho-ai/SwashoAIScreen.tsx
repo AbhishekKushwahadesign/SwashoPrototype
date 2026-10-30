@@ -21,7 +21,12 @@ import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 
-import { HistoryIcon, ScannerIcon, SparkleBulletIcon } from './swasho-ai-icons';
+import {
+  HistoryIcon,
+  HomeSmileAngleBoldIcon,
+  ScannerIcon,
+  SparkleBulletIcon,
+} from './swasho-ai-icons';
 
 const STATUS_BAR_HEIGHT = 32;
 const HOME_INDICATOR_HEIGHT = 24;
@@ -409,7 +414,7 @@ export function SwashoAIScreen() {
               accessibilityLabel="Go home"
               onPress={() => router.replace(backHref)}
               hitSlop={8}
-              style={[
+              style={StyleSheet.flatten([
                 styles.circleButton,
                 {
                   position: 'absolute',
@@ -421,8 +426,8 @@ export function SwashoAIScreen() {
                   borderRadius: 9999 * scale,
                   zIndex: 21,
                 },
-              ]}>
-              <HomeSmileLinearIcon width={24 * scale} height={24 * scale} />
+              ])}>
+              <HomeSmileAngleBoldIcon width={24 * scale} height={24 * scale} />
             </Pressable>
           </Link>
 
