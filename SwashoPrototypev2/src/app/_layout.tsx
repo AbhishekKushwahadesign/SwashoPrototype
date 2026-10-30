@@ -52,6 +52,7 @@ export default function RootLayout() {
         <Stack.Screen name="subscription" />
         <Stack.Screen name="swasho-ai" />
         <Stack.Screen name="search" />
+        <Stack.Screen name="profile" options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="provider-results" />
         <Stack.Screen name="provider/[id]" />
         <Stack.Screen

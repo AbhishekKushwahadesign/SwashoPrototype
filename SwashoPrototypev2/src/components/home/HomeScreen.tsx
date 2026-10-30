@@ -354,7 +354,7 @@ export function HomeScreen() {
                     transform: [{ translateY: addressTranslateY }],
                   },
                 ]}>
-                <AddressHeader scale={scale} />
+                <AddressHeader scale={scale} onAvatarPress={() => router.push('/profile')} />
               </View>
               <View
                 style={[
