@@ -259,7 +259,7 @@ export function ProfileScreen() {
               icon={<ProfileMoneyBillBoldIcon width={32 * scale} height={32 * scale} />}
               lineOne="My"
               lineTwo="Orders"
-              onPress={() => router.push('/subscription')}
+              onPress={() => router.push(subscriptionPastOrdersHref())}
             />
             <QuickActionCard
               scale={scale}
