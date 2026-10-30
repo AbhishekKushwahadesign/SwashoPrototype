@@ -1,6 +1,14 @@
 import { Image, type ImageSourcePropType } from 'react-native';
 
-import { SWASHO_AI_DEMO_SCENARIOS } from '@/constants/swasho-ai-demo-scenarios';
+import { CONTACTLESS_BAG_SERVICE_ID } from '@/lib/contactless-garment-photos';
+
+const PROTOTYPE_GARMENT_PHOTOS = [
+  require('@/assets/images/checkout/prototype-garments/white-tee-coffee-stain.png'),
+  require('@/assets/images/checkout/prototype-garments/blue-jeans-mud.png'),
+  require('@/assets/images/checkout/prototype-garments/white-shirt-collar-stain.png'),
+] as const satisfies readonly ImageSourcePropType[];
+
+export const PROTOTYPE_LAUNDRY_BAG_PHOTO = require('@/assets/images/checkout/prototype-laundry-bag.jpg') as ImageSourcePropType;
 
 /** Bundled demo asset → URI string for `<Image source={{ uri }}>` on native and web. */
 export function resolveDemoGarmentPhotoUri(source: ImageSourcePropType): string {
@@ -11,34 +19,17 @@ export function resolveDemoGarmentPhotoUri(source: ImageSourcePropType): string 
   return resolved.uri;
 }
 
-function demoScenarioIndex(garmentServiceId: string, laundryServiceId: string): number {
-  const key = `${garmentServiceId}::${laundryServiceId}`;
-  let hash = 0;
-  for (let i = 0; i < key.length; i += 1) {
-    hash = (hash + key.charCodeAt(i)) % SWASHO_AI_DEMO_SCENARIOS.length;
-  }
-  return hash;
+function pickRandomPrototypeGarmentSource(): ImageSourcePropType {
+  const index = Math.floor(Math.random() * PROTOTYPE_GARMENT_PHOTOS.length);
+  return PROTOTYPE_GARMENT_PHOTOS[index] ?? PROTOTYPE_GARMENT_PHOTOS[0];
 }
 
 /**
- * Picks a Swasho AI demo analysis image for the contactless upload capture flow.
- * Prefers catalog garment match, then laundry option match, then a stable cycle.
+ * Prototype contactless capture: random garment photo, or laundry bag for bag slots.
  */
-export function demoGarmentPhotoUriForSlot(garmentServiceId: string, laundryServiceId: string): string {
-  const byGarment = SWASHO_AI_DEMO_SCENARIOS.find(
-    (scenario) => scenario.catalogServiceId === garmentServiceId,
-  );
-  if (byGarment) {
-    return resolveDemoGarmentPhotoUri(byGarment.analysisImage);
+export function demoGarmentPhotoUriForSlot(_garmentServiceId: string, laundryServiceId: string): string {
+  if (laundryServiceId === CONTACTLESS_BAG_SERVICE_ID) {
+    return resolveDemoGarmentPhotoUri(PROTOTYPE_LAUNDRY_BAG_PHOTO);
   }
-
-  const byOption = SWASHO_AI_DEMO_SCENARIOS.find(
-    (scenario) => scenario.catalogOptionId === laundryServiceId,
-  );
-  if (byOption) {
-    return resolveDemoGarmentPhotoUri(byOption.analysisImage);
-  }
-
-  const scenario = SWASHO_AI_DEMO_SCENARIOS[demoScenarioIndex(garmentServiceId, laundryServiceId)];
-  return resolveDemoGarmentPhotoUri(scenario.analysisImage);
+  return resolveDemoGarmentPhotoUri(pickRandomPrototypeGarmentSource());
 }

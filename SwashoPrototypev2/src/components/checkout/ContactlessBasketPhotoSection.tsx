@@ -14,15 +14,15 @@ import {
   ContactlessGalleryAddPrimaryIcon,
 } from './contactless-basket-photo-icons';
 
-const MOCK_GARMENT_PHOTO = require('@/assets/checkout/contactless-workflow-upload.png');
-
 import {
+  CONTACTLESS_BAG_SERVICE_ID,
   contactlessGarmentPhotoSlotKey,
   garmentBasketPhotoSatisfied,
   garmentPhotoSlotsFromBasketLine,
   type ContactlessGarmentPhotoStore,
   type GarmentPhotoServiceSlot,
 } from '@/lib/contactless-garment-photos';
+import { PROTOTYPE_LAUNDRY_BAG_PHOTO, resolveDemoGarmentPhotoUri } from '@/lib/demo-garment-photo-uri';
 import type { ProviderGarmentCartSelection } from '@/lib/provider-cart-selection';
 
 export type ContactlessBasketPhotoMap = Record<string, boolean>;
@@ -57,6 +57,7 @@ function PhotoUploadTile({
   scale,
   variant,
   uploaded,
+  uploadedSource,
   onPress,
   accessibilityLabel,
   children,
@@ -64,6 +65,7 @@ function PhotoUploadTile({
   scale: number;
   variant: 'primary' | 'muted';
   uploaded: boolean;
+  uploadedSource?: { uri: string } | number;
   onPress: () => void;
   accessibilityLabel: string;
   children?: ReactNode;
@@ -87,8 +89,8 @@ function PhotoUploadTile({
         justifyContent: 'center',
         overflow: 'hidden',
       }}>
-      {uploaded ? (
-        <Image source={MOCK_GARMENT_PHOTO} style={{ width: size, height: size }} resizeMode="cover" />
+      {uploaded && uploadedSource ? (
+        <Image source={uploadedSource} style={{ width: size, height: size }} resizeMode="cover" />
       ) : variant === 'primary' ? (
         children ?? <ContactlessGalleryAddPrimaryIcon width={24 * scale} height={24 * scale} />
       ) : (
@@ -102,6 +104,7 @@ function PhotoSlotRow({
   scale,
   variant,
   uploaded,
+  uploadedSource,
   title,
   actionLabel,
   actionColor,
@@ -113,6 +116,7 @@ function PhotoSlotRow({
   scale: number;
   variant: 'primary' | 'muted';
   uploaded: boolean;
+  uploadedSource?: { uri: string } | number;
   title: string;
   actionLabel: string;
   actionColor: string;
@@ -127,6 +131,7 @@ function PhotoSlotRow({
         scale={scale}
         variant={variant}
         uploaded={uploaded}
+        uploadedSource={uploadedSource}
         onPress={onPress}
         accessibilityLabel={actionLabel}>
         {tileContent}
@@ -212,9 +217,18 @@ export function ContactlessBasketPhotoSection({
 
       <View style={{ paddingLeft: 32 * scale, gap: 20 * scale }}>
         {slots.map((slot, index) => {
-          const uploaded = Boolean(photoStore[line.serviceId]?.[slot.serviceId]?.length);
+          const slotPhotos = photoStore[line.serviceId]?.[slot.serviceId] ?? [];
+          const uploaded = slotPhotos.length > 0;
+          const uploadedUri = slotPhotos[0];
           const isOptional = slot.optional;
-          const isBag = isBulk;
+          const isBag = isBulk || slot.serviceId === CONTACTLESS_BAG_SERVICE_ID;
+          const uploadedSource = uploaded
+            ? uploadedUri
+              ? { uri: uploadedUri }
+              : isBag
+                ? { uri: resolveDemoGarmentPhotoUri(PROTOTYPE_LAUNDRY_BAG_PHOTO) }
+                : undefined
+            : undefined;
           return (
             <View key={slot.serviceId} style={{ width: '100%', gap: 20 * scale }}>
               {index > 0 ? <ServiceRowDivider variant="dotted" width={349} scale={scale} /> : null}
@@ -222,6 +236,7 @@ export function ContactlessBasketPhotoSection({
                 scale={scale}
                 variant={isOptional ? 'muted' : 'primary'}
                 uploaded={uploaded}
+                uploadedSource={uploadedSource}
                 title={isBag ? (line.weightSubline ?? slot.title) : `${slot.quantity}x ${slot.title}`}
                 actionLabel={isBag ? '+ Add bag Photo' : '+ Add garment Photo'}
                 actionColor={isOptional ? SwashoColors.neutral500 : SwashoColors.primary600}
