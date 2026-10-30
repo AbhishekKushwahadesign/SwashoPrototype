@@ -66,14 +66,20 @@ function CircleIconButton({
   children: ReactNode;
   style?: object;
 }) {
+  const hitSize = 36 * scale;
+
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
+      disabled={!onPress}
       onPress={onPress}
+      hitSlop={8}
       style={[
         styles.circleButton,
         {
+          width: hitSize,
+          height: hitSize,
           padding: 6 * scale,
           borderRadius: 9999 * scale,
           zIndex: 20,
@@ -129,62 +135,14 @@ export function SwashoAIScreen() {
         <LinearGradient
           colors={[SwashoColors.surface, SwashoColors.surface, SwashoColors.primary200]}
           locations={[0, 0.78058, 1]}
+          pointerEvents="none"
           style={StyleSheet.absoluteFill}
         />
 
-        <View style={[styles.statusBar, { height: STATUS_BAR_HEIGHT * scale }]}>
+        <View
+          pointerEvents="box-none"
+          style={[styles.statusBar, { height: STATUS_BAR_HEIGHT * scale }]}>
           <StatusBar scale={scale} tone="transparent" />
-        </View>
-
-        <View style={styles.headerRow} pointerEvents="box-none">
-          <CircleIconButton
-            scale={scale}
-            accessibilityLabel="Go back"
-            onPress={handleBack}
-            style={{
-              position: 'absolute',
-              left: FIGMA_HORIZONTAL_INSET * scale,
-              top: figmaY(FIGMA_HEADER_BUTTON_TOP),
-            }}>
-            <ArrowLeftIcon width={24 * scale} height={24 * scale} />
-          </CircleIconButton>
-
-          <CircleIconButton
-            scale={scale}
-            accessibilityLabel="Conversation history"
-            style={{
-              position: 'absolute',
-              left: contentWidth * 0.75 + 47 * scale,
-              top: figmaY(FIGMA_HEADER_BUTTON_TOP),
-            }}>
-            <HistoryIcon width={24 * scale} height={24 * scale} />
-          </CircleIconButton>
-
-          <View
-            pointerEvents="none"
-            style={[
-              styles.headerBrand,
-              {
-                top: figmaY(FIGMA_BRAND_TOP),
-                gap: 7 * scale,
-              },
-            ]}>
-            <Text
-              style={[
-                searchFont('regular'),
-                styles.swashoWordmark,
-                {
-                  fontSize: 16 * scale,
-                  lineHeight: 19 * scale,
-                  letterSpacing: 0.08 * scale,
-                },
-              ]}>
-              Swasho
-            </Text>
-            <View style={{ width: 28 * scale, height: 23 * scale, alignItems: 'center', justifyContent: 'center' }}>
-              <SwashoAiIcon scale={scale} offsetX={0} />
-            </View>
-          </View>
         </View>
 
         <ScrollView
@@ -420,6 +378,59 @@ export function SwashoAIScreen() {
         <View style={[styles.homeIndicatorWrap, { height: bottomChromeHeight, bottom: 0 }]}>
           <HomeIndicator scale={scale} />
         </View>
+
+        <View
+          style={[styles.headerRow, { height: scrollTop }]}
+          pointerEvents="box-none">
+          <CircleIconButton
+            scale={scale}
+            accessibilityLabel="Go back"
+            onPress={handleBack}
+            style={{
+              position: 'absolute',
+              left: FIGMA_HORIZONTAL_INSET * scale,
+              top: figmaY(FIGMA_HEADER_BUTTON_TOP),
+            }}>
+            <ArrowLeftIcon width={24 * scale} height={24 * scale} />
+          </CircleIconButton>
+
+          <CircleIconButton
+            scale={scale}
+            accessibilityLabel="Conversation history"
+            style={{
+              position: 'absolute',
+              left: contentWidth * 0.75 + 47 * scale,
+              top: figmaY(FIGMA_HEADER_BUTTON_TOP),
+            }}>
+            <HistoryIcon width={24 * scale} height={24 * scale} />
+          </CircleIconButton>
+
+          <View
+            pointerEvents="none"
+            style={[
+              styles.headerBrand,
+              {
+                top: figmaY(FIGMA_BRAND_TOP),
+                gap: 7 * scale,
+              },
+            ]}>
+            <Text
+              style={[
+                searchFont('regular'),
+                styles.swashoWordmark,
+                {
+                  fontSize: 16 * scale,
+                  lineHeight: 19 * scale,
+                  letterSpacing: 0.08 * scale,
+                },
+              ]}>
+              Swasho
+            </Text>
+            <View style={{ width: 28 * scale, height: 23 * scale, alignItems: 'center', justifyContent: 'center' }}>
+              <SwashoAiIcon scale={scale} offsetX={0} />
+            </View>
+          </View>
+        </View>
       </View>
     </View>
   );
@@ -452,8 +463,11 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     top: 0,
-    zIndex: 5,
+    zIndex: 100,
     overflow: 'visible',
+    ...Platform.select({
+      web: { cursor: 'default' } as object,
+    }),
   },
   headerBrand: {
     position: 'absolute',
@@ -471,6 +485,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(250, 250, 250, 0.5)',
     alignItems: 'center',
     justifyContent: 'center',
+    ...Platform.select({
+      web: { cursor: 'pointer' } as object,
+    }),
   },
   scroll: {
     flex: 1,
