@@ -227,8 +227,10 @@ export function HomeScreen() {
   const subtractTop = SUBTRACT_TOP * (1 - sheetTravelDone);
   const sheetContentPaddingTop = SHEET_STICKY_PADDING - SUBTRACT_TOP * sheetTravelDone;
   const clipTopUnscaled = Math.max(sheetTopUnscaled, searchBottomUnscaled + SHEET_CLIP_BELOW_SEARCH);
+  const clipTop = clipTopUnscaled * scale;
   const clipInsetInSheet = Math.max(0, (clipTopUnscaled - sheetTopUnscaled) * scale);
-  const clipViewportHeight = Math.max(0, sheetHeight - clipInsetInSheet);
+  const clipViewportHeight = Math.max(0, frameHeight - clipTop);
+  const sheetScrollPaddingTop = Math.max(0, sheetContentPaddingTop * scale - clipInsetInSheet);
 
   const applyCollapse = (nextY: number) => {
     const clamped = Math.max(0, Math.min(nextY, maxCollapseScroll));
@@ -415,35 +417,37 @@ export function HomeScreen() {
             ]}>
             <SubtractIcon width={contentWidth} height={SUBTRACT_HEIGHT * scale} />
           </View>
-          <View
-            style={[
-              styles.sheetClipViewport,
+        </View>
+
+        {/* Clipped feed — frame-absolute top tracks collapse; padding offsets clip inset so content moves with the window */}
+        <View
+          style={[
+            styles.sheetClipViewport,
+            {
+              top: clipTop,
+              height: clipViewportHeight,
+            },
+          ]}>
+          <ScrollView
+            ref={sheetScrollRef}
+            style={styles.sheetScroll}
+            contentContainerStyle={[
+              styles.sheetScrollContent,
               {
-                top: clipInsetInSheet,
-                height: clipViewportHeight,
+                paddingTop: sheetScrollPaddingTop,
+                paddingHorizontal: SwashoSpacing.xxl * scale,
+                paddingBottom: 16 * scale + bottomChromeHeight + bottomNavLift,
+                gap: SwashoSpacing.section * scale,
               },
-            ]}>
-            <ScrollView
-              ref={sheetScrollRef}
-              style={styles.sheetScroll}
-              contentContainerStyle={[
-                styles.sheetScrollContent,
-                {
-                  paddingTop: sheetContentPaddingTop * scale,
-                  paddingHorizontal: SwashoSpacing.xxl * scale,
-                  paddingBottom: 16 * scale + bottomChromeHeight + bottomNavLift,
-                  gap: SwashoSpacing.section * scale,
-                },
-              ]}
-              showsVerticalScrollIndicator={false}
-              onScroll={handleSheetScroll}
-              scrollEventThrottle={16}
-              nestedScrollEnabled
-              bounces
-              overScrollMode="always">
-              {sheetSections}
-            </ScrollView>
-          </View>
+            ]}
+            showsVerticalScrollIndicator={false}
+            onScroll={handleSheetScroll}
+            scrollEventThrottle={16}
+            nestedScrollEnabled
+            bounces
+            overScrollMode="always">
+            {sheetSections}
+          </ScrollView>
         </View>
 
         {showBottomNav ? (
@@ -545,13 +549,24 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     overflow: 'hidden',
-    zIndex: 1,
+    zIndex: 4,
     backgroundColor: 'transparent',
+    ...Platform.select({
+      web: {
+        overflow: 'hidden',
+        overflowY: 'hidden',
+      },
+    }),
   },
   sheetScroll: {
     flex: 1,
     width: '100%',
     backgroundColor: 'transparent',
+    ...Platform.select({
+      web: {
+        overflow: 'hidden',
+      },
+    }),
   },
   sheetScrollContent: {
     width: '100%',
