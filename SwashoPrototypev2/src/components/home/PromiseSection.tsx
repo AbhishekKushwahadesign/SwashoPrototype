@@ -35,7 +35,7 @@ function OurText({ scale }: { scale: number }) {
   const textStyle = {
     fontFamily: 'Poppins_700Bold',
     fontSize: 15 * scale,
-    lineHeight: 10 * scale,
+    lineHeight: 18 * scale,
     letterSpacing: 0.4655 * scale,
     textAlign: 'center' as const,
   };
@@ -101,7 +101,7 @@ export function PromiseSection({ scale, onLearnMorePress }: PromiseSectionProps)
           styles.titleBlock,
           {
             top: 6 * scale,
-            transform: [{ translateX: -48.585 * scale }],
+            gap: 2 * scale,
           },
         ]}>
         <OurText scale={scale} />
@@ -126,14 +126,14 @@ export function PromiseSection({ scale, onLearnMorePress }: PromiseSectionProps)
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    overflow: 'hidden',
+    overflow: 'visible',
     position: 'relative',
   },
   titleBlock: {
     position: 'absolute',
-    left: '50%',
+    left: 0,
+    right: 0,
     alignItems: 'center',
-    gap: 0,
   },
   learnMorePressable: {
     position: 'absolute',

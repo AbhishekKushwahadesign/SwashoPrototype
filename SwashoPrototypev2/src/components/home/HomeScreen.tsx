@@ -521,7 +521,12 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   headerGradient: {
-    overflow: 'hidden',
+    overflow: 'visible',
+    ...Platform.select({
+      native: {
+        overflow: 'hidden',
+      },
+    }),
   },
   headerContent: {
     position: 'relative',

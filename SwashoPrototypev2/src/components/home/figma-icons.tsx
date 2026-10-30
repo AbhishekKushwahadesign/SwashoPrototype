@@ -298,32 +298,32 @@ const PromiseIconXml = `<svg preserveAspectRatio="none" overflow="visible" style
 </g>
 <defs>
 <linearGradient id="paint0_linear_0_4" x1="48.5835" y1="0" x2="48.5835" y2="18.4867" gradientUnits="userSpaceOnUse">
-<stop offset="0.25" stopColor="#4218BF"/>
-<stop offset="1" stopColor="#5D30F7"/>
+<stop offset="0.25" stop-color="#4218BF"/>
+<stop offset="1" stop-color="#5D30F7"/>
 </linearGradient>
 <linearGradient id="paint1_linear_0_4" x1="48.5835" y1="0" x2="48.5835" y2="18.4867" gradientUnits="userSpaceOnUse">
-<stop offset="0.25" stopColor="#4218BF"/>
-<stop offset="1" stopColor="#5D30F7"/>
+<stop offset="0.25" stop-color="#4218BF"/>
+<stop offset="1" stop-color="#5D30F7"/>
 </linearGradient>
 <linearGradient id="paint2_linear_0_4" x1="48.5835" y1="0" x2="48.5835" y2="18.4867" gradientUnits="userSpaceOnUse">
-<stop offset="0.25" stopColor="#4218BF"/>
-<stop offset="1" stopColor="#5D30F7"/>
+<stop offset="0.25" stop-color="#4218BF"/>
+<stop offset="1" stop-color="#5D30F7"/>
 </linearGradient>
 <linearGradient id="paint3_linear_0_4" x1="48.5835" y1="0" x2="48.5835" y2="18.4867" gradientUnits="userSpaceOnUse">
-<stop offset="0.25" stopColor="#4218BF"/>
-<stop offset="1" stopColor="#5D30F7"/>
+<stop offset="0.25" stop-color="#4218BF"/>
+<stop offset="1" stop-color="#5D30F7"/>
 </linearGradient>
 <linearGradient id="paint4_linear_0_4" x1="48.5835" y1="0" x2="48.5835" y2="18.4867" gradientUnits="userSpaceOnUse">
-<stop offset="0.25" stopColor="#4218BF"/>
-<stop offset="1" stopColor="#5D30F7"/>
+<stop offset="0.25" stop-color="#4218BF"/>
+<stop offset="1" stop-color="#5D30F7"/>
 </linearGradient>
 <linearGradient id="paint5_linear_0_4" x1="48.5835" y1="0" x2="48.5835" y2="18.4867" gradientUnits="userSpaceOnUse">
-<stop offset="0.25" stopColor="#4218BF"/>
-<stop offset="1" stopColor="#5D30F7"/>
+<stop offset="0.25" stop-color="#4218BF"/>
+<stop offset="1" stop-color="#5D30F7"/>
 </linearGradient>
 <linearGradient id="paint6_linear_0_4" x1="48.5835" y1="0" x2="48.5835" y2="18.4867" gradientUnits="userSpaceOnUse">
-<stop offset="0.25" stopColor="#4218BF"/>
-<stop offset="1" stopColor="#5D30F7"/>
+<stop offset="0.25" stop-color="#4218BF"/>
+<stop offset="1" stop-color="#5D30F7"/>
 </linearGradient>
 </defs>
 </svg>
@@ -408,7 +408,7 @@ const PromiseLight488Xml = `<svg preserveAspectRatio="none" overflow="visible" s
 <stop offset="0.629837" stop-color="white" stop-opacity="0.6"/>
 </linearGradient>
 </defs>
-</svg>\$`;
+</svg>`;
 
 export function PromiseLight488Icon({ width, height, style }: IconProps) {
   return <SvgXml xml={PromiseLight488Xml} width={width} height={height} style={style} />;
@@ -439,7 +439,7 @@ const PromiseLight486Xml = `<svg preserveAspectRatio="none" overflow="visible" s
 <stop offset="0.629837" stop-color="white" stop-opacity="0.6"/>
 </linearGradient>
 </defs>
-</svg>\$`;
+</svg>`;
 
 export function PromiseLight486Icon({ width, height, style }: IconProps) {
   return <SvgXml xml={PromiseLight486Xml} width={width} height={height} style={style} />;
@@ -470,7 +470,7 @@ const PromiseLight489Xml = `<svg preserveAspectRatio="none" overflow="visible" s
 <stop offset="0.629837" stop-color="white" stop-opacity="0.6"/>
 </linearGradient>
 </defs>
-</svg>\$`;
+</svg>`;
 
 export function PromiseLight489Icon({ width, height, style }: IconProps) {
   return <SvgXml xml={PromiseLight489Xml} width={width} height={height} style={style} />;
