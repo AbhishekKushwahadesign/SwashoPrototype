@@ -42,7 +42,10 @@ import {
   type GarmentPhotoServiceSlot,
 } from '@/lib/contactless-garment-photos';
 import { CheckoutGarmentThumbIcon, CheckoutInfoIcon } from './checkout-review-icons';
-import { ContactlessGalleryAddPrimaryIcon } from './contactless-basket-photo-icons';
+import {
+  ContactlessCameraPlaceholderIcon,
+  ContactlessUploadMinimalisticIcon,
+} from './contactless-basket-photo-icons';
 import { ContactlessHowItWorksModal } from './ContactlessHowItWorksModal';
 import { demoGarmentPhotoUriForSlot } from '@/lib/demo-garment-photo-uri';
 
@@ -53,6 +56,11 @@ const BOTTOM_PANEL_HEIGHT = 310;
 /** Figma 3399:16792 — header chrome band (412×93, y=-9) over hero. */
 const HEADER_CHROME_TOP_FIGMA = -9;
 const HEADER_CHROME_HEIGHT_FIGMA = 93;
+/** Figma 59321:3683 — camera preview scrim below header chrome. */
+const CAMERA_OVERLAY_TOP_FIGMA = 84;
+const CAMERA_OVERLAY_HEIGHT_FIGMA = 536;
+const UPLOAD_THUMB_SIZE_FIGMA = 45;
+const UPLOAD_THUMB_RADIUS_FIGMA = 4.8;
 
 /** Dev / QA fixture — six distinct service widths (contactless multi-service garment). */
 const SNAP_TEST_MULTI_SERVICE_SLOTS: GarmentPhotoServiceSlot[] = [
@@ -305,7 +313,7 @@ function ServiceCarouselChip({
             fontSize: 14 * scale,
             lineHeight: 14 * scale,
             letterSpacing: 0.5 * scale,
-            color: emphasized ? SwashoColors.neutral950 : SwashoColors.neutral700,
+            color: emphasized ? SwashoColors.darkHeaderText : SwashoColors.neutral700,
             flexShrink: 0,
           },
         ]}>
@@ -327,7 +335,7 @@ function ServiceCarouselChip({
             {
               fontSize: 14 * scale,
               lineHeight: 14 * scale,
-              color: emphasized ? SwashoColors.neutral950 : SwashoColors.neutral700,
+              color: emphasized ? SwashoColors.darkHeaderText : SwashoColors.neutral700,
             },
           ]}>
           {slot.quantity}
@@ -905,6 +913,10 @@ export function GarmentPhotoUploadScreen({
 
   const headerChromeTop = safeTop + HEADER_CHROME_TOP_FIGMA * scale;
   const headerChromeHeight = HEADER_CHROME_HEIGHT_FIGMA * scale;
+  const cameraOverlayTop = safeTop + CAMERA_OVERLAY_TOP_FIGMA * scale;
+  const cameraOverlayHeight = CAMERA_OVERLAY_HEIGHT_FIGMA * scale;
+  const uploadThumbSize = UPLOAD_THUMB_SIZE_FIGMA * scale;
+  const uploadThumbRadius = UPLOAD_THUMB_RADIUS_FIGMA * scale;
 
   return (
     <View style={styles.root}>
@@ -937,6 +949,66 @@ export function GarmentPhotoUploadScreen({
           Platform.OS === 'web' ? ({ backdropFilter: 'blur(4px)' } as object) : null,
         ]}
       />
+
+      <View
+        pointerEvents="box-none"
+        style={[
+          styles.cameraOverlay,
+          {
+            top: cameraOverlayTop,
+            height: cameraOverlayHeight,
+          },
+        ]}>
+        <View
+          style={{
+            flex: 1,
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingHorizontal: 10 * scale,
+            gap: 12 * scale,
+          }}>
+          <ContactlessCameraPlaceholderIcon width={47 * scale} height={47 * scale} />
+          <Text
+            style={[
+              searchFont('semibold'),
+              {
+                fontSize: 14 * scale,
+                lineHeight: 14 * scale,
+                letterSpacing: 0.5 * scale,
+                color: SwashoColors.surface,
+                textAlign: 'center',
+                maxWidth: 208 * scale,
+              },
+            ]}>
+            Camera previews will appear here
+          </Text>
+        </View>
+        {activePhotos.length > 0 ? (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 8 * scale,
+              paddingLeft: 22 * scale,
+              paddingBottom: 106 * scale,
+            }}
+            style={{ position: 'absolute', left: 0, right: 0, bottom: 0 }}>
+            {activePhotos.map((uri) => (
+              <Image
+                key={uri}
+                source={{ uri }}
+                style={{
+                  width: uploadThumbSize,
+                  height: uploadThumbSize,
+                  borderRadius: uploadThumbRadius,
+                }}
+              />
+            ))}
+          </ScrollView>
+        ) : null}
+      </View>
 
       <View
         style={[
@@ -1007,7 +1079,7 @@ export function GarmentPhotoUploadScreen({
                   fontSize: 14 * scale,
                   lineHeight: 14 * scale,
                   letterSpacing: 0.5 * scale,
-                  color: SwashoColors.neutral950,
+                  color: SwashoColors.neutral800,
                   textAlign: 'center',
                   marginBottom: 16 * scale,
                   paddingHorizontal: 16 * scale,
@@ -1271,60 +1343,39 @@ export function GarmentPhotoUploadScreen({
 
           <View
             style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 12 * scale,
-              paddingHorizontal: 24 * scale,
               marginTop: 'auto',
+              paddingHorizontal: 20 * scale,
               paddingBottom: 32 * scale,
             }}>
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Upload image"
+              accessibilityLabel="Upload"
               onPress={handleUploadPress}
               style={{
-                width: 54 * scale,
-                height: 54 * scale,
-                borderRadius: 6.3 * scale,
-                borderWidth: 1.3 * scale,
-                borderColor: SwashoColors.neutral300,
+                flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'center',
-                shadowColor: '#000',
-                shadowOpacity: 0.2,
-                shadowRadius: 4.7 * scale,
-                shadowOffset: { width: 0, height: 0 },
+                gap: 10 * scale,
+                height: 45 * scale,
+                paddingHorizontal: 10 * scale,
+                borderRadius: 8 * scale,
                 backgroundColor: SwashoColors.surface,
+                alignSelf: 'flex-start',
               }}>
-              <ContactlessGalleryAddPrimaryIcon width={14 * scale} height={14 * scale} />
+              <ContactlessUploadMinimalisticIcon width={20 * scale} height={20 * scale} />
               <Text
                 style={[
                   searchFont('semibold'),
                   {
-                    fontSize: 8.3 * scale,
-                    lineHeight: 9.4 * scale,
-                    letterSpacing: 0.69 * scale,
+                    fontSize: 16 * scale,
+                    lineHeight: 14 * scale,
+                    letterSpacing: 0.5 * scale,
                     color: SwashoColors.primary600,
-                    marginTop: 2 * scale,
-                    textAlign: 'center',
                   },
                 ]}>
-                Upload Image
+                Upload
               </Text>
             </Pressable>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 * scale }}>
-              {activePhotos.map((uri) => (
-                <Image
-                  key={uri}
-                  source={{ uri }}
-                  style={{
-                    width: 48.5 * scale,
-                    height: 48.5 * scale,
-                    borderRadius: 4.8 * scale,
-                  }}
-                />
-              ))}
-            </ScrollView>
           </View>
         </View>
 
@@ -1382,6 +1433,14 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#f2f2f2',
     zIndex: 1,
+  },
+  cameraOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.68)',
+    zIndex: 8,
+    overflow: 'hidden',
   },
   heroImage: {
     position: 'absolute',
