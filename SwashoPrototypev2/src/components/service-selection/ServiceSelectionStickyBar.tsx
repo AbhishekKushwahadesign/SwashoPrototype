@@ -52,8 +52,8 @@ export function ServiceSelectionStickyBar({
         },
       ]}>
       {onDelete ? <ServiceSelectionStickyDeleteButton scale={scale} onPress={onDelete} /> : null}
-      <View style={[styles.barMain, { gap: 20 * scale }]}>
-      <View style={[styles.summary, { gap: 4 * scale, width: 156 * scale }]}>
+      <View style={[styles.barMain, { gap: 12 * scale }]}>
+      <View style={[styles.summary, { gap: 4 * scale }]}>
         <Text
           style={[
             searchFont('semibold'),
@@ -99,10 +99,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    flexWrap: 'wrap',
+    flexWrap: 'nowrap',
     minWidth: 0,
   },
   summary: {
+    flex: 1,
+    flexShrink: 1,
+    minWidth: 0,
     justifyContent: 'center',
   },
   itemCount: {
