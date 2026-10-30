@@ -388,10 +388,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'space-between',
+    position: 'relative',
+    zIndex: 4,
   },
   item: {
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
+    zIndex: 4,
   },
   navLabel: {
     textAlign: 'center',
