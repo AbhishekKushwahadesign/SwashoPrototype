@@ -53,7 +53,9 @@ const DELIVERING_ORDER_FOOTER_HEIGHT = 68;
 const DELIVERING_ORDER_FOOTER_WIDTH = 371;
 const DELIVERING_ORDER_FOOTER_INSET_LEFT = 13;
 const DELIVERING_RIDER_ART_LEFT = 6.28;
-const DELIVERING_RIDER_ART_BOTTOM = 10;
+/** Rider art vs footer frame (3429:18168 vs 3429:18229 on card 3429:18167). */
+const DELIVERING_RIDER_LEFT_IN_FOOTER = DELIVERING_RIDER_ART_LEFT - DELIVERING_ORDER_FOOTER_INSET_LEFT;
+const DELIVERING_RIDER_TOP_IN_FOOTER = 338.62 - 332;
 const DELIVERING_TRACK_RIDER_LEFT = 266;
 const DELIVERING_TRACK_RIDER_TOP = 29;
 
@@ -275,8 +277,8 @@ function DeliveringOrderRiderArt({ scale }: { scale: number }) {
       pointerEvents="none"
       style={{
         position: 'absolute',
-        left: DELIVERING_RIDER_ART_LEFT * scale,
-        bottom: DELIVERING_RIDER_ART_BOTTOM * scale,
+        left: DELIVERING_RIDER_LEFT_IN_FOOTER * scale,
+        top: DELIVERING_RIDER_TOP_IN_FOOTER * scale,
         width: 93.76 * scale,
         height: 61.661 * scale,
         zIndex: 1,
@@ -308,7 +310,7 @@ function DeliveringOrderRiderArt({ scale }: { scale: number }) {
   );
 }
 
-/** Figma 3429:18229 — text + Track Rider; rider art is card-level (3429:18168). */
+/** Figma 3429:18229 footer + 3429:18168 rider anchored to the footer frame. */
 function DeliveringOrderFooter({ order, scale }: { order: PastOrderSummary; scale: number }) {
   const footerOffsetLeft = (DELIVERING_ORDER_FOOTER_INSET_LEFT - 16) * scale;
 
@@ -319,13 +321,19 @@ function DeliveringOrderFooter({ order, scale }: { order: PastOrderSummary; scal
         marginLeft: footerOffsetLeft,
         width: DELIVERING_ORDER_FOOTER_WIDTH * scale,
         minHeight: DELIVERING_ORDER_FOOTER_HEIGHT * scale,
-        paddingTop: 12 * scale,
-        paddingLeft: 90 * scale,
-        paddingRight: 80 * scale,
-        justifyContent: 'center',
-        gap: 8 * scale,
-        zIndex: 2,
+        overflow: 'visible',
       }}>
+      <DeliveringOrderRiderArt scale={scale} />
+      <View
+        style={{
+          minHeight: DELIVERING_ORDER_FOOTER_HEIGHT * scale,
+          paddingTop: 12 * scale,
+          paddingLeft: 90 * scale,
+          paddingRight: 80 * scale,
+          justifyContent: 'center',
+          gap: 8 * scale,
+          zIndex: 2,
+        }}>
       <Text
         style={[
           searchFont('semibold'),
@@ -377,6 +385,7 @@ function DeliveringOrderFooter({ order, scale }: { order: PastOrderSummary; scal
           Track Rider
         </Text>
       </Pressable>
+      </View>
     </View>
   );
 }
@@ -581,7 +590,6 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
           height={cardHeight > 0 ? cardHeight : deliveringCardFallbackHeight}
         />
       ) : null}
-      {isDelivering ? <DeliveringOrderRiderArt scale={scale} /> : null}
       <View style={{ zIndex: 2 }}>{cardBody}</View>
     </View>
   );
