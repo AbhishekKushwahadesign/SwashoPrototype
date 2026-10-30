@@ -16,7 +16,8 @@ import {
 import { HomeIndicator } from '@/components/home/HomeIndicator';
 import { FigmaShadows, figmaDropShadow, figmaShadow } from '@/components/home/figma-shadows';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
-import { DocumentIcon, SaleIcon, StarsBoldIcon } from '@/components/provider-results/provider-results-icons';
+import { DocumentIcon, SaleIcon } from '@/components/provider-results/provider-results-icons';
+import { ProviderSpecialistTag } from '@/components/provider/ProviderSpecialistTag';
 import { SearchStatusBar } from '@/components/search/SearchStatusBar';
 import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors, SwashoFonts, SwashoRadii } from '@/constants/swasho-tokens';
@@ -85,9 +86,9 @@ function OfferText({ provider, scale }: { provider: ProviderResult; scale: numbe
   );
 }
 
-/** Figma 3346:10697 — Top Quality Tag gradient (full-width horizontal wash). */
-const TOP_PICKS_GRADIENT_COLORS = ['#FFFFFF', '#E9E8FF', '#FFFFFF'] as const;
-const TOP_PICKS_GRADIENT_LOCATIONS = [0.096687, 0.5, 1] as const;
+/** Figma 3346:8472 — Top Quality Tag horizontal gradient. */
+const TOP_PICKS_GRADIENT_COLORS = ['#FFFFFF', SwashoColors.primary100, '#FFFFFF'] as const;
+const TOP_PICKS_GRADIENT_LOCATIONS = [0.096687, 0.19834, 1] as const;
 
 function TopPicksTag({ scale }: { scale: number }) {
   const tagStyle = [
@@ -121,31 +122,14 @@ function TopPicksTag({ scale }: { scale: number }) {
     </>
   );
 
-  return <View style={tagStyle}>{content}</View>;
-}
-
-function SpecialistTag({
-  label,
-  scale,
-}: {
-  label: string;
-  scale: number;
-}) {
   return (
     <LinearGradient
-      colors={['rgba(255, 215, 0, 0)', 'rgba(255, 215, 0, 0.25)', 'rgba(255, 215, 0, 0)']}
+      colors={[...TOP_PICKS_GRADIENT_COLORS]}
+      locations={[...TOP_PICKS_GRADIENT_LOCATIONS]}
       start={{ x: 0, y: 0.5 }}
       end={{ x: 1, y: 0.5 }}
-      style={[styles.specialistTag, { paddingHorizontal: 6 * scale, paddingVertical: 4 * scale, width: 192 * scale }]}>
-      <StarsBoldIcon width={18 * scale} height={18 * scale} />
-      <Text
-        style={[
-          styles.specialistLabel,
-          searchFont('semibold'),
-          { fontSize: 10 * scale, lineHeight: 16 * scale, letterSpacing: 1 * scale },
-        ]}>
-        {label}
-      </Text>
+      style={tagStyle}>
+      {content}
     </LinearGradient>
   );
 }
@@ -769,7 +753,7 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
                   <View style={[styles.badgeRow, { gap: 12 * scale }]}>
                     {provider.topPicks ? <TopPicksTag scale={scale} /> : null}
                     {provider.specialistTag ? (
-                      <SpecialistTag label={provider.specialistTag.label} scale={scale} />
+                      <ProviderSpecialistTag tag={provider.specialistTag} scale={scale} layout="inline" />
                     ) : null}
                   </View>
 
@@ -1120,14 +1104,6 @@ const styles = StyleSheet.create({
   topPicksLabel: {
     color: '#6940e0',
     textAlign: 'left',
-  },
-  specialistTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  specialistLabel: {
-    color: '#92610e',
   },
   nameDetailsCol: {
     alignItems: 'flex-start',

@@ -1,5 +1,4 @@
 import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { StarRatingIcon } from '@/components/home/figma-icons';
@@ -8,14 +7,9 @@ import { SwashoColors, SwashoFonts, SwashoRadii } from '@/constants/swasho-token
 import { searchFont } from '@/components/search/search-fonts';
 import type { ProviderResult } from '@/data/providers';
 
-import {
-  CrownIcon,
-  DocumentIcon,
-  SaleIcon,
-  ScooterBoldIcon,
-  ScooterLinearIcon,
-  StarsBoldIcon,
-} from './provider-results-icons';
+import { ProviderSpecialistTag } from '@/components/provider/ProviderSpecialistTag';
+
+import { DocumentIcon, SaleIcon, ScooterBoldIcon, ScooterLinearIcon } from './provider-results-icons';
 
 const CARD_WIDTH = 390;
 const IMAGE_WIDTH = 71;
@@ -26,58 +20,6 @@ type ProviderResultCardProps = {
   scale: number;
   onPress?: () => void;
 };
-
-function SpecialistTag({
-  tag,
-  scale,
-}: {
-  tag: NonNullable<ProviderResult['specialistTag']>;
-  scale: number;
-}) {
-  const isWedding = tag.type === 'wedding';
-
-  return (
-    <LinearGradient
-      colors={
-        isWedding
-          ? ['rgba(255, 215, 0, 0)', 'rgba(255, 215, 0, 0.25)', 'rgba(255, 215, 0, 0)']
-          : ['rgba(253, 2, 248, 0)', 'rgba(253, 2, 248, 0.15)', 'rgba(253, 2, 248, 0)']
-      }
-      start={{ x: 0, y: 0.5 }}
-      end={{ x: 1, y: 0.5 }}
-      style={[
-        styles.specialistTag,
-        {
-          paddingHorizontal: 6 * scale,
-          paddingVertical: 4 * scale,
-          width: 372 * scale,
-        },
-      ]}>
-      <View style={[styles.specialistRow, { gap: 4 * scale }]}>
-        <View style={{ width: 18 * scale, height: 18 * scale }}>
-          {isWedding ? (
-            <StarsBoldIcon width={18 * scale} height={18 * scale} />
-          ) : (
-            <CrownIcon width={18 * scale} height={18 * scale} />
-          )}
-        </View>
-        <Text
-          style={[
-            styles.specialistLabel,
-            searchFont('semibold'),
-            {
-              fontSize: 10 * scale,
-              lineHeight: 16 * scale,
-              letterSpacing: 1 * scale,
-              color: isWedding ? '#92610e' : '#c102be',
-            },
-          ]}>
-          {tag.label}
-        </Text>
-      </View>
-    </LinearGradient>
-  );
-}
 
 function OfferText({ provider, scale }: { provider: ProviderResult; scale: number }) {
   const { boldSegments, regularText } = provider.offerText;
@@ -121,7 +63,9 @@ export function ProviderResultCard({ provider, scale, onPress }: ProviderResultC
           ...figmaShadow(FigmaShadows.providerResultCard, scale),
         },
       ]}>
-      {provider.specialistTag ? <SpecialistTag tag={provider.specialistTag} scale={scale} /> : null}
+      {provider.specialistTag ? (
+        <ProviderSpecialistTag tag={provider.specialistTag} scale={scale} layout="card" />
+      ) : null}
 
       <View
         style={[
@@ -311,16 +255,6 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: SwashoColors.surface,
     overflow: 'hidden',
-  },
-  specialistTag: {
-    alignSelf: 'center',
-  },
-  specialistRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  specialistLabel: {
-    flex: 1,
   },
   mainContent: {
     width: '100%',
