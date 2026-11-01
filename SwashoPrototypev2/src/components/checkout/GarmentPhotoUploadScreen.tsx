@@ -1433,13 +1433,39 @@ export function GarmentPhotoUploadScreen({
                 style={{ flex: 1 }}
               />
             </View>
+          ) : showGoToCheckoutCta ? (
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 10 * scale,
+                paddingHorizontal: 20 * scale,
+                marginTop: 'auto',
+                paddingVertical: 10 * scale,
+                paddingBottom: 32 * scale,
+              }}>
+              <ServiceSelectionButton
+                label="Upload"
+                variant="secondary"
+                scale={scale}
+                onPress={handleUploadPress}
+                leadingIcon={<ContactlessUploadMinimalisticIcon width={20 * scale} height={20 * scale} />}
+                style={{ width: 122 * scale, flexShrink: 0 }}
+              />
+              <ServiceSelectionButton
+                label="Go to checkout"
+                variant="primary"
+                scale={scale}
+                onPress={handleSaveAndGoToCart}
+                style={{ flex: 1 }}
+              />
+            </View>
           ) : (
             <View
               style={{
                 marginTop: 'auto',
                 paddingHorizontal: 20 * scale,
                 paddingBottom: 32 * scale,
-                gap: 12 * scale,
               }}>
               <Pressable
                 accessibilityRole="button"
@@ -1470,15 +1496,6 @@ export function GarmentPhotoUploadScreen({
                   Upload
                 </Text>
               </Pressable>
-              {showGoToCheckoutCta ? (
-                <ServiceSelectionButton
-                  label="Go to checkout"
-                  variant="primary"
-                  scale={scale}
-                  onPress={handleSaveAndGoToCart}
-                  style={{ alignSelf: 'stretch' }}
-                />
-              ) : null}
             </View>
           )}
         </View>
