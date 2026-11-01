@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { router, useIsFocused, useLocalSearchParams, usePathname } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { router, useFocusEffect, useIsFocused, useLocalSearchParams, usePathname } from 'expo-router';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Platform,
   ScrollView,
@@ -149,6 +149,7 @@ export function HomeScreen() {
     nav === 'orders' ? 'Orders' : 'Home',
   );
   const [locationModalVisible, setLocationModalVisible] = useState(false);
+  const [promiseSectionKey, setPromiseSectionKey] = useState(0);
   const [collapseScrollY, setCollapseScrollY] = useState(0);
   const collapseScrollYRef = useRef(0);
   const sheetScrollRef = useRef<ScrollView>(null);
@@ -163,6 +164,14 @@ export function HomeScreen() {
       setNavVariant('Home');
     }
   }, [nav]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (Platform.OS === 'web') {
+        setPromiseSectionKey((key) => key + 1);
+      }
+    }, []),
+  );
 
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof window === 'undefined') {
@@ -380,7 +389,11 @@ export function HomeScreen() {
                     transform: [{ translateY: promiseTranslateY }],
                   },
                 ]}>
-                <PromiseSection scale={scale} onLearnMorePress={() => undefined} />
+                <PromiseSection
+                  key={promiseSectionKey}
+                  scale={scale}
+                  onLearnMorePress={() => undefined}
+                />
               </View>
             </View>
           </LinearGradient>
