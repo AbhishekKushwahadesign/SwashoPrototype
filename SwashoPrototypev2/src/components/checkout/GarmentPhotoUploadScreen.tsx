@@ -597,6 +597,9 @@ export function GarmentPhotoUploadScreen({
   const showInlineSaveAndGoCart =
     activeGarmentPhotoSatisfied && inlineSaveCtaGarmentIds.has(activeGarmentId);
 
+  const showGoToCheckoutCta =
+    !garmentPhotoUploadMandatory(activeSlots) && !showInlineSaveAndGoCart;
+
   const garmentRingSize = 81 * scale;
   const garmentActiveInner = 71 * scale;
   const garmentInactiveInner = 56 * scale;
@@ -1436,6 +1439,7 @@ export function GarmentPhotoUploadScreen({
                 marginTop: 'auto',
                 paddingHorizontal: 20 * scale,
                 paddingBottom: 32 * scale,
+                gap: 12 * scale,
               }}>
               <Pressable
                 accessibilityRole="button"
@@ -1466,6 +1470,15 @@ export function GarmentPhotoUploadScreen({
                   Upload
                 </Text>
               </Pressable>
+              {showGoToCheckoutCta ? (
+                <ServiceSelectionButton
+                  label="Go to checkout"
+                  variant="primary"
+                  scale={scale}
+                  onPress={handleSaveAndGoToCart}
+                  style={{ alignSelf: 'stretch' }}
+                />
+              ) : null}
             </View>
           )}
         </View>
