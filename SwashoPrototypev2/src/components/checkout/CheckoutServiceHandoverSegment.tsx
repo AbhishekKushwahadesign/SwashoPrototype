@@ -12,6 +12,8 @@ type CheckoutServiceHandoverSegmentProps = {
   contactless: boolean;
   onContactlessChange: (contactless: boolean) => void;
   onHowItWorksPress?: () => void;
+  showPickupLocationNudge?: boolean;
+  onPickupLocationNudgePress?: () => void;
   scale: number;
 };
 
@@ -20,6 +22,8 @@ export function CheckoutServiceHandoverSegment({
   contactless,
   onContactlessChange,
   onHowItWorksPress,
+  showPickupLocationNudge = false,
+  onPickupLocationNudgePress,
   scale,
 }: CheckoutServiceHandoverSegmentProps) {
   const segmentWidth = CHECKOUT_ORDER_TYPE_SEGMENT_WIDTH * scale;
@@ -34,6 +38,48 @@ export function CheckoutServiceHandoverSegment({
         activeSide={contactless ? 'right' : 'left'}
         onSelect={(side) => onContactlessChange(side === 'right')}
       />
+      {contactless && showPickupLocationNudge && onPickupLocationNudgePress ? (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Select pickup location for contactless service"
+          onPress={onPickupLocationNudgePress}
+          style={[
+            styles.pickupLocationNudge,
+            {
+              width: segmentWidth,
+              paddingHorizontal: 12 * scale,
+              paddingVertical: 12 * scale,
+              borderRadius: SwashoRadii.lg * scale,
+              gap: 4 * scale,
+              ...figmaShadow({ offsetX: 0, offsetY: 0, blur: 8, color: '#000000', opacity: 0.08 }, scale),
+            },
+          ]}>
+          <Text
+            style={[
+              searchFont('semibold'),
+              styles.pickupLocationNudgeTitle,
+              { fontSize: 14 * scale, lineHeight: 20 * scale, letterSpacing: 0.3 * scale },
+            ]}>
+            Pickup location required
+          </Text>
+          <Text
+            style={[
+              searchFont('regular'),
+              styles.pickupLocationNudgeBody,
+              { fontSize: 12 * scale, lineHeight: 16 * scale, letterSpacing: 0.5 * scale },
+            ]}>
+            Choose where your laundry will be kept for contactless pickup.
+          </Text>
+          <Text
+            style={[
+              searchFont('semibold'),
+              styles.pickupLocationNudgeAction,
+              { fontSize: 13 * scale, lineHeight: 16 * scale, letterSpacing: 0.5 * scale },
+            ]}>
+            Select location →
+          </Text>
+        </Pressable>
+      ) : null}
       {contactless && onHowItWorksPress ? (
         <Pressable
           accessibilityRole="button"
@@ -77,5 +123,21 @@ const styles = StyleSheet.create({
   },
   howItWorksCardTitle: {
     color: SwashoColors.neutral800,
+  },
+  pickupLocationNudge: {
+    alignSelf: 'stretch',
+    backgroundColor: SwashoColors.primary50,
+    borderWidth: 1,
+    borderColor: SwashoColors.primary100,
+  },
+  pickupLocationNudgeTitle: {
+    color: SwashoColors.primary800,
+  },
+  pickupLocationNudgeBody: {
+    color: SwashoColors.neutral700,
+  },
+  pickupLocationNudgeAction: {
+    color: SwashoColors.primary600,
+    marginTop: 4,
   },
 });

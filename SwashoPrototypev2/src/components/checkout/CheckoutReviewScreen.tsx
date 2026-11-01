@@ -308,6 +308,7 @@ export function CheckoutReviewScreen({
 
   const [contactlessSetupExplainerVisible, setContactlessSetupExplainerVisible] = useState(false);
   const [contactlessHowItWorksVisible, setContactlessHowItWorksVisible] = useState(false);
+  const [contactlessPickupLocationNudgeVisible, setContactlessPickupLocationNudgeVisible] = useState(false);
   const [clothesLocationVisible, setClothesLocationVisible] = useState(false);
   const openLocationAfterExplainerRef = useRef(false);
   const [clothesLocationSheetKey, setClothesLocationSheetKey] = useState(0);
@@ -407,6 +408,9 @@ export function CheckoutReviewScreen({
   const handleContactlessChange = useCallback(
     (nextContactless: boolean) => {
       setContactlessCheckout(providerId, { contactlessService: nextContactless });
+      if (!nextContactless) {
+        setContactlessPickupLocationNudgeVisible(false);
+      }
       if (nextContactless && !checkout.contactlessFirstEntryCompleted) {
         setContactlessSetupExplainerVisible(true);
       }
@@ -418,13 +422,23 @@ export function CheckoutReviewScreen({
     openLocationAfterExplainerRef.current = false;
     setContactlessSetupExplainerVisible(false);
     markContactlessFirstEntryCompleted();
-  }, [markContactlessFirstEntryCompleted]);
+    if (contactless && !clothesLocationValid) {
+      setContactlessPickupLocationNudgeVisible(true);
+    }
+  }, [clothesLocationValid, contactless, markContactlessFirstEntryCompleted]);
 
   const handleSetupExplainerContinue = useCallback(() => {
     openLocationAfterExplainerRef.current = true;
     setContactlessSetupExplainerVisible(false);
+    setContactlessPickupLocationNudgeVisible(false);
     markContactlessFirstEntryCompleted();
   }, [markContactlessFirstEntryCompleted]);
+
+  useEffect(() => {
+    if (clothesLocationValid) {
+      setContactlessPickupLocationNudgeVisible(false);
+    }
+  }, [clothesLocationValid]);
 
   useEffect(() => {
     if (!contactlessSetupExplainerVisible && openLocationAfterExplainerRef.current) {
@@ -781,6 +795,8 @@ export function CheckoutReviewScreen({
               contactless={contactless}
               onContactlessChange={handleContactlessChange}
               onHowItWorksPress={() => setContactlessHowItWorksVisible(true)}
+              showPickupLocationNudge={contactlessPickupLocationNudgeVisible}
+              onPickupLocationNudgePress={openClothesLocationSheet}
               scale={scale}
             />
 
