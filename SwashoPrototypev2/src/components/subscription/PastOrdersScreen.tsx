@@ -772,7 +772,9 @@ export function PastOrdersScreen() {
           ))}
         </ScrollView>
 
-        <View style={[styles.homeIndicatorWrap, homeIndicatorScreenBottomStyle, { paddingBottom: insets.bottom }]}
+        <View
+          style={[styles.homeIndicatorWrap, homeIndicatorScreenBottomStyle, { paddingBottom: insets.bottom }]}
+          pointerEvents="none">
           <HomeIndicator scale={scale} />
         </View>
       </View>
