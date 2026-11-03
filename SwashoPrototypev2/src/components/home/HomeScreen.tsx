@@ -19,7 +19,7 @@ import { AddressHeader } from './AddressHeader';
 import { LocationSelectionModal } from './LocationSelectionModal';
 import { BulkLaundryCard } from './BulkLaundryCard';
 import { HomeIndicator, homeIndicatorScreenBottomStyle } from './HomeIndicator';
-import { NavBar, NAV_BAR_BOTTOM_INSET, NavBarVariant } from './NavBar';
+import { NavBar, NavBarVariant } from './NavBar';
 import { OrderCard } from './OrderCard';
 import { PromiseSection } from './PromiseSection';
 import { RecommendationCard } from './RecommendationCard';
@@ -204,7 +204,6 @@ export function HomeScreen() {
 
   const frameHeight = contentHeight + safeTop;
   const bottomChromeHeight = (NAV_HEIGHT + HOME_INDICATOR_HEIGHT) * scale;
-  const bottomNavLift = NAV_BAR_BOTTOM_INSET * scale;
   const maxCollapseScroll = HEADER_COLLAPSE_SCROLL * scale;
 
   useEffect(() => {
@@ -455,7 +454,7 @@ export function HomeScreen() {
               {
                 paddingTop: sheetScrollPaddingTop,
                 paddingHorizontal: SwashoSpacing.xxl * scale,
-                paddingBottom: 16 * scale + bottomChromeHeight + bottomNavLift,
+                paddingBottom: 16 * scale + bottomChromeHeight,
                 gap: SwashoSpacing.section * scale,
               },
             ]}
@@ -483,7 +482,7 @@ export function HomeScreen() {
                 styles.navBarWrap,
                 {
                   height: NAV_HEIGHT * scale,
-                  bottom: HOME_INDICATOR_HEIGHT * scale + bottomNavLift,
+                  bottom: HOME_INDICATOR_HEIGHT * scale,
                 },
               ]}>
               <NavBar

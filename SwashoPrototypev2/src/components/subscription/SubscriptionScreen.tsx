@@ -15,7 +15,7 @@ import { CheckoutEditPenSquareIcon } from '@/components/checkout/checkout-review
 import { ArrowLeftIcon, MagnifierIcon } from '@/components/home/figma-icons';
 import { FigmaShadows, figmaShadow } from '@/components/home/figma-shadows';
 import { HomeIndicator, homeIndicatorScreenBottomStyle } from '@/components/home/HomeIndicator';
-import { NavBar, NAV_BAR_BOTTOM_INSET } from '@/components/home/NavBar';
+import { NavBar } from '@/components/home/NavBar';
 import { StatusBar } from '@/components/home/StatusBar';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { ListServiceIcon } from '@/components/provider-page/provider-page-icons';
@@ -507,7 +507,6 @@ export function SubscriptionScreen() {
 
   const frameHeight = contentHeight + safeTop;
   const bottomChromeHeight = (101 + HOME_INDICATOR_HEIGHT) * scale;
-  const bottomNavLift = NAV_BAR_BOTTOM_INSET * scale;
   const headerTop = STATUS_BAR_HEIGHT * scale;
   const filterBarTop = FILTER_BAR_TOP * scale;
   const scrollTop = SCROLL_CONTENT_START_Y * scale;
@@ -659,7 +658,7 @@ export function SubscriptionScreen() {
         <ScrollView
           style={[styles.scroll, { marginTop: scrollTop }]}
           contentContainerStyle={{
-            paddingBottom: bottomChromeHeight + bottomNavLift + 24 * scale,
+            paddingBottom: bottomChromeHeight + 24 * scale,
             paddingTop: SCROLL_PADDING_TOP_AFTER_FILTER * scale,
             alignItems: 'center',
             gap: SCROLL_SECTION_GAP * scale,
@@ -706,7 +705,7 @@ export function SubscriptionScreen() {
                 styles.navBarWrap,
                 {
                   height: NAV_HEIGHT * scale,
-                  bottom: HOME_INDICATOR_HEIGHT * scale + bottomNavLift,
+                  bottom: HOME_INDICATOR_HEIGHT * scale,
                 },
               ]}>
               <NavBar
