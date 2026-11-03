@@ -136,6 +136,15 @@ const HOME_INDICATOR_HEIGHT = 24;
 /** Figma Service Cards (3344:8773) inner offset: top 0.5 + first card y 16.105. */
 const SERVICE_GRID_PADDING_TOP = 16.605;
 
+/** Cap pointer-drag scroll steps on web so touch tracks wheel-like increments. */
+function webPointerScrollDelta(deltaY: number): number {
+  if (Platform.OS !== 'web' || deltaY === 0) {
+    return deltaY;
+  }
+  const cap = 56;
+  return Math.sign(deltaY) * Math.min(Math.abs(deltaY), cap);
+}
+
 export function HomeScreen() {
   const { scale, contentWidth, contentHeight } = useScreenScale();
   const frameRootStyle = useScreenFrameRootStyle();
@@ -181,6 +190,36 @@ export function HomeScreen() {
   useEffect(() => {
     maxCollapseScrollRef.current = maxCollapseScroll;
   }, [maxCollapseScroll]);
+
+  /** Web: keep mouse wheel on the dedicated collapse path (not RN ScrollView inertia). */
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined') {
+      return;
+    }
+
+    const onWheel = (event: WheelEvent) => {
+      const max = maxCollapseScrollRef.current;
+      const current = collapseScrollYRef.current;
+
+      if (event.deltaY > 0 && current < max) {
+        event.preventDefault();
+        const next = Math.min(current + event.deltaY, max);
+        collapseScrollYRef.current = next;
+        setCollapseScrollY(next);
+        return;
+      }
+
+      if (event.deltaY < 0 && sheetScrollOffsetRef.current <= 1 && current > 0) {
+        event.preventDefault();
+        const next = Math.max(0, current + event.deltaY);
+        collapseScrollYRef.current = next;
+        setCollapseScrollY(next);
+      }
+    };
+
+    window.addEventListener('wheel', onWheel, { passive: false, capture: true });
+    return () => window.removeEventListener('wheel', onWheel, { capture: true });
+  }, []);
 
   const collapsedProgress = Math.min(collapseScrollY / scale, HEADER_COLLAPSE_SCROLL);
   // Search pins at SEARCH_STICKY_TOP (44). Sheet pins at SHEET_STICKY_TOP (~53) so
@@ -236,7 +275,7 @@ export function HomeScreen() {
       return;
     }
 
-    const deltaY = y - sheetScrollOffsetRef.current;
+    const deltaY = webPointerScrollDelta(y - sheetScrollOffsetRef.current);
     sheetScrollOffsetRef.current = y;
 
     if (deltaY > 0 && collapseScrollYRef.current < maxCollapseScroll) {
@@ -577,9 +616,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     ...Platform.select({
       web: {
-        overflowY: 'auto',
-        overscrollBehaviorY: 'contain',
+        overflow: 'hidden',
         WebkitOverflowScrolling: 'auto',
+        overscrollBehaviorY: 'contain',
       },
     }),
   },
