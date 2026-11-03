@@ -177,8 +177,18 @@ function checkoutQueryString(providerId: string, query: string, extra?: Record<s
 }
 
 /** Provider details; cart selections stay in ProviderCartProvider. */
-export function providerPageHref(providerId: string, query: string): Href {
+export function providerPageHref(
+  providerId: string,
+  query: string,
+  extra?: { returnTo?: 'checkout-review'; subscription?: boolean },
+): Href {
   const params = new URLSearchParams({ q: query });
+  if (extra?.returnTo === 'checkout-review') {
+    params.set('returnTo', 'checkout-review');
+  }
+  if (extra?.subscription) {
+    params.set('subscription', '1');
+  }
   return `/provider/${providerId}?${params.toString()}` as Href;
 }
 

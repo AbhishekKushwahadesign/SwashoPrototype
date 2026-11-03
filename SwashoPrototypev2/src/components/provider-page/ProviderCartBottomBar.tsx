@@ -9,6 +9,7 @@ type ProviderCartBottomBarProps = {
   itemCount: number;
   scale: number;
   contentWidth: number;
+  proceedLabel?: string;
   onProceed?: () => void;
   onItemCountPress?: () => void;
 };
@@ -17,6 +18,7 @@ export function ProviderCartBottomBar({
   itemCount,
   scale,
   contentWidth,
+  proceedLabel = 'Continue',
   onProceed,
   onItemCountPress,
 }: ProviderCartBottomBarProps) {
@@ -78,7 +80,7 @@ export function ProviderCartBottomBar({
             searchFont('medium'),
             { fontSize: 16 * scale, lineHeight: 14 * scale, letterSpacing: 0.5 * scale },
           ]}>
-          Continue
+          {proceedLabel}
         </Text>
         <ArrowRightIcon width={24 * scale} height={24 * scale} color={SwashoColors.neutral50} />
       </Pressable>

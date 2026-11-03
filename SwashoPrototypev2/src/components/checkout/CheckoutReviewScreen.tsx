@@ -389,8 +389,13 @@ export function CheckoutReviewScreen({
   );
 
   const handleAddGarment = useCallback(() => {
-    router.push(providerPageHref(providerId, query));
-  }, [providerId, query, router]);
+    router.push(
+      providerPageHref(providerId, query, {
+        returnTo: 'checkout-review',
+        subscription: isSubscription,
+      }),
+    );
+  }, [isSubscription, providerId, query, router]);
 
   const openClothesLocationSheet = useCallback(() => {
     setContactlessSetupExplainerVisible(false);

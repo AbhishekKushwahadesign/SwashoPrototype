@@ -9,7 +9,12 @@ import { getProviderResultById } from '@/data/providers';
 
 export default function ProviderDetailsRoute() {
   const router = useRouter();
-  const { id, q } = useLocalSearchParams<{ id?: string; q?: string }>();
+  const { id, q, returnTo, subscription } = useLocalSearchParams<{
+    id?: string;
+    q?: string;
+    returnTo?: string;
+    subscription?: string;
+  }>();
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
   const query = typeof q === 'string' ? q : '';
@@ -35,7 +40,14 @@ export default function ProviderDetailsRoute() {
     );
   }
 
-  return <ProviderPageScreen provider={provider} query={query} />;
+  return (
+    <ProviderPageScreen
+      provider={provider}
+      query={query}
+      returnToCheckoutReview={returnTo === 'checkout-review'}
+      checkoutReviewIsSubscription={subscription === '1'}
+    />
+  );
 }
 
 const styles = StyleSheet.create({

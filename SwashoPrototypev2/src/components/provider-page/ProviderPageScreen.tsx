@@ -41,7 +41,7 @@ import {
   ListServiceIcon,
   PhoneIcon,
 } from './provider-page-icons';
-import { oneTimeCheckoutHref } from '@/lib/checkout-flow';
+import { checkoutPlaceholderHref, oneTimeCheckoutHref } from '@/lib/checkout-flow';
 
 import { ProviderCartBottomBar } from './ProviderCartBottomBar';
 
@@ -58,6 +58,8 @@ const LIST_HEADER_WIDTH = 372;
 type ProviderPageScreenProps = {
   provider: ProviderResult;
   query: string;
+  returnToCheckoutReview?: boolean;
+  checkoutReviewIsSubscription?: boolean;
 };
 
 function OfferText({ provider, scale }: { provider: ProviderResult; scale: number }) {
@@ -578,7 +580,12 @@ function ServiceSection({
   );
 }
 
-export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps) {
+export function ProviderPageScreen({
+  provider,
+  query,
+  returnToCheckoutReview = false,
+  checkoutReviewIsSubscription = false,
+}: ProviderPageScreenProps) {
   const router = useRouter();
   const { getSelection, getProviderCartTotals, setFulfillmentMode } = useProviderCart();
   const { scale, contentWidth } = useScreenScale();
@@ -631,12 +638,29 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
       return;
     }
     cartProceedLockRef.current = true;
-    setFulfillmentMode(provider.id, 'one-time');
-    router.push(oneTimeCheckoutHref(provider.id, displayQuery));
+    if (returnToCheckoutReview) {
+      router.push(
+        checkoutPlaceholderHref(provider.id, displayQuery, {
+          subscription: checkoutReviewIsSubscription,
+          scheduleConfirmed: true,
+        }),
+      );
+    } else {
+      setFulfillmentMode(provider.id, 'one-time');
+      router.push(oneTimeCheckoutHref(provider.id, displayQuery));
+    }
     setTimeout(() => {
       cartProceedLockRef.current = false;
     }, 600);
-  }, [cartTotals.itemCount, displayQuery, provider.id, router, setFulfillmentMode]);
+  }, [
+    cartTotals.itemCount,
+    checkoutReviewIsSubscription,
+    displayQuery,
+    provider.id,
+    returnToCheckoutReview,
+    router,
+    setFulfillmentMode,
+  ]);
 
   const updateCompactProviderName = useCallback(() => {
     const nameEl = providerNameRef.current;
@@ -1013,6 +1037,7 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
               itemCount={cartTotals.itemCount}
               scale={scale}
               contentWidth={contentWidth}
+              proceedLabel={returnToCheckoutReview ? 'Checkout' : 'Continue'}
               onProceed={handleCartProceed}
               onItemCountPress={scrollToCartSummary}
             />
