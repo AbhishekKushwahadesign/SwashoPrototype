@@ -17,7 +17,7 @@ import { FigmaShadows, figmaShadow } from '@/components/home/figma-shadows';
 import { HomeIndicator, homeIndicatorScreenBottomStyle } from '@/components/home/HomeIndicator';
 import { NavBar } from '@/components/home/NavBar';
 import { StatusBar } from '@/components/home/StatusBar';
-import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
+import { useSafeTopInset, useScreenFrameRootStyle, useScreenScale } from '@/components/home/scale';
 import { ListServiceIcon } from '@/components/provider-page/provider-page-icons';
 import { ScooterBoldIcon } from '@/components/provider-results/provider-results-icons';
 import { TertiaryButton } from '@/components/home/TertiaryButton';
@@ -496,6 +496,7 @@ function PickupBanner({
 
 export function SubscriptionScreen() {
   const { scale, contentWidth, contentHeight } = useScreenScale();
+  const frameRootStyle = useScreenFrameRootStyle();
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
   const isFocused = useIsFocused();
@@ -526,7 +527,7 @@ export function SubscriptionScreen() {
   }, []);
 
   return (
-    <View style={[styles.root, { backgroundColor: PAGE_BG }]}>
+    <View style={[styles.root, frameRootStyle, { backgroundColor: PAGE_BG }]}>
       <View
         style={[
           styles.frame,

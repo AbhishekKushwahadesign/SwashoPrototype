@@ -1,4 +1,4 @@
-import { Dimensions, Platform } from 'react-native';
+import { Dimensions, Platform, type ViewStyle } from 'react-native';
 
 import { ScreenHeight, ScreenWidth } from '@/constants/swasho-tokens';
 
@@ -10,7 +10,14 @@ export function useScreenScale() {
   // Web preview panes are often shorter than the 412×1000 Figma frame — clamp so bottom nav isn’t clipped.
   const contentHeight =
     Platform.OS === 'web' ? Math.min(figmaFrameHeight, windowHeight) : figmaFrameHeight;
-  return { scale, contentWidth, contentHeight };
+  return { scale, contentWidth, contentHeight, figmaFrameHeight, windowHeight };
+}
+
+/** Pin the Figma frame to the viewport bottom on web when the window is taller than the frame. */
+export function useScreenFrameRootStyle(): ViewStyle {
+  return Platform.OS === 'web'
+    ? { flex: 1, alignItems: 'center', justifyContent: 'flex-end' }
+    : { flex: 1, alignItems: 'center' };
 }
 
 export function s(value: number, scale: number) {

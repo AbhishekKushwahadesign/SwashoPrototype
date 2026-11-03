@@ -28,7 +28,7 @@ import { SectionTitle } from './SectionTitle';
 import { ServiceTile, ServiceTileLayout } from './ServiceTile';
 import { StatusBar } from './StatusBar';
 import { FigmaShadows, figmaShadow } from './figma-shadows';
-import { useSafeTopInset, useScreenScale } from './scale';
+import { useSafeTopInset, useScreenFrameRootStyle, useScreenScale } from './scale';
 import { orderTrackingHrefFromHome } from '@/lib/order-tracking-flow';
 
 const SERVICES: ServiceTileLayout[] = [
@@ -138,6 +138,7 @@ const SERVICE_GRID_PADDING_TOP = 16.605;
 
 export function HomeScreen() {
   const { scale, contentWidth, contentHeight } = useScreenScale();
+  const frameRootStyle = useScreenFrameRootStyle();
   const insets = useSafeAreaInsets();
   const safeTop = useSafeTopInset(insets.top);
   const { nav } = useLocalSearchParams<{ nav?: string }>();
@@ -319,7 +320,7 @@ export function HomeScreen() {
   );
 
   return (
-    <View style={[styles.root, { backgroundColor: SwashoColors.surface }]}>
+    <View style={[styles.root, frameRootStyle, { backgroundColor: SwashoColors.surface }]}>
       <View
         style={[
           styles.frame,
@@ -327,7 +328,10 @@ export function HomeScreen() {
             width: contentWidth,
             height: frameHeight,
             marginTop: safeTop,
-            ...figmaShadow(FigmaShadows.screen, scale),
+            ...Platform.select({
+              web: {},
+              default: figmaShadow(FigmaShadows.screen, scale),
+            }),
           },
         ]}>
         <View style={[styles.statusBar, { height: STATUS_BAR_HEIGHT * scale }]}>
@@ -512,8 +516,6 @@ export function HomeScreen() {
 
 const styles = StyleSheet.create({
   root: {
-    flex: 1,
-    alignItems: 'center',
     backgroundColor: '#f0f0f0',
   },
   frame: {
