@@ -13,7 +13,7 @@ import {
   hasProviderCartSelection,
   type ProviderGarmentCartSelection,
 } from '@/lib/provider-cart-selection';
-import { HomeIndicator } from '@/components/home/HomeIndicator';
+import { HomeIndicator, homeIndicatorScreenBottomStyle } from '@/components/home/HomeIndicator';
 import { FigmaShadows, figmaDropShadow, figmaShadow } from '@/components/home/figma-shadows';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { DocumentIcon, SaleIcon } from '@/components/provider-results/provider-results-icons';
@@ -1019,7 +1019,7 @@ export function ProviderPageScreen({ provider, query }: ProviderPageScreenProps)
           </View>
         ) : null}
 
-        <View style={styles.homeIndicatorWrap} pointerEvents="none">
+        <View style={[styles.homeIndicatorWrap, homeIndicatorScreenBottomStyle]} pointerEvents="none">
           <HomeIndicator scale={scale} />
         </View>
       </View>

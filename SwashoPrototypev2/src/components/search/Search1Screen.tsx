@@ -13,7 +13,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AltArrowRightIcon } from '@/components/home/figma-icons';
-import { HomeIndicator } from '@/components/home/HomeIndicator';
+import { HomeIndicator, homeIndicatorScreenBottomStyle } from '@/components/home/HomeIndicator';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { ProviderCard } from '@/components/provider/ProviderCard';
 import { SwashoColors } from '@/constants/swasho-tokens';
@@ -276,7 +276,7 @@ export function Search1Screen() {
           </TouchableWithoutFeedback>
         </ScrollView>
 
-        <View style={styles.homeIndicatorWrap}>
+        <View style={[styles.homeIndicatorWrap, homeIndicatorScreenBottomStyle]}>
           <HomeIndicator scale={scale} />
         </View>
       </View>

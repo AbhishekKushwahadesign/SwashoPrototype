@@ -14,7 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CheckoutEditPenSquareIcon } from '@/components/checkout/checkout-review-icons';
 import { ArrowLeftIcon, MagnifierIcon } from '@/components/home/figma-icons';
 import { FigmaShadows, figmaShadow } from '@/components/home/figma-shadows';
-import { HomeIndicator } from '@/components/home/HomeIndicator';
+import { HomeIndicator, homeIndicatorScreenBottomStyle } from '@/components/home/HomeIndicator';
 import { NavBar, NAV_BAR_BOTTOM_INSET } from '@/components/home/NavBar';
 import { StatusBar } from '@/components/home/StatusBar';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
@@ -49,6 +49,7 @@ const SCROLL_PADDING_TOP_AFTER_FILTER = 11.884765625;
 /** Vertical gap between pickup banner and subscription card (design: 12px). */
 const SCROLL_SECTION_GAP = 12;
 const HOME_INDICATOR_HEIGHT = 24;
+const NAV_HEIGHT = 101;
 const PAGE_BG = '#f2f2f2';
 const PICKUP_BANNER_BORDER = '#6155f5';
 
@@ -699,23 +700,32 @@ export function SubscriptionScreen() {
         </ScrollView>
 
         {showBottomNav ? (
-          <View
-            style={[
-              styles.navBarWrap,
-              { height: bottomChromeHeight, bottom: bottomNavLift },
-            ]}>
-            <NavBar
-              variant="Orders"
-              scale={scale}
-              onHomePress={() => router.replace('/')}
-              onSubscriptionPress={() => {}}
-              onSwashoAiPress={() => router.push('/swasho-ai')}
-            />
-            <View style={styles.homeIndicatorWrap}>
+          <>
+            <View
+              style={[
+                styles.navBarWrap,
+                {
+                  height: NAV_HEIGHT * scale,
+                  bottom: HOME_INDICATOR_HEIGHT * scale + bottomNavLift,
+                },
+              ]}>
+              <NavBar
+                variant="Orders"
+                scale={scale}
+                onHomePress={() => router.replace('/')}
+                onSubscriptionPress={() => {}}
+                onSwashoAiPress={() => router.push('/swasho-ai')}
+              />
+            </View>
+            <View style={[styles.homeIndicatorWrap, homeIndicatorScreenBottomStyle]} pointerEvents="none">
               <HomeIndicator scale={scale} />
             </View>
+          </>
+        ) : (
+          <View style={[styles.homeIndicatorWrap, homeIndicatorScreenBottomStyle]} pointerEvents="none">
+            <HomeIndicator scale={scale} />
           </View>
-        ) : null}
+        )}
       </View>
     </View>
   );

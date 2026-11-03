@@ -3,7 +3,7 @@ import { useCallback, useEffect } from 'react';
 import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { HomeIndicator } from '@/components/home/HomeIndicator';
+import { HomeIndicator, homeIndicatorScreenBottomStyle } from '@/components/home/HomeIndicator';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { SearchStatusBar } from '@/components/search/SearchStatusBar';
 import { getProviderResultsForQuery, PROVIDER_RESULT_FILTERS } from '@/data/providers';
@@ -149,7 +149,7 @@ export function ProviderResultsScreen({ query }: ProviderResultsScreenProps) {
           </View>
         </View>
 
-        <View style={styles.homeIndicatorWrap} pointerEvents="none">
+        <View style={[styles.homeIndicatorWrap, homeIndicatorScreenBottomStyle]} pointerEvents="none">
           <HomeIndicator scale={scale} />
         </View>
       </View>

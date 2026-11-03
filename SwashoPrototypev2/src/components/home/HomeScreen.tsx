@@ -18,7 +18,7 @@ import { ScreenHeight, SwashoColors, SwashoRadii, SwashoSpacing } from '@/consta
 import { AddressHeader } from './AddressHeader';
 import { LocationSelectionModal } from './LocationSelectionModal';
 import { BulkLaundryCard } from './BulkLaundryCard';
-import { HomeIndicator } from './HomeIndicator';
+import { HomeIndicator, homeIndicatorScreenBottomStyle } from './HomeIndicator';
 import { NavBar, NAV_BAR_BOTTOM_INSET, NavBarVariant } from './NavBar';
 import { OrderCard } from './OrderCard';
 import { PromiseSection } from './PromiseSection';
@@ -477,26 +477,35 @@ export function HomeScreen() {
         />
 
         {showBottomNav ? (
-          <View
-            style={[
-              styles.navBarWrap,
-              { height: bottomChromeHeight, bottom: bottomNavLift },
-            ]}>
-            <NavBar
-              variant={navVariant}
-              scale={scale}
-              onHomePress={() => {
-                setNavVariant('Home');
-                router.replace('/');
-              }}
-              onSubscriptionPress={() => router.push('/subscription')}
-              onSwashoAiPress={() => router.push('/swasho-ai')}
-            />
-            <View style={styles.homeIndicatorWrap}>
+          <>
+            <View
+              style={[
+                styles.navBarWrap,
+                {
+                  height: NAV_HEIGHT * scale,
+                  bottom: HOME_INDICATOR_HEIGHT * scale + bottomNavLift,
+                },
+              ]}>
+              <NavBar
+                variant={navVariant}
+                scale={scale}
+                onHomePress={() => {
+                  setNavVariant('Home');
+                  router.replace('/');
+                }}
+                onSubscriptionPress={() => router.push('/subscription')}
+                onSwashoAiPress={() => router.push('/swasho-ai')}
+              />
+            </View>
+            <View style={[styles.homeIndicatorWrap, homeIndicatorScreenBottomStyle]} pointerEvents="none">
               <HomeIndicator scale={scale} />
             </View>
+          </>
+        ) : (
+          <View style={[styles.homeIndicatorWrap, homeIndicatorScreenBottomStyle]} pointerEvents="none">
+            <HomeIndicator scale={scale} />
           </View>
-        ) : null}
+        )}
       </View>
     </View>
   );

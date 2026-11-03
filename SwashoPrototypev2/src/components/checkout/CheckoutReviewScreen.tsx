@@ -17,7 +17,7 @@ import { AltArrowDownIcon, AltArrowRightIcon, ArrowLeftIcon, CalendarLinearIcon 
 import { ChevronDownIcon } from '@/components/provider-page/provider-page-icons';
 import { ServiceRowDivider } from '@/components/service-selection/ServiceRowDivider';
 import { figmaShadow, FigmaShadows } from '@/components/home/figma-shadows';
-import { HomeIndicator } from '@/components/home/HomeIndicator';
+import { HomeIndicator, homeIndicatorScreenBottomStyle } from '@/components/home/HomeIndicator';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { SearchStatusBar } from '@/components/search/SearchStatusBar';
 import { searchFont } from '@/components/search/search-fonts';
@@ -866,7 +866,7 @@ export function CheckoutReviewScreen({
 
         <View style={[styles.footerWrap, { bottom: HOME_INDICATOR_HEIGHT * scale }]}>{footer}</View>
 
-        <View style={styles.homeIndicatorWrap} pointerEvents="none">
+        <View style={[styles.homeIndicatorWrap, homeIndicatorScreenBottomStyle]} pointerEvents="none">
           <HomeIndicator scale={scale} />
         </View>
 

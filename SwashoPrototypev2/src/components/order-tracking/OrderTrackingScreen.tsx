@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AltArrowRightIcon, ArrowLeftIcon } from '@/components/home/figma-icons';
 import { FigmaShadows, figmaShadow } from '@/components/home/figma-shadows';
-import { HomeIndicator } from '@/components/home/HomeIndicator';
+import { HomeIndicator, homeIndicatorScreenBottomStyle } from '@/components/home/HomeIndicator';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { StatusBar } from '@/components/home/StatusBar';
 import { TertiaryButton } from '@/components/home/TertiaryButton';
@@ -610,7 +610,7 @@ export function OrderTrackingScreen() {
           <ArrowLeftIcon width={20 * scale} height={20 * scale} />
         </Pressable>
 
-        <View style={styles.homeIndicatorWrap} pointerEvents="none">
+        <View style={[styles.homeIndicatorWrap, homeIndicatorScreenBottomStyle]} pointerEvents="none">
           <HomeIndicator scale={scale} />
         </View>
       </View>

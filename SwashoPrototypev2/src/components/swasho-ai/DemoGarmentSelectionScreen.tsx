@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import ForbiddenCircle from '@/assets/images/swasho-ai/demo/forbidden-circle.svg';
 import TapArrow from '@/assets/images/swasho-ai/demo/tap-arrow.svg';
-import { HomeIndicator } from '@/components/home/HomeIndicator';
+import { HomeIndicator, homeIndicatorScreenBottomStyle } from '@/components/home/HomeIndicator';
 import { StatusBar } from '@/components/home/StatusBar';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { searchFont } from '@/components/search/search-fonts';
@@ -179,14 +179,7 @@ export function DemoGarmentSelectionScreen() {
           ))}
         </View>
 
-        <View
-          style={[
-            styles.homeIndicatorWrap,
-            {
-              top: figmaY(FIGMA_FRAME_HEIGHT),
-              height: HOME_INDICATOR_HEIGHT * scale,
-            },
-          ]}>
+        <View style={[styles.homeIndicatorWrap, homeIndicatorScreenBottomStyle]}>
           <HomeIndicator scale={scale} />
         </View>
       </View>

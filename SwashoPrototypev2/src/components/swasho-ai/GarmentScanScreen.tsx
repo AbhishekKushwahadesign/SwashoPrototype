@@ -23,7 +23,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { HomeIndicator } from '@/components/home/HomeIndicator';
+import { HomeIndicator, homeIndicatorScreenBottomStyle } from '@/components/home/HomeIndicator';
 import { StatusBar } from '@/components/home/StatusBar';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { searchFont } from '@/components/search/search-fonts';
@@ -462,14 +462,7 @@ export function GarmentScanScreen() {
           />
         ) : null}
 
-        <View
-          style={[
-            styles.homeIndicatorWrap,
-            {
-              top: figmaY(FIGMA_FRAME_HEIGHT),
-              height: HOME_INDICATOR_HEIGHT * scale,
-            },
-          ]}>
+        <View style={[styles.homeIndicatorWrap, homeIndicatorScreenBottomStyle]}>
           <HomeIndicator scale={scale} />
         </View>
       </View>

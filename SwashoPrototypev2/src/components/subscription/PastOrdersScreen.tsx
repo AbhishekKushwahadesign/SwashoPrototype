@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CheckoutSectionDivider } from '@/components/checkout/CheckoutSectionDivider';
 import { ArrowLeftIcon, MagnifierIcon } from '@/components/home/figma-icons';
 import { FigmaShadows, figmaShadow } from '@/components/home/figma-shadows';
-import { HomeIndicator } from '@/components/home/HomeIndicator';
+import { HomeIndicator, homeIndicatorScreenBottomStyle } from '@/components/home/HomeIndicator';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { StatusBar } from '@/components/home/StatusBar';
 import { searchFont } from '@/components/search/search-fonts';
@@ -772,7 +772,7 @@ export function PastOrdersScreen() {
           ))}
         </ScrollView>
 
-        <View style={[styles.homeIndicatorWrap, { paddingBottom: insets.bottom }]}>
+        <View style={[styles.homeIndicatorWrap, homeIndicatorScreenBottomStyle, { paddingBottom: insets.bottom }]}
           <HomeIndicator scale={scale} />
         </View>
       </View>

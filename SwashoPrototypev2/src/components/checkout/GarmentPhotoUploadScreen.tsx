@@ -27,7 +27,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ArrowLeftIcon } from '@/components/home/figma-icons';
 import { figmaShadow, FigmaShadows } from '@/components/home/figma-shadows';
-import { HomeIndicator } from '@/components/home/HomeIndicator';
+import { HomeIndicator, homeIndicatorScreenBottomStyle } from '@/components/home/HomeIndicator';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { SearchStatusBar } from '@/components/search/SearchStatusBar';
 import { searchFont } from '@/components/search/search-fonts';
@@ -1500,7 +1500,7 @@ export function GarmentPhotoUploadScreen({
           )}
         </View>
 
-      <View style={styles.homeIndicatorWrap} pointerEvents="none">
+      <View style={[styles.homeIndicatorWrap, homeIndicatorScreenBottomStyle]} pointerEvents="none">
         <HomeIndicator scale={scale} />
       </View>
 

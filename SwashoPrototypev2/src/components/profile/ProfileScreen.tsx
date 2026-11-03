@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ArrowLeftIcon } from '@/components/home/figma-icons';
 import { figmaDropShadow, figmaShadow, FigmaShadows } from '@/components/home/figma-shadows';
-import { HomeIndicator } from '@/components/home/HomeIndicator';
+import { HomeIndicator, homeIndicatorScreenBottomStyle } from '@/components/home/HomeIndicator';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { StatusBar } from '@/components/home/StatusBar';
 import { UserAvatar } from '@/components/home/UserAvatar';
@@ -344,7 +344,7 @@ export function ProfileScreen() {
           </View>
         </ScrollView>
 
-        <View style={styles.homeIndicatorWrap}>
+        <View style={[styles.homeIndicatorWrap, homeIndicatorScreenBottomStyle]}>
           <HomeIndicator scale={scale} />
         </View>
       </View>

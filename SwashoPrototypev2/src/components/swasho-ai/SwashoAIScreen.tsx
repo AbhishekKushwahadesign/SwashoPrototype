@@ -14,7 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { HomeSmileAngleBoldIcon, MicrophoneIcon } from '@/components/home/figma-icons';
 import { FigmaShadows, figmaShadow } from '@/components/home/figma-shadows';
-import { HomeIndicator } from '@/components/home/HomeIndicator';
+import { HomeIndicator, homeIndicatorScreenBottomStyle } from '@/components/home/HomeIndicator';
 import { SwashoAiIcon } from '@/components/home/NavBar';
 import { StatusBar } from '@/components/home/StatusBar';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
@@ -390,7 +390,13 @@ export function SwashoAIScreen() {
           </Pressable>
         </View>
 
-        <View style={[styles.homeIndicatorWrap, { height: bottomChromeHeight, bottom: 0 }]}>
+        <View
+          style={[
+            styles.homeIndicatorWrap,
+            homeIndicatorScreenBottomStyle,
+            { paddingBottom: insets.bottom },
+          ]}
+          pointerEvents="none">
           <HomeIndicator scale={scale} />
         </View>
 

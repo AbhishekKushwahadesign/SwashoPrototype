@@ -27,7 +27,7 @@ import { CheckoutSectionDivider } from '@/components/checkout/CheckoutSectionDiv
 import { ContactlessGalleryAddMutedIcon } from '@/components/checkout/contactless-basket-photo-icons';
 import { ArrowLeftIcon, CalendarLinearIcon } from '@/components/home/figma-icons';
 import { FigmaShadows, figmaShadow } from '@/components/home/figma-shadows';
-import { HomeIndicator } from '@/components/home/HomeIndicator';
+import { HomeIndicator, homeIndicatorScreenBottomStyle } from '@/components/home/HomeIndicator';
 import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { StatusBar } from '@/components/home/StatusBar';
 import { ListServiceIcon } from '@/components/provider-page/provider-page-icons';
@@ -949,7 +949,7 @@ export function OrderReviewScreen() {
           </View>
         </View>
 
-        <View style={styles.homeIndicatorWrap} pointerEvents="none">
+        <View style={[styles.homeIndicatorWrap, homeIndicatorScreenBottomStyle]} pointerEvents="none">
           <HomeIndicator scale={scale} />
         </View>
       </View>
