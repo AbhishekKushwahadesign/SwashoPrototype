@@ -7,6 +7,7 @@ import { CHECKOUT_ORDER_TYPE_SEGMENT_WIDTH } from '@/lib/checkout-figma-layout';
 
 import { CheckoutGradientDualSegment } from './CheckoutGradientDualSegment';
 import { CheckoutInstructionsHeaderIcon } from './checkout-review-icons';
+import { OrderReviewMapPointIcon } from '@/components/subscription/order-review-icons';
 
 type CheckoutServiceHandoverSegmentProps = {
   contactless: boolean;
@@ -54,14 +55,17 @@ export function CheckoutServiceHandoverSegment({
               ...figmaShadow({ offsetX: 0, offsetY: 0, blur: 8, color: '#000000', opacity: 0.08 }, scale),
             },
           ]}>
-          <Text
-            style={[
-              searchFont('semibold'),
-              styles.pickupLocationNudgeTitle,
-              { fontSize: 14 * scale, lineHeight: 20 * scale, letterSpacing: 0.3 * scale },
-            ]}>
-            Pickup location required
-          </Text>
+          <View style={[styles.pickupLocationNudgeTitleRow, { gap: 6 * scale }]}>
+            <OrderReviewMapPointIcon width={20 * scale} height={20 * scale} />
+            <Text
+              style={[
+                searchFont('semibold'),
+                styles.pickupLocationNudgeTitle,
+                { fontSize: 14 * scale, lineHeight: 20 * scale, letterSpacing: 0.3 * scale, flex: 1 },
+              ]}>
+              Pickup location required
+            </Text>
+          </View>
           <Text
             style={[
               searchFont('regular'),
@@ -130,8 +134,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: SwashoColors.primary100,
   },
+  pickupLocationNudgeTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   pickupLocationNudgeTitle: {
-    color: SwashoColors.primary800,
+    color: SwashoColors.darkHeaderText,
   },
   pickupLocationNudgeBody: {
     color: SwashoColors.neutral700,
