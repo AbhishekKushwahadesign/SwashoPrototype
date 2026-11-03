@@ -638,7 +638,11 @@ export function CheckoutReviewScreen({
         <ServiceSelectionButton
           label={`Pay ${formatCheckoutInr(paymentDisplay.payLabelAmount)}`}
           variant="primary"
-          disabled={totals.itemCount <= 0 || payPrototypePhase != null}
+          disabled={
+            totals.itemCount <= 0 ||
+            payPrototypePhase != null ||
+            (contactless && !clothesLocationValid)
+          }
           loading={payPrototypePhase === 'loading'}
           onPress={handlePayPress}
           scale={scale}
