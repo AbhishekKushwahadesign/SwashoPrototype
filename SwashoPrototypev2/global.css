@@ -13,3 +13,9 @@ body,
   flex-direction: column;
   min-height: 0;
 }
+
+/* Home feed: pointer-drag uses the same non-inertial scroll as the mouse wheel. */
+#home-sheet-scroll {
+  -webkit-overflow-scrolling: auto !important;
+  overscroll-behavior-y: contain;
+}
