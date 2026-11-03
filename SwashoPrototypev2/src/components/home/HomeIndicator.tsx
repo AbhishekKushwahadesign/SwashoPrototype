@@ -12,6 +12,9 @@ export const homeIndicatorScreenBottomStyle: ViewStyle = {
   right: 0,
   bottom: 0,
   zIndex: 30,
+  backgroundColor: SwashoColors.surface,
+  alignItems: 'center',
+  justifyContent: 'center',
 };
 
 type HomeIndicatorProps = {
@@ -38,5 +41,6 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: SwashoColors.surface,
   },
 });

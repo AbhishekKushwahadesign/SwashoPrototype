@@ -628,7 +628,5 @@ const styles = StyleSheet.create({
     zIndex: 8,
     backgroundColor: 'transparent',
   },
-  homeIndicatorWrap: {
-    backgroundColor: 'transparent',
-  },
+  homeIndicatorWrap: {},
 });
