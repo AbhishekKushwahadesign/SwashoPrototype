@@ -136,15 +136,6 @@ const HOME_INDICATOR_HEIGHT = 24;
 /** Figma Service Cards (3344:8773) inner offset: top 0.5 + first card y 16.105. */
 const SERVICE_GRID_PADDING_TOP = 16.605;
 
-/** Cap pointer-drag scroll steps on web so touch tracks wheel-like increments. */
-function webPointerScrollDelta(deltaY: number): number {
-  if (Platform.OS !== 'web' || deltaY === 0) {
-    return deltaY;
-  }
-  const cap = 56;
-  return Math.sign(deltaY) * Math.min(Math.abs(deltaY), cap);
-}
-
 export function HomeScreen() {
   const { scale, contentWidth, contentHeight } = useScreenScale();
   const frameRootStyle = useScreenFrameRootStyle();
@@ -191,7 +182,20 @@ export function HomeScreen() {
     maxCollapseScrollRef.current = maxCollapseScroll;
   }, [maxCollapseScroll]);
 
-  /** Web: keep mouse wheel on the dedicated collapse path (not RN ScrollView inertia). */
+  const applyCollapse = useCallback(
+    (nextY: number) => {
+      const clamped = Math.max(0, Math.min(nextY, maxCollapseScroll));
+      if (clamped === collapseScrollYRef.current) {
+        return false;
+      }
+      collapseScrollYRef.current = clamped;
+      setCollapseScrollY(clamped);
+      return true;
+    },
+    [maxCollapseScroll],
+  );
+
+  /** Web: mouse wheel uses the same collapse math as touch (touch never rides RN fling). */
   useEffect(() => {
     if (Platform.OS !== 'web' || typeof window === 'undefined') {
       return;
@@ -203,23 +207,19 @@ export function HomeScreen() {
 
       if (event.deltaY > 0 && current < max) {
         event.preventDefault();
-        const next = Math.min(current + event.deltaY, max);
-        collapseScrollYRef.current = next;
-        setCollapseScrollY(next);
+        applyCollapse(current + event.deltaY);
         return;
       }
 
       if (event.deltaY < 0 && sheetScrollOffsetRef.current <= 1 && current > 0) {
         event.preventDefault();
-        const next = Math.max(0, current + event.deltaY);
-        collapseScrollYRef.current = next;
-        setCollapseScrollY(next);
+        applyCollapse(current + event.deltaY);
       }
     };
 
     window.addEventListener('wheel', onWheel, { passive: false, capture: true });
     return () => window.removeEventListener('wheel', onWheel, { capture: true });
-  }, []);
+  }, [applyCollapse]);
 
   const collapsedProgress = Math.min(collapseScrollY / scale, HEADER_COLLAPSE_SCROLL);
   // Search pins at SEARCH_STICKY_TOP (44). Sheet pins at SHEET_STICKY_TOP (~53) so
@@ -253,16 +253,22 @@ export function HomeScreen() {
   const clipViewportHeight = Math.max(0, frameHeight - clipTop);
   const sheetScrollPaddingTop = Math.max(0, sheetContentPaddingTop * scale - clipInsetInSheet);
 
-  const applyCollapse = (nextY: number) => {
-    const clamped = Math.max(0, Math.min(nextY, maxCollapseScroll));
-    if (clamped === collapseScrollYRef.current) {
-      return 0;
-    }
-    const consumed = clamped - collapseScrollYRef.current;
-    collapseScrollYRef.current = clamped;
-    setCollapseScrollY(clamped);
-    return consumed;
-  };
+  /** Web: stop touch fling so list scroll stops like a wheel (no coasting). */
+  const stopWebTouchScrollMomentum = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      if (Platform.OS !== 'web') {
+        return;
+      }
+      if (collapseScrollYRef.current < maxCollapseScrollRef.current - 1) {
+        return;
+      }
+      const y = event.nativeEvent.contentOffset.y;
+      requestAnimationFrame(() => {
+        sheetScrollRef.current?.scrollTo({ y, animated: false });
+      });
+    },
+    [],
+  );
 
   const handleSheetScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const y = event.nativeEvent.contentOffset.y;
@@ -275,7 +281,7 @@ export function HomeScreen() {
       return;
     }
 
-    const deltaY = webPointerScrollDelta(y - sheetScrollOffsetRef.current);
+    const deltaY = y - sheetScrollOffsetRef.current;
     sheetScrollOffsetRef.current = y;
 
     if (deltaY > 0 && collapseScrollYRef.current < maxCollapseScroll) {
@@ -475,10 +481,13 @@ export function HomeScreen() {
             ]}
             showsVerticalScrollIndicator={false}
             onScroll={handleSheetScroll}
+            onScrollEndDrag={Platform.OS === 'web' ? stopWebTouchScrollMomentum : undefined}
+            onMomentumScrollBegin={Platform.OS === 'web' ? stopWebTouchScrollMomentum : undefined}
             scrollEventThrottle={16}
             nestedScrollEnabled
             bounces={Platform.OS !== 'web'}
-            overScrollMode={Platform.OS === 'web' ? 'never' : 'always'}>
+            overScrollMode={Platform.OS === 'web' ? 'never' : 'always'}
+            decelerationRate={Platform.OS === 'web' ? 0.985 : 'normal'}>
             {sheetSections}
           </ScrollView>
         </View>

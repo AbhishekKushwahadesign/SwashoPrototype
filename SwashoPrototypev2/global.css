@@ -14,8 +14,10 @@ body,
   min-height: 0;
 }
 
-/* Home feed: pointer-drag uses the same non-inertial scroll as the mouse wheel. */
+/* Home feed: touch drag stops on release like wheel (no coast / iOS inertia). */
 #home-sheet-scroll {
   -webkit-overflow-scrolling: auto !important;
   overscroll-behavior-y: contain;
+  scroll-behavior: auto;
+  touch-action: pan-y;
 }
