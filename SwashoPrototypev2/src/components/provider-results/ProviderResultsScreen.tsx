@@ -8,7 +8,6 @@ import { useSafeTopInset, useScreenScale } from '@/components/home/scale';
 import { SearchStatusBar } from '@/components/search/SearchStatusBar';
 import { getProviderResultsForQuery, PROVIDER_RESULT_FILTERS } from '@/data/providers';
 import { resolveSearchServiceQuery } from '@/lib/search-service-query';
-import { webNativeVerticalScrollStyle } from '@/lib/web-native-scroll';
 
 import { FilterChip } from './FilterChip';
 import { ProviderResultCard } from './ProviderResultCard';
@@ -179,7 +178,9 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 0,
   },
-  scrollWeb: webNativeVerticalScrollStyle,
+  scrollWeb: {
+    overflowY: 'auto',
+  },
   scrollContent: {
     alignItems: 'center',
   },

@@ -47,7 +47,6 @@ import {
   type ContactlessClothesLocationId,
   type SubscriptionFrequencyOption,
 } from '@/lib/checkout-flow';
-import { webNativeVerticalScrollStyle } from '@/lib/web-native-scroll';
 import { CHECKOUT_SCHEDULE_CARD_WIDTH } from '@/lib/checkout-figma-layout';
 import {
   contactlessClothesLocationChipText,
@@ -727,7 +726,7 @@ export function CheckoutReviewScreen({
         </View>
 
         <ScrollView
-          style={[{ flex: 1, marginTop: CHECKOUT_REVIEW_CONTENT_TOP * scale }, webNativeVerticalScrollStyle]}
+          style={{ flex: 1, marginTop: CHECKOUT_REVIEW_CONTENT_TOP * scale }}
           contentContainerStyle={{
             alignItems: 'center',
             paddingTop: isSubscription ? 0 : 12 * scale,

@@ -27,7 +27,7 @@ import type {
   ProviderResult,
   ProviderServiceSection,
 } from '@/data/providers';
-import { webNativeVerticalScrollStyle } from '@/lib/web-native-scroll';
+import { getProviderListServicePrice } from '@/data/providers';
 
 import {
   AddSquareIcon,
@@ -1092,7 +1092,9 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 0,
   },
-  scrollWeb: webNativeVerticalScrollStyle,
+  scrollWeb: {
+    overflowY: 'auto',
+  },
   scrollContent: {
     alignItems: 'center',
   },
