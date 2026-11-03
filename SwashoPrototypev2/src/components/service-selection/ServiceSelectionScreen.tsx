@@ -12,6 +12,7 @@ import { ProviderPageModalShell } from '@/components/common/ProviderPageModalShe
 import { useScreenScale } from '@/components/home/scale';
 import { getProviderGarmentName } from '@/data/providers';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
+import { webNativeVerticalScrollStyle } from '@/lib/web-native-scroll';
 
 import { CreateComboSelectPanel } from './CreateComboSelectPanel';
 import {
@@ -615,9 +616,7 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 0,
   },
-  scrollWeb: {
-    overflowY: 'auto',
-  },
+  scrollWeb: webNativeVerticalScrollStyle,
   listBlock: {
     width: '100%',
     alignItems: 'center',

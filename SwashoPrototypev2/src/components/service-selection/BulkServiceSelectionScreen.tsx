@@ -15,6 +15,7 @@ import { useScreenScale } from '@/components/home/scale';
 import { searchFont } from '@/components/search/search-fonts';
 import { getProviderBulkService } from '@/data/providers';
 import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
+import { webNativeVerticalScrollStyle } from '@/lib/web-native-scroll';
 import {
   BULK_LOAD_TIERS,
   estimateBulkPriceForTier,
@@ -297,9 +298,7 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 0,
   },
-  scrollWeb: {
-    overflowY: 'auto',
-  },
+  scrollWeb: webNativeVerticalScrollStyle,
   sheetFooter: {
     width: '100%',
     marginTop: 'auto',

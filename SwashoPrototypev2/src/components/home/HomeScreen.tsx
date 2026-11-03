@@ -30,6 +30,7 @@ import { StatusBar } from './StatusBar';
 import { FigmaShadows, figmaShadow } from './figma-shadows';
 import { useSafeTopInset, useScreenFrameRootStyle, useScreenScale } from './scale';
 import { orderTrackingHrefFromHome } from '@/lib/order-tracking-flow';
+import { webNativeVerticalScrollStyle } from '@/lib/web-native-scroll';
 
 const SERVICES: ServiceTileLayout[] = [
   {
@@ -173,35 +174,6 @@ export function HomeScreen() {
       }
     }, []),
   );
-
-  useEffect(() => {
-    if (Platform.OS !== 'web' || typeof window === 'undefined') {
-      return;
-    }
-
-    const onWheel = (event: WheelEvent) => {
-      const max = maxCollapseScrollRef.current;
-      const current = collapseScrollYRef.current;
-
-      if (event.deltaY > 0 && current < max) {
-        event.preventDefault();
-        const next = Math.min(current + event.deltaY, max);
-        collapseScrollYRef.current = next;
-        setCollapseScrollY(next);
-        return;
-      }
-
-      if (event.deltaY < 0 && sheetScrollOffsetRef.current <= 1 && current > 0) {
-        event.preventDefault();
-        const next = Math.max(0, current + event.deltaY);
-        collapseScrollYRef.current = next;
-        setCollapseScrollY(next);
-      }
-    };
-
-    window.addEventListener('wheel', onWheel, { passive: false, capture: true });
-    return () => window.removeEventListener('wheel', onWheel, { capture: true });
-  }, []);
 
   const frameHeight = contentHeight + safeTop;
   const bottomChromeHeight = (NAV_HEIGHT + HOME_INDICATOR_HEIGHT) * scale;
@@ -603,11 +575,7 @@ const styles = StyleSheet.create({
     flex: 1,
     width: '100%',
     backgroundColor: 'transparent',
-    ...Platform.select({
-      web: {
-        overflow: 'hidden',
-      },
-    }),
+    ...webNativeVerticalScrollStyle,
   },
   sheetScrollContent: {
     width: '100%',
