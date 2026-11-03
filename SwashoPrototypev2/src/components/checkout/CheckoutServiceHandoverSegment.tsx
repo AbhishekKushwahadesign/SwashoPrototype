@@ -6,8 +6,7 @@ import { SwashoColors, SwashoRadii } from '@/constants/swasho-tokens';
 import { CHECKOUT_ORDER_TYPE_SEGMENT_WIDTH } from '@/lib/checkout-figma-layout';
 
 import { CheckoutGradientDualSegment } from './CheckoutGradientDualSegment';
-import { CheckoutInstructionsHeaderIcon } from './checkout-review-icons';
-import { OrderReviewMapPointIcon } from '@/components/subscription/order-review-icons';
+import { CheckoutInstructionsHeaderIcon, CheckoutPickupLocationMapPointIcon } from './checkout-review-icons';
 
 type CheckoutServiceHandoverSegmentProps = {
   contactless: boolean;
@@ -56,7 +55,7 @@ export function CheckoutServiceHandoverSegment({
             },
           ]}>
           <View style={[styles.pickupLocationNudgeTitleRow, { gap: 6 * scale }]}>
-            <OrderReviewMapPointIcon width={20 * scale} height={20 * scale} />
+            <CheckoutPickupLocationMapPointIcon width={24 * scale} height={24 * scale} />
             <Text
               style={[
                 searchFont('semibold'),
