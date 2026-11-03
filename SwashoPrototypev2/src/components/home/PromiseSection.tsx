@@ -111,7 +111,17 @@ export function PromiseSection({ scale, onLearnMorePress }: PromiseSectionProps)
       <Pressable
         onPress={onLearnMorePress}
         style={[styles.learnMorePressable, { top: 6 * scale, marginLeft: 113.5 * scale }]}>
-        <Text style={[styles.learnMore, { fontSize: 12 * scale, lineHeight: 16 * scale }]}>Learn more</Text>
+        <Text
+          style={[
+            styles.learnMore,
+            {
+              fontSize: 12 * scale,
+              lineHeight: 16 * scale,
+              textUnderlineOffset: 4 * scale,
+            },
+          ]}>
+          Learn more
+        </Text>
       </Pressable>
 
       <View style={[styles.steps, { left: 32 * scale, top: 52.49 * scale, gap: 20 * scale }]}>
