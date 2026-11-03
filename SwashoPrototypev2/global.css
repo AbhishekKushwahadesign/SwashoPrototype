@@ -14,7 +14,7 @@ body,
   min-height: 0;
 }
 
-/* Home feed: touch drag stops on release like wheel (no coast / iOS inertia). */
+/* Home feed: native overflow scroll; touch collapse matches wheel (no RN fling). */
 #home-sheet-scroll {
   -webkit-overflow-scrolling: auto !important;
   overscroll-behavior-y: contain;

@@ -153,10 +153,13 @@ export function HomeScreen() {
   const [promiseSectionKey, setPromiseSectionKey] = useState(0);
   const [collapseScrollY, setCollapseScrollY] = useState(0);
   const collapseScrollYRef = useRef(0);
-  const sheetScrollRef = useRef<ScrollView>(null);
+  const sheetScrollRef = useRef<ScrollView | null>(null);
+  const sheetScrollDomRef = useRef<HTMLElement | null>(null);
   const sheetScrollOffsetRef = useRef(0);
   const ignoreSheetScrollRef = useRef(false);
   const maxCollapseScrollRef = useRef(0);
+  const webTouchLastYRef = useRef<number | null>(null);
+  const [webSheetScrollReady, setWebSheetScrollReady] = useState(false);
 
   useEffect(() => {
     if (nav === 'orders') {
@@ -221,6 +224,93 @@ export function HomeScreen() {
     return () => window.removeEventListener('wheel', onWheel, { capture: true });
   }, [applyCollapse]);
 
+  /** Web: route touch drag through applyCollapse like wheel (native overflow for feed only). */
+  useEffect(() => {
+    if (Platform.OS !== 'web' || typeof window === 'undefined' || !webSheetScrollReady) {
+      return;
+    }
+
+    const el = sheetScrollDomRef.current;
+    if (!el) {
+      return;
+    }
+
+    const onTouchStart = (event: TouchEvent) => {
+      webTouchLastYRef.current = event.touches[0]?.clientY ?? null;
+    };
+
+    const onTouchMove = (event: TouchEvent) => {
+      const touch = event.touches[0];
+      const lastY = webTouchLastYRef.current;
+      if (!touch || lastY === null) {
+        return;
+      }
+
+      const deltaY = lastY - touch.clientY;
+      webTouchLastYRef.current = touch.clientY;
+      if (deltaY === 0) {
+        return;
+      }
+
+      const max = maxCollapseScrollRef.current;
+      const current = collapseScrollYRef.current;
+      const feedScroll = sheetScrollOffsetRef.current;
+
+      if (deltaY > 0 && current < max) {
+        event.preventDefault();
+        applyCollapse(current + deltaY);
+        return;
+      }
+
+      if (deltaY < 0 && feedScroll <= 1 && current > 0) {
+        event.preventDefault();
+        applyCollapse(current + deltaY);
+      }
+    };
+
+    const onTouchEnd = () => {
+      webTouchLastYRef.current = null;
+    };
+
+    const onScroll = () => {
+      sheetScrollOffsetRef.current = el.scrollTop;
+    };
+
+    el.addEventListener('touchstart', onTouchStart, { passive: true });
+    el.addEventListener('touchmove', onTouchMove, { passive: false });
+    el.addEventListener('touchend', onTouchEnd, { passive: true });
+    el.addEventListener('touchcancel', onTouchEnd, { passive: true });
+    el.addEventListener('scroll', onScroll, { passive: true });
+
+    return () => {
+      el.removeEventListener('touchstart', onTouchStart);
+      el.removeEventListener('touchmove', onTouchMove);
+      el.removeEventListener('touchend', onTouchEnd);
+      el.removeEventListener('touchcancel', onTouchEnd);
+      el.removeEventListener('scroll', onScroll);
+    };
+  }, [applyCollapse, webSheetScrollReady]);
+
+  const bindWebSheetScrollDom = useCallback((node: View | null) => {
+    if (Platform.OS !== 'web') {
+      return;
+    }
+    if (!node) {
+      sheetScrollDomRef.current = null;
+      setWebSheetScrollReady(false);
+      return;
+    }
+    const candidate = node as unknown as HTMLElement & { _node?: HTMLElement | null };
+    const dom =
+      typeof candidate.addEventListener === 'function'
+        ? candidate
+        : candidate._node && typeof candidate._node.addEventListener === 'function'
+          ? candidate._node
+          : null;
+    sheetScrollDomRef.current = dom;
+    setWebSheetScrollReady(dom !== null);
+  }, []);
+
   const collapsedProgress = Math.min(collapseScrollY / scale, HEADER_COLLAPSE_SCROLL);
   // Search pins at SEARCH_STICKY_TOP (44). Sheet pins at SHEET_STICKY_TOP (~53) so
   // the Subtract notch (~48px) lands at 101 — 12px below stuck search bottom (89).
@@ -253,22 +343,15 @@ export function HomeScreen() {
   const clipViewportHeight = Math.max(0, frameHeight - clipTop);
   const sheetScrollPaddingTop = Math.max(0, sheetContentPaddingTop * scale - clipInsetInSheet);
 
-  /** Web: stop touch fling so list scroll stops like a wheel (no coasting). */
-  const stopWebTouchScrollMomentum = useCallback(
-    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      if (Platform.OS !== 'web') {
-        return;
-      }
-      if (collapseScrollYRef.current < maxCollapseScrollRef.current - 1) {
-        return;
-      }
-      const y = event.nativeEvent.contentOffset.y;
-      requestAnimationFrame(() => {
-        sheetScrollRef.current?.scrollTo({ y, animated: false });
-      });
+  const sheetScrollContentStyle = [
+    styles.sheetScrollContent,
+    {
+      paddingTop: sheetScrollPaddingTop,
+      paddingHorizontal: SwashoSpacing.xxl * scale,
+      paddingBottom: 16 * scale + bottomChromeHeight,
+      gap: SwashoSpacing.section * scale,
     },
-    [],
-  );
+  ];
 
   const handleSheetScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const y = event.nativeEvent.contentOffset.y;
@@ -466,30 +549,28 @@ export function HomeScreen() {
               height: clipViewportHeight,
             },
           ]}>
-          <ScrollView
-            ref={sheetScrollRef}
-            nativeID="home-sheet-scroll"
-            style={styles.sheetScroll}
-            contentContainerStyle={[
-              styles.sheetScrollContent,
-              {
-                paddingTop: sheetScrollPaddingTop,
-                paddingHorizontal: SwashoSpacing.xxl * scale,
-                paddingBottom: 16 * scale + bottomChromeHeight,
-                gap: SwashoSpacing.section * scale,
-              },
-            ]}
-            showsVerticalScrollIndicator={false}
-            onScroll={handleSheetScroll}
-            onScrollEndDrag={Platform.OS === 'web' ? stopWebTouchScrollMomentum : undefined}
-            onMomentumScrollBegin={Platform.OS === 'web' ? stopWebTouchScrollMomentum : undefined}
-            scrollEventThrottle={16}
-            nestedScrollEnabled
-            bounces={Platform.OS !== 'web'}
-            overScrollMode={Platform.OS === 'web' ? 'never' : 'always'}
-            decelerationRate={Platform.OS === 'web' ? 0.985 : 'normal'}>
-            {sheetSections}
-          </ScrollView>
+          {Platform.OS === 'web' ? (
+            <View
+              ref={bindWebSheetScrollDom}
+              nativeID="home-sheet-scroll"
+              style={styles.sheetScroll}
+              collapsable={false}>
+              <View style={sheetScrollContentStyle}>{sheetSections}</View>
+            </View>
+          ) : (
+            <ScrollView
+              ref={sheetScrollRef}
+              style={styles.sheetScroll}
+              contentContainerStyle={sheetScrollContentStyle}
+              showsVerticalScrollIndicator={false}
+              onScroll={handleSheetScroll}
+              scrollEventThrottle={16}
+              nestedScrollEnabled
+              bounces
+              overScrollMode="always">
+              {sheetSections}
+            </ScrollView>
+          )}
         </View>
 
         <LocationSelectionModal
@@ -625,7 +706,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     ...Platform.select({
       web: {
-        overflow: 'hidden',
+        overflowY: 'auto',
+        overflowX: 'hidden',
         WebkitOverflowScrolling: 'auto',
         overscrollBehaviorY: 'contain',
       },
