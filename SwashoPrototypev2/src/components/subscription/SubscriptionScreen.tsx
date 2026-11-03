@@ -33,6 +33,7 @@ import {
 } from '@/data/subscriptions';
 import { subscriptionPastOrdersHref } from '@/lib/subscription-past-orders-flow';
 import { subscriptionOrderReviewHrefFromSummary } from '@/lib/subscription-order-review-flow';
+import { webNativeVerticalScrollStyle } from '@/lib/web-native-scroll';
 
 import { BillListIcon, VerticalRuleIcon } from './subscription-icons';
 
@@ -783,6 +784,7 @@ const styles = StyleSheet.create({
   scroll: {
     flex: 1,
     width: '100%',
+    ...webNativeVerticalScrollStyle,
   },
   filterBar: {
     position: 'absolute',
