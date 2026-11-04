@@ -602,7 +602,7 @@ export function OrderTrackingScreen() {
           style={[
             styles.backButton,
             {
-              top: 56.5 * scale,
+              top: 44.5 * scale,
               left: 12 * scale,
               padding: 8 * scale,
             },

@@ -280,7 +280,7 @@ export function DemoGarmentAnalysisScreen() {
             styles.backButton,
             {
               left: figmaX(19.62),
-              top: figmaY(57.82),
+              top: figmaY(51.82),
               padding: 6 * scale,
               borderRadius: 9999 * scale,
             },
@@ -292,7 +292,7 @@ export function DemoGarmentAnalysisScreen() {
           style={[
             styles.issuePill,
             {
-              top: figmaY(57.82),
+              top: figmaY(51.82),
               left: contentWidth * 0.75 + 0.62 * scale,
               paddingHorizontal: 8 * scale,
               paddingVertical: 6 * scale,

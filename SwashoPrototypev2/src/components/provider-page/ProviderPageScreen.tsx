@@ -46,7 +46,7 @@ import { checkoutPlaceholderHref, oneTimeCheckoutHref } from '@/lib/checkout-flo
 import { ProviderCartBottomBar } from './ProviderCartBottomBar';
 
 const STATUS_BAR_HEIGHT = 32;
-const CONTENT_TOP_OFFSET = 87;
+const CONTENT_TOP_OFFSET = 81;
 const SCROLL_BOTTOM_GAP = 120;
 const SCROLL_BOTTOM_GAP_CART = 200;
 const HOME_INDICATOR_HEIGHT = 24;

@@ -282,7 +282,7 @@ export function OrderReviewScreen() {
             {
               top: STATUS_BAR_HEIGHT * scale,
               height: HEADER_HEIGHT * scale,
-              paddingTop: 25 * scale,
+              paddingTop: (56.5 - STATUS_BAR_HEIGHT) * scale,
               paddingHorizontal: 17 * scale,
               ...figmaShadow({ offsetX: 0, offsetY: 2, blur: 4, color: '#000000', opacity: 0.1 }, scale),
             },

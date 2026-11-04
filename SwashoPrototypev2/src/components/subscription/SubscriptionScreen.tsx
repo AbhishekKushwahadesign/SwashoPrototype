@@ -40,7 +40,7 @@ const STATUS_BAR_HEIGHT = 32;
 /** Figma frame 3409:16955 is 101px tall; status bar occupies 32px → 69px toolbar block below it. */
 const HEADER_HEIGHT = 69;
 /** Figma Search filters (3409:16933) top edge. */
-const FILTER_BAR_TOP = 102;
+const FILTER_BAR_TOP = 95;
 const FILTER_BAR_HEIGHT = 52;
 /** Scroll region begins where the filter bar ends (154px in the 412px frame). */
 const SCROLL_CONTENT_START_Y = FILTER_BAR_TOP + FILTER_BAR_HEIGHT;
@@ -547,7 +547,7 @@ export function SubscriptionScreen() {
             {
               top: headerTop,
               height: HEADER_HEIGHT * scale,
-              paddingTop: 25 * scale,
+              paddingTop: (52 - STATUS_BAR_HEIGHT) * scale,
               paddingRight: 18 * scale,
               paddingLeft: 17 * scale,
               paddingBottom: 0,

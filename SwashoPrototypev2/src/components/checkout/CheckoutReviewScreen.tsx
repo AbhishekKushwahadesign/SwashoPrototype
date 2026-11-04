@@ -100,8 +100,8 @@ import {
 
 const compensationShieldImage = require('@/assets/checkout/compensation-shield.png');
 const STATUS_BAR_HEIGHT = 32;
-/** Figma 3353:13935 — back + provider/address row (Frame 255) at y=56 on screen (69 inside 3353:13934 @ y=-13). */
-const HEADER_ROW_TOP = 56.58;
+/** Figma 3353:13934 — header chrome padding-top 64px (back + provider/address row). */
+const HEADER_ROW_TOP = 64;
 const HEADER_ROW_HEIGHT = 36;
 /** Figma 3353:13934 — gap between title row cluster and header action icons. */
 const HEADER_ACTIONS_GAP = 12;

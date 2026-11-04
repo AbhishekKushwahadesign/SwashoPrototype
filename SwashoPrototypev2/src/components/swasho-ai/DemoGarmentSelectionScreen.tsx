@@ -79,7 +79,7 @@ export function DemoGarmentSelectionScreen() {
             styles.backButton,
             {
               left: figmaX(19.62),
-              top: figmaY(57.82),
+              top: figmaY(51.82),
               padding: 6 * scale,
               borderRadius: 9999 * scale,
             },

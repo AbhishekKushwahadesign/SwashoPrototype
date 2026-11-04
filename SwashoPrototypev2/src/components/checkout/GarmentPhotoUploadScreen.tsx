@@ -970,7 +970,7 @@ export function GarmentPhotoUploadScreen({
 
   const bottomPanelHeight = BOTTOM_PANEL_HEIGHT * scale;
 
-  const headerTop = safeTop + 27 * scale;
+  const headerTop = safeTop + 58 * scale;
 
   const headerChromeTop = safeTop + HEADER_CHROME_TOP_FIGMA * scale;
   const headerChromeHeight = HEADER_CHROME_HEIGHT_FIGMA * scale;

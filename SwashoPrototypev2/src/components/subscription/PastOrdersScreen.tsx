@@ -42,7 +42,7 @@ import {
 
 const STATUS_BAR_HEIGHT = 32;
 const HEADER_HEIGHT = 69;
-const FILTER_BAR_TOP = 102;
+const FILTER_BAR_TOP = 89.2;
 const FILTER_BAR_HEIGHT = 45;
 const SCROLL_CONTENT_START_Y = FILTER_BAR_TOP + FILTER_BAR_HEIGHT;
 const SCROLL_PADDING_TOP = 14;
@@ -651,7 +651,7 @@ export function PastOrdersScreen() {
             {
               top: STATUS_BAR_HEIGHT * scale,
               height: HEADER_HEIGHT * scale,
-              paddingTop: 25 * scale,
+              paddingTop: (45.25 - STATUS_BAR_HEIGHT) * scale,
               paddingHorizontal: 17 * scale,
               ...figmaShadow({ offsetX: 0, offsetY: 2, blur: 4, color: '#000000', opacity: 0.1 }, scale),
             },
