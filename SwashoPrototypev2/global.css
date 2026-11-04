@@ -20,4 +20,13 @@ body,
   overscroll-behavior-y: contain;
   scroll-behavior: auto;
   touch-action: pan-y;
+  /* Home-only: hide native gutter; scrolling unchanged (wheel + touch). */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+#home-sheet-scroll::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }

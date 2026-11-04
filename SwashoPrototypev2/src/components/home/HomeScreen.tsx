@@ -710,6 +710,7 @@ const styles = StyleSheet.create({
         overflowX: 'hidden',
         WebkitOverflowScrolling: 'auto',
         overscrollBehaviorY: 'contain',
+        scrollbarWidth: 'none',
       },
     }),
   },
