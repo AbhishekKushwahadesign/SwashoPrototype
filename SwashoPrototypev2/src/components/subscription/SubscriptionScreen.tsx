@@ -49,7 +49,7 @@ import { BillListIcon, VerticalRuleIcon } from './subscription-icons';
 const STATUS_BAR_HEIGHT = FIGMA_STATUS_BAR_HEIGHT;
 /** White header chrome ends at filter top (Figma 3409:16933 @ y=89). */
 const HEADER_HEIGHT = FIGMA_SUBSCRIPTIONS_HEADER_CHROME_HEIGHT;
-/** Figma toolbar row (3409:16956) @ y=59. */
+/** Figma toolbar row (3409:16956); see FIGMA_SUBSCRIPTIONS_HEADER_ROW_TOP. */
 const HEADER_TOOLBAR_TOP = FIGMA_SUBSCRIPTIONS_HEADER_ROW_TOP;
 const FILTER_BAR_TOP = FIGMA_SUBSCRIPTIONS_FILTER_BAR_TOP;
 const FILTER_BAR_HEIGHT = FIGMA_SUBSCRIPTIONS_FILTER_BAR_HEIGHT;
@@ -570,7 +570,7 @@ export function SubscriptionScreen() {
                 height: 34 * scale,
               },
             ]}>
-            <View style={[styles.headerRow, { gap: 12 * scale }]}>
+            <View style={[styles.headerRow, { gap: 12 * scale, height: 34 * scale }]}>
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel="Go back"
@@ -592,7 +592,7 @@ export function SubscriptionScreen() {
                 Subscriptions
               </Text>
             </View>
-            <View style={[styles.headerActions, { gap: 12 * scale }]}>
+            <View style={[styles.headerActions, { gap: 12 * scale, height: 34 * scale }]}>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Search subscriptions"
