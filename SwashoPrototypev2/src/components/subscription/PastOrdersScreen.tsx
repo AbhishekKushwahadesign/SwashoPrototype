@@ -23,6 +23,55 @@ import { DEMO_SUBSCRIPTION } from '@/data/subscriptions';
 import { orderTrackingHrefFromPastOrder } from '@/lib/order-tracking-flow';
 import { subscriptionUpcomingFromPastOrdersHref } from '@/lib/subscription-past-orders-flow';
 import {
+  FIGMA_DELIVERING_CARD_HEIGHT,
+  FIGMA_DELIVERING_CARD_INNER_WIDTH,
+  FIGMA_DELIVERING_CARD_PADDING_LEFT,
+  FIGMA_DELIVERING_CARD_PADDING_RIGHT,
+  FIGMA_DELIVERING_CARD_SECTION_GAP,
+  FIGMA_DELIVERING_EXTRA_COUNT_FONT_SIZE,
+  FIGMA_DELIVERING_EXTRA_COUNT_LEFT,
+  FIGMA_DELIVERING_EXTRA_COUNT_LETTER_SPACING,
+  FIGMA_DELIVERING_EXTRA_COUNT_LINE_HEIGHT,
+  FIGMA_DELIVERING_EXTRA_COUNT_TOP,
+  FIGMA_DELIVERING_EXTRA_GARMENT_OFFSETS,
+  FIGMA_DELIVERING_EXTRA_GARMENT_SIZE,
+  FIGMA_DELIVERING_EXTRA_GARMENTS_HEIGHT,
+  FIGMA_DELIVERING_EXTRA_GARMENTS_WIDTH,
+  FIGMA_DELIVERING_FOOTER_HEIGHT,
+  FIGMA_DELIVERING_FOOTER_LEFT,
+  FIGMA_DELIVERING_FOOTER_PADDING_LEFT,
+  FIGMA_DELIVERING_FOOTER_PADDING_RIGHT,
+  FIGMA_DELIVERING_FOOTER_PADDING_TOP,
+  FIGMA_DELIVERING_FOOTER_TEXT_GAP,
+  FIGMA_DELIVERING_FOOTER_TOP,
+  FIGMA_DELIVERING_FOOTER_WIDTH,
+  FIGMA_DELIVERING_HEADER_BLOCK_GAP,
+  FIGMA_DELIVERING_INVOICE_LEFT,
+  FIGMA_DELIVERING_INVOICE_TOP,
+  FIGMA_DELIVERING_LINE_ITEM_DIVIDER_WIDTH,
+  FIGMA_DELIVERING_LINE_ITEMS_GAP,
+  FIGMA_DELIVERING_RIDER_ART_LEFT,
+  FIGMA_DELIVERING_RIDER_ART_TOP,
+  FIGMA_DELIVERING_RIDER_FRAME_HEIGHT,
+  FIGMA_DELIVERING_RIDER_FRAME_TOP_NUDGE,
+  FIGMA_DELIVERING_RIDER_FRAME_WIDTH,
+  FIGMA_DELIVERING_RIDER_IMAGE_HEIGHT,
+  FIGMA_DELIVERING_RIDER_IMAGE_LEFT,
+  FIGMA_DELIVERING_RIDER_IMAGE_TOP,
+  FIGMA_DELIVERING_RIDER_IMAGE_TOP_NUDGE,
+  FIGMA_DELIVERING_RIDER_IMAGE_WIDTH,
+  FIGMA_DELIVERING_RIDER_INNER_HEIGHT,
+  FIGMA_DELIVERING_RIDER_INNER_WIDTH,
+  FIGMA_DELIVERING_ROAD_HEIGHT,
+  FIGMA_DELIVERING_ROAD_LEFT,
+  FIGMA_DELIVERING_ROAD_TOP,
+  FIGMA_DELIVERING_ROAD_WIDTH,
+  FIGMA_DELIVERING_TOTAL_BILL_PADDING_RIGHT,
+  FIGMA_DELIVERING_TRACK_RIDER_LEFT,
+  FIGMA_DELIVERING_TRACK_RIDER_LINE_HEIGHT,
+  FIGMA_DELIVERING_TRACK_RIDER_TOP,
+} from '@/lib/past-order-delivering-card-figma';
+import {
   FIGMA_ORDERS_FILTER_BAR_TOP,
   FIGMA_ORDERS_HEADER_CHROME_HEIGHT,
   FIGMA_ORDERS_HEADER_ROW_TOP,
@@ -55,28 +104,6 @@ const SCROLL_PADDING_TOP = 14;
 const HOME_INDICATOR_HEIGHT = 24;
 const PAGE_BG = '#f2f2f2';
 const SUCCESS_600 = '#16a34a';
-/** Figma 3429:18167 delivering footer strip */
-const DELIVERING_ORDER_FOOTER_HEIGHT = 68;
-const DELIVERING_ORDER_FOOTER_WIDTH = 371;
-const DELIVERING_ORDER_FOOTER_INSET_LEFT = 13;
-const DELIVERING_ORDER_FOOTER_TOP = 332;
-/** Figma 3429:18168 Frame 503 on card 3429:18167. */
-const DELIVERING_RIDER_ART_LEFT = 12.748;
-const DELIVERING_RIDER_ART_TOP = 338.615;
-const DELIVERING_RIDER_FRAME_WIDTH = 93.76;
-const DELIVERING_RIDER_FRAME_HEIGHT = 61.661;
-/** Rider art vs footer frame 3429:18229. */
-const DELIVERING_RIDER_LEFT_IN_FOOTER = DELIVERING_RIDER_ART_LEFT - DELIVERING_ORDER_FOOTER_INSET_LEFT;
-const DELIVERING_RIDER_TOP_IN_FOOTER = DELIVERING_RIDER_ART_TOP - DELIVERING_ORDER_FOOTER_TOP;
-/** Figma 59367:3996 road in 3429:18168 inner frame (88.006×50.891). */
-const DELIVERING_ROAD_LEFT = -24.34;
-const DELIVERING_ROAD_TOP = 20.15;
-const DELIVERING_ROAD_WIDTH = 160.165;
-const DELIVERING_ROAD_HEIGHT = 54.487;
-const DELIVERING_RIDER_INNER_WIDTH = 88.006;
-const DELIVERING_RIDER_INNER_HEIGHT = 50.891;
-const DELIVERING_TRACK_RIDER_LEFT = 266;
-const DELIVERING_TRACK_RIDER_TOP = 29;
 
 const riderImage = require('@/assets/images/subscription/rider-with-bike.png');
 
@@ -187,21 +214,44 @@ function WashIronServiceIcon({ scale }: { scale: number }) {
   );
 }
 
-function LineItemRow({ item, scale, showDividerAfter }: { item: PastOrderLineItem; scale: number; showDividerAfter: boolean }) {
+function LineItemRow({
+  item,
+  scale,
+  showDividerAfter,
+  figmaDelivering,
+}: {
+  item: PastOrderLineItem;
+  scale: number;
+  showDividerAfter: boolean;
+  figmaDelivering?: boolean;
+}) {
+  const dividerWidth = (figmaDelivering ? FIGMA_DELIVERING_LINE_ITEM_DIVIDER_WIDTH : 358) * scale;
+  const sectionGap = (figmaDelivering ? FIGMA_DELIVERING_LINE_ITEMS_GAP : 12) * scale;
+
   if (item.kind === 'extra_garments') {
+    const garmentSize = (figmaDelivering ? FIGMA_DELIVERING_EXTRA_GARMENT_SIZE : 33) * scale;
+    const stackWidth = (figmaDelivering ? FIGMA_DELIVERING_EXTRA_GARMENTS_WIDTH : 75) * scale;
+    const stackHeight = (figmaDelivering ? FIGMA_DELIVERING_EXTRA_GARMENTS_HEIGHT : 33) * scale;
+    const offsets = figmaDelivering ? FIGMA_DELIVERING_EXTRA_GARMENT_OFFSETS : ([0, 20.76, 41.52] as const);
+
     return (
-      <View style={{ width: '100%', gap: 12 * scale }}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12 * scale }}>
-          <View style={{ width: 75 * scale, height: 33 * scale, position: 'relative' }}>
-            {[0, 20.76, 41.52].map((left, index) => (
+      <View style={{ width: '100%', gap: sectionGap }}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            ...(figmaDelivering ? null : { padding: 12 * scale }),
+          }}>
+          <View style={{ width: stackWidth, height: stackHeight, position: 'relative' }}>
+            {offsets.map((left, index) => (
               <View
                 key={left}
                 style={{
                   position: 'absolute',
                   left: left * scale,
                   top: 0,
-                  width: 33 * scale,
-                  height: 33 * scale,
+                  width: garmentSize,
+                  height: garmentSize,
                   borderRadius: 9999 * scale,
                   borderWidth: 0.519 * scale,
                   borderColor: SwashoColors.neutral200,
@@ -214,6 +264,22 @@ function LineItemRow({ item, scale, showDividerAfter }: { item: PastOrderLineIte
                   <PastOrderExtraGarmentAIcon width={23 * scale} height={23 * scale} />
                 ) : index === 1 ? (
                   <PastOrderExtraGarmentBIcon width={15 * scale} height={26 * scale} />
+                ) : figmaDelivering ? (
+                  <Text
+                    style={[
+                      searchFont('semibold'),
+                      {
+                        position: 'absolute',
+                        left: FIGMA_DELIVERING_EXTRA_COUNT_LEFT * scale,
+                        top: FIGMA_DELIVERING_EXTRA_COUNT_TOP * scale,
+                        fontSize: FIGMA_DELIVERING_EXTRA_COUNT_FONT_SIZE * scale,
+                        lineHeight: FIGMA_DELIVERING_EXTRA_COUNT_LINE_HEIGHT * scale,
+                        letterSpacing: FIGMA_DELIVERING_EXTRA_COUNT_LETTER_SPACING * scale,
+                        color: SwashoColors.darkHeaderText,
+                      },
+                    ]}>
+                    +{item.extraCount}
+                  </Text>
                 ) : (
                   <Text
                     style={[
@@ -232,7 +298,7 @@ function LineItemRow({ item, scale, showDividerAfter }: { item: PastOrderLineIte
             ))}
           </View>
         </View>
-        {showDividerAfter ? <CheckoutSectionDivider width={358 * scale} scale={scale} /> : null}
+        {showDividerAfter ? <CheckoutSectionDivider width={dividerWidth} scale={scale} /> : null}
       </View>
     );
   }
@@ -240,7 +306,7 @@ function LineItemRow({ item, scale, showDividerAfter }: { item: PastOrderLineIte
   const isWashIron = item.label === 'Wash & Iron';
 
   return (
-    <View style={{ width: '100%', gap: 12 * scale }}>
+    <View style={{ width: '100%', gap: sectionGap }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 * scale, flex: 1 }}>
           {isWashIron ? (
@@ -285,7 +351,7 @@ function LineItemRow({ item, scale, showDividerAfter }: { item: PastOrderLineIte
           {item.quantityLabel}
         </Text>
       </View>
-      {showDividerAfter ? <CheckoutSectionDivider width={358 * scale} scale={scale} /> : null}
+      {showDividerAfter ? <CheckoutSectionDivider width={dividerWidth} scale={scale} /> : null}
     </View>
   );
 }
@@ -296,10 +362,10 @@ function DeliveringOrderRiderArt({ scale }: { scale: number }) {
       pointerEvents="none"
       style={{
         position: 'absolute',
-        left: DELIVERING_RIDER_LEFT_IN_FOOTER * scale,
-        top: DELIVERING_RIDER_TOP_IN_FOOTER * scale + 4,
-        width: DELIVERING_RIDER_FRAME_WIDTH * scale,
-        height: DELIVERING_RIDER_FRAME_HEIGHT * scale,
+        left: FIGMA_DELIVERING_RIDER_ART_LEFT * scale,
+        top: FIGMA_DELIVERING_RIDER_ART_TOP * scale + FIGMA_DELIVERING_RIDER_FRAME_TOP_NUDGE,
+        width: FIGMA_DELIVERING_RIDER_FRAME_WIDTH * scale,
+        height: FIGMA_DELIVERING_RIDER_FRAME_HEIGHT * scale,
         zIndex: 1,
         overflow: 'visible',
         transform: [{ rotate: '7.3deg' }],
@@ -307,19 +373,19 @@ function DeliveringOrderRiderArt({ scale }: { scale: number }) {
       <View
         style={{
           position: 'absolute',
-          left: ((DELIVERING_RIDER_FRAME_WIDTH - DELIVERING_RIDER_INNER_WIDTH) / 2) * scale,
-          top: ((DELIVERING_RIDER_FRAME_HEIGHT - DELIVERING_RIDER_INNER_HEIGHT) / 2) * scale,
-          width: DELIVERING_RIDER_INNER_WIDTH * scale,
-          height: DELIVERING_RIDER_INNER_HEIGHT * scale,
+          left: ((FIGMA_DELIVERING_RIDER_FRAME_WIDTH - FIGMA_DELIVERING_RIDER_INNER_WIDTH) / 2) * scale,
+          top: ((FIGMA_DELIVERING_RIDER_FRAME_HEIGHT - FIGMA_DELIVERING_RIDER_INNER_HEIGHT) / 2) * scale,
+          width: FIGMA_DELIVERING_RIDER_INNER_WIDTH * scale,
+          height: FIGMA_DELIVERING_RIDER_INNER_HEIGHT * scale,
           overflow: 'visible',
         }}>
         <PastOrderRoadIcon
-          width={DELIVERING_ROAD_WIDTH * scale}
-          height={DELIVERING_ROAD_HEIGHT * scale}
+          width={FIGMA_DELIVERING_ROAD_WIDTH * scale}
+          height={FIGMA_DELIVERING_ROAD_HEIGHT * scale}
           style={{
             position: 'absolute',
-            left: DELIVERING_ROAD_LEFT * scale,
-            top: DELIVERING_ROAD_TOP * scale,
+            left: FIGMA_DELIVERING_ROAD_LEFT * scale,
+            top: FIGMA_DELIVERING_ROAD_TOP * scale,
             zIndex: 0,
           }}
         />
@@ -327,10 +393,11 @@ function DeliveringOrderRiderArt({ scale }: { scale: number }) {
           source={riderImage}
           style={{
             position: 'absolute',
-            left: -0.75 * scale,
-            top: -7.04 * scale + 6,
-            width: 49.006 * scale,
-            height: 58.76 * scale,
+            left: FIGMA_DELIVERING_RIDER_IMAGE_LEFT * scale,
+            top:
+              FIGMA_DELIVERING_RIDER_IMAGE_TOP * scale + FIGMA_DELIVERING_RIDER_IMAGE_TOP_NUDGE,
+            width: FIGMA_DELIVERING_RIDER_IMAGE_WIDTH * scale,
+            height: FIGMA_DELIVERING_RIDER_IMAGE_HEIGHT * scale,
             transform: [{ rotate: '-12.1deg' }],
             zIndex: 1,
           }}
@@ -341,7 +408,7 @@ function DeliveringOrderRiderArt({ scale }: { scale: number }) {
   );
 }
 
-/** Figma 3429:18229 footer + 3429:18168 rider anchored to the footer frame. */
+/** Figma 3429:18229 footer text + track control on card 3429:18167. */
 function DeliveringOrderFooter({
   order,
   scale,
@@ -351,28 +418,21 @@ function DeliveringOrderFooter({
   scale: number;
   onTrackPress: () => void;
 }) {
-  const footerOffsetLeft = (DELIVERING_ORDER_FOOTER_INSET_LEFT - 16) * scale;
-
   return (
     <View
       style={{
-        position: 'relative',
-        marginLeft: footerOffsetLeft,
-        width: DELIVERING_ORDER_FOOTER_WIDTH * scale,
-        minHeight: DELIVERING_ORDER_FOOTER_HEIGHT * scale,
-        overflow: 'visible',
+        position: 'absolute',
+        left: FIGMA_DELIVERING_FOOTER_LEFT * scale,
+        top: FIGMA_DELIVERING_FOOTER_TOP * scale,
+        width: FIGMA_DELIVERING_FOOTER_WIDTH * scale,
+        height: FIGMA_DELIVERING_FOOTER_HEIGHT * scale,
+        paddingTop: FIGMA_DELIVERING_FOOTER_PADDING_TOP * scale,
+        paddingLeft: FIGMA_DELIVERING_FOOTER_PADDING_LEFT * scale,
+        paddingRight: FIGMA_DELIVERING_FOOTER_PADDING_RIGHT * scale,
+        justifyContent: 'center',
+        gap: FIGMA_DELIVERING_FOOTER_TEXT_GAP * scale,
+        zIndex: 2,
       }}>
-      <DeliveringOrderRiderArt scale={scale} />
-      <View
-        style={{
-          minHeight: DELIVERING_ORDER_FOOTER_HEIGHT * scale,
-          paddingTop: 12 * scale,
-          paddingLeft: 90 * scale,
-          paddingRight: 80 * scale,
-          justifyContent: 'center',
-          gap: 8 * scale,
-          zIndex: 2,
-        }}>
       <Text
         style={[
           searchFont('semibold'),
@@ -402,8 +462,9 @@ function DeliveringOrderFooter({
         onPress={onTrackPress}
         style={{
           position: 'absolute',
-          left: DELIVERING_TRACK_RIDER_LEFT * scale,
-          top: DELIVERING_TRACK_RIDER_TOP * scale,
+          left: FIGMA_DELIVERING_TRACK_RIDER_LEFT * scale,
+          top: FIGMA_DELIVERING_TRACK_RIDER_TOP * scale,
+          height: 18 * scale,
           flexDirection: 'row',
           alignItems: 'center',
           gap: 6 * scale,
@@ -418,7 +479,7 @@ function DeliveringOrderFooter({
             searchFont('medium'),
             {
               fontSize: 12 * scale,
-              lineHeight: 14 * scale,
+              lineHeight: FIGMA_DELIVERING_TRACK_RIDER_LINE_HEIGHT * scale,
               letterSpacing: 0.5 * scale,
               color: SwashoColors.primary600,
               flexShrink: 0,
@@ -427,14 +488,17 @@ function DeliveringOrderFooter({
           Track Rider
         </Text>
       </Pressable>
-      </View>
     </View>
   );
 }
 
 function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; scale: number; cardWidth: number }) {
   const isDelivering = order.lifecycleStatus === 'delivering';
-  const innerWidth = 368 * scale;
+  const innerWidth = (isDelivering ? FIGMA_DELIVERING_CARD_INNER_WIDTH : 368) * scale;
+  const sectionPadding = isDelivering ? 0 : 12 * scale;
+  const cardSectionGap = (isDelivering ? FIGMA_DELIVERING_CARD_SECTION_GAP : 16) * scale;
+  const headerBlockGap = (isDelivering ? FIGMA_DELIVERING_HEADER_BLOCK_GAP : 8) * scale;
+  const lineItemsGap = (isDelivering ? FIGMA_DELIVERING_LINE_ITEMS_GAP : 12) * scale;
   const [cardHeight, setCardHeight] = useState(0);
 
   const handleTrackPress = useCallback(() => {
@@ -451,7 +515,13 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
 
   const cardBody = (
     <>
-      <View style={{ width: innerWidth, gap: 8 * scale, position: 'relative', padding: 12 * scale }}>
+      <View
+        style={{
+          width: innerWidth,
+          gap: headerBlockGap,
+          position: 'relative',
+          padding: sectionPadding,
+        }}>
         <Text
           style={[
             searchFont(isDelivering ? 'semibold' : 'medium'),
@@ -491,8 +561,9 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
           accessibilityLabel="Download invoice"
           style={{
             position: 'absolute',
-            right: 0,
-            top: isDelivering ? 3 * scale : 4 * scale,
+            ...(isDelivering
+              ? { left: FIGMA_DELIVERING_INVOICE_LEFT * scale, top: FIGMA_DELIVERING_INVOICE_TOP * scale }
+              : { right: 0, top: 4 * scale }),
             flexDirection: 'row',
             alignItems: 'center',
             gap: 6 * scale,
@@ -523,13 +594,14 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
 
       <CheckoutSectionDivider width={innerWidth} scale={scale} />
 
-      <View style={{ width: innerWidth, gap: 12 * scale, padding: 12 * scale }}>
+      <View style={{ width: innerWidth, gap: lineItemsGap, padding: sectionPadding }}>
         {order.lineItems.map((line, index) => (
           <LineItemRow
             key={line.id}
             item={line}
             scale={scale}
             showDividerAfter={index < order.lineItems.length - 1}
+            figmaDelivering={isDelivering}
           />
         ))}
       </View>
@@ -542,7 +614,8 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
           flexDirection: 'row',
           alignItems: 'flex-start',
           justifyContent: 'space-between',
-          padding: 12 * scale,
+          padding: sectionPadding,
+          ...(isDelivering ? { paddingRight: FIGMA_DELIVERING_TOTAL_BILL_PADDING_RIGHT * scale } : null),
         }}>
         <View style={{ gap: 8 * scale, maxWidth: 89 * scale }}>
           <Text
@@ -586,9 +659,7 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
 
       <CheckoutSectionDivider width={innerWidth} scale={scale} />
 
-      {isDelivering ? (
-        <DeliveringOrderFooter order={order} scale={scale} onTrackPress={handleTrackPress} />
-      ) : (
+      {!isDelivering ? (
         <View style={{ width: innerWidth, alignItems: 'center', gap: 16 * scale, paddingTop: 12 * scale, paddingHorizontal: 80 * scale }}>
           <Text
             style={[
@@ -605,11 +676,11 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
           </Text>
           <PastOrderExperienceStarsIcon width={220 * scale} height={24 * scale} />
         </View>
-      )}
+      ) : null}
     </>
   );
 
-  const deliveringCardFallbackHeight = 410 * scale;
+  const deliveringCardFallbackHeight = FIGMA_DELIVERING_CARD_HEIGHT * scale;
   const cardRadius = SwashoRadii.lg * scale;
 
   return (
@@ -620,11 +691,12 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
         {
           width: cardWidth,
           borderRadius: cardRadius,
-          paddingLeft: 16 * scale,
-          paddingRight: 12 * scale,
-          paddingVertical: 16 * scale,
-          gap: 16 * scale,
+          paddingLeft: (isDelivering ? FIGMA_DELIVERING_CARD_PADDING_LEFT : 16) * scale,
+          paddingRight: (isDelivering ? FIGMA_DELIVERING_CARD_PADDING_RIGHT : 12) * scale,
+          paddingVertical: (isDelivering ? FIGMA_DELIVERING_CARD_PADDING_VERTICAL : 16) * scale,
+          gap: cardSectionGap,
           overflow: 'hidden',
+          ...(isDelivering ? { minHeight: deliveringCardFallbackHeight } : null),
           backgroundColor: isDelivering ? 'transparent' : SwashoColors.surface,
           ...(isDelivering
             ? figmaShadow({ offsetX: 0, offsetY: 0, blur: 8, color: '#000000', opacity: 0.1 }, scale)
@@ -648,6 +720,12 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
         </View>
       ) : null}
       <View style={{ zIndex: 2 }}>{cardBody}</View>
+      {isDelivering ? (
+        <>
+          <DeliveringOrderRiderArt scale={scale} />
+          <DeliveringOrderFooter order={order} scale={scale} onTrackPress={handleTrackPress} />
+        </>
+      ) : null}
     </View>
   );
 }
