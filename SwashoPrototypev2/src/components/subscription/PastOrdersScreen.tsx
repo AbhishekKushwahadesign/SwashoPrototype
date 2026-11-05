@@ -297,7 +297,7 @@ function DeliveringOrderRiderArt({ scale }: { scale: number }) {
       style={{
         position: 'absolute',
         left: DELIVERING_RIDER_LEFT_IN_FOOTER * scale,
-        top: DELIVERING_RIDER_TOP_IN_FOOTER * scale,
+        top: DELIVERING_RIDER_TOP_IN_FOOTER * scale + 4,
         width: DELIVERING_RIDER_FRAME_WIDTH * scale,
         height: DELIVERING_RIDER_FRAME_HEIGHT * scale,
         zIndex: 1,
