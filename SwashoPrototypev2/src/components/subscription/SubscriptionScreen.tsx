@@ -549,36 +549,42 @@ export function SubscriptionScreen() {
             {
               top: headerTop,
               height: HEADER_HEIGHT * scale,
-              paddingTop: (HEADER_TOOLBAR_TOP - STATUS_BAR_HEIGHT) * scale,
-              paddingRight: 18 * scale,
-              paddingLeft: 17 * scale,
-              paddingBottom: 0,
-              alignItems: 'flex-start',
               ...figmaShadow({ offsetX: 0, offsetY: 2, blur: 4, color: '#000000', opacity: 0.1 }, scale),
             },
           ]}>
-          <View style={[styles.headerRow, { gap: 12 * scale, height: 34 * scale }]}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Go back"
-              onPress={handleBack}
-              style={{ width: 26 * scale, height: 26 * scale, alignItems: 'center', justifyContent: 'center' }}>
-              <ArrowLeftIcon width={20 * scale} height={20 * scale} />
-            </Pressable>
-            <Text
-              style={[
-                searchFont('medium'),
-                {
-                  fontSize: 18 * scale,
-                  lineHeight: 16 * scale,
-                  letterSpacing: 0.5 * scale,
-                  color: SwashoColors.darkHeaderText,
-                },
-              ]}>
-              Subscriptions
-            </Text>
-          </View>
-          <View style={[styles.headerActions, { gap: 12 * scale, height: 34 * scale }]}>
+          <View
+            style={[
+              styles.toolbarRow,
+              {
+                top: (HEADER_TOOLBAR_TOP - STATUS_BAR_HEIGHT) * scale,
+                left: 17 * scale,
+                right: 18 * scale,
+                height: 34 * scale,
+              },
+            ]}>
+            <View style={[styles.headerRow, { gap: 12 * scale }]}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Go back"
+                onPress={handleBack}
+                style={{ width: 26 * scale, height: 26 * scale, alignItems: 'center', justifyContent: 'center' }}>
+                <ArrowLeftIcon width={20 * scale} height={20 * scale} />
+              </Pressable>
+              <Text
+                style={[
+                  searchFont('medium'),
+                  {
+                    fontSize: 18 * scale,
+                    lineHeight: 16 * scale,
+                    letterSpacing: 0.5 * scale,
+                    color: SwashoColors.darkHeaderText,
+                    flexShrink: 0,
+                  },
+                ]}>
+                Subscriptions
+              </Text>
+            </View>
+            <View style={[styles.headerActions, { gap: 12 * scale }]}>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Search subscriptions"
@@ -623,6 +629,7 @@ export function SubscriptionScreen() {
                 Past orders
               </Text>
             </Pressable>
+          </View>
           </View>
         </View>
 
@@ -761,13 +768,17 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 11,
     backgroundColor: SwashoColors.surface,
+  },
+  toolbarRow: {
+    position: 'absolute',
     flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    flexShrink: 1,
+    flexShrink: 0,
   },
   headerActions: {
     flexDirection: 'row',
