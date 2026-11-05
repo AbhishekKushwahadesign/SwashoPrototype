@@ -31,25 +31,33 @@ import {
   type SubscriptionGarmentLine,
   type SubscriptionSummary,
 } from '@/data/subscriptions';
+import {
+  FIGMA_STATUS_BAR_HEIGHT,
+  FIGMA_SUBSCRIPTIONS_FILTER_BAR_HEIGHT,
+  FIGMA_SUBSCRIPTIONS_FILTER_BAR_TOP,
+  FIGMA_SUBSCRIPTIONS_HEADER_CHROME_HEIGHT,
+  FIGMA_SUBSCRIPTIONS_HEADER_ROW_TOP,
+  FIGMA_SUBSCRIPTIONS_SCROLL_CONTENT_START_Y,
+  FIGMA_SUBSCRIPTIONS_SCROLL_PADDING_TOP_AFTER_FILTER,
+  FIGMA_SUBSCRIPTIONS_SCROLL_SECTION_GAP,
+} from '@/lib/screen-header-figma';
 import { subscriptionPastOrdersHref } from '@/lib/subscription-past-orders-flow';
 import { subscriptionOrderReviewHrefFromSummary } from '@/lib/subscription-order-review-flow';
 
 import { BillListIcon, VerticalRuleIcon } from './subscription-icons';
 
-const STATUS_BAR_HEIGHT = 32;
-/** White header chrome ends at y=89 (Figma 3409:16933); status bar is 32 → 57px toolbar block. */
-const HEADER_HEIGHT = 57;
-/** Figma toolbar row (3409:16956) @ y=59 → 27px below status bar. */
-const HEADER_TOOLBAR_TOP = 59;
-/** Figma Search filters (3409:16933) top edge @ y=89, h=45. */
-const FILTER_BAR_TOP = 89;
-const FILTER_BAR_HEIGHT = 45;
-/** Scroll region begins where the filter bar ends (154px in the 412px frame). */
-const SCROLL_CONTENT_START_Y = FILTER_BAR_TOP + FILTER_BAR_HEIGHT;
-/** Pickup banner (3409:16943) y=158.88 minus filter bottom (134). */
-const SCROLL_PADDING_TOP_AFTER_FILTER = 24.884765625;
-/** Vertical gap between pickup banner and subscription card (design: 12px). */
-const SCROLL_SECTION_GAP = 12;
+const STATUS_BAR_HEIGHT = FIGMA_STATUS_BAR_HEIGHT;
+/** White header chrome ends at filter top (Figma 3409:16933 @ y=89). */
+const HEADER_HEIGHT = FIGMA_SUBSCRIPTIONS_HEADER_CHROME_HEIGHT;
+/** Figma toolbar row (3409:16956) @ y=59. */
+const HEADER_TOOLBAR_TOP = FIGMA_SUBSCRIPTIONS_HEADER_ROW_TOP;
+const FILTER_BAR_TOP = FIGMA_SUBSCRIPTIONS_FILTER_BAR_TOP;
+const FILTER_BAR_HEIGHT = FIGMA_SUBSCRIPTIONS_FILTER_BAR_HEIGHT;
+const SCROLL_CONTENT_START_Y = FIGMA_SUBSCRIPTIONS_SCROLL_CONTENT_START_Y;
+/** Pickup banner (3409:16943) @ y≈143.885 minus filter bottom (134). */
+const SCROLL_PADDING_TOP_AFTER_FILTER = FIGMA_SUBSCRIPTIONS_SCROLL_PADDING_TOP_AFTER_FILTER;
+/** Pickup banner bottom to subscription card (3409:16868 @ y=215). */
+const SCROLL_SECTION_GAP = FIGMA_SUBSCRIPTIONS_SCROLL_SECTION_GAP;
 const HOME_INDICATOR_HEIGHT = 24;
 const NAV_HEIGHT = 101;
 const PAGE_BG = '#f2f2f2';
