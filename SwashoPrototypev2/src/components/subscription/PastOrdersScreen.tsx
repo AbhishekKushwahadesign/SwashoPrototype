@@ -624,7 +624,7 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
           paddingRight: 12 * scale,
           paddingVertical: 16 * scale,
           gap: 16 * scale,
-          overflow: isDelivering ? ('visible' as const) : 'hidden',
+          overflow: 'hidden',
           backgroundColor: isDelivering ? 'transparent' : SwashoColors.surface,
           ...(isDelivering
             ? figmaShadow({ offsetX: 0, offsetY: 0, blur: 8, color: '#000000', opacity: 0.1 }, scale)
