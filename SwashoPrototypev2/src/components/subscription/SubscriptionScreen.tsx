@@ -37,8 +37,10 @@ import { subscriptionOrderReviewHrefFromSummary } from '@/lib/subscription-order
 import { BillListIcon, VerticalRuleIcon } from './subscription-icons';
 
 const STATUS_BAR_HEIGHT = 32;
-/** Figma frame 3409:16955 is 101px tall; status bar occupies 32px → 69px toolbar block below it. */
-const HEADER_HEIGHT = 69;
+/** White header chrome ends at y=89 (Figma 3409:16933); status bar is 32 → 57px toolbar block. */
+const HEADER_HEIGHT = 57;
+/** Figma toolbar row (3409:16956) @ y=59 → 27px below status bar. */
+const HEADER_TOOLBAR_TOP = 59;
 /** Figma Search filters (3409:16933) top edge @ y=89, h=45. */
 const FILTER_BAR_TOP = 89;
 const FILTER_BAR_HEIGHT = 45;
@@ -79,7 +81,7 @@ function SubscriptionFilterChip({
           borderRadius: SwashoRadii.sm * scale,
           paddingHorizontal: 12 * scale,
           paddingVertical: 8 * scale,
-          height: 26 * scale,
+          ...(flex ? { height: 26 * scale } : { minHeight: 26 * scale }),
           borderWidth: (active ? 1.5 : 1) * scale,
         },
       ]}>
@@ -547,7 +549,7 @@ export function SubscriptionScreen() {
             {
               top: headerTop,
               height: HEADER_HEIGHT * scale,
-              paddingTop: (52 - STATUS_BAR_HEIGHT) * scale,
+              paddingTop: (HEADER_TOOLBAR_TOP - STATUS_BAR_HEIGHT) * scale,
               paddingRight: 18 * scale,
               paddingLeft: 17 * scale,
               paddingBottom: 0,
@@ -631,7 +633,6 @@ export function SubscriptionScreen() {
               top: filterBarTop,
               height: FILTER_BAR_HEIGHT * scale,
               paddingHorizontal: 20 * scale,
-              paddingVertical: 9.5 * scale,
               gap: 8 * scale,
             },
           ]}>

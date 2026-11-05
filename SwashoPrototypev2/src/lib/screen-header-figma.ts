@@ -7,8 +7,8 @@ export const FIGMA_BACK_ROW_TOP = 54.42;
 /** Past Orders toolbar row — Figma 3429:18311 @ y=45.25. */
 export const FIGMA_ORDERS_HEADER_ROW_TOP = 45.25;
 
-/** Subscriptions list toolbar — Figma 3409:16956 @ y=59 inside 3409:16955 @ y=-7 → 52. */
-export const FIGMA_SUBSCRIPTIONS_HEADER_ROW_TOP = 52;
+/** Subscriptions list toolbar — Figma 3409:16956 @ y=59. */
+export const FIGMA_SUBSCRIPTIONS_HEADER_ROW_TOP = 59;
 
 /** Order review toolbar — Figma 3409:17172 @ y=64 inside 3409:17171 @ y=-7.5 → 56.5. */
 export const FIGMA_ORDER_REVIEW_HEADER_ROW_TOP = 56.5;
