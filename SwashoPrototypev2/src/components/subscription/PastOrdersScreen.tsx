@@ -328,7 +328,7 @@ function DeliveringOrderRiderArt({ scale }: { scale: number }) {
           style={{
             position: 'absolute',
             left: -0.75 * scale,
-            top: -7.04 * scale,
+            top: -7.04 * scale + 6,
             width: 49.006 * scale,
             height: 58.76 * scale,
             transform: [{ rotate: '-12.1deg' }],
