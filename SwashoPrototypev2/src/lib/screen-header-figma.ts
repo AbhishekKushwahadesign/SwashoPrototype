@@ -16,8 +16,8 @@ export const FIGMA_ORDER_REVIEW_HEADER_ROW_TOP = 56.5;
 /** Past Orders filter bar — Figma 3429:18300 @ y=89.2. */
 export const FIGMA_ORDERS_FILTER_BAR_TOP = 89.2;
 
-/** Subscriptions filter bar — Figma 3409:16933 @ y=95. */
-export const FIGMA_SUBSCRIPTIONS_FILTER_BAR_TOP = 95;
+/** Subscriptions filter bar — Figma 3409:16933 @ y=89, h=45. */
+export const FIGMA_SUBSCRIPTIONS_FILTER_BAR_TOP = 89;
 
 /** Checkout review / provider sticky nav — Figma pt-64 on header chrome (3353:13934, 3346:8783). */
 export const FIGMA_STICKY_NAV_PADDING_TOP = 64;

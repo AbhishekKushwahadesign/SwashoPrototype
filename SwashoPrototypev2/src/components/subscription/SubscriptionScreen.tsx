@@ -39,13 +39,13 @@ import { BillListIcon, VerticalRuleIcon } from './subscription-icons';
 const STATUS_BAR_HEIGHT = 32;
 /** Figma frame 3409:16955 is 101px tall; status bar occupies 32px → 69px toolbar block below it. */
 const HEADER_HEIGHT = 69;
-/** Figma Search filters (3409:16933) top edge. */
-const FILTER_BAR_TOP = 95;
-const FILTER_BAR_HEIGHT = 52;
+/** Figma Search filters (3409:16933) top edge @ y=89, h=45. */
+const FILTER_BAR_TOP = 89;
+const FILTER_BAR_HEIGHT = 45;
 /** Scroll region begins where the filter bar ends (154px in the 412px frame). */
 const SCROLL_CONTENT_START_Y = FILTER_BAR_TOP + FILTER_BAR_HEIGHT;
-/** Pickup banner (3409:16943) y minus scroll start — filter bottom → banner top. */
-const SCROLL_PADDING_TOP_AFTER_FILTER = 11.884765625;
+/** Pickup banner (3409:16943) y=158.88 minus filter bottom (134). */
+const SCROLL_PADDING_TOP_AFTER_FILTER = 24.884765625;
 /** Vertical gap between pickup banner and subscription card (design: 12px). */
 const SCROLL_SECTION_GAP = 12;
 const HOME_INDICATOR_HEIGHT = 24;
@@ -631,7 +631,7 @@ export function SubscriptionScreen() {
               top: filterBarTop,
               height: FILTER_BAR_HEIGHT * scale,
               paddingHorizontal: 20 * scale,
-              paddingVertical: 13 * scale,
+              paddingVertical: 9.5 * scale,
               gap: 8 * scale,
             },
           ]}>
