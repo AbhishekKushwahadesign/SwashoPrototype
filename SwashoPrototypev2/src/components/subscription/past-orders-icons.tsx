@@ -8,6 +8,7 @@ import ExtraGarmentBSvg from '@/assets/subscription/past-orders/extra-garment-b.
 import InvoiceDownloadSvg from '@/assets/subscription/past-orders/invoice-download.svg';
 import RiderScribbleBgSvg from '@/assets/subscription/past-orders/rider-scribble-bg.svg';
 import RiderScribbleLineSvg from '@/assets/subscription/past-orders/rider-scribble-line.svg';
+import RoadSvg from '@/assets/subscription/past-orders/road.svg';
 import ScooterDeliveringSvg from '@/assets/subscription/past-orders/scooter-delivering.svg';
 import TrackRiderMapSvg from '@/assets/subscription/past-orders/track-rider-map.svg';
 import TrouserIconSvg from '@/assets/subscription/past-orders/trouser-icon.svg';
@@ -51,6 +52,11 @@ export function PastOrderRiderScribbleBgIcon({ width, height, style }: IconProps
 
 export function PastOrderRiderScribbleLineIcon({ width, height, style }: IconProps) {
   return <RiderScribbleLineSvg width={width} height={height} style={style} />;
+}
+
+/** Figma 59367:3996 — road under delivering rider (3429:18167). */
+export function PastOrderRoadIcon({ width, height, style }: IconProps) {
+  return <RoadSvg width={width} height={height} style={style} />;
 }
 
 export function PastOrderWashIronTileIcon({ width, height, style }: IconProps) {

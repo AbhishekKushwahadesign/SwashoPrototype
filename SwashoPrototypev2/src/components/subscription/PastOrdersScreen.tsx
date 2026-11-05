@@ -36,8 +36,7 @@ import {
   PastOrderExtraGarmentAIcon,
   PastOrderExtraGarmentBIcon,
   PastOrderInvoiceDownloadIcon,
-  PastOrderRiderScribbleBgIcon,
-  PastOrderRiderScribbleLineIcon,
+  PastOrderRoadIcon,
   PastOrderScooterIcon,
   PastOrderTrackRiderIcon,
   PastOrderTrouserTileIcon,
@@ -69,6 +68,13 @@ const DELIVERING_RIDER_FRAME_HEIGHT = 61.661;
 /** Rider art vs footer frame 3429:18229. */
 const DELIVERING_RIDER_LEFT_IN_FOOTER = DELIVERING_RIDER_ART_LEFT - DELIVERING_ORDER_FOOTER_INSET_LEFT;
 const DELIVERING_RIDER_TOP_IN_FOOTER = DELIVERING_RIDER_ART_TOP - DELIVERING_ORDER_FOOTER_TOP;
+/** Figma 59367:3996 road in 3429:18168 inner frame (88.006×50.891). */
+const DELIVERING_ROAD_LEFT = -24.34;
+const DELIVERING_ROAD_TOP = 20.15;
+const DELIVERING_ROAD_WIDTH = 160.165;
+const DELIVERING_ROAD_HEIGHT = 54.487;
+const DELIVERING_RIDER_INNER_WIDTH = 88.006;
+const DELIVERING_RIDER_INNER_HEIGHT = 50.891;
 const DELIVERING_TRACK_RIDER_LEFT = 266;
 const DELIVERING_TRACK_RIDER_TOP = 29;
 
@@ -297,28 +303,36 @@ function DeliveringOrderRiderArt({ scale }: { scale: number }) {
         zIndex: 1,
         transform: [{ rotate: '7.3deg' }],
       }}>
-      <PastOrderRiderScribbleBgIcon
-        width={88 * scale}
-        height={51 * scale}
-        style={{ position: 'absolute', left: 0, top: 20 * scale, transform: [{ rotate: '-10.27deg' }] }}
-      />
-      <PastOrderRiderScribbleLineIcon
-        width={143 * scale}
-        height={1 * scale}
-        style={{ position: 'absolute', left: -8 * scale, top: 43 * scale }}
-      />
-      <Image
-        source={riderImage}
+      <View
         style={{
           position: 'absolute',
-          left: -0.75 * scale,
-          top: 3.23 * scale,
-          width: 53.75 * scale,
-          height: 62.65 * scale,
-          transform: [{ rotate: '-12.1deg' }],
-        }}
-        contentFit="contain"
-      />
+          left: ((DELIVERING_RIDER_FRAME_WIDTH - DELIVERING_RIDER_INNER_WIDTH) / 2) * scale,
+          top: ((DELIVERING_RIDER_FRAME_HEIGHT - DELIVERING_RIDER_INNER_HEIGHT) / 2) * scale,
+          width: DELIVERING_RIDER_INNER_WIDTH * scale,
+          height: DELIVERING_RIDER_INNER_HEIGHT * scale,
+        }}>
+        <PastOrderRoadIcon
+          width={DELIVERING_ROAD_WIDTH * scale}
+          height={DELIVERING_ROAD_HEIGHT * scale}
+          style={{
+            position: 'absolute',
+            left: DELIVERING_ROAD_LEFT * scale,
+            top: DELIVERING_ROAD_TOP * scale,
+          }}
+        />
+        <Image
+          source={riderImage}
+          style={{
+            position: 'absolute',
+            left: -0.75 * scale,
+            top: -7.04 * scale,
+            width: 49.006 * scale,
+            height: 58.76 * scale,
+            transform: [{ rotate: '-12.1deg' }],
+          }}
+          contentFit="contain"
+        />
+      </View>
     </View>
   );
 }
