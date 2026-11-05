@@ -5,6 +5,8 @@ import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
 /** Figma 3429:18167 — radial lavender wash from bottom-left of delivering card. */
 const DESIGN_WIDTH = 396;
 const DESIGN_HEIGHT = 410;
+/** Matches SwashoRadii.lg on the delivering card (Figma 12px at 396pt width). */
+const DESIGN_CORNER_RADIUS = 12;
 
 type PastOrderDeliveringCardBackgroundProps = {
   width: number;
@@ -38,7 +40,15 @@ export function PastOrderDeliveringCardBackground({
           <Stop offset="1" stopColor="#ffffff" />
         </RadialGradient>
       </Defs>
-      <Rect x={0} y={0} width={DESIGN_WIDTH} height={DESIGN_HEIGHT} fill={`url(#${gradientId})`} />
+      <Rect
+        x={0}
+        y={0}
+        width={DESIGN_WIDTH}
+        height={DESIGN_HEIGHT}
+        rx={DESIGN_CORNER_RADIUS}
+        ry={DESIGN_CORNER_RADIUS}
+        fill={`url(#${gradientId})`}
+      />
     </Svg>
   );
 }

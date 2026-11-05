@@ -610,6 +610,7 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
   );
 
   const deliveringCardFallbackHeight = 410 * scale;
+  const cardRadius = SwashoRadii.lg * scale;
 
   return (
     <View
@@ -618,22 +619,33 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
         styles.orderCard,
         {
           width: cardWidth,
-          borderRadius: SwashoRadii.lg * scale,
+          borderRadius: cardRadius,
           paddingLeft: 16 * scale,
           paddingRight: 12 * scale,
           paddingVertical: 16 * scale,
           gap: 16 * scale,
           overflow: isDelivering ? ('visible' as const) : 'hidden',
+          backgroundColor: isDelivering ? 'transparent' : SwashoColors.surface,
           ...(isDelivering
             ? figmaShadow({ offsetX: 0, offsetY: 0, blur: 8, color: '#000000', opacity: 0.1 }, scale)
             : figmaShadow(FigmaShadows.checkoutScheduleCard, scale)),
         },
       ]}>
       {isDelivering ? (
-        <PastOrderDeliveringCardBackground
-          width={cardWidth}
-          height={cardHeight > 0 ? cardHeight : deliveringCardFallbackHeight}
-        />
+        <View
+          pointerEvents="none"
+          style={[
+            StyleSheet.absoluteFillObject,
+            {
+              borderRadius: cardRadius,
+              overflow: 'hidden',
+            },
+          ]}>
+          <PastOrderDeliveringCardBackground
+            width={cardWidth}
+            height={cardHeight > 0 ? cardHeight : deliveringCardFallbackHeight}
+          />
+        </View>
       ) : null}
       <View style={{ zIndex: 2 }}>{cardBody}</View>
     </View>
