@@ -301,6 +301,7 @@ function DeliveringOrderRiderArt({ scale }: { scale: number }) {
         width: DELIVERING_RIDER_FRAME_WIDTH * scale,
         height: DELIVERING_RIDER_FRAME_HEIGHT * scale,
         zIndex: 1,
+        overflow: 'visible',
         transform: [{ rotate: '7.3deg' }],
       }}>
       <View
@@ -310,6 +311,7 @@ function DeliveringOrderRiderArt({ scale }: { scale: number }) {
           top: ((DELIVERING_RIDER_FRAME_HEIGHT - DELIVERING_RIDER_INNER_HEIGHT) / 2) * scale,
           width: DELIVERING_RIDER_INNER_WIDTH * scale,
           height: DELIVERING_RIDER_INNER_HEIGHT * scale,
+          overflow: 'visible',
         }}>
         <PastOrderRoadIcon
           width={DELIVERING_ROAD_WIDTH * scale}
@@ -318,6 +320,7 @@ function DeliveringOrderRiderArt({ scale }: { scale: number }) {
             position: 'absolute',
             left: DELIVERING_ROAD_LEFT * scale,
             top: DELIVERING_ROAD_TOP * scale,
+            zIndex: 0,
           }}
         />
         <Image
@@ -329,6 +332,7 @@ function DeliveringOrderRiderArt({ scale }: { scale: number }) {
             width: 49.006 * scale,
             height: 58.76 * scale,
             transform: [{ rotate: '-12.1deg' }],
+            zIndex: 1,
           }}
           contentFit="contain"
         />
@@ -619,7 +623,7 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
           paddingRight: 12 * scale,
           paddingVertical: 16 * scale,
           gap: 16 * scale,
-          overflow: 'hidden',
+          overflow: isDelivering ? ('visible' as const) : 'hidden',
           ...(isDelivering
             ? figmaShadow({ offsetX: 0, offsetY: 0, blur: 8, color: '#000000', opacity: 0.1 }, scale)
             : figmaShadow(FigmaShadows.checkoutScheduleCard, scale)),

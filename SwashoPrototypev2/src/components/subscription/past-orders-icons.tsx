@@ -8,7 +8,6 @@ import ExtraGarmentBSvg from '@/assets/subscription/past-orders/extra-garment-b.
 import InvoiceDownloadSvg from '@/assets/subscription/past-orders/invoice-download.svg';
 import RiderScribbleBgSvg from '@/assets/subscription/past-orders/rider-scribble-bg.svg';
 import RiderScribbleLineSvg from '@/assets/subscription/past-orders/rider-scribble-line.svg';
-import RoadSvg from '@/assets/subscription/past-orders/road.svg';
 import ScooterDeliveringSvg from '@/assets/subscription/past-orders/scooter-delivering.svg';
 import TrackRiderMapSvg from '@/assets/subscription/past-orders/track-rider-map.svg';
 import TrouserIconSvg from '@/assets/subscription/past-orders/trouser-icon.svg';
@@ -54,9 +53,20 @@ export function PastOrderRiderScribbleLineIcon({ width, height, style }: IconPro
   return <RiderScribbleLineSvg width={width} height={height} style={style} />;
 }
 
-/** Figma 59367:3996 — road under delivering rider (3429:18167). */
+/** Figma 59367:3996 — road under delivering rider (3429:18167). Filter-free for RN web. */
+const PAST_ORDER_ROAD_SVG = `<svg viewBox="0 0 160.965 54.4865" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M4.88947 27.2779L149.582 19.9561L160.165 26.3225L1.65227 37.2804L4.88947 27.2779Z" fill="url(#pastOrderRoadGrad)"/>
+<path d="M16.339 31.7379L23.49 31.3056M159.358 23.0919L152.207 23.5242M37.7919 30.441L52.0939 29.5764M66.3958 28.7118L80.6977 27.8472M94.9997 26.9826L109.302 26.118M123.604 25.2534L137.906 24.3888" stroke="white" stroke-width="0.4"/>
+<defs>
+<linearGradient id="pastOrderRoadGrad" x1="0.626008" y1="32.8383" x2="122.356" y2="24.1822" gradientUnits="userSpaceOnUse">
+<stop offset="0.274344" stop-color="#2A2A2A"/>
+<stop offset="0.903889" stop-color="#2A2A2A" stop-opacity="0"/>
+</linearGradient>
+</defs>
+</svg>`;
+
 export function PastOrderRoadIcon({ width, height, style }: IconProps) {
-  return <RoadSvg width={width} height={height} style={style} />;
+  return <SvgXml xml={PAST_ORDER_ROAD_SVG} width={width} height={height} style={style} />;
 }
 
 export function PastOrderWashIronTileIcon({ width, height, style }: IconProps) {
