@@ -68,7 +68,7 @@ export function DemoGarmentSelectionScreen() {
         </View>
 
         <View style={[styles.statusBar, { height: STATUS_BAR_HEIGHT * scale }]}>
-          <StatusBar scale={scale} tone="camera" />
+          <StatusBar scale={scale} tone="light" />
         </View>
 
         <Pressable

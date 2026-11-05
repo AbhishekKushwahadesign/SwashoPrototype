@@ -273,7 +273,7 @@ export function OrderReviewScreen() {
     <View style={[styles.root, { backgroundColor: PAGE_BG, paddingTop: safeTop }]}>
       <View style={[styles.frame, { width: contentWidth }]}>
         <View style={[styles.statusBar, { height: STATUS_BAR_HEIGHT * scale }]}>
-          <StatusBar scale={scale} tone="transparent" />
+          <StatusBar scale={scale} tone="light" />
         </View>
 
         <View

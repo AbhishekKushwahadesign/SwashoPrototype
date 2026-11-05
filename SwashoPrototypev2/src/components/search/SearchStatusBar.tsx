@@ -43,7 +43,7 @@ function BatteryIcon({ size }: { size: number }) {
   );
 }
 
-export function SearchStatusBar({ scale, backgroundColor = '#f5f5f5' }: SearchStatusBarProps) {
+export function SearchStatusBar({ scale, backgroundColor = '#ffffff' }: SearchStatusBarProps) {
   const iconSize = 16 * scale;
 
   return (

@@ -126,7 +126,7 @@ export function Search1Screen() {
           },
         ]}>
         <View style={[styles.statusBar, { height: STATUS_BAR_HEIGHT * scale }]}>
-          <SearchStatusBar scale={scale} />
+          <SearchStatusBar scale={scale} backgroundColor="#f5f5f5" />
         </View>
 
         <ScrollView

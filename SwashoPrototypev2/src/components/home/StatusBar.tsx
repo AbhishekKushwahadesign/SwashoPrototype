@@ -5,7 +5,7 @@ import { SwashoColors, SwashoFonts } from '@/constants/swasho-tokens';
 
 type StatusBarProps = {
   scale: number;
-  /** Home header uses purple chrome; Swasho AI matches Figma transparent bar; camera overlay uses light chrome. */
+  /** Home = purple; search page = #f5f5f5 via SearchStatusBar; all other screens = light (#FFFFFF). */
   tone?: 'purple' | 'light' | 'transparent' | 'camera';
 };
 

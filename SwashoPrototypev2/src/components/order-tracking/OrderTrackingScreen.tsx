@@ -493,7 +493,7 @@ export function OrderTrackingScreen() {
           ]}
           pointerEvents="box-none">
           <View style={[styles.statusBar, { height: STATUS_BAR_HEIGHT * scale }]}>
-            <StatusBar scale={scale} tone="transparent" />
+            <StatusBar scale={scale} tone="light" />
           </View>
         </LinearGradient>
 
