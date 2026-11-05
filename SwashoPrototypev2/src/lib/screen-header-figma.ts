@@ -4,17 +4,21 @@ export const FIGMA_STATUS_BAR_HEIGHT = 32;
 /** Profile / typical back hit — Figma 3415:17461 @ y≈54.42. */
 export const FIGMA_BACK_ROW_TOP = 54.42;
 
-/** Past Orders toolbar row — Figma 3429:18311 @ y=45.25. */
-export const FIGMA_ORDERS_HEADER_ROW_TOP = 45.25;
-
 /** Subscriptions list toolbar — Figma 3409:16956; adjusted −10px per design review. */
 export const FIGMA_SUBSCRIPTIONS_HEADER_ROW_TOP = 47;
 
-/** Order review toolbar — Figma 3409:17172 @ y=64 inside 3409:17171 @ y=-7.5 → 56.5. */
-export const FIGMA_ORDER_REVIEW_HEADER_ROW_TOP = 56.5;
-
 /** Past Orders filter bar — Figma 3429:18300 @ y=89.2. */
 export const FIGMA_ORDERS_FILTER_BAR_TOP = 89.2;
+
+/** Past Orders toolbar row — aligned with Subscriptions header (y=47). */
+export const FIGMA_ORDERS_HEADER_ROW_TOP = FIGMA_SUBSCRIPTIONS_HEADER_ROW_TOP;
+
+/** White header chrome below status bar — 3429:18300 filter @ y=89.2. */
+export const FIGMA_ORDERS_HEADER_CHROME_HEIGHT =
+  FIGMA_ORDERS_FILTER_BAR_TOP - FIGMA_STATUS_BAR_HEIGHT;
+
+/** Order review toolbar — Figma 3409:17172 @ y=64 inside 3409:17171 @ y=-7.5 → 56.5. */
+export const FIGMA_ORDER_REVIEW_HEADER_ROW_TOP = 56.5;
 
 /** Subscriptions filter bar — Figma 3409:16933 @ y=89, h=45. */
 export const FIGMA_SUBSCRIPTIONS_FILTER_BAR_TOP = 89;

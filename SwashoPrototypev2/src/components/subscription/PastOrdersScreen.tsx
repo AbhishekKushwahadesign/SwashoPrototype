@@ -22,6 +22,12 @@ import {
 import { DEMO_SUBSCRIPTION } from '@/data/subscriptions';
 import { orderTrackingHrefFromPastOrder } from '@/lib/order-tracking-flow';
 import { subscriptionUpcomingFromPastOrdersHref } from '@/lib/subscription-past-orders-flow';
+import {
+  FIGMA_ORDERS_FILTER_BAR_TOP,
+  FIGMA_ORDERS_HEADER_CHROME_HEIGHT,
+  FIGMA_ORDERS_HEADER_ROW_TOP,
+  FIGMA_STATUS_BAR_HEIGHT,
+} from '@/lib/screen-header-figma';
 import { PastOrderDeliveringCardBackground } from '@/components/subscription/PastOrderDeliveringCardBackground';
 
 import {
@@ -40,9 +46,10 @@ import {
   PastOrderWashIronStackTopIcon,
 } from './past-orders-icons';
 
-const STATUS_BAR_HEIGHT = 32;
-const HEADER_HEIGHT = 69;
-const FILTER_BAR_TOP = 89.2;
+const STATUS_BAR_HEIGHT = FIGMA_STATUS_BAR_HEIGHT;
+const HEADER_HEIGHT = FIGMA_ORDERS_HEADER_CHROME_HEIGHT;
+const HEADER_TOOLBAR_TOP = FIGMA_ORDERS_HEADER_ROW_TOP;
+const FILTER_BAR_TOP = FIGMA_ORDERS_FILTER_BAR_TOP;
 const FILTER_BAR_HEIGHT = 45;
 const SCROLL_CONTENT_START_Y = FILTER_BAR_TOP + FILTER_BAR_HEIGHT;
 const SCROLL_PADDING_TOP = 14;
@@ -651,33 +658,42 @@ export function PastOrdersScreen() {
             {
               top: STATUS_BAR_HEIGHT * scale,
               height: HEADER_HEIGHT * scale,
-              paddingTop: (45.25 - STATUS_BAR_HEIGHT) * scale,
-              paddingHorizontal: 17 * scale,
               ...figmaShadow({ offsetX: 0, offsetY: 2, blur: 4, color: '#000000', opacity: 0.1 }, scale),
             },
           ]}>
-          <View style={[styles.headerRow, { gap: 12 * scale }]}>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Go back"
-              onPress={handleBack}
-              style={{ width: 26 * scale, height: 26 * scale, alignItems: 'center', justifyContent: 'center' }}>
-              <ArrowLeftIcon width={20 * scale} height={20 * scale} />
-            </Pressable>
-            <Text
-              style={[
-                searchFont('medium'),
-                {
-                  fontSize: 18 * scale,
-                  lineHeight: 16 * scale,
-                  letterSpacing: 0.5 * scale,
-                  color: SwashoColors.darkHeaderText,
-                },
-              ]}>
-              Orders
-            </Text>
-          </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 * scale }}>
+          <View
+            style={[
+              styles.toolbarRow,
+              {
+                top: (HEADER_TOOLBAR_TOP - STATUS_BAR_HEIGHT) * scale,
+                left: 17 * scale,
+                right: 18 * scale,
+                height: 34 * scale,
+              },
+            ]}>
+            <View style={[styles.headerRow, { gap: 12 * scale, height: 34 * scale }]}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="Go back"
+                onPress={handleBack}
+                style={{ width: 26 * scale, height: 26 * scale, alignItems: 'center', justifyContent: 'center' }}>
+                <ArrowLeftIcon width={20 * scale} height={20 * scale} />
+              </Pressable>
+              <Text
+                style={[
+                  searchFont('medium'),
+                  {
+                    fontSize: 18 * scale,
+                    lineHeight: 16 * scale,
+                    letterSpacing: 0.5 * scale,
+                    color: SwashoColors.darkHeaderText,
+                    flexShrink: 0,
+                  },
+                ]}>
+                Orders
+              </Text>
+            </View>
+            <View style={[styles.headerActions, { gap: 12 * scale, height: 34 * scale }]}>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Search orders"
@@ -730,6 +746,7 @@ export function PastOrdersScreen() {
               </View>
             </Pressable>
           </View>
+          </View>
         </View>
 
         <View
@@ -739,7 +756,6 @@ export function PastOrdersScreen() {
               top: FILTER_BAR_TOP * scale,
               height: FILTER_BAR_HEIGHT * scale,
               paddingHorizontal: 20 * scale,
-              paddingVertical: 13 * scale,
               gap: 8 * scale,
               ...figmaShadow(FigmaShadows.checkoutScheduleCard, scale),
             },
@@ -804,6 +820,9 @@ const styles = StyleSheet.create({
     right: 0,
     zIndex: 2,
     backgroundColor: SwashoColors.surface,
+  },
+  toolbarRow: {
+    position: 'absolute',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -811,6 +830,12 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexShrink: 0,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexShrink: 0,
   },
   iconPill: {
     borderColor: SwashoColors.neutral300,
