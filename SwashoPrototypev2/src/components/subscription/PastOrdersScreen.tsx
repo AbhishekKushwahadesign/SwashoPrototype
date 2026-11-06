@@ -23,60 +23,42 @@ import { DEMO_SUBSCRIPTION } from '@/data/subscriptions';
 import { orderTrackingHrefFromPastOrder } from '@/lib/order-tracking-flow';
 import { subscriptionUpcomingFromPastOrdersHref } from '@/lib/subscription-past-orders-flow';
 import {
-  FIGMA_DELIVERING_CARD_HEIGHT,
-  FIGMA_DELIVERING_CARD_INNER_WIDTH,
-  FIGMA_DELIVERING_CARD_PADDING_LEFT,
-  FIGMA_DELIVERING_CARD_PADDING_RIGHT,
-  FIGMA_DELIVERING_CARD_SECTION_GAP,
-  FIGMA_DELIVERING_EXTRA_COUNT_FONT_SIZE,
-  FIGMA_DELIVERING_EXTRA_COUNT_LEFT,
-  FIGMA_DELIVERING_EXTRA_COUNT_LETTER_SPACING,
-  FIGMA_DELIVERING_EXTRA_COUNT_LINE_HEIGHT,
-  FIGMA_DELIVERING_EXTRA_COUNT_TOP,
-  FIGMA_DELIVERING_EXTRA_GARMENT_OFFSETS,
-  FIGMA_DELIVERING_EXTRA_GARMENT_SIZE,
-  FIGMA_DELIVERING_EXTRA_GARMENTS_HEIGHT,
-  FIGMA_DELIVERING_EXTRA_GARMENTS_WIDTH,
-  FIGMA_DELIVERING_FOOTER_HEIGHT,
-  FIGMA_DELIVERING_FOOTER_LEFT,
-  FIGMA_DELIVERING_FOOTER_PADDING_LEFT,
-  FIGMA_DELIVERING_FOOTER_PADDING_RIGHT,
-  FIGMA_DELIVERING_FOOTER_PADDING_TOP,
-  FIGMA_DELIVERING_FOOTER_TEXT_GAP,
-  FIGMA_DELIVERING_FOOTER_TOP,
-  FIGMA_DELIVERING_FOOTER_WIDTH,
-  FIGMA_DELIVERING_HEADER_BLOCK_GAP,
-  FIGMA_DELIVERING_INVOICE_LEFT,
-  FIGMA_DELIVERING_INVOICE_TOP,
-  FIGMA_DELIVERING_LINE_ITEM_DIVIDER_WIDTH,
-  FIGMA_DELIVERING_LINE_ITEMS_GAP,
-  FIGMA_DELIVERING_RIDER_ART_LEFT,
-  FIGMA_DELIVERING_RIDER_ART_TOP,
-  FIGMA_DELIVERING_RIDER_FRAME_HEIGHT,
-  FIGMA_DELIVERING_RIDER_FRAME_TOP_NUDGE,
-  FIGMA_DELIVERING_RIDER_FRAME_WIDTH,
-  FIGMA_DELIVERING_RIDER_IMAGE_HEIGHT,
-  FIGMA_DELIVERING_RIDER_IMAGE_LEFT,
-  FIGMA_DELIVERING_RIDER_IMAGE_TOP,
-  FIGMA_DELIVERING_RIDER_IMAGE_TOP_NUDGE,
-  FIGMA_DELIVERING_RIDER_IMAGE_WIDTH,
-  FIGMA_DELIVERING_RIDER_INNER_HEIGHT,
-  FIGMA_DELIVERING_RIDER_INNER_WIDTH,
-  FIGMA_DELIVERING_ROAD_HEIGHT,
-  FIGMA_DELIVERING_ROAD_LEFT,
-  FIGMA_DELIVERING_ROAD_TOP,
-  FIGMA_DELIVERING_ROAD_WIDTH,
-  FIGMA_DELIVERING_TOTAL_BILL_PADDING_RIGHT,
-  FIGMA_DELIVERING_TRACK_RIDER_LEFT,
-  FIGMA_DELIVERING_TRACK_RIDER_LINE_HEIGHT,
-  FIGMA_DELIVERING_TRACK_RIDER_TOP,
-} from '@/lib/past-order-delivering-card-figma';
-import {
   FIGMA_ORDERS_FILTER_BAR_TOP,
   FIGMA_ORDERS_HEADER_CHROME_HEIGHT,
   FIGMA_ORDERS_HEADER_ROW_TOP,
   FIGMA_STATUS_BAR_HEIGHT,
 } from '@/lib/screen-header-figma';
+import {
+  PAST_ORDER_CARD_DASHED_RULE_WIDTH,
+  PAST_ORDER_CARD_FIGMA_HEIGHT,
+  PAST_ORDER_CARD_FIGMA_WIDTH,
+  PAST_ORDER_CARD_HEADER_GAP,
+  PAST_ORDER_CARD_HORIZONTAL_INSET,
+  PAST_ORDER_CARD_RULE_WIDTH,
+  PAST_ORDER_CARD_SECTION_GAP,
+  PAST_ORDER_DELIVERING_FOOTER_HEIGHT,
+  PAST_ORDER_DELIVERING_FOOTER_TEXT_LEFT,
+  PAST_ORDER_DELIVERING_FOOTER_TEXT_WIDTH,
+  PAST_ORDER_DELIVERING_RIDER_BLOCK_HEIGHT,
+  PAST_ORDER_DELIVERING_RIDER_BLOCK_LEFT,
+  PAST_ORDER_DELIVERING_RIDER_BLOCK_TOP,
+  PAST_ORDER_DELIVERING_RIDER_BLOCK_WIDTH,
+  PAST_ORDER_DELIVERING_RIDER_CLUSTER_HEIGHT,
+  PAST_ORDER_DELIVERING_RIDER_CLUSTER_LEFT,
+  PAST_ORDER_DELIVERING_RIDER_CLUSTER_TOP,
+  PAST_ORDER_DELIVERING_RIDER_CLUSTER_WIDTH,
+  PAST_ORDER_DELIVERING_RIDER_IMG_HEIGHT,
+  PAST_ORDER_DELIVERING_RIDER_IMG_WIDTH,
+  PAST_ORDER_DELIVERING_RIDER_ROTATE_DEG,
+  PAST_ORDER_DELIVERING_ROAD_CLUSTER_HEIGHT,
+  PAST_ORDER_DELIVERING_ROAD_CLUSTER_LEFT,
+  PAST_ORDER_DELIVERING_ROAD_CLUSTER_TOP,
+  PAST_ORDER_DELIVERING_ROAD_CLUSTER_WIDTH,
+  PAST_ORDER_DELIVERING_ROAD_HEIGHT,
+  PAST_ORDER_DELIVERING_ROAD_ROTATE_DEG,
+  PAST_ORDER_DELIVERING_ROAD_WIDTH,
+  PAST_ORDER_DELIVERING_STATUS_PL,
+} from '@/lib/past-order-card-figma-59380';
 import { PastOrderDeliveringCardBackground } from '@/components/subscription/PastOrderDeliveringCardBackground';
 
 import {
@@ -217,41 +199,28 @@ function WashIronServiceIcon({ scale }: { scale: number }) {
 function LineItemRow({
   item,
   scale,
+  layoutScale,
   showDividerAfter,
-  figmaDelivering,
 }: {
   item: PastOrderLineItem;
   scale: number;
+  layoutScale: number;
   showDividerAfter: boolean;
-  figmaDelivering?: boolean;
 }) {
-  const dividerWidth = (figmaDelivering ? FIGMA_DELIVERING_LINE_ITEM_DIVIDER_WIDTH : 358) * scale;
-  const sectionGap = (figmaDelivering ? FIGMA_DELIVERING_LINE_ITEMS_GAP : 12) * scale;
-
   if (item.kind === 'extra_garments') {
-    const garmentSize = (figmaDelivering ? FIGMA_DELIVERING_EXTRA_GARMENT_SIZE : 33) * scale;
-    const stackWidth = (figmaDelivering ? FIGMA_DELIVERING_EXTRA_GARMENTS_WIDTH : 75) * scale;
-    const stackHeight = (figmaDelivering ? FIGMA_DELIVERING_EXTRA_GARMENTS_HEIGHT : 33) * scale;
-    const offsets = figmaDelivering ? FIGMA_DELIVERING_EXTRA_GARMENT_OFFSETS : ([0, 20.76, 41.52] as const);
-
     return (
-      <View style={{ width: '100%', gap: sectionGap }}>
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            ...(figmaDelivering ? null : { padding: 12 * scale }),
-          }}>
-          <View style={{ width: stackWidth, height: stackHeight, position: 'relative' }}>
-            {offsets.map((left, index) => (
+      <View style={{ width: '100%', gap: 12 * scale }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 12 * scale }}>
+          <View style={{ width: 75 * scale, height: 33 * scale, position: 'relative', marginLeft: 0 }}>
+            {[0, 20.76, 41.52].map((left, index) => (
               <View
                 key={left}
                 style={{
                   position: 'absolute',
                   left: left * scale,
                   top: 0,
-                  width: garmentSize,
-                  height: garmentSize,
+                  width: 33 * scale,
+                  height: 33 * scale,
                   borderRadius: 9999 * scale,
                   borderWidth: 0.519 * scale,
                   borderColor: SwashoColors.neutral200,
@@ -264,22 +233,6 @@ function LineItemRow({
                   <PastOrderExtraGarmentAIcon width={23 * scale} height={23 * scale} />
                 ) : index === 1 ? (
                   <PastOrderExtraGarmentBIcon width={15 * scale} height={26 * scale} />
-                ) : figmaDelivering ? (
-                  <Text
-                    style={[
-                      searchFont('semibold'),
-                      {
-                        position: 'absolute',
-                        left: FIGMA_DELIVERING_EXTRA_COUNT_LEFT * scale,
-                        top: FIGMA_DELIVERING_EXTRA_COUNT_TOP * scale,
-                        fontSize: FIGMA_DELIVERING_EXTRA_COUNT_FONT_SIZE * scale,
-                        lineHeight: FIGMA_DELIVERING_EXTRA_COUNT_LINE_HEIGHT * scale,
-                        letterSpacing: FIGMA_DELIVERING_EXTRA_COUNT_LETTER_SPACING * scale,
-                        color: SwashoColors.darkHeaderText,
-                      },
-                    ]}>
-                    +{item.extraCount}
-                  </Text>
                 ) : (
                   <Text
                     style={[
@@ -298,7 +251,9 @@ function LineItemRow({
             ))}
           </View>
         </View>
-        {showDividerAfter ? <CheckoutSectionDivider width={dividerWidth} scale={scale} /> : null}
+        {showDividerAfter ? (
+          <CheckoutSectionDivider width={PAST_ORDER_CARD_DASHED_RULE_WIDTH * layoutScale} scale={layoutScale} />
+        ) : null}
       </View>
     );
   }
@@ -306,7 +261,7 @@ function LineItemRow({
   const isWashIron = item.label === 'Wash & Iron';
 
   return (
-    <View style={{ width: '100%', gap: sectionGap }}>
+    <View style={{ width: '100%', gap: 12 * scale }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 * scale, flex: 1 }}>
           {isWashIron ? (
@@ -351,55 +306,58 @@ function LineItemRow({
           {item.quantityLabel}
         </Text>
       </View>
-      {showDividerAfter ? <CheckoutSectionDivider width={dividerWidth} scale={scale} /> : null}
+      {showDividerAfter ? (
+        <CheckoutSectionDivider width={PAST_ORDER_CARD_DASHED_RULE_WIDTH * layoutScale} scale={layoutScale} />
+      ) : null}
     </View>
   );
 }
 
-function DeliveringOrderRiderArt({ scale }: { scale: number }) {
+/** Figma 59380:4270 — rider + road in delivering footer. */
+function DeliveringOrderRiderArt({ layoutScale }: { layoutScale: number }) {
   return (
     <View
       pointerEvents="none"
       style={{
         position: 'absolute',
-        left: FIGMA_DELIVERING_RIDER_ART_LEFT * scale,
-        top: FIGMA_DELIVERING_RIDER_ART_TOP * scale + FIGMA_DELIVERING_RIDER_FRAME_TOP_NUDGE,
-        width: FIGMA_DELIVERING_RIDER_FRAME_WIDTH * scale,
-        height: FIGMA_DELIVERING_RIDER_FRAME_HEIGHT * scale,
-        zIndex: 1,
-        overflow: 'visible',
-        transform: [{ rotate: '7.3deg' }],
+        left: PAST_ORDER_DELIVERING_RIDER_BLOCK_LEFT * layoutScale,
+        top: PAST_ORDER_DELIVERING_RIDER_BLOCK_TOP * layoutScale,
+        width: PAST_ORDER_DELIVERING_RIDER_BLOCK_WIDTH * layoutScale,
+        height: PAST_ORDER_DELIVERING_RIDER_BLOCK_HEIGHT * layoutScale,
+        overflow: 'hidden',
       }}>
       <View
         style={{
           position: 'absolute',
-          left: ((FIGMA_DELIVERING_RIDER_FRAME_WIDTH - FIGMA_DELIVERING_RIDER_INNER_WIDTH) / 2) * scale,
-          top: ((FIGMA_DELIVERING_RIDER_FRAME_HEIGHT - FIGMA_DELIVERING_RIDER_INNER_HEIGHT) / 2) * scale,
-          width: FIGMA_DELIVERING_RIDER_INNER_WIDTH * scale,
-          height: FIGMA_DELIVERING_RIDER_INNER_HEIGHT * scale,
-          overflow: 'visible',
+          left: PAST_ORDER_DELIVERING_ROAD_CLUSTER_LEFT * layoutScale,
+          top: PAST_ORDER_DELIVERING_ROAD_CLUSTER_TOP * layoutScale,
+          width: PAST_ORDER_DELIVERING_ROAD_CLUSTER_WIDTH * layoutScale,
+          height: PAST_ORDER_DELIVERING_ROAD_CLUSTER_HEIGHT * layoutScale,
+          alignItems: 'center',
+          justifyContent: 'center',
+          transform: [{ rotate: `${PAST_ORDER_DELIVERING_ROAD_ROTATE_DEG}deg` }],
         }}>
         <PastOrderRoadIcon
-          width={FIGMA_DELIVERING_ROAD_WIDTH * scale}
-          height={FIGMA_DELIVERING_ROAD_HEIGHT * scale}
-          style={{
-            position: 'absolute',
-            left: FIGMA_DELIVERING_ROAD_LEFT * scale,
-            top: FIGMA_DELIVERING_ROAD_TOP * scale,
-            zIndex: 0,
-          }}
+          width={PAST_ORDER_DELIVERING_ROAD_WIDTH * layoutScale}
+          height={PAST_ORDER_DELIVERING_ROAD_HEIGHT * layoutScale}
         />
+      </View>
+      <View
+        style={{
+          position: 'absolute',
+          left: PAST_ORDER_DELIVERING_RIDER_CLUSTER_LEFT * layoutScale,
+          top: PAST_ORDER_DELIVERING_RIDER_CLUSTER_TOP * layoutScale,
+          width: PAST_ORDER_DELIVERING_RIDER_CLUSTER_WIDTH * layoutScale,
+          height: PAST_ORDER_DELIVERING_RIDER_CLUSTER_HEIGHT * layoutScale,
+          alignItems: 'center',
+          justifyContent: 'center',
+          transform: [{ rotate: `${PAST_ORDER_DELIVERING_RIDER_ROTATE_DEG}deg` }],
+        }}>
         <Image
           source={riderImage}
           style={{
-            position: 'absolute',
-            left: FIGMA_DELIVERING_RIDER_IMAGE_LEFT * scale,
-            top:
-              FIGMA_DELIVERING_RIDER_IMAGE_TOP * scale + FIGMA_DELIVERING_RIDER_IMAGE_TOP_NUDGE,
-            width: FIGMA_DELIVERING_RIDER_IMAGE_WIDTH * scale,
-            height: FIGMA_DELIVERING_RIDER_IMAGE_HEIGHT * scale,
-            transform: [{ rotate: '-12.1deg' }],
-            zIndex: 1,
+            width: PAST_ORDER_DELIVERING_RIDER_IMG_WIDTH * layoutScale,
+            height: PAST_ORDER_DELIVERING_RIDER_IMG_HEIGHT * layoutScale,
           }}
           contentFit="contain"
         />
@@ -408,97 +366,110 @@ function DeliveringOrderRiderArt({ scale }: { scale: number }) {
   );
 }
 
-/** Figma 3429:18229 footer text + track control on card 3429:18167. */
+/** Figma 59380:4269 delivering footer — 92pt illustration + 293pt text / track row. */
 function DeliveringOrderFooter({
   order,
   scale,
+  cardWidth,
   onTrackPress,
 }: {
   order: PastOrderSummary;
   scale: number;
+  cardWidth: number;
   onTrackPress: () => void;
 }) {
+  const layoutScale = cardWidth / PAST_ORDER_CARD_FIGMA_WIDTH;
+
   return (
     <View
       style={{
-        position: 'absolute',
-        left: FIGMA_DELIVERING_FOOTER_LEFT * scale,
-        top: FIGMA_DELIVERING_FOOTER_TOP * scale,
-        width: FIGMA_DELIVERING_FOOTER_WIDTH * scale,
-        height: FIGMA_DELIVERING_FOOTER_HEIGHT * scale,
-        paddingTop: FIGMA_DELIVERING_FOOTER_PADDING_TOP * scale,
-        paddingLeft: FIGMA_DELIVERING_FOOTER_PADDING_LEFT * scale,
-        paddingRight: FIGMA_DELIVERING_FOOTER_PADDING_RIGHT * scale,
-        justifyContent: 'center',
-        gap: FIGMA_DELIVERING_FOOTER_TEXT_GAP * scale,
-        zIndex: 2,
+        width: cardWidth,
+        height: PAST_ORDER_DELIVERING_FOOTER_HEIGHT * layoutScale,
+        position: 'relative',
       }}>
-      <Text
-        style={[
-          searchFont('semibold'),
-          {
-            fontSize: 15 * scale,
-            lineHeight: 14 * scale,
-            letterSpacing: 0.3 * scale,
-            color: 'rgba(0,0,0,0.85)',
-          },
-        ]}>
-        {order.deliveryEtaLabel}
-      </Text>
-      <Text
-        style={[
-          searchFont('regular'),
-          {
-            fontSize: 13 * scale,
-            lineHeight: 16 * scale,
-            color: '#000000',
-          },
-        ]}>
-        {order.deliveryPhaseLabel}
-      </Text>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Track rider"
-        onPress={onTrackPress}
+      <DeliveringOrderRiderArt layoutScale={layoutScale} />
+      <View
         style={{
           position: 'absolute',
-          left: FIGMA_DELIVERING_TRACK_RIDER_LEFT * scale,
-          top: FIGMA_DELIVERING_TRACK_RIDER_TOP * scale,
-          height: 18 * scale,
+          left: PAST_ORDER_DELIVERING_FOOTER_TEXT_LEFT * layoutScale,
+          top: 0,
+          width: PAST_ORDER_DELIVERING_FOOTER_TEXT_WIDTH * layoutScale,
+          height: PAST_ORDER_DELIVERING_FOOTER_HEIGHT * layoutScale,
           flexDirection: 'row',
           alignItems: 'center',
-          gap: 6 * scale,
-          paddingHorizontal: 4 * scale,
-          flexShrink: 0,
-          zIndex: 3,
+          justifyContent: 'space-between',
         }}>
-        <PastOrderTrackRiderIcon width={20 * scale} height={20 * scale} />
-        <Text
-          numberOfLines={1}
-          style={[
-            searchFont('medium'),
-            {
-              fontSize: 12 * scale,
-              lineHeight: FIGMA_DELIVERING_TRACK_RIDER_LINE_HEIGHT * scale,
-              letterSpacing: 0.5 * scale,
-              color: SwashoColors.primary600,
-              flexShrink: 0,
-            },
-          ]}>
-          Track Rider
-        </Text>
-      </Pressable>
+        <View
+          style={{
+            flex: 1,
+            gap: 8 * scale,
+            paddingLeft: PAST_ORDER_DELIVERING_STATUS_PL * layoutScale,
+            justifyContent: 'center',
+            minHeight: PAST_ORDER_DELIVERING_FOOTER_HEIGHT * layoutScale,
+          }}>
+          <Text
+            style={[
+              searchFont('semibold'),
+              {
+                fontSize: 15 * scale,
+                lineHeight: 14 * scale,
+                letterSpacing: 0.3 * scale,
+                color: 'rgba(0,0,0,0.85)',
+              },
+            ]}>
+            {order.deliveryEtaLabel}
+          </Text>
+          <Text
+            style={[
+              searchFont('regular'),
+              {
+                fontSize: 13 * scale,
+                lineHeight: 16 * scale,
+                color: '#000000',
+              },
+            ]}>
+            {order.deliveryPhaseLabel}
+          </Text>
+        </View>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Track rider"
+          onPress={onTrackPress}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 6 * scale,
+            paddingHorizontal: 4 * scale,
+            minWidth: 60 * scale,
+            height: 18 * scale,
+          }}>
+          <PastOrderTrackRiderIcon width={20 * scale} height={20 * scale} />
+          <Text
+            numberOfLines={1}
+            style={[
+              searchFont('medium'),
+              {
+                fontSize: 12 * scale,
+                lineHeight: 10 * scale,
+                letterSpacing: 0.5 * scale,
+                color: SwashoColors.primary600,
+                flexShrink: 0,
+              },
+            ]}>
+            Track Rider
+          </Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
 
 function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; scale: number; cardWidth: number }) {
   const isDelivering = order.lifecycleStatus === 'delivering';
-  const innerWidth = (isDelivering ? FIGMA_DELIVERING_CARD_INNER_WIDTH : 368) * scale;
-  const sectionPadding = isDelivering ? 0 : 12 * scale;
-  const cardSectionGap = (isDelivering ? FIGMA_DELIVERING_CARD_SECTION_GAP : 16) * scale;
-  const headerBlockGap = (isDelivering ? FIGMA_DELIVERING_HEADER_BLOCK_GAP : 8) * scale;
-  const lineItemsGap = (isDelivering ? FIGMA_DELIVERING_LINE_ITEMS_GAP : 12) * scale;
+  const layoutScale = cardWidth / PAST_ORDER_CARD_FIGMA_WIDTH;
+  const contentInset = PAST_ORDER_CARD_HORIZONTAL_INSET * layoutScale;
+  const ruleWidth = PAST_ORDER_CARD_RULE_WIDTH * layoutScale;
+  const paddedBlockWidth = cardWidth - 2 * contentInset;
   const [cardHeight, setCardHeight] = useState(0);
 
   const handleTrackPress = useCallback(() => {
@@ -517,30 +488,115 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
     <>
       <View
         style={{
-          width: innerWidth,
-          gap: headerBlockGap,
-          position: 'relative',
-          padding: sectionPadding,
+          width: cardWidth,
+          gap: PAST_ORDER_CARD_SECTION_GAP * layoutScale,
+          paddingBottom: 16 * layoutScale,
         }}>
-        <Text
-          style={[
-            searchFont(isDelivering ? 'semibold' : 'medium'),
-            {
-              fontSize: (isDelivering ? 15 : 16) * scale,
-              lineHeight: 14 * scale,
-              letterSpacing: (isDelivering ? 0.3 : 0.5) * scale,
-              color: '#000000',
-            },
-          ]}>
-          {order.reference}
-        </Text>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 * scale, flexWrap: 'wrap' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 * scale }}>
-            {isDelivering ? (
-              <PastOrderScooterIcon width={20 * scale} height={20 * scale} />
-            ) : (
-              <PastOrderDeliveredCheckIcon width={18 * scale} height={18 * scale} />
-            )}
+        <View
+          style={{
+            width: cardWidth,
+            paddingHorizontal: contentInset,
+            paddingTop: 16 * layoutScale,
+            paddingBottom: 0,
+            gap: PAST_ORDER_CARD_HEADER_GAP * layoutScale,
+          }}>
+          <View style={{ flexDirection: 'row', alignItems: 'flex-start', width: '100%' }}>
+            <View style={{ flex: 1, minWidth: 0, gap: PAST_ORDER_CARD_HEADER_GAP * layoutScale }}>
+              <Text
+                style={[
+                  searchFont(isDelivering ? 'semibold' : 'medium'),
+                  {
+                    fontSize: (isDelivering ? 15 : 16) * scale,
+                    lineHeight: 14 * scale,
+                    letterSpacing: (isDelivering ? 0.3 : 0.5) * scale,
+                    color: '#000000',
+                  },
+                ]}>
+                {order.reference}
+              </Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 * scale, flexWrap: 'wrap', width: '100%' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 * scale }}>
+                  {isDelivering ? (
+                    <PastOrderScooterIcon width={20 * scale} height={20 * scale} />
+                  ) : (
+                    <PastOrderDeliveredCheckIcon width={18 * scale} height={18 * scale} />
+                  )}
+                  <Text
+                    style={[
+                      searchFont('medium'),
+                      {
+                        fontSize: 16 * scale,
+                        lineHeight: 14 * scale,
+                        letterSpacing: 0.5 * scale,
+                        color: isDelivering ? SwashoColors.info700 : SUCCESS_600,
+                      },
+                    ]}>
+                    {order.statusLabel}
+                  </Text>
+                </View>
+                <DateTimeMeta dateLabel={order.dateLabel} timeLabel={order.timeLabel} scale={scale} />
+              </View>
+            </View>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Download invoice"
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 6 * scale,
+                borderWidth: 0.5 * scale,
+                borderColor: SwashoColors.neutral300,
+                borderRadius: SwashoRadii.md * scale,
+                paddingHorizontal: 12 * scale,
+                paddingVertical: 8 * scale,
+                minWidth: 60 * scale,
+                marginLeft: 8 * scale,
+              }}>
+              <PastOrderInvoiceDownloadIcon width={20 * scale} height={20 * scale} />
+              <Text
+                style={[
+                  searchFont('medium'),
+                  {
+                    fontSize: 14 * scale,
+                    lineHeight: 12 * scale,
+                    letterSpacing: 0.5 * scale,
+                    color: SwashoColors.darkHeaderText,
+                    textAlign: 'center',
+                    flexShrink: 0,
+                  },
+                ]}>
+                Invoice
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+
+        <CheckoutSectionDivider width={ruleWidth} scale={layoutScale} />
+
+        <View style={{ width: cardWidth, paddingHorizontal: contentInset, gap: 12 * scale }}>
+          {order.lineItems.map((line, index) => (
+            <LineItemRow
+              key={line.id}
+              item={line}
+              scale={scale}
+              layoutScale={layoutScale}
+              showDividerAfter={index < order.lineItems.length - 1}
+            />
+          ))}
+        </View>
+
+        <CheckoutSectionDivider width={ruleWidth} scale={layoutScale} />
+
+        <View
+          style={{
+            width: paddedBlockWidth,
+            alignSelf: 'center',
+            flexDirection: 'row',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+            paddingRight: 4 * layoutScale,
+          }}>
+          <View style={{ gap: 8 * scale, maxWidth: 89 * scale, flexShrink: 1 }}>
             <Text
               style={[
                 searchFont('medium'),
@@ -548,139 +604,73 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
                   fontSize: 16 * scale,
                   lineHeight: 14 * scale,
                   letterSpacing: 0.5 * scale,
-                  color: isDelivering ? SwashoColors.info700 : SUCCESS_600,
+                  color: '#000000',
                 },
               ]}>
-              {order.statusLabel}
+              Total bill
+            </Text>
+            <Text
+              style={[
+                searchFont('medium'),
+                {
+                  fontSize: 12 * scale,
+                  lineHeight: 10 * scale,
+                  letterSpacing: 0.5 * scale,
+                  color: SwashoColors.neutral800,
+                },
+              ]}>
+              {order.paymentNote}
             </Text>
           </View>
-          <DateTimeMeta dateLabel={order.dateLabel} timeLabel={order.timeLabel} scale={scale} />
-        </View>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Download invoice"
-          style={{
-            position: 'absolute',
-            ...(isDelivering
-              ? { left: FIGMA_DELIVERING_INVOICE_LEFT * scale, top: FIGMA_DELIVERING_INVOICE_TOP * scale }
-              : { right: 0, top: 4 * scale }),
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 6 * scale,
-            borderWidth: 0.5 * scale,
-            borderColor: SwashoColors.neutral300,
-            borderRadius: SwashoRadii.md * scale,
-            paddingHorizontal: 12 * scale,
-            paddingVertical: 8 * scale,
-            minWidth: 60 * scale,
-          }}>
-          <PastOrderInvoiceDownloadIcon width={20 * scale} height={20 * scale} />
           <Text
             style={[
               searchFont('medium'),
               {
-                fontSize: 14 * scale,
-                lineHeight: 12 * scale,
-                letterSpacing: 0.5 * scale,
-                color: SwashoColors.darkHeaderText,
-                textAlign: 'center',
-                flex: 1,
-              },
-            ]}>
-            Invoice
-          </Text>
-        </Pressable>
-      </View>
-
-      <CheckoutSectionDivider width={innerWidth} scale={scale} />
-
-      <View style={{ width: innerWidth, gap: lineItemsGap, padding: sectionPadding }}>
-        {order.lineItems.map((line, index) => (
-          <LineItemRow
-            key={line.id}
-            item={line}
-            scale={scale}
-            showDividerAfter={index < order.lineItems.length - 1}
-            figmaDelivering={isDelivering}
-          />
-        ))}
-      </View>
-
-      <CheckoutSectionDivider width={innerWidth} scale={scale} />
-
-      <View
-        style={{
-          width: innerWidth,
-          flexDirection: 'row',
-          alignItems: 'flex-start',
-          justifyContent: 'space-between',
-          padding: sectionPadding,
-          ...(isDelivering ? { paddingRight: FIGMA_DELIVERING_TOTAL_BILL_PADDING_RIGHT * scale } : null),
-        }}>
-        <View style={{ gap: 8 * scale, maxWidth: 89 * scale }}>
-          <Text
-            style={[
-              searchFont('medium'),
-              {
-                fontSize: 16 * scale,
-                lineHeight: 14 * scale,
+                fontSize: 18 * scale,
+                lineHeight: 16 * scale,
                 letterSpacing: 0.5 * scale,
                 color: '#000000',
               },
             ]}>
-            Total bill
-          </Text>
-          <Text
-            style={[
-              searchFont('medium'),
-              {
-                fontSize: 12 * scale,
-                lineHeight: 10 * scale,
-                letterSpacing: 0.5 * scale,
-                color: SwashoColors.neutral800,
-              },
-            ]}>
-            {order.paymentNote}
+            ₹ {order.totalBillInr}
           </Text>
         </View>
-        <Text
-          style={[
-            searchFont('medium'),
-            {
-              fontSize: 18 * scale,
-              lineHeight: 16 * scale,
-              letterSpacing: 0.5 * scale,
-              color: '#000000',
-            },
-          ]}>
-          ₹ {order.totalBillInr}
-        </Text>
+
+        <CheckoutSectionDivider width={ruleWidth} scale={layoutScale} />
+
+        {isDelivering ? (
+          <DeliveringOrderFooter order={order} scale={scale} cardWidth={cardWidth} onTrackPress={handleTrackPress} />
+        ) : (
+          <View
+            style={{
+              width: paddedBlockWidth,
+              alignSelf: 'center',
+              alignItems: 'center',
+              gap: 16 * scale,
+              paddingTop: 12 * scale,
+              paddingHorizontal: 80 * scale,
+            }}>
+            <Text
+              style={[
+                searchFont('medium'),
+                {
+                  fontSize: 14 * scale,
+                  lineHeight: 12 * scale,
+                  letterSpacing: 0.5 * scale,
+                  color: SwashoColors.neutral600,
+                  textAlign: 'center',
+                },
+              ]}>
+              How was your experience?
+            </Text>
+            <PastOrderExperienceStarsIcon width={220 * scale} height={24 * scale} />
+          </View>
+        )}
       </View>
-
-      <CheckoutSectionDivider width={innerWidth} scale={scale} />
-
-      {!isDelivering ? (
-        <View style={{ width: innerWidth, alignItems: 'center', gap: 16 * scale, paddingTop: 12 * scale, paddingHorizontal: 80 * scale }}>
-          <Text
-            style={[
-              searchFont('medium'),
-              {
-                fontSize: 14 * scale,
-                lineHeight: 12 * scale,
-                letterSpacing: 0.5 * scale,
-                color: SwashoColors.neutral600,
-                textAlign: 'center',
-              },
-            ]}>
-            How was your experience?
-          </Text>
-          <PastOrderExperienceStarsIcon width={220 * scale} height={24 * scale} />
-        </View>
-      ) : null}
     </>
   );
 
-  const deliveringCardFallbackHeight = FIGMA_DELIVERING_CARD_HEIGHT * scale;
+  const deliveringCardFallbackHeight = PAST_ORDER_CARD_FIGMA_HEIGHT * layoutScale;
   const cardRadius = SwashoRadii.lg * scale;
 
   return (
@@ -691,12 +681,10 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
         {
           width: cardWidth,
           borderRadius: cardRadius,
-          paddingLeft: (isDelivering ? FIGMA_DELIVERING_CARD_PADDING_LEFT : 16) * scale,
-          paddingRight: (isDelivering ? FIGMA_DELIVERING_CARD_PADDING_RIGHT : 12) * scale,
-          paddingVertical: (isDelivering ? FIGMA_DELIVERING_CARD_PADDING_VERTICAL : 16) * scale,
-          gap: cardSectionGap,
+          paddingLeft: 0,
+          paddingRight: 0,
+          paddingVertical: 0,
           overflow: 'hidden',
-          ...(isDelivering ? { minHeight: deliveringCardFallbackHeight } : null),
           backgroundColor: isDelivering ? 'transparent' : SwashoColors.surface,
           ...(isDelivering
             ? figmaShadow({ offsetX: 0, offsetY: 0, blur: 8, color: '#000000', opacity: 0.1 }, scale)
@@ -720,12 +708,6 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
         </View>
       ) : null}
       <View style={{ zIndex: 2 }}>{cardBody}</View>
-      {isDelivering ? (
-        <>
-          <DeliveringOrderRiderArt scale={scale} />
-          <DeliveringOrderFooter order={order} scale={scale} onTrackPress={handleTrackPress} />
-        </>
-      ) : null}
     </View>
   );
 }
