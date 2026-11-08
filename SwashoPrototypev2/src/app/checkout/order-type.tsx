@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSafeTopInset } from '@/components/home/scale';
 import { oneTimeCheckoutHref } from '@/lib/checkout-flow';
 import { SwashoFonts } from '@/constants/swasho-tokens';
+import { useEnsurePrototypeSampleCartOnDirectEntry } from '@/hooks/use-ensure-prototype-sample-cart';
 
 /** Legacy route: `/checkout/order-type` always forwards to one-time schedule UI. */
 export default function CheckoutOrderTypeRoute() {
@@ -15,6 +16,8 @@ export default function CheckoutOrderTypeRoute() {
   const safeTop = useSafeTopInset(insets.top);
   const id = typeof providerId === 'string' ? providerId : '';
   const query = typeof q === 'string' ? q : '';
+
+  useEnsurePrototypeSampleCartOnDirectEntry(id, { skip: !id });
 
   useEffect(() => {
     if (!id) {

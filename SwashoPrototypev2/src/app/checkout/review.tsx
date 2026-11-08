@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CheckoutReviewScreen } from '@/components/checkout/CheckoutReviewScreen';
 import { useSafeTopInset } from '@/components/home/scale';
 import { SwashoFonts } from '@/constants/swasho-tokens';
+import { useEnsurePrototypeSampleCartOnDirectEntry } from '@/hooks/use-ensure-prototype-sample-cart';
 
 export default function CheckoutReviewRoute() {
   const router = useRouter();
@@ -20,6 +21,8 @@ export default function CheckoutReviewRoute() {
   const id = typeof providerId === 'string' ? providerId : '';
   const query = typeof q === 'string' ? q : '';
   const isSubscription = subscription === '1';
+
+  useEnsurePrototypeSampleCartOnDirectEntry(id, { skip: !id });
 
   if (!id) {
     const handleBackPress = () => {

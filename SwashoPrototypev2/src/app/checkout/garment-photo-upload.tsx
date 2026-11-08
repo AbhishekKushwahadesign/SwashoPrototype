@@ -6,6 +6,7 @@ import { GarmentPhotoUploadScreen } from '@/components/checkout/GarmentPhotoUplo
 import { useSafeTopInset } from '@/components/home/scale';
 import { searchFont } from '@/components/search/search-fonts';
 import { SwashoColors, SwashoFonts } from '@/constants/swasho-tokens';
+import { useEnsurePrototypeSampleCartOnDirectEntry } from '@/hooks/use-ensure-prototype-sample-cart';
 
 export default function GarmentPhotoUploadRoute() {
   const router = useRouter();
@@ -21,6 +22,8 @@ export default function GarmentPhotoUploadRoute() {
   const query = typeof q === 'string' ? q : '';
   const garment = typeof garmentId === 'string' ? garmentId : '';
   const service = typeof serviceId === 'string' ? serviceId : '';
+
+  useEnsurePrototypeSampleCartOnDirectEntry(id, { skip: !id });
 
   if (!id || !garment || !service) {
     const handleBackPress = () => {

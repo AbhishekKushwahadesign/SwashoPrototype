@@ -7,6 +7,7 @@ import { useSafeTopInset } from '@/components/home/scale';
 import { useProviderCart } from '@/context/provider-cart-context';
 import { checkoutPlaceholderHref, type ProviderOrderFulfillmentMode } from '@/lib/checkout-flow';
 import { SwashoFonts } from '@/constants/swasho-tokens';
+import { useEnsurePrototypeSampleCartOnDirectEntry } from '@/hooks/use-ensure-prototype-sample-cart';
 
 export default function CheckoutRoute() {
   const router = useRouter();
@@ -24,6 +25,8 @@ export default function CheckoutRoute() {
   const query = typeof q === 'string' ? q : '';
   const isSubscription = subscription === '1';
   const isScheduleConfirmed = scheduleConfirmed === '1';
+
+  useEnsurePrototypeSampleCartOnDirectEntry(id, { skip: !id });
 
   if (!id) {
     const handleBackPress = () => {
