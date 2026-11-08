@@ -7,6 +7,8 @@ import { ensurePrototypeSampleProviderCart } from '@/lib/prototype-sample-provid
 type UseEnsurePrototypeSampleCartOptions = {
   /** When true, skip seeding (e.g. missing provider id). */
   skip?: boolean;
+  /** When false, seed cart items only (no pickup day, time, or one-time fulfillment). */
+  includeOneTimeSchedule?: boolean;
 };
 
 /**
@@ -37,18 +39,23 @@ export function useEnsurePrototypeSampleCartOnDirectEntry(
     }
     attemptedRef.current = true;
 
-    ensurePrototypeSampleProviderCart(providerId, {
-      getProviderCartTotals: cart.getProviderCartTotals,
-      setSelection: cart.setSelection,
-      setFulfillmentMode: cart.setFulfillmentMode,
-      setOneTimeSchedule: cart.setOneTimeSchedule,
-    });
+    ensurePrototypeSampleProviderCart(
+      providerId,
+      {
+        getProviderCartTotals: cart.getProviderCartTotals,
+        setSelection: cart.setSelection,
+        setFulfillmentMode: cart.setFulfillmentMode,
+        setOneTimeSchedule: cart.setOneTimeSchedule,
+      },
+      { includeOneTimeSchedule: options?.includeOneTimeSchedule },
+    );
   }, [
     cart.getProviderCartTotals,
     cart.setFulfillmentMode,
     cart.setOneTimeSchedule,
     cart.setSelection,
     fromAiDemo,
+    options?.includeOneTimeSchedule,
     options?.skip,
     providerId,
     router,

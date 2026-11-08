@@ -15,7 +15,7 @@ export default function SubscriptionFrequencyRoute() {
   const id = typeof providerId === 'string' ? providerId : '';
   const query = typeof q === 'string' ? q : '';
 
-  useEnsurePrototypeSampleCartOnDirectEntry(id, { skip: !id });
+  useEnsurePrototypeSampleCartOnDirectEntry(id, { skip: !id, includeOneTimeSchedule: false });
 
   if (!id) {
     const handleBackPress = () => {

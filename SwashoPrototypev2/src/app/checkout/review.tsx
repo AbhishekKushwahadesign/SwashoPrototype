@@ -22,7 +22,10 @@ export default function CheckoutReviewRoute() {
   const query = typeof q === 'string' ? q : '';
   const isSubscription = subscription === '1';
 
-  useEnsurePrototypeSampleCartOnDirectEntry(id, { skip: !id });
+  useEnsurePrototypeSampleCartOnDirectEntry(id, {
+    skip: !id,
+    includeOneTimeSchedule: !isSubscription,
+  });
 
   if (!id) {
     const handleBackPress = () => {

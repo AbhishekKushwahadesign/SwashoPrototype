@@ -26,7 +26,11 @@ export default function CheckoutRoute() {
   const isSubscription = subscription === '1';
   const isScheduleConfirmed = scheduleConfirmed === '1';
 
-  useEnsurePrototypeSampleCartOnDirectEntry(id, { skip: !id });
+  const isSubscribeMode = mode === 'subscribe';
+  useEnsurePrototypeSampleCartOnDirectEntry(id, {
+    skip: !id,
+    includeOneTimeSchedule: !isSubscription && !isSubscribeMode,
+  });
 
   if (!id) {
     const handleBackPress = () => {
