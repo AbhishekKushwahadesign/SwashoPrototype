@@ -252,7 +252,7 @@ function LineItemRow({
           </View>
         </View>
         {showDividerAfter ? (
-          <CheckoutSectionDivider width={PAST_ORDER_CARD_DASHED_RULE_WIDTH * layoutScale} scale={layoutScale} />
+          <CheckoutSectionDivider width={PAST_ORDER_CARD_DASHED_RULE_WIDTH * layoutScale} scale={scale} />
         ) : null}
       </View>
     );
@@ -307,7 +307,7 @@ function LineItemRow({
         </Text>
       </View>
       {showDividerAfter ? (
-        <CheckoutSectionDivider width={PAST_ORDER_CARD_DASHED_RULE_WIDTH * layoutScale} scale={layoutScale} />
+        <CheckoutSectionDivider width={PAST_ORDER_CARD_DASHED_RULE_WIDTH * layoutScale} scale={scale} />
       ) : null}
     </View>
   );
@@ -571,7 +571,7 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
           </View>
         </View>
 
-        <CheckoutSectionDivider width={ruleWidth} scale={layoutScale} />
+        <CheckoutSectionDivider width={ruleWidth} scale={scale} />
 
         <View style={{ width: cardWidth, paddingHorizontal: contentInset, gap: 12 * scale }}>
           {order.lineItems.map((line, index) => (
@@ -585,7 +585,7 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
           ))}
         </View>
 
-        <CheckoutSectionDivider width={ruleWidth} scale={layoutScale} />
+        <CheckoutSectionDivider width={ruleWidth} scale={scale} />
 
         <View
           style={{
@@ -636,7 +636,7 @@ function PastOrderCard({ order, scale, cardWidth }: { order: PastOrderSummary; s
           </Text>
         </View>
 
-        <CheckoutSectionDivider width={ruleWidth} scale={layoutScale} />
+        <CheckoutSectionDivider width={ruleWidth} scale={scale} />
 
         {isDelivering ? (
           <DeliveringOrderFooter order={order} scale={scale} cardWidth={cardWidth} onTrackPress={handleTrackPress} />
