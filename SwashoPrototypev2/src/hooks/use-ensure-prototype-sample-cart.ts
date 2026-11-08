@@ -42,11 +42,9 @@ export function useEnsurePrototypeSampleCartOnDirectEntry(
       setSelection: cart.setSelection,
       setFulfillmentMode: cart.setFulfillmentMode,
       setOneTimeSchedule: cart.setOneTimeSchedule,
-      setContactlessCheckout: cart.setContactlessCheckout,
     });
   }, [
     cart.getProviderCartTotals,
-    cart.setContactlessCheckout,
     cart.setFulfillmentMode,
     cart.setOneTimeSchedule,
     cart.setSelection,

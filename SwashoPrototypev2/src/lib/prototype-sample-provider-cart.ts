@@ -2,7 +2,6 @@ import { getCatalogOptionById } from '@/components/service-selection/service-sel
 import {
   buildUpcomingCheckoutDays,
   getNextPickupTimeSlot,
-  type ContactlessClothesLocationId,
   type ProviderOrderFulfillmentMode,
   type ProviderCheckoutState,
 } from '@/lib/checkout-flow';
@@ -23,15 +22,6 @@ export type EnsurePrototypeSampleProviderCartDeps = {
       Pick<
         ProviderCheckoutState,
         'pickupWeekday' | 'pickupDayKey' | 'pickupTimeSlot' | 'deliverySameAsPickup' | 'deliveryTimeSlot'
-      >
-    >,
-  ) => void;
-  setContactlessCheckout: (
-    providerId: string,
-    patch: Partial<
-      Pick<
-        ProviderCheckoutState,
-        'contactlessService' | 'contactlessFirstEntryCompleted' | 'contactlessClothesLocationId'
       >
     >,
   ) => void;
@@ -105,12 +95,6 @@ export function ensurePrototypeSampleProviderCart(
     pickupDayKey: today.key,
     pickupTimeSlot: getNextPickupTimeSlot(),
     deliverySameAsPickup: true,
-  });
-
-  deps.setContactlessCheckout(providerId, {
-    contactlessService: true,
-    contactlessFirstEntryCompleted: true,
-    contactlessClothesLocationId: 'society-lobby' satisfies ContactlessClothesLocationId,
   });
 
   return true;
