@@ -1,10 +1,5 @@
 import { getCatalogOptionById } from '@/components/service-selection/service-selection-catalog';
-import {
-  buildUpcomingCheckoutDays,
-  getNextPickupTimeSlot,
-  type ProviderOrderFulfillmentMode,
-  type ProviderCheckoutState,
-} from '@/lib/checkout-flow';
+import type { ProviderOrderFulfillmentMode } from '@/lib/checkout-flow';
 import { getBulkWeightLabelForTier, type BulkLoadTierId } from '@/lib/bulk-load-tiers';
 import type {
   ProviderCartCombo,
@@ -16,15 +11,6 @@ export type EnsurePrototypeSampleProviderCartDeps = {
   getProviderCartTotals: (providerId: string) => { itemCount: number; totalPrice: number };
   setSelection: (providerId: string, serviceId: string, selection: ProviderGarmentCartSelection) => void;
   setFulfillmentMode: (providerId: string, mode: ProviderOrderFulfillmentMode) => void;
-  setOneTimeSchedule: (
-    providerId: string,
-    patch: Partial<
-      Pick<
-        ProviderCheckoutState,
-        'pickupWeekday' | 'pickupDayKey' | 'pickupTimeSlot' | 'deliverySameAsPickup' | 'deliveryTimeSlot'
-      >
-    >,
-  ) => void;
 };
 
 const PROTOTYPE_BULK_SERVICE_ID = 'bulk-wash-fold';
@@ -73,7 +59,7 @@ export function buildPrototypeSampleMensShirtSelection(): ProviderGarmentCartSel
 
 export type EnsurePrototypeSampleProviderCartOptions = {
   /** When false, only garment selections are seeded (subscription cold entry). */
-  includeOneTimeSchedule?: boolean;
+  includeOneTimeFulfillmentDefault?: boolean;
 };
 
 /** Prototype-only cart seed for cold deep links into provider checkout (empty cart). */
@@ -94,15 +80,8 @@ export function ensurePrototypeSampleProviderCart(
   deps.setSelection(providerId, PROTOTYPE_BULK_SERVICE_ID, buildPrototypeSampleBulkWashFoldSelection());
   deps.setSelection(providerId, PROTOTYPE_MENS_SHIRT_SERVICE_ID, buildPrototypeSampleMensShirtSelection());
 
-  if (options?.includeOneTimeSchedule !== false) {
-    const today = buildUpcomingCheckoutDays(14)[0];
+  if (options?.includeOneTimeFulfillmentDefault !== false) {
     deps.setFulfillmentMode(providerId, 'one-time');
-    deps.setOneTimeSchedule(providerId, {
-      pickupWeekday: today.weekdayId,
-      pickupDayKey: today.key,
-      pickupTimeSlot: getNextPickupTimeSlot(),
-      deliverySameAsPickup: true,
-    });
   }
 
   return true;

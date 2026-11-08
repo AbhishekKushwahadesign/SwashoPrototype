@@ -29,7 +29,7 @@ export default function CheckoutRoute() {
   const isSubscribeMode = mode === 'subscribe';
   useEnsurePrototypeSampleCartOnDirectEntry(id, {
     skip: !id,
-    includeOneTimeSchedule: !isSubscription && !isSubscribeMode,
+    includeOneTimeFulfillmentDefault: !isSubscription && !isSubscribeMode,
   });
 
   if (!id) {

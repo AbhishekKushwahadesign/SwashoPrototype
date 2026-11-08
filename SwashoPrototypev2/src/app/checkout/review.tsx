@@ -24,7 +24,7 @@ export default function CheckoutReviewRoute() {
 
   useEnsurePrototypeSampleCartOnDirectEntry(id, {
     skip: !id,
-    includeOneTimeSchedule: !isSubscription,
+    includeOneTimeFulfillmentDefault: !isSubscription,
   });
 
   if (!id) {
